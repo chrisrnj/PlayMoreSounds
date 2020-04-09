@@ -1,0 +1,16 @@
+api-version: '1.13'
+author: Epicnicity322
+depend: [EpicPluginLib]
+description: 'Plays sounds at player events.'
+main: com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds
+name: PlayMoreSounds
+version: '3.0.0'
+website: https://www.spigotmc.org/resources/37429/
+
+commands:
+  playmoresounds:
+    aliases:
+      - pms
+      - sounds
+      - moresounds
+    description: 'PlayMoreSounds''s main command.'
