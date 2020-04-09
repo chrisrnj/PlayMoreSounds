@@ -53,13 +53,11 @@ public class SoundOptions
     {
         Validate.notNull(section, "section is null");
 
-        if (section.contains("Permission Required")) {
+        if (section.contains("Permission Required"))
             setPermissionRequired(section.getString("Permission Required"));
-        }
 
-        if (section.contains("Permission To Listen")) {
+        if (section.contains("Permission To Listen"))
             setPermissionToListen(section.getString("Permission To Listen"));
-        }
 
         radius = section.getDouble("Radius");
         eyeLocation = section.getBoolean("Eye Location");
@@ -159,9 +157,11 @@ public class SoundOptions
     }
 
     /**
-     * A radius says who will hear the sound. If it's greater than 0 then everyone in that range of block will hear it,
-     * if it's 0 then the player who played the sound will hear it, if it's -1 then everyone in the server will hear it,
-     * if it's -2 then everyone in the world will hear it.
+     * A radius says who will hear the sound.
+     * If greater than 0 then everyone in that range of blocks will hear it,
+     * if equal to 0 then the player who played the sound will hear it,
+     * if equal to -1 then everyone in the server will hear it,
+     * if equal to -2 then everyone in the world will hear it.
      *
      * @return The radius of the sound.
      */
