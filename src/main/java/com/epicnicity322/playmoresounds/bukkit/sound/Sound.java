@@ -1,6 +1,7 @@
 package com.epicnicity322.playmoresounds.bukkit.sound;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.bukkit.sound.events.PlaySoundEvent;
 import com.epicnicity322.playmoresounds.bukkit.sound.events.PrePlaySoundEvent;
 import com.epicnicity322.playmoresounds.bukkit.util.PMSHelper;
 import org.apache.commons.lang.Validate;
@@ -60,7 +61,7 @@ public class Sound implements Playable
         setSound(section.getString("Sound", "BLOCK_NOTE_BLOCK_PLING"));
         id = section.getName();
         name = section.getCurrentPath();
-        delay = section.getLong("Delay", 0);
+        delay = section.getLong("Delay");
 
         // Spigot team please add a way of getting floats on configurations.
         volume = (float) section.getDouble("Volume", 10);
@@ -73,11 +74,13 @@ public class Sound implements Playable
         }
     }
 
+    @NotNull
     public String getId()
     {
         return id;
     }
 
+    @NotNull
     public String getName()
     {
         return name;
@@ -145,7 +148,7 @@ public class Sound implements Playable
         this.delay = delay;
     }
 
-    @Nullable
+    @NotNull
     public SoundOptions getOptions()
     {
         return options;
@@ -172,11 +175,10 @@ public class Sound implements Playable
     {
         Validate.notNull(player, "player is null");
 
-        if (options.isEyeLocation()) {
+        if (options.isEyeLocation())
             play(player, player.getEyeLocation());
-        } else {
+        else
             play(player, player.getLocation());
-        }
     }
 
     @Override
@@ -222,7 +224,6 @@ public class Sound implements Playable
                     && (options.ignoresToggle() || !PlayMoreSounds.IGNORED_PLAYERS.contains(inRange.getName()))
                     && (options.getPermissionToListen() == null || inRange.hasPermission(options.getPermissionToListen()))
                     && (sourcePlayer == null || inRange.canSee(sourcePlayer))) {
-                // If the radius is -2 or -1 the sound will be played to multiple players so the location needs to be fixed.
                 Location fixedLocation = soundLocation;
 
                 if (options.getRadius() < 0) {
@@ -234,14 +235,14 @@ public class Sound implements Playable
                     fixedLocation = SoundManager.addRelativeLocation(fixedLocation, options.getRelativeLocation());
                 }
 
-                //TODO update this
-                //PlaySoundEvent event = new PlaySoundEvent(sourcePlayer, players, soundLocation, instance);
+                PlaySoundEvent event = new PlaySoundEvent(instance, inRange, fixedLocation, players, sourcePlayer,
+                        soundLocation);
 
-                //Bukkit.getPluginManager().callEvent(event);
+                Bukkit.getPluginManager().callEvent(event);
 
-                //if (!event.isCancelled()) {
-                inRange.playSound(fixedLocation, sound, volume, pitch);
-                //}
+                if (!event.isCancelled()) {
+                    inRange.playSound(event.getLocation(), sound, volume, pitch);
+                }
             }
         }
     }
