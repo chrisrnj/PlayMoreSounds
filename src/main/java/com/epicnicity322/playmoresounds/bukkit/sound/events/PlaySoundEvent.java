@@ -2,6 +2,7 @@ package com.epicnicity322.playmoresounds.bukkit.sound.events;
 
 import com.epicnicity322.playmoresounds.bukkit.sound.Sound;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundOptions;
+import org.apache.commons.lang.Validate;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -47,6 +48,7 @@ public class PlaySoundEvent extends Event implements Cancellable
         return handlers;
     }
 
+    @NotNull
     public HandlerList getHandlers()
     {
         return handlers;
@@ -107,23 +109,28 @@ public class PlaySoundEvent extends Event implements Cancellable
     }
 
     /**
-     * Changes the location where the sound is going to play.
+     * Gets the location where the sound is played. This is the location the player that hears the sound will hear the sound
      *
-     * @param sourceLocation The location you want to change to.
-     */
-    public void setSourceLocation(@NotNull Location sourceLocation)
-    {
-        this.sourceLocation = sourceLocation;
-    }
-
-    /**
-     * Gets the location where the sound is played. This is the location this sound is being played
-     *
-     * @return The location of the sound of the source player.
+     * @return The location of the sound of the hearing player.
      */
     public Location getLocation()
     {
         return location;
+    }
+
+    /**
+     * Changes the location where the sound of the hearing player will play.
+     *
+     * @param location The location you want to change to.
+     */
+    public void setLocation(@NotNull Location location)
+    {
+        Validate.notNull(location);
+
+        if (location.getWorld().equals(this.location.getWorld()))
+            throw new IllegalArgumentException("Can't set location to a different world");
+
+        this.location = location;
     }
 
     /**
