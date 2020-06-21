@@ -1,47 +1,40 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
-import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionLeaveEvent;
 import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
-import com.epicnicity322.playmoresounds.bukkit.util.PMSHelper;
+import com.epicnicity322.playmoresounds.core.config.Configurations;
+import com.epicnicity322.yamlhandler.Configuration;
+import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-public class OnPlayerQuit implements Listener
+public final class OnPlayerQuit implements Listener
 {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event)
     {
         Player player = event.getPlayer();
+        Location location = player.getLocation();
 
-        try {
-            Location location = player.getLocation();
-            SoundRegion region = RegionManager.getRegion(location);
+        RegionManager.getAllRegions().stream().filter(region -> region.isInside(location)).forEach(region -> {
+            RegionLeaveEvent regionLeaveEvent = new RegionLeaveEvent(region, player, location, location);
+            Bukkit.getPluginManager().callEvent(regionLeaveEvent);
+        });
 
-            if (region != null) {
-                RegionLeaveEvent regionLeaveEvent = new RegionLeaveEvent(region, location, location, player);
+        Configuration sounds = Configurations.SOUNDS.getPluginConfig().getConfiguration();
+        ConfigurationSection section;
 
-                Bukkit.getPluginManager().callEvent(regionLeaveEvent);
-            }
-        } catch (Exception ignored) {
-        }
+        if (player.isBanned())
+            section = sounds.getConfigurationSection("Player Ban");
+        else
+            section = sounds.getConfigurationSection("Leave Server");
 
-        if (player.isBanned()) {
-            ConfigurationSection section = PMSHelper.getConfig("sounds").getConfigurationSection(
-                    "Player Ban");
-
+        if (section != null)
             new RichSound(section).play(player);
-        } else {
-            ConfigurationSection section = PMSHelper.getConfig("sounds").getConfigurationSection(
-                    "Leave Server");
-
-            new RichSound(section).play(player);
-        }
     }
 }
