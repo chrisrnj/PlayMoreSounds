@@ -3,79 +3,67 @@ package com.epicnicity322.playmoresounds.bukkit.region.events;
 import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
-public class RegionLeaveEvent extends Event implements Cancellable
+/**
+ * When a player leaves a PlayMoreSounds sound region.
+ */
+public class RegionLeaveEvent extends RegionEvent
 {
-    private static final HandlerList handlers = new HandlerList();
-    private Location from;
-    private Location to;
-    private Player p;
-    private SoundRegion region;
-    private boolean isCancelled;
-
-    public RegionLeaveEvent(SoundRegion region, Location from, Location to, Player p)
+    public RegionLeaveEvent(@NotNull SoundRegion region, @NotNull Player player, @NotNull Location from, @NotNull Location to)
     {
-        this.region = region;
-        this.from = from;
-        this.to = to;
-        this.p = p;
+        super(region, from, to, player);
     }
 
-    public static HandlerList getHandlerList()
-    {
-        return handlers;
-    }
-
-    @Override
-    public HandlerList getHandlers()
-    {
-        return handlers;
-    }
-
+    /**
+     * @return true if the player did not leave the region.
+     */
     @Override
     public boolean isCancelled()
     {
-        return isCancelled;
+        return super.isCancelled();
     }
 
+    /**
+     * Prevents the player from leaving this region.
+     *
+     * @param cancelled If the player should not leave the region.
+     */
     @Override
-    public void setCancelled(boolean p1)
+    public void setCancelled(boolean cancelled)
     {
-        isCancelled = p1;
+        super.setCancelled(cancelled);
     }
 
     /**
-     * Returns the player who leaved the region.
+     * @return The {@link SoundRegion} the player left.
      */
-    public Player getPlayer()
+    public @NotNull SoundRegion getRegion()
     {
-        return p;
+        return super.getRegion();
     }
 
     /**
-     * Returns the SoundRegion that the player leaved.
+     * @return The player who left the region.
      */
-    public SoundRegion getRegion()
+    public @NotNull Player getPlayer()
     {
-        return region;
+        return super.getPlayer();
     }
 
     /**
-     * Returns the Location that the player was before leaving the region.
+     * @return The {@link Location} where the player was before leaving the region.
      */
-    public Location getFrom()
+    public @NotNull Location getFrom()
     {
-        return from;
+        return super.getFrom();
     }
 
     /**
-     * Returns the Location of the player that leaved the region.
+     * @return The {@link Location} where the player left the region.
      */
-    public Location getTo()
+    public @NotNull Location getTo()
     {
-        return to;
+        return super.getTo();
     }
 }

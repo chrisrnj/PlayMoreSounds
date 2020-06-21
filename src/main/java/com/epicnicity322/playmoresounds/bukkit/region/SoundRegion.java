@@ -1,288 +1,287 @@
 package com.epicnicity322.playmoresounds.bukkit.region;
 
+import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.yamlhandler.Configuration;
+import com.epicnicity322.yamlhandler.ConfigurationSection;
+import com.epicnicity322.yamlhandler.YamlConfigurationLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
-import java.time.LocalDateTime;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.time.ZonedDateTime;
 import java.util.Objects;
+import java.util.UUID;
+import java.util.regex.Pattern;
 
 public class SoundRegion
 {
-    private String id;
-    private Location P1;
-    private Location P2;
-    private Path file;
-    private long creationDate;
-    private String description;
-    private Location tpPoint;
-    private ZoneId zone;
-    private String creator;
-    private String owner;
+    private static final @NotNull YamlConfigurationLoader loader = YamlConfigurationLoader.build();
+    private static final @NotNull Pattern allowedRegionNameChars = Pattern.compile("^[A-Za-z0-9_]+$");
+    protected final @NotNull Path save;
+    private final @NotNull UUID id;
+    private final @Nullable UUID creator;
+    private final @NotNull ZonedDateTime creationDate;
+    private @NotNull String name;
+    private @Nullable String description;
+    private @NotNull Location maxDiagonal;
+    private @NotNull Location minDiagonal;
 
-    public SoundRegion(String id, Location P1, Location P2, String creator)
+    protected SoundRegion(Path path)
     {
-        this.id = id.toLowerCase();
-        this.P1 = P1;
-        this.P2 = P2;
-        creationDate = System.currentTimeMillis();
-        zone = ZoneId.systemDefault();
-        description = "Regular sound region.";
-        tpPoint = P1;
-        this.creator = creator;
-        owner = creator;
+        try {
+            Configuration region = YamlConfigurationLoader.build().load(path);
+
+            id = UUID.fromString(region.getName().substring(0, region.getName().indexOf(".")));
+            creator = region.getString("Creator").map(UUID::fromString).orElse(null);
+            creationDate = region.getString("Creation Date").map(ZonedDateTime::parse).orElse(
+                    Files.readAttributes(path, BasicFileAttributes.class).creationTime().toInstant().atZone(ZoneId.systemDefault()));
+            setName(region.getString("Name").get());
+            description = region.getString("Description").orElse(null);
+
+            World world = Bukkit.getWorld(UUID.fromString(region.getString("World").get()));
+            ConfigurationSection diagonals = region.getConfigurationSection("Diagonals");
+            ConfigurationSection first = diagonals.getConfigurationSection("First");
+            ConfigurationSection second = diagonals.getConfigurationSection("Second");
+
+            maxDiagonal = new Location(world, first.getNumber("X").get().doubleValue(),
+                    first.getNumber("Y").get().doubleValue(), first.getNumber("Z").get().doubleValue());
+            setMinDiagonal(new Location(world, second.getNumber("X").get().doubleValue(),
+                    second.getNumber("Y").get().doubleValue(), second.getNumber("Z").get().doubleValue()));
+            save = path;
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Path is not pointing to a valid region file.", ex);
+        }
     }
 
-    public SoundRegion(String id, Location P1, Location P2, String creator, String owner)
+    /**
+     * Creates a new sound region.
+     *
+     * @param name        The name of the region.
+     * @param maxDiagonal The {@link Location} of the first diagonal of this region.
+     * @param minDiagonal The {@link Location} of the second diagonal of this region.
+     * @param creator     The {@link UUID} of the player who created this region, null if it was made by console.
+     * @param description The description of this
+     */
+    public SoundRegion(@NotNull String name, @NotNull Location maxDiagonal, @NotNull Location minDiagonal,
+                       @Nullable UUID creator, @Nullable String description)
     {
-        this.id = id.toLowerCase();
-        this.P1 = P1;
-        this.P2 = P2;
+        id = UUID.randomUUID();
         this.creator = creator;
-        this.owner = owner;
-        creationDate = System.currentTimeMillis();
-        zone = ZoneId.systemDefault();
-        description = "Regular sound region.";
-        tpPoint = P1;
-    }
-
-    public SoundRegion(String id, Location P1, Location P2, String creator, Location tpPoint)
-    {
-        this.id = id.toLowerCase();
-        this.P1 = P1;
-        this.P2 = P2;
-        this.creator = creator;
-        owner = creator;
-        this.tpPoint = tpPoint;
-        creationDate = System.currentTimeMillis();
-        zone = ZoneId.systemDefault();
-        description = "Regular sound region.";
-    }
-
-    public SoundRegion(String id, Location P1, Location P2, String creator, String owner, Location tpPoint,
-                       String description)
-    {
-        this.id = id.toLowerCase();
-        this.P1 = P1;
-        this.P2 = P2;
-        this.creator = creator;
+        this.creationDate = ZonedDateTime.now();
         this.description = description;
-        this.tpPoint = tpPoint;
-        this.owner = owner;
-        creationDate = System.currentTimeMillis();
-        zone = ZoneId.systemDefault();
+        this.maxDiagonal = maxDiagonal;
+        setName(name);
+        setMinDiagonal(minDiagonal);
+        save = PlayMoreSounds.getFolder().resolve("Data").resolve("Regions").resolve(id.toString() + ".yml");
     }
 
-    public SoundRegion(YamlConfiguration savedRegionConfig, Path saveFile) throws NullPointerException
+    /**
+     * Checks if this region is inside the specified location.
+     *
+     * @param location The location to check if this region is inside.
+     */
+    public boolean isInside(@NotNull Location location)
     {
-        World w = Bukkit.getWorld(savedRegionConfig.getString("World"));
-
-        id = savedRegionConfig.getString("Name").toLowerCase();
-        P1 = new Location(w, savedRegionConfig.getDouble("Locations.P1.X"),
-                savedRegionConfig.getDouble("Locations.P1.Y"), savedRegionConfig.getDouble("Locations.P1.Z"));
-        P2 = new Location(w, savedRegionConfig.getDouble("Locations.P2.X"),
-                savedRegionConfig.getDouble("Locations.P2.Y"), savedRegionConfig.getDouble("Locations.P2.Z"));
-        creator = savedRegionConfig.getString("Creator");
-        creationDate = savedRegionConfig.getLong("CreationDate");
-        zone = ZoneId.of(savedRegionConfig.getString("ZoneId"));
-        description = savedRegionConfig.getString("Description");
-        owner = savedRegionConfig.getString("Owner");
-        tpPoint = new Location(w, savedRegionConfig.getDouble("TeleportPoint.X"),
-                savedRegionConfig.getDouble("TeleportPoint.Y"), savedRegionConfig.getDouble("TeleportPoint.Z"),
-                (float) savedRegionConfig.getDouble("TeleportPoint.Yaw"),
-                (float) savedRegionConfig.getDouble("TeleportPoint.Pitch"));
-        file = saveFile;
+        return location.getWorld().equals(minDiagonal.getWorld()) &&
+                location.getBlockX() >= minDiagonal.getBlockX() && location.getBlockX() <= maxDiagonal.getBlockX() &
+                location.getBlockY() >= minDiagonal.getBlockY() && location.getBlockY() <= maxDiagonal.getBlockY() &
+                location.getBlockZ() >= minDiagonal.getBlockZ() && location.getBlockZ() <= maxDiagonal.getBlockZ();
     }
 
-    public String getId()
+    /**
+     * Gets the id of this region.
+     *
+     * @return The id of this region.
+     */
+    public @NotNull UUID getId()
     {
         return id;
     }
 
-    public void setId(String name)
+    /**
+     * Gets the name of this region.
+     *
+     * @return the name of this region.
+     */
+    public @NotNull String getName()
     {
-        id = name.toLowerCase();
+        return name;
     }
 
-    public String getName()
+    /**
+     * Sets the name of this region.
+     *
+     * @param name The name you want this region to have.
+     * @throws IllegalArgumentException If the name is not alpha-numeric.
+     */
+    public void setName(@NotNull String name)
     {
-        return getId();
+        if (!allowedRegionNameChars.matcher(name).matches())
+            throw new IllegalArgumentException("Specified name is not alpha-numeric.");
+
+        this.name = name;
     }
 
-    public void setName(String name)
-    {
-        setId(name);
-    }
-
-    public Path getSavePath()
-    {
-        return file;
-    }
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-    public void setDescription(String description)
-    {
-        this.description = description;
-    }
-
-    public Long getCreationDateMillis()
+    /**
+     * Gets the time this region was created.
+     *
+     * @return The time this region was created.
+     */
+    public @NotNull ZonedDateTime getCreationDate()
     {
         return creationDate;
     }
 
-    public String getCreationDate()
+    /**
+     * Gets the max diagonal location of this region.
+     *
+     * @return A diagonal of this region.
+     */
+    public @NotNull Location getMaxDiagonal()
     {
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(creationDate), zone)
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        return maxDiagonal;
     }
 
-    public String getCreationDate(String datePattern) throws IllegalArgumentException
+    /**
+     * Calculates the min and max coordinates of this location and second position and updates both.
+     *
+     * @param loc The location of a diagonal of this sound region.
+     */
+    public void setMaxDiagonal(@NotNull Location loc)
     {
-        if (datePattern == null) {
-            datePattern = "";
-        }
+        World world = minDiagonal.getWorld();
 
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(creationDate), zone)
-                .format(DateTimeFormatter.ofPattern(datePattern));
+        if (loc.getWorld() != world)
+            throw new IllegalArgumentException("First position can not be in a different world than second position.");
+
+        int maxX = Math.max(loc.getBlockX(), maxDiagonal.getBlockX());
+        int maxY = Math.max(loc.getBlockY(), maxDiagonal.getBlockY());
+        int maxZ = Math.max(loc.getBlockZ(), maxDiagonal.getBlockZ());
+        int minX = Math.min(loc.getBlockX(), maxDiagonal.getBlockX());
+        int minY = Math.min(loc.getBlockY(), maxDiagonal.getBlockY());
+        int minZ = Math.min(loc.getBlockZ(), maxDiagonal.getBlockZ());
+
+        maxDiagonal = new Location(world, maxX, maxY, maxZ);
+        minDiagonal = new Location(world, minX, minY, minZ);
     }
 
-    public Location getPosition1()
+    /**
+     * Gets the min diagonal location of this region.
+     *
+     * @return A diagonal of this region.
+     */
+    public @NotNull Location getMinDiagonal()
     {
-        return P1;
+        return minDiagonal;
     }
 
-    public void setPosition1(Location loc)
+    /**
+     * Calculates the min and max coordinates of this location and max diagonal and updates both.
+     *
+     * @param location The location of a diagonal of this sound region.
+     */
+    public void setMinDiagonal(@NotNull Location location)
     {
-        if (loc.getWorld() == getWorld()) {
-            P1 = loc;
-        } else {
-            throw new IllegalArgumentException("Specified location must be in the same world of the region!");
-        }
+        World world = maxDiagonal.getWorld();
+
+        if (location.getWorld() != world)
+            throw new IllegalArgumentException("Second position can not be in a different world than first position.");
+
+        int maxX = Math.max(location.getBlockX(), maxDiagonal.getBlockX());
+        int maxY = Math.max(location.getBlockY(), maxDiagonal.getBlockY());
+        int maxZ = Math.max(location.getBlockZ(), maxDiagonal.getBlockZ());
+        int minX = Math.min(location.getBlockX(), maxDiagonal.getBlockX());
+        int minY = Math.min(location.getBlockY(), maxDiagonal.getBlockY());
+        int minZ = Math.min(location.getBlockZ(), maxDiagonal.getBlockZ());
+
+        maxDiagonal = new Location(world, maxX, maxY, maxZ);
+        minDiagonal = new Location(world, minX, minY, minZ);
     }
 
-    public Location getPosition2()
-    {
-        return P2;
-    }
-
-    public void setPosition2(Location loc)
-    {
-        if (loc.getWorld() == getWorld()) {
-            P2 = loc;
-        } else {
-            throw new IllegalArgumentException("Specified location must be in the same world of the region!");
-        }
-    }
-
-    public String getCreatorName()
+    /**
+     * Gets the {@link UUID} of the player who created this region.
+     *
+     * @return The region's creator {@link UUID} or null if this region was created by console.
+     */
+    public @Nullable UUID getCreator()
     {
         return creator;
     }
 
-    public String getOwnerName()
+    /**
+     * Gets the description of this region.
+     *
+     * @return The region's description or null if this region has no description.
+     */
+    public @Nullable String getDescription()
     {
-        return owner;
+        return description;
     }
 
-    public Location getTeleportPoint()
+    /**
+     * Sets the description of this region.
+     *
+     * @param description The description you want this region to have.
+     */
+    public void setDescription(@Nullable String description)
     {
-        return tpPoint;
+        this.description = description;
     }
 
-    public void setTeleportPoint(Location loc)
+    /**
+     * Saves this region into a file in PlayMoreSounds folder.
+     */
+    public void save() throws IOException
     {
-        tpPoint = loc;
+        // Checking if a region with the same name already exists.
+        for (SoundRegion region : RegionManager.getAllRegions())
+            if (region.getName().equals(getName()) && region != this)
+                throw new IllegalStateException("A region with the same name already exists.");
+
+        Configuration region = new Configuration(loader);
+
+        region.set("Name", name);
+        region.set("World", maxDiagonal.getWorld().getUID().toString());
+
+        if (creator != null)
+            region.set("Creator", creator.toString());
+
+        region.set("Creation Date", creationDate.toString());
+        region.set("Description", description);
+        region.set("Diagonals.First.X", maxDiagonal.getBlockX());
+        region.set("Diagonals.First.Y", maxDiagonal.getBlockY());
+        region.set("Diagonals.First.Z", maxDiagonal.getBlockZ());
+        region.set("Diagonals.Second.X", minDiagonal.getBlockX());
+        region.set("Diagonals.Second.Y", minDiagonal.getBlockY());
+        region.set("Diagonals.Second.Z", minDiagonal.getBlockZ());
+
+        delete();
+        region.save(save);
+        RegionManager.regions.add(this);
     }
 
-    public World getWorld()
-    {
-        return P1.getWorld();
-    }
-
-    public void setWorld(World world)
-    {
-        P1 = new Location(world, P1.getX(), P1.getY(), P1.getZ(), P1.getYaw(), P1.getPitch());
-        P2 = new Location(world, P2.getX(), P2.getY(), P2.getZ(), P2.getYaw(), P2.getPitch());
-    }
-
-    public void setOwnership(String owner)
-    {
-        this.owner = owner;
-    }
-
-    public void renameTo(String string)
-    {
-        id = string;
-    }
-
-    public void save(Path file) throws IOException
-    {
-        if (!Files.exists(file)) {
-            Files.createFile(file);
-        }
-
-        FileConfiguration config = YamlConfiguration.loadConfiguration(file.toFile());
-
-        config.set("Name", id);
-        config.set("World", getWorld().getName());
-        config.set("CreationDate", creationDate);
-        config.set("Creator", creator);
-        config.set("Description", description);
-        config.set("Owner", owner);
-        config.set("Locations.P1.X", P1.getX());
-        config.set("Locations.P1.Y", P1.getY());
-        config.set("Locations.P1.Z", P1.getZ());
-        config.set("Locations.P2.X", P2.getX());
-        config.set("Locations.P2.Y", P2.getY());
-        config.set("Locations.P2.Z", P2.getZ());
-        config.set("TeleportPoint.X", tpPoint.getX());
-        config.set("TeleportPoint.Y", tpPoint.getY());
-        config.set("TeleportPoint.Z", tpPoint.getZ());
-        config.set("TeleportPoint.Yaw", tpPoint.getYaw());
-        config.set("TeleportPoint.Pitch", tpPoint.getPitch());
-        config.set("ZoneId", zone.getId());
-
-        config.save(file.toFile());
-        this.file = file;
-    }
-
+    /**
+     * Deletes the file holding this region in PlayMoreSounds folder if exists.
+     */
     public void delete() throws IOException
     {
-        if (file != null) {
-            if (Files.exists(file)) {
-                Files.delete(file);
-            }
-        }
+        Files.deleteIfExists(save);
+        RegionManager.regions.remove(this);
     }
 
-    public String toString(String separator)
-    {
-        return "{ID=" + id + separator + "World=" + getWorld() + separator + "CreationDate=" + getCreationDateMillis()
-                + separator + "Creator=" + creator + separator + "Description=" + getDescription() + separator
-                + "Owner=" + owner + separator + "P1=" + P1 + separator + "P2=" + P2 + separator + "TeleportPoint="
-                + getTeleportPoint() + separator + "ZoneId=" + zone.getId() + "}";
-    }
-
-    @Override
-    public String toString()
-    {
-        return "{ID=" + id + ",World=" + getWorld() + ",CreationDate=" + getCreationDateMillis() + ",Creator=" + creator
-                + ",Description=" + getDescription() + ",Owner=" + owner + ",P1=" + P1 + ",P2=" + P2 + ",TeleportPoint="
-                + getTeleportPoint() + ",ZoneId=" + zone.getId() + "}";
-    }
-
+    /**
+     * Checks if object is a {@link SoundRegion} and if the {@link SoundRegion} has the same creator, name, description
+     * and diagonal locations.
+     *
+     * @param o The object to check.
+     */
     @Override
     public boolean equals(Object o)
     {
@@ -291,21 +290,16 @@ public class SoundRegion
 
         SoundRegion that = (SoundRegion) o;
 
-        return getCreationDate().equals(that.getCreationDate()) &&
-                getId().equals(that.getId()) &&
-                getPosition1().equals(that.getPosition1()) &&
-                getPosition2().equals(that.getPosition2()) &&
+        return Objects.equals(getCreator(), that.getCreator()) &&
+                getName().equals(that.getName()) &&
                 Objects.equals(getDescription(), that.getDescription()) &&
-                Objects.equals(getTeleportPoint(), that.getTeleportPoint()) &&
-                zone.equals(that.zone) &&
-                getCreatorName().equals(that.getCreatorName()) &&
-                getOwnerName().equals(that.getOwnerName());
+                getMaxDiagonal().equals(that.getMaxDiagonal()) &&
+                getMinDiagonal().equals(that.getMinDiagonal());
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(getId(), getPosition1(), getPosition2(), getCreationDate(), getDescription(), getTeleportPoint()
-                , zone, getCreatorName(), getOwnerName());
+        return Objects.hash(getCreator(), getName(), getDescription(), getMaxDiagonal(), getMinDiagonal());
     }
 }

@@ -10,16 +10,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.player.PlayerBedLeaveEvent;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.jetbrains.annotations.NotNull;
 
-public final class OnPlayerBedLeave extends PMSListener
+public final class OnPlayerToggleFlight extends PMSListener
 {
     private final @NotNull PlayMoreSounds plugin;
-    private RichSound bedLeave;
-    private RichSound wakeUp;
+    private RichSound stopSound;
+    private RichSound startSound;
 
-    public OnPlayerBedLeave(@NotNull PlayMoreSounds plugin)
+    public OnPlayerToggleFlight(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
 
@@ -29,21 +29,21 @@ public final class OnPlayerBedLeave extends PMSListener
     @Override
     public @NotNull String getName()
     {
-        return "Bed Leave|Wake Up";
+        return "Stop Flying|Start Flying";
     }
 
     @Override
     public void load()
     {
         Configuration sounds = Configurations.SOUNDS.getPluginConfig().getConfiguration();
-        ConfigurationSection leave = sounds.getConfigurationSection("Bed Leave");
-        ConfigurationSection wake = sounds.getConfigurationSection("Wake Up");
-        boolean leaveEnabled = leave == null ? false : leave.getBoolean("Enabled").orElse(false);
-        boolean wakeEnabled = wake == null ? false : wake.getBoolean("Enabled").orElse(false);
+        ConfigurationSection stop = sounds.getConfigurationSection("Stop Flying");
+        ConfigurationSection start = sounds.getConfigurationSection("Start Flying");
+        boolean stopEnabled = stop == null ? false : stop.getBoolean("Enabled").orElse(false);
+        boolean startEnabled = start == null ? false : start.getBoolean("Enabled").orElse(false);
 
-        if (leaveEnabled || wakeEnabled) {
-            bedLeave = new RichSound(leave);
-            wakeUp = new RichSound(wake);
+        if (stopEnabled || startEnabled) {
+            stopSound = new RichSound(stop);
+            startSound = new RichSound(start);
 
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -58,15 +58,17 @@ public final class OnPlayerBedLeave extends PMSListener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerBedLeave(PlayerBedLeaveEvent event)
+    public void onPlayerToggleFlight(PlayerToggleFlightEvent event)
     {
         Player player = event.getPlayer();
+        RichSound sound;
 
-        bedLeave.play(player);
+        if (player.isFlying())
+            sound = stopSound;
+        else
+            sound = startSound;
 
-        long time = player.getWorld().getTime();
-
-        if (time < 300)
-            wakeUp.play(player);
+        if (!event.isCancelled() || !sound.isCancellable())
+            sound.play(player);
     }
 }

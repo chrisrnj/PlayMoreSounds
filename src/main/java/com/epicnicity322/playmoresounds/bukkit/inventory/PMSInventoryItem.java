@@ -1,12 +1,15 @@
 package com.epicnicity322.playmoresounds.bukkit.inventory;
 
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+
 public interface PMSInventoryItem
 {
-    String getName();
+    @NotNull String getName();
 
-    String getConfigPath();
+    @NotNull String getConfigPath();
 
-    String getLangPath();
+    @NotNull String getId();
 
-    String getId();
+    @NotNull ItemStack getItemStack();
 }

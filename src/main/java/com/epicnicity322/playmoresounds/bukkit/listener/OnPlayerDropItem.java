@@ -4,12 +4,12 @@ import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.jetbrains.annotations.NotNull;
 
-public final class OnPlayerItemHeld extends PMSListener
+public final class OnPlayerDropItem extends PMSListener
 {
-    public OnPlayerItemHeld(@NotNull PlayMoreSounds plugin)
+    public OnPlayerDropItem(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
     }
@@ -17,11 +17,11 @@ public final class OnPlayerItemHeld extends PMSListener
     @Override
     public @NotNull String getName()
     {
-        return "Change Held Item";
+        return "Drop Item";
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerItemHeld(PlayerItemHeldEvent event)
+    public void onPlayerDropItem(PlayerDropItemEvent event)
     {
         RichSound sound = getRichSound();
 

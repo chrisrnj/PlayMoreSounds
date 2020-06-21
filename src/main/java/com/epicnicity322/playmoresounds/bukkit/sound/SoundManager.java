@@ -1,14 +1,93 @@
 package com.epicnicity322.playmoresounds.bukkit.sound;
 
+import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
-public class SoundManager
+public final class SoundManager
 {
+    private static final HashSet<UUID> ignoredPlayers = new HashSet<>();
+    private static Set<String> soundList = new HashSet<>();
+    private static Set<SoundType> soundTypes = new HashSet<>();
+
+    static {
+        for (SoundType s : SoundType.values()) {
+            if (s.getSoundOnVersion() != null) {
+                soundTypes.add(s);
+                soundList.add(s.name());
+            }
+        }
+
+        soundTypes = Collections.unmodifiableSet(soundTypes);
+        soundList = Collections.unmodifiableSet(soundList);
+    }
+
+    private SoundManager()
+    {
+    }
+
+    /**
+     * Gets all {@link SoundType} names that are available in the version this plugin is running.
+     *
+     * @return The sounds available in this version.
+     */
+    public static @NotNull Set<String> getSoundList()
+    {
+        return soundList;
+    }
+
+    /**
+     * Gets all {@link SoundType} that are available in the version this plugin is running.
+     *
+     * @return The sounds available in this version.
+     */
+    public static @NotNull Set<SoundType> getSoundTypes()
+    {
+        return soundTypes;
+    }
+
+    /**
+     * Gets the names of the players that won't hear the sounds played by PlayMoreSounds.
+     *
+     * @return The players that won't hear sounds played by PlayMoreSounds.
+     */
+    public static @NotNull HashSet<UUID> getIgnoredPlayers()
+    {
+        return ignoredPlayers;
+    }
+
+    public static void stopSounds(@NotNull Player player, @Nullable HashSet<String> sounds, long delay)
+    {
+        if (PlayMoreSounds.getInstance() == null)
+            throw new IllegalStateException("PlayMoreSounds must be loaded before using this method.");
+
+        new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                if (VersionUtils.hasStopSound())
+                    if (sounds == null)
+                        for (SoundType toStop : SoundManager.getSoundTypes())
+                            player.stopSound(toStop.getSoundOnVersion());
+                    else
+                        for (String sound : sounds)
+                            player.stopSound(sound);
+                else
+                    for (int i = 0; i < 70; ++i)
+                        player.playSound(player.getLocation(), SoundType.ENTITY_CHICKEN_HURT.getSoundOnVersion(),
+                                1.0E-4f, 1.0f);
+            }
+        }.runTaskLater(PlayMoreSounds.getInstance(), delay);
+    }
+
     /**
      * Gets all players in radius range, if radius = -1, returns all players on the server, if radius = -2 returns all
      * players on the world.
@@ -17,7 +96,7 @@ public class SoundManager
      * @param location The source location.
      * @return A set of players inside this range.
      */
-    public static HashSet<Player> getInRange(double radius, Location location)
+    public static @NotNull HashSet<Player> getInRange(double radius, @NotNull Location location)
     {
         HashSet<Player> players = new HashSet<>();
 

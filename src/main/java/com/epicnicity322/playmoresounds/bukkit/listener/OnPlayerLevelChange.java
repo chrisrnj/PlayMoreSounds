@@ -1,19 +1,26 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
-import com.epicnicity322.playmoresounds.bukkit.util.PMSHelper;
-import org.bukkit.configuration.ConfigurationSection;
+import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLevelChangeEvent;
+import org.jetbrains.annotations.NotNull;
 
-public class OnPlayerLevelChange implements Listener
+public final class OnPlayerLevelChange extends PMSListener
 {
+    public OnPlayerLevelChange(@NotNull PlayMoreSounds plugin)
+    {
+        super(plugin);
+    }
+
+    @Override
+    public @NotNull String getName()
+    {
+        return "Change Level";
+    }
+
     @EventHandler
     public void onPlayerLevelChange(PlayerLevelChangeEvent event)
     {
-        ConfigurationSection section = PMSHelper.getConfig("sounds").getConfigurationSection("Change Level");
-
-        new RichSound(section).play(event.getPlayer());
+        getRichSound().play(event.getPlayer());
     }
 }
