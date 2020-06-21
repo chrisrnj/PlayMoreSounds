@@ -10,20 +10,18 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.HashMap;
 
-public class AddonClassLoader extends URLClassLoader
+public final class AddonClassLoader extends URLClassLoader
 {
-    private static final HashMap<String, Class<?>> cacheClasses = new HashMap<>();
-    protected PMSAddon addon;
-    private PlayMoreSounds pms;
-    private AddonDescription description;
-    private Path jar;
+    private static final @NotNull HashMap<String, Class<?>> cacheClasses = new HashMap<>();
+    private final @NotNull PMSAddon addon;
+    private final @NotNull AddonDescription description;
+    private final @NotNull Path jar;
 
-    protected AddonClassLoader(@NotNull PlayMoreSounds pms, @NotNull AddonDescription description, @NotNull Path jar)
-            throws MalformedURLException, InvalidAddonException
+    protected AddonClassLoader(@NotNull AddonDescription description, @NotNull Path jar)
+            throws MalformedURLException, InvalidAddonException, IllegalAccessException, InstantiationException
     {
-        super(new URL[]{jar.toUri().toURL()}, pms.getClass().getClassLoader());
+        super(new URL[]{jar.toUri().toURL()}, PlayMoreSounds.class.getClassLoader());
 
-        this.pms = pms;
         this.description = description;
         this.jar = jar;
 
@@ -37,8 +35,6 @@ public class AddonClassLoader extends URLClassLoader
         } catch (ClassCastException ex) {
             throw new InvalidAddonException("The main class '" + description.getMain() + "' of the addon '" +
                     description.getName() + "' does not extend to PMSAddon.", ex);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -48,56 +44,59 @@ public class AddonClassLoader extends URLClassLoader
         return findClass(name, true);
     }
 
-    protected Class<?> findClass(String name, boolean addons) throws ClassNotFoundException
+    private Class<?> findClass(String name, boolean addons) throws ClassNotFoundException
     {
-        if (cacheClasses.containsKey(name)) {
+        if (cacheClasses.containsKey(name))
             return cacheClasses.get(name);
-        }
 
         Class<?> clazz = null;
 
         try {
             clazz = super.findClass(name);
-        } catch (Exception ignored) {
+        } catch (ClassNotFoundException ignored) {
+            // Let clazz be null if not found.
         }
 
         if (clazz == null) {
-            if (addons) {
-                for (AddonClassLoader loader : pms.getAddonManager().getAddonClassLoaders()) {
-                    if (loader != this) {
-                        try {
-                            clazz = loader.findClass(name, false);
-                        } catch (ClassNotFoundException ignored) {
-                        }
+            // Searching the class in other addons.
+            if (addons)
+                for (AddonClassLoader loader : AddonManager.addonClassLoaders)
+                    try {
+                        clazz = loader.findClass(name, false);
+                        // This will only break if the class was found.
+                        break;
+                    } catch (ClassNotFoundException ignored) {
                     }
-                }
-            }
 
-            if (clazz == null) {
-                if (addon == null) {
+            if (clazz == null)
+                if (addon == null)
                     throw new ClassNotFoundException(name);
-                } else {
+                else
                     throw new ClassNotFoundException("The addon '" + addon.toString() + "' is missing the class " + name
                             + " (Probably from a not specified dependency.). Please contact the addon author(s): " +
                             addon.getDescription().getAuthors());
-                }
-            }
         }
 
         cacheClasses.put(name, clazz);
         return clazz;
     }
 
+    @Override
+    protected void finalize() throws Throwable
+    {
+        cacheClasses.clear();
+        super.finalize();
+    }
+
     protected synchronized void init(@NotNull PMSAddon addon)
     {
-        if (this.addon != null) {
-            throw new IllegalArgumentException("Addon is already initialized.");
-        }
+        if (this.addon != null)
+            throw new UnsupportedOperationException("Addon is already initialized.");
 
         addon.init(description, jar);
     }
 
-    public PMSAddon getAddon()
+    public @NotNull PMSAddon getAddon()
     {
         return addon;
     }

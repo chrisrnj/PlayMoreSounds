@@ -7,7 +7,9 @@ import java.util.Objects;
 
 public abstract class PMSAddon
 {
-    protected boolean loaded;
+    protected boolean started = false;
+    protected boolean stopped = false;
+    protected boolean loaded = false;
     private AddonDescription description;
     private Path jar;
 
@@ -15,9 +17,8 @@ public abstract class PMSAddon
     {
         ClassLoader classLoader = getClass().getClassLoader();
 
-        if (!(classLoader instanceof AddonClassLoader)) {
-            throw new IllegalStateException("PMSAddon requires AddonClassLoader");
-        }
+        if (!(classLoader instanceof AddonClassLoader))
+            throw new UnsupportedOperationException("PMSAddon requires an AddonClassLoader");
 
         ((AddonClassLoader) classLoader).init(this);
     }
@@ -38,21 +39,50 @@ public abstract class PMSAddon
         return jar;
     }
 
+    /**
+     * @return If this addon was already started once.
+     */
+    public final boolean isStarted()
+    {
+        return started;
+    }
+
+    /**
+     * @return If this addon was already stopped once.
+     */
+    public final boolean isStopped()
+    {
+        return stopped;
+    }
+
+    /**
+     * @return If this addon is loaded.
+     */
     public final boolean isLoaded()
     {
         return loaded;
     }
 
     /**
-     * When your addon is loaded by PMS.
+     * When your addon is started by PMS.
+     *
+     * @throws IllegalStateException If this addon was already started.
      */
-    public abstract void onStart();
+    protected void onStart()
+    {
+        if (started)
+            throw new IllegalStateException(getDescription().getName() + " has already started.");
+    }
 
     /**
-     * When your addon is unloaded by PMS.
+     * When your addon is stopped by PMS.
+     *
+     * @throws IllegalStateException If this addon was already stopped.
      */
-    public void onStop()
+    protected void onStop()
     {
+        if (stopped)
+            throw new IllegalStateException(getDescription().getName() + " was already stopped.");
     }
 
     @Override

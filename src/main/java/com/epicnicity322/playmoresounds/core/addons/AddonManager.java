@@ -1,247 +1,184 @@
 package com.epicnicity322.playmoresounds.core.addons;
 
 import com.epicnicity322.playmoresounds.core.PlayMoreSounds;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AddonManager
 {
-    private static final HashSet<AddonClassLoader> addonClassLoaders = new HashSet<>();
-    private AddonRunner runner;
-    private PlayMoreSounds pms;
+    protected static final @NotNull HashSet<AddonClassLoader> addonClassLoaders = new HashSet<>();
+    private final @NotNull PlayMoreSounds corePMS;
 
-    public AddonManager(PlayMoreSounds pms, HashSet<String> pluginNames)
+    public AddonManager(@NotNull PlayMoreSounds corePMS)
     {
-        runner = new AddonRunner(pms, pluginNames);
-        this.pms = pms;
+        this.corePMS = corePMS;
     }
 
     /**
      * Gets all proper addon jars from Addons folder and loads their classes. Addons can only be registered once.
+     *
+     * @throws IOException If it was not possible to read Addons folder.
      */
-    public void registerAddons()
+    public void registerAddons() throws IOException
     {
-        if (!addonClassLoaders.isEmpty()) {
+        if (!addonClassLoaders.isEmpty())
             throw new IllegalStateException("Addons are already registered");
+
+        Path addonsFolder = corePMS.getCoreDataFolder().resolve("Addons");
+
+        if (!Files.exists(addonsFolder))
+            Files.createDirectories(addonsFolder);
+
+        Set<Path> jars;
+
+        try (Stream<Path> paths = Files.list(addonsFolder)) {
+            jars = paths.filter(file -> file.getFileName().toString().endsWith(".jar")).collect(Collectors.toSet());
         }
 
-        File addonsFolder = pms.getFolder().resolve("Addons").toFile();
-
-        if (!addonsFolder.exists()) {
-            if (!addonsFolder.mkdir()) {
-                pms.getPMSLogger().log("&eUnable to create Addons folder in PlayMoreSounds data folder.", Level.WARNING);
-                return;
-            }
-        }
-
-        File[] jars = addonsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
-
-        if (jars != null) {
-            for (File jar : jars) {
-                try {
-                    addonClassLoaders.add(new AddonClassLoader(pms, new AddonDescription(jar), jar.toPath()));
-                } catch (Exception e) {
-                    pms.getPMSLogger().log("&eException while parsing the addon '" + jar.getName() + "&e': " +
-                            e.getMessage(), Level.SEVERE);
-                    pms.getErrorLogger().report(e, "Path: " + jar.getAbsolutePath() + "\nRegister as addon exception:");
-                }
-            }
-        }
-    }
-
-    /**
-     * Removes unloaded addons from memory.
-     *
-     * @see #unregisterAddon(PMSAddon)
-     */
-    public void unregisterAddons()
-    {
-        for (AddonClassLoader loader : getAddonClassLoaders()) {
-            if (!loader.getAddon().isLoaded()) {
-                try {
-                    loader.close();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-
-                loader.addon = null;
-                addonClassLoaders.remove(loader);
-            }
-        }
-    }
-
-    /**
-     * Removes an addon from memory whether is loaded or not.
-     *
-     * @param addon The addon you want to unregister.
-     */
-    public void unregisterAddon(PMSAddon addon)
-    {
-        for (AddonClassLoader loader : getAddonClassLoaders()) {
-            if (loader.getAddon().equals(addon)) {
-                try {
-                    loader.close();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-
-                loader.addon = null;
-                addonClassLoaders.remove(loader);
-                break;
-            }
-        }
-    }
-
-    /**
-     * Loads all addons in a specific time and prints messages to console.
-     *
-     * @param startTime Loads only addons that have this start time.
-     */
-    public void loadAddons(StartTime startTime)
-    {
-        HashSet<PMSAddon> addons = new HashSet<>();
-
-        for (PMSAddon addon : getRegisteredAddons()) {
-            if (!addon.isLoaded()) {
-                if (startTime == StartTime.SERVER_LOAD_COMPLETE || addon.getDescription().getStartTime() == startTime) {
-                    addons.add(addon);
-                }
-            }
-        }
-
-        runner.toStart.addAll(addons);
-        runner.start();
-
-        if (!startTime.name().startsWith("END") && !startTime.name().startsWith("HOOK")
-                && startTime != StartTime.SERVER_LOAD_COMPLETE && runner.isAlive()) {
+        Thread addonRunner = new Thread(() -> jars.forEach(jar -> {
             try {
-                runner.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                addonClassLoaders.add(new AddonClassLoader(new AddonDescription(jar), jar));
+            } catch (Exception e) {
+                corePMS.getCoreLogger().log("&eException while initializing the addon '" + jar.getFileName() + "&e': " + e.getMessage());
+                corePMS.getCoreErrorLogger().report(e, "Path: " + jar.toAbsolutePath() + "\nRegister as addon exception:");
             }
+        }), "PMSAddon Runner");
+
+        addonRunner.start();
+
+        try {
+            addonRunner.join();
+        } catch (InterruptedException ignored) {
         }
     }
 
     /**
-     * Unloads all loaded addons that don't have the start-time set to HOOK_PLUGINS or HOOK_ADDONS and prints a message
-     * to console.
-     */
-    public void unloadAddons()
-    {
-        for (PMSAddon addon : getRegisteredAddons()) {
-            if (!addon.getDescription().getStartTime().name().startsWith("HOOK")) {
-                try {
-                    unloadAddon(addon);
-                } catch (IllegalStateException ignored) {
-                }
-            }
-        }
-    }
-
-    /**
-     * Loads an addon and prints a message to console.
+     * Starts unloaded addons that have the specified start time.
      *
-     * @param addon The addon that you want to load.
-     * @throws IllegalStateException If the addon is already loaded.
+     * @param startTime The start time to start the addons.
      */
-    public void loadAddon(PMSAddon addon)
+    public void startAddons(@NotNull StartTime startTime)
     {
-        if (addon.isLoaded()) {
-            throw new IllegalStateException("addon is already loaded.");
-        } else {
+        if (startTime == StartTime.HOOK_ADDONS || startTime == StartTime.HOOK_PLUGINS)
+            throw new IllegalArgumentException("Hooking addons are started automatically.");
+
+        new Thread(() -> {
+            for (PMSAddon addon : getAddons())
+                if (!addon.started && !addon.stopped)
+                    if (addon.getDescription().getStartTime() == startTime)
+                        callOnStart(addon);
+        }, "PMSAddon Runner").start();
+    }
+
+    /**
+     * Starts the specified addon if it was not started yet.
+     *
+     * @param addon The addon to start.
+     */
+    public void startAddon(@NotNull PMSAddon addon)
+    {
+        if (!addon.started && !addon.stopped) {
+            Thread addonRunner = new Thread(() -> callOnStart(addon), "PMSAddon Runner");
             StartTime startTime = addon.getDescription().getStartTime();
 
-            runner.toStart.add(addon);
-            runner.start();
+            addonRunner.start();
 
-            if (!startTime.name().startsWith("END") && !startTime.name().startsWith("HOOK")
-                    && startTime != StartTime.SERVER_LOAD_COMPLETE && runner.isAlive()) {
+            if (startTime == StartTime.HOOK_PLUGINS || startTime == StartTime.HOOK_ADDONS)
                 try {
-                    runner.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    addonRunner.join();
+                } catch (InterruptedException ignored) {
                 }
-            }
         }
+    }
+
+    private void callOnStart(@NotNull PMSAddon addon)
+    {
+        String name = addon.getDescription().getName();
+
+        corePMS.getCoreLogger().log("&eStarting " + (name.contains("addon") ? name + "." : name + " addon."));
+
+        try {
+            addon.onStart();
+        } catch (Exception ex) {
+            corePMS.getCoreLogger().log("&eException while starting the addon '" + name + "&e': " + ex.getMessage());
+            corePMS.getCoreErrorLogger().report(ex, "Path: " + addon.getJar() + "\nStart addon exception:");
+        }
+
+        addon.started = true;
+        addon.loaded = true;
+        AddonEventManager.callLoadUnloadEvent(addon, corePMS);
     }
 
     /**
-     * Unloads an addon and prints a message to console.
-     *
-     * @param addon The addon you want to unload.
-     * @throws IllegalStateException If the addon is already unloaded.
+     * Stops the current registered addons.
      */
-    public void unloadAddon(PMSAddon addon)
+    public void stopAddons()
     {
-        if (addon.isLoaded()) {
-            new Thread("PMSAddon Runner")
-            {
-                @Override
-                public void run()
-                {
-                    try {
-                        AddonEventManager.callLoadUnloadEvent(addon, false);
-                        addon.onStop();
-                        pms.getPMSLogger().log("&4-&e The addon " + addon.toString() + "&e v" +
-                                addon.getDescription().getVersion() + "&e was stopped.", Level.INFO);
-                    } catch (Exception e) {
-                        pms.getPMSLogger().log("&cSomething went wrong while stopping the addon " +
-                                addon.toString(), Level.SEVERE);
-                        e.printStackTrace();
-                    }
-                    addon.loaded = false;
+        new Thread(() -> {
+            for (PMSAddon addon : getAddons()) {
+                if (addon.started && !addon.stopped) {
+                    StartTime startTime = addon.getDescription().getStartTime();
+
+                    // HOOK_PLUGINS and HOOK_ADDONS are called automatically when the hooked addon or plugin is disabled.
+                    if (startTime != StartTime.HOOK_PLUGINS && startTime != StartTime.HOOK_ADDONS)
+                        callOnStop(addon);
                 }
-            }.start();
-        } else {
-            throw new IllegalStateException("addon is already unloaded");
-        }
+            }
+        }, "PMSAddon Runner").start();
     }
 
     /**
-     * Gets an addon main instance by name.
-     *
-     * @param name The name of the addon.
-     * @return null if no addon was found with that name.
+     * Stops the specified addon if it was not stopped yet.
      */
-    public PMSAddon getAddon(String name)
+    public void stopAddon(@NotNull PMSAddon addon)
     {
-        for (PMSAddon addon : getRegisteredAddons()) {
-            if (addon.toString().equals(name)) {
-                return addon;
-            }
+        if (addon.started && !addon.stopped) {
+            Thread addonRunner = new Thread(() -> callOnStop(addon), "PMSAddon Runner");
+            StartTime startTime = addon.getDescription().getStartTime();
+
+            addonRunner.start();
+
+            if (startTime == StartTime.HOOK_PLUGINS || startTime == StartTime.HOOK_ADDONS)
+                try {
+                    addonRunner.join();
+                } catch (InterruptedException ignored) {
+                }
+        }
+    }
+
+    private void callOnStop(@NotNull PMSAddon addon)
+    {
+        String name = addon.getDescription().getName();
+
+        corePMS.getCoreLogger().log("&eStopping " + (name.contains("addon") ? name + "." : name + " addon."));
+
+        try {
+            addon.onStop();
+        } catch (Exception ex) {
+            corePMS.getCoreLogger().log("&eException while stopping the addon '" + name + "&e': " + ex.getMessage());
+            corePMS.getCoreErrorLogger().report(ex, "Path: " + addon.getJar() + "\nStop addon exception:");
         }
 
-        return null;
+        addon.stopped = true;
+        addon.loaded = false;
+        AddonEventManager.callLoadUnloadEvent(addon, corePMS);
     }
 
-    public Set<AddonClassLoader> getAddonClassLoaders()
-    {
-        return Collections.unmodifiableSet(addonClassLoaders);
-    }
-
-    public HashSet<PMSAddon> getRegisteredAddons()
+    /**
+     * @return A set with all registered addons.
+     */
+    public @NotNull HashSet<PMSAddon> getAddons()
     {
         HashSet<PMSAddon> addons = new HashSet<>();
 
-        for (AddonClassLoader loader : getAddonClassLoaders()) {
-            addons.add(loader.getAddon());
-        }
-
-        return addons;
-    }
-
-    public HashSet<String> getRegisteredAddonsNames()
-    {
-        HashSet<String> addons = new HashSet<>();
-
-        for (AddonClassLoader loader : getAddonClassLoaders()) {
-            addons.add(loader.getAddon().toString());
-        }
+        addonClassLoaders.forEach(classLoader -> addons.add(classLoader.getAddon()));
 
         return addons;
     }

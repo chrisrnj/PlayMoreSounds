@@ -1,258 +1,141 @@
 package com.epicnicity322.playmoresounds.core.addons;
 
+import com.epicnicity322.playmoresounds.core.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.core.addons.exceptions.InvalidAddonException;
+import com.epicnicity322.yamlhandler.Configuration;
+import com.epicnicity322.yamlhandler.YamlConfigurationLoader;
+import com.epicnicity322.yamlhandler.exceptions.InvalidConfigurationException;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Properties;
+import java.io.InputStreamReader;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class AddonDescription
 {
-    private String main;
-    private String name;
-    private String version;
-    private String apiVersion;
-    private HashSet<String> authors = new HashSet<>();
-    private StartTime startTime = StartTime.SERVER_LOAD_COMPLETE;
-    private HashSet<String> hookPlugins = new HashSet<>();
-    private HashSet<String> requiredPlugins = new HashSet<>();
-    private HashSet<String> hookAddons = new HashSet<>();
-    private HashSet<String> requiredAddons = new HashSet<>();
+    private static final @NotNull YamlConfigurationLoader loader = YamlConfigurationLoader.build();
+    private final @NotNull String main;
+    private final @NotNull String name;
+    private final @NotNull String version;
+    private final @NotNull String apiVersion;
+    private final @NotNull StartTime startTime;
+    private final @NotNull Collection<String> authors;
+    private final @NotNull Collection<String> hookPlugins;
+    private final @NotNull Collection<String> requiredPlugins;
+    private final @NotNull Collection<String> hookAddons;
+    private final @NotNull Collection<String> requiredAddons;
 
-    public AddonDescription(@NotNull File jar) throws IOException, InvalidAddonException
+    protected AddonDescription(@NotNull Path jar) throws IOException, InvalidAddonException
     {
-        Objects.requireNonNull(jar, "Jar can not be null.");
+        // Getting the description file.
+        JarFile jarFile = new JarFile(jar.toFile());
+        JarEntry entry = jarFile.getJarEntry("pmsaddon.yml");
 
-        InputStream description = null;
-        JarFile jarFile = null;
+        String fileName = jar.getFileName().toString();
+
+        if (entry == null)
+            throw new InvalidAddonException(new FileNotFoundException("The jar '" + fileName + "' in addons folder does not contain a description file."));
 
         try {
-            try {
-                jarFile = new JarFile(jar);
-                JarEntry entry = jarFile.getJarEntry("pmsaddon.properties");
+            Configuration description = loader.load(new InputStreamReader(jarFile.getInputStream(entry)));
 
-                if (entry == null) {
-                    entry = jarFile.getJarEntry("addon.properties");
+            name = parseName(description.getString("Name").orElseThrow(() -> new InvalidAddonException("The addon '" + fileName + "' does not contain name property in description.")));
+            main = description.getString("Main").orElseThrow(() -> new InvalidAddonException("The addon '" + name + "' does not contain main property in description."));
 
-                    if (entry == null) {
-                        throw new InvalidAddonException(new FileNotFoundException("The jar '" + jar.getName() +
-                                "' does not contain a description file."));
-                    }
-                }
+            Optional<String> startTime = description.getString("Start Time");
 
-                description = jarFile.getInputStream(entry);
-            } catch (IOException ex) {
-                throw new InvalidAddonException(ex);
-            }
-
-            Properties properties = new Properties();
-            properties.load(description);
-
-            if (properties.containsKey("name")) {
+            if (startTime.isPresent())
                 try {
-                    setName(properties.getProperty("name"));
+                    this.startTime = StartTime.valueOf(startTime.get());
                 } catch (IllegalArgumentException ex) {
-                    throw new InvalidAddonException("The addon '" + jar.getName() + "' has an invalid name. " + ex.getMessage(), ex);
+                    throw new InvalidAddonException("The addon '" + name + "' has an invalid Start Time.");
                 }
-            } else {
-                throw new InvalidAddonException("The addon '" + jar.getName() + "' does not contain the property 'name' in description.");
-            }
+            else
+                this.startTime = StartTime.SERVER_LOAD_COMPLETE;
 
-            if (properties.containsKey("main")) {
-                main = properties.getProperty("main");
-            } else {
-                throw new InvalidAddonException("The addon '" + name + "' does not contain the property 'main' in description.");
-            }
-
-            if (properties.containsKey("author")) {
-                authors.add(properties.getProperty("author"));
-            } else {
-                if (!properties.containsKey("authors")) {
-                    throw new InvalidAddonException("The addon '" + name + "' does not contain the property 'author' in description.");
-                }
-            }
-
-            if (properties.containsKey("authors")) {
-                authors.addAll(Arrays.asList(properties.getProperty("authors").split(", ")));
-            } else {
-                if (!properties.containsKey("author")) {
-                    throw new InvalidAddonException("The addon '" + name + "' does not contain the property 'author' in description.");
-                }
-            }
-
-            authors = parseSet(authors);
-
-            if (authors.isEmpty()) {
-                throw new InvalidAddonException("The addon '" + name + "' does not contain a valid author in description.");
-            }
-
-            if (properties.containsKey("version")) {
-                version = properties.getProperty("version");
-            } else {
-                if (properties.containsKey("api-version")) {
-                    throw new InvalidAddonException("The addon '" + name + "' does not contain the property 'version' in description.");
-                }
-
-                version = "1.0";
-            }
-
-            if (properties.containsKey("api-version")) {
-                apiVersion = properties.getProperty("api-version");
-            }
-
-            if (properties.containsKey("start-time")) {
-                try {
-                    startTime = StartTime.valueOf(properties.getProperty("start-time").toUpperCase());
-
-                    if (startTime == StartTime.HOOK_ADDONS || startTime == StartTime.HOOK_PLUGINS) {
-                        String property;
-
-                        if (properties.containsKey("hook-addons")) {
-                            property = "hook-addons";
-                        } else if (properties.containsKey("hook-plugins")) {
-                            property = "hook-plugins";
-                        } else {
-                            throw new InvalidAddonException("The addon '" + name + "' has the start-time set to " +
-                                    startTime.name() + ", but does not contain the property '" + startTime.name()
-                                    .toLowerCase().replace("_", "-") + "' in description.");
-                        }
-
-                        HashSet<String> set = parseSet(new HashSet<>(Arrays.asList(properties.getProperty(property).split(", "))));
-
-                        if (set.isEmpty()) {
-                            throw new InvalidAddonException("The addon '" + name + "' has the start-time set to " +
-                                    startTime.name() + ", but '" + property + "' property in description is empty.");
-                        }
-
-                        if (startTime == StartTime.HOOK_ADDONS) {
-                            hookAddons.addAll(set);
-                        } else {
-                            hookPlugins.addAll(set);
-                        }
-                    }
-                } catch (IllegalArgumentException ex) {
-                    throw new InvalidAddonException("The addon '" + name + "' has an invalid start-time in description.", ex);
-                }
-            }
-
-            if (properties.containsKey("required-plugins")) {
-                requiredPlugins.addAll(parseSet(new HashSet<>(Arrays.asList(properties.getProperty("required-plugins")
-                        .split(", ")))));
-            }
-
-            if (properties.containsKey("required-addons")) {
-                requiredAddons.addAll(parseSet(new HashSet<>(Arrays.asList(properties.getProperty("required-addons")
-                        .split(", ")))));
-            }
-        } finally {
-            if (description != null) {
-                try {
-                    description.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            if (jarFile != null) {
-                try {
-                    jarFile.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+            version = description.getString("Version").orElse("1.0");
+            apiVersion = description.getString("Api Version").orElse(PlayMoreSounds.version);
+            authors = Collections.unmodifiableCollection(description.getCollection("Authors", Object::toString));
+            hookPlugins = Collections.unmodifiableCollection(description.getCollection("Hook Plugins", Object::toString));
+            requiredPlugins = Collections.unmodifiableCollection(description.getCollection("Required Plugins", Object::toString));
+            hookAddons = Collections.unmodifiableCollection(description.getCollection("Hook Addons", Object::toString));
+            requiredAddons = Collections.unmodifiableCollection(description.getCollection("Required Addons", Object::toString));
+        } catch (InvalidConfigurationException ex) {
+            throw new InvalidAddonException("The addon '" + fileName + "' has a misconfigured description file.", ex);
         }
     }
 
-    private HashSet<String> parseSet(HashSet<String> set)
+    private String parseName(String name)
     {
-        HashSet<String> newSet = new HashSet<>();
+        name = name.trim().replaceAll(" +", " ");
 
-        for (String string : set) {
-            if (!string.trim().equals("")) {
-                newSet.add(string.trim());
-            }
-        }
+        if (name.length() < 3)
+            throw new IllegalArgumentException("Addons names length can not be lower than 3.");
 
-        return newSet;
+        if (name.replaceAll("[^A-Za-z]", "").length() < 3)
+            throw new IllegalArgumentException("Addons names may contain at least 3 letters.");
+
+        if (name.length() > 26)
+            throw new IllegalArgumentException("Addons names length can not be greater than 26.");
+
+        if (!name.replaceAll("[A-Za-z0-9\\s]", "").equals(""))
+            throw new IllegalArgumentException("Addons names may only contain letters, numbers and spaces.");
+
+        return name;
     }
 
-    public String getMain()
+    public @NotNull String getMain()
     {
         return main;
     }
 
-    public String getName()
+    public @NotNull String getName()
     {
         return name;
     }
 
-    private void setName(@NotNull String name)
-    {
-        Objects.requireNonNull(name, "name may not be null");
-        name = name.trim().replaceAll(" +", " ");
-
-        if (name.length() < 3) {
-            throw new IllegalArgumentException("Addons names length can not be lower than 3.");
-        }
-
-        if (name.replaceAll("[^A-Za-z]", "").length() < 3) {
-            throw new IllegalArgumentException("Addons names may contain at least 3 letters.");
-        }
-
-        if (name.length() > 26) {
-            throw new IllegalArgumentException("Addons names length can not be greater than 26.");
-        }
-
-        if (!name.replaceAll("[A-Za-z0-9\\s]", "").equals("")) {
-            throw new IllegalArgumentException("Addons names may only contain letters, numbers and spaces.");
-        }
-
-        this.name = name;
-    }
-
-    public String getVersion()
+    public @NotNull String getVersion()
     {
         return version;
     }
 
-    public String getApiVersion()
+    public @NotNull String getApiVersion()
     {
         return apiVersion;
     }
 
-    public HashSet<String> getAuthors()
-    {
-        return authors;
-    }
-
-    public StartTime getStartTime()
+    public @NotNull StartTime getStartTime()
     {
         return startTime;
     }
 
-    public HashSet<String> getHookPlugins()
+    public @NotNull Collection<String> getAuthors()
+    {
+        return authors;
+    }
+
+    public @NotNull Collection<String> getHookPlugins()
     {
         return hookPlugins;
     }
 
-    public HashSet<String> getRequiredPlugins()
+    public @NotNull Collection<String> getRequiredPlugins()
     {
         return requiredPlugins;
     }
 
-    public HashSet<String> getHookAddons()
+    public @NotNull Collection<String> getHookAddons()
     {
         return hookAddons;
     }
 
-    public HashSet<String> getRequiredAddons()
+    public @NotNull Collection<String> getRequiredAddons()
     {
         return requiredAddons;
     }

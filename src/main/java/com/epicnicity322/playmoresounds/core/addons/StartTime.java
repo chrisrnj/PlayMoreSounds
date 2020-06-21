@@ -3,11 +3,15 @@ package com.epicnicity322.playmoresounds.core.addons;
 public enum StartTime
 {
     /**
-     * Before PlayMoreSounds's configuration is loaded.
+     * Before PlayMoreSounds has loaded commands.
+     */
+    BEFORE_COMMANDS,
+    /**
+     * Before PlayMoreSounds has loaded configurations.
      */
     BEFORE_CONFIGURATION,
     /**
-     * Before PlayMoreSounds's events are loaded.
+     * Before PlayMoreSounds has loaded its sound listeners.
      */
     BEFORE_EVENTS,
     /**
@@ -15,13 +19,15 @@ public enum StartTime
      */
     END,
     /**
-     * Persists loaded even if PMS fails to load.
-     */
-    END_PERSISTENT,
-    /**
      * When the server finishes the load of all plugins.
      */
     SERVER_LOAD_COMPLETE,
+    /**
+     * When the specified plugins are loaded.
+     */
     HOOK_PLUGINS,
+    /**
+     * When the specified addons are started.
+     */
     HOOK_ADDONS
 }
