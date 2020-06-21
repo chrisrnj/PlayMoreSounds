@@ -1,16 +1,22 @@
 package com.epicnicity322.playmoresounds.bukkit.sound;
 
-import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.regex.Pattern;
 
 public enum SoundType
 {
+    AMBIENT_BASALT_DELTAS_ADDITIONS("1.16 ambient.soul_sand_valley.additions"),
+    AMBIENT_BASALT_DELTAS_LOOP("1.16 ambient.basalt_deltas.loop"),
+    AMBIENT_BASALT_DELTAS_MOOD("1.16 ambient.basalt_deltas.mood"),
     AMBIENT_CAVE("1.7 ambient.cave.cave", "1.8 ambient.cave.cave", "1.9 ambient.cave", "1.10 ambient.cave", "1.11 ambient.cave", "1.12 ambient.cave", "1.13 ambient.cave", "1.14 ambient.cave", "1.15 ambient.cave", "1.16 ambient.cave"),
     AMBIENT_CRIMSON_FOREST_ADDITIONS("1.16 ambient.crimson_forest.additions"),
     AMBIENT_CRIMSON_FOREST_LOOP("1.16 ambient.crimson_forest.loop"),
     AMBIENT_CRIMSON_FOREST_MOOD("1.16 ambient.crimson_forest.mood"),
     AMBIENT_NETHER_WASTES_ADDITIONS("1.16 ambient.nether_wastes.additions"),
     AMBIENT_NETHER_WASTES_LOOP("1.16 ambient.nether_wastes.loop"),
-    AMBIENT_NETHER_WASTES_MOOD("1.16 ambient.nether_wastes.mood"),
+    AMBIENT_NETHER_WASTES_MOOD("1.16 ambient.basalt_deltas.mood"),
     AMBIENT_SOUL_SAND_VALLEY_ADDITIONS("1.16 ambient.soul_sand_valley.additions"),
     AMBIENT_SOUL_SAND_VALLEY_LOOP("1.16 ambient.soul_sand_valley.loop"),
     AMBIENT_SOUL_SAND_VALLEY_MOOD("1.16 ambient.soul_sand_valley.mood"),
@@ -75,6 +81,11 @@ public enum SoundType
     BLOCK_BUBBLE_COLUMN_WHIRLPOOL_AMBIENT("1.13 block.bubble_column.whirlpool_ambient", "1.14 block.bubble_column.whirlpool_ambient", "1.15 block.bubble_column.whirlpool_ambient", "1.16 block.bubble_column.whirlpool_ambient"),
     BLOCK_BUBBLE_COLUMN_WHIRLPOOL_INSIDE("1.13 block.bubble_column.whirlpool_inside", "1.14 block.bubble_column.whirlpool_inside", "1.15 block.bubble_column.whirlpool_inside", "1.16 block.bubble_column.whirlpool_inside"),
     BLOCK_CAMPFIRE_CRACKLE("1.14 block.campfire.crackle", "1.15 block.campfire.crackle", "1.16 block.campfire.crackle"),
+    BLOCK_CHAIN_BREAK("1.16 block.chain.break"),
+    BLOCK_CHAIN_FALL("1.16 block.chain.step"),
+    BLOCK_CHAIN_HIT("1.16 block.chain.step"),
+    BLOCK_CHAIN_PLACE("1.16 block.chain.break"),
+    BLOCK_CHAIN_STEP("1.16 block.chain.step"),
     BLOCK_CHEST_CLOSE("1.9 block.chest.close", "1.10 block.chest.close", "1.11 block.chest.close", "1.12 block.chest.close", "1.13 block.chest.close", "1.14 block.chest.close", "1.15 block.chest.close", "1.16 block.chest.close"),
     BLOCK_CHEST_LOCKED("1.9 block.chest.locked", "1.10 block.chest.locked", "1.11 block.chest.locked", "1.12 block.chest.locked", "1.13 block.chest.locked", "1.14 block.chest.locked", "1.15 block.chest.locked", "1.16 block.chest.locked"),
     BLOCK_CHEST_OPEN("1.9 block.chest.open", "1.10 block.chest.open", "1.11 block.chest.open", "1.12 block.chest.open", "1.13 block.chest.open", "1.14 block.chest.open", "1.15 block.chest.open", "1.16 block.chest.open"),
@@ -115,6 +126,11 @@ public enum SoundType
     BLOCK_FUNGUS_PLACE("1.16 block.fungus.place"),
     BLOCK_FUNGUS_STEP("1.14 block.nether_wart.break", "1.15 block.nether_wart.break", "1.16 block.nether_wart.break"),
     BLOCK_FURNACE_FIRE_CRACKLE("1.9 block.furnace.fire_crackle", "1.10 block.furnace.fire_crackle", "1.11 block.furnace.fire_crackle", "1.12 block.furnace.fire_crackle", "1.13 block.furnace.fire_crackle", "1.14 block.furnace.fire_crackle", "1.15 block.furnace.fire_crackle", "1.16 block.furnace.fire_crackle"),
+    BLOCK_GILDED_BLACKSTONE_BREAK("1.16 block.gilded_blackstone.place"),
+    BLOCK_GILDED_BLACKSTONE_FALL("1.16 block.nether_ore.hit"),
+    BLOCK_GILDED_BLACKSTONE_HIT("1.16 block.nether_ore.hit"),
+    BLOCK_GILDED_BLACKSTONE_PLACE("1.16 block.gilded_blackstone.place"),
+    BLOCK_GILDED_BLACKSTONE_STEP("1.16 block.nether_ore.hit"),
     BLOCK_GLASS_BREAK("1.7 game.potion.smash", "1.8 game.potion.smash", "1.9 block.glass.break", "1.10 block.glass.break", "1.11 block.glass.break", "1.12 block.glass.break", "1.13 block.glass.break", "1.14 entity.splash_potion.break", "1.15 entity.splash_potion.break", "1.16 entity.splash_potion.break"),
     BLOCK_GLASS_FALL("1.7 step.stone", "1.8 step.stone", "1.9 block.anvil.hit", "1.10 block.anvil.hit", "1.11 block.anvil.hit", "1.12 block.anvil.hit", "1.13 block.anvil.hit", "1.14 block.glass.hit", "1.15 block.glass.hit", "1.16 block.glass.hit"),
     BLOCK_GLASS_HIT("1.7 step.stone", "1.8 step.stone", "1.9 block.anvil.hit", "1.10 block.anvil.hit", "1.11 block.anvil.hit", "1.12 block.anvil.hit", "1.13 block.anvil.hit", "1.14 block.glass.hit", "1.15 block.glass.hit", "1.16 block.glass.hit"),
@@ -173,10 +189,15 @@ public enum SoundType
     BLOCK_NETHER_BRICKS_HIT("1.16 block.nether_bricks.hit"),
     BLOCK_NETHER_BRICKS_PLACE("1.16 block.nether_bricks.place"),
     BLOCK_NETHER_BRICKS_STEP("1.16 block.nether_bricks.hit"),
-    BLOCK_NETHER_ORE_BREAK("1.16 block.nether_ore.break"),
+    BLOCK_NETHER_GOLD_ORE_BREAK("1.16 block.gilded_blackstone.place"),
+    BLOCK_NETHER_GOLD_ORE_FALL("1.16 block.nether_ore.hit"),
+    BLOCK_NETHER_GOLD_ORE_HIT("1.16 block.nether_ore.hit"),
+    BLOCK_NETHER_GOLD_ORE_PLACE("1.16 block.gilded_blackstone.place"),
+    BLOCK_NETHER_GOLD_ORE_STEP("1.16 block.nether_ore.hit"),
+    BLOCK_NETHER_ORE_BREAK("1.16 block.gilded_blackstone.place"),
     BLOCK_NETHER_ORE_FALL("1.16 block.nether_ore.hit"),
     BLOCK_NETHER_ORE_HIT("1.16 block.nether_ore.hit"),
-    BLOCK_NETHER_ORE_PLACE("1.16 block.nether_ore.break"),
+    BLOCK_NETHER_ORE_PLACE("1.16 block.gilded_blackstone.place"),
     BLOCK_NETHER_ORE_STEP("1.16 block.nether_ore.hit"),
     BLOCK_NETHER_SPROUTS_BREAK("1.16 block.nether_sprouts.break"),
     BLOCK_NETHER_SPROUTS_FALL("1.16 block.nether_sprouts.fall"),
@@ -388,9 +409,10 @@ public enum SoundType
     ENTITY_DOLPHIN_SPLASH("1.13 entity.dolphin.splash", "1.14 entity.dolphin.splash", "1.15 entity.dolphin.splash", "1.16 entity.dolphin.splash"),
     ENTITY_DOLPHIN_SWIM("1.13 entity.dolphin.swim", "1.14 entity.dolphin.swim", "1.15 entity.dolphin.swim", "1.16 entity.dolphin.swim"),
     ENTITY_DONKEY_AMBIENT("1.7 mob.horse.donkey.idle", "1.8 mob.horse.donkey.idle", "1.9 entity.donkey.ambient", "1.10 entity.donkey.ambient", "1.11 entity.donkey.ambient", "1.12 entity.donkey.ambient", "1.13 entity.donkey.ambient", "1.14 entity.donkey.ambient", "1.15 entity.donkey.ambient", "1.16 entity.donkey.ambient"),
-    ENTITY_DONKEY_ANGRY("1.7 mob.horse.donkey.angry", "1.8 mob.horse.donkey.angry", "1.9 entity.donkey.angry", "1.10 entity.donkey.angry", "1.11 entity.donkey.angry", "1.12 entity.donkey.angry", "1.13 entity.donkey.angry", "1.14 entity.donkey.angry", "1.15 entity.donkey.angry", "1.16 entity.donkey.angry"),
+    ENTITY_DONKEY_ANGRY("1.7 mob.horse.donkey.angry", "1.8 mob.horse.donkey.angry", "1.9 entity.donkey.angry", "1.10 entity.donkey.angry", "1.11 entity.donkey.angry", "1.12 entity.donkey.angry", "1.13 entity.donkey.angry", "1.14 entity.donkey.angry", "1.15 entity.donkey.angry", "1.16 entity.mule.angry"),
     ENTITY_DONKEY_CHEST("1.7 mob.chicken.plop", "1.8 mob.chicken.plop", "1.9 entity.donkey.chest", "1.10 entity.donkey.chest", "1.11 entity.donkey.chest", "1.12 entity.donkey.chest", "1.13 entity.donkey.chest", "1.14 entity.donkey.chest", "1.15 entity.donkey.chest", "1.16 entity.donkey.chest"),
     ENTITY_DONKEY_DEATH("1.7 mob.horse.donkey.death", "1.8 mob.horse.donkey.death", "1.9 entity.donkey.death", "1.10 entity.donkey.death", "1.11 entity.donkey.death", "1.12 entity.donkey.death", "1.13 entity.donkey.death", "1.14 entity.mule.death", "1.15 entity.mule.death", "1.16 entity.mule.death"),
+    ENTITY_DONKEY_EAT("1.9 entity.horse.eat", "1.10 entity.horse.eat", "1.11 entity.horse.eat", "1.12 entity.horse.eat", "1.13 entity.horse.eat", "1.14 entity.horse.eat", "1.15 entity.horse.eat", "1.16 entity.donkey.eat"),
     ENTITY_DONKEY_HURT("1.7 mob.horse.donkey.hit", "1.8 mob.horse.donkey.hit", "1.9 entity.donkey.hurt", "1.10 entity.donkey.hurt", "1.11 entity.donkey.hurt", "1.12 entity.donkey.hurt", "1.13 entity.donkey.hurt", "1.14 entity.mule.hurt", "1.15 entity.mule.hurt", "1.16 entity.mule.hurt"),
     ENTITY_DRAGON_FIREBALL_EXPLODE("1.7 random.explode", "1.8 random.explode", "1.9 block.end_gateway.spawn", "1.10 block.end_gateway.spawn", "1.11 block.end_gateway.spawn", "1.12 block.end_gateway.spawn", "1.13 entity.dragon_fireball.explode", "1.14 entity.lightning_bolt.impact", "1.15 entity.lightning_bolt.impact", "1.16 entity.lightning_bolt.impact"),
     ENTITY_DROWNED_AMBIENT("1.13 entity.drowned.ambient", "1.14 entity.drowned.ambient", "1.15 entity.drowned.ambient", "1.16 entity.drowned.ambient"),
@@ -463,6 +485,7 @@ public enum SoundType
     ENTITY_FOX_SLEEP("1.14 entity.fox.sleep", "1.15 entity.fox.sleep", "1.16 entity.fox.sleep"),
     ENTITY_FOX_SNIFF("1.14 entity.fox.sniff", "1.15 entity.fox.sniff", "1.16 entity.fox.sniff"),
     ENTITY_FOX_SPIT("1.14 entity.fox.spit", "1.15 entity.fox.spit", "1.16 entity.fox.spit"),
+    ENTITY_FOX_TELEPORT("1.7 mob.endermen.portal", "1.8 mob.endermen.portal", "1.9 entity.endermen.teleport", "1.10 entity.endermen.teleport", "1.11 entity.endermen.teleport", "1.12 entity.endermen.teleport", "1.13 item.chorus_fruit.teleport", "1.14 item.chorus_fruit.teleport", "1.15 item.chorus_fruit.teleport", "1.16 item.chorus_fruit.teleport"),
     ENTITY_GENERIC_BIG_FALL("1.7 game.player.hurt.fall.big", "1.8 game.player.hurt.fall.big", "1.9 entity.hostile.big_fall", "1.10 entity.hostile.big_fall", "1.11 entity.hostile.big_fall", "1.12 entity.hostile.big_fall", "1.13 entity.hostile.big_fall", "1.14 entity.hostile.big_fall", "1.15 entity.hostile.big_fall", "1.16 entity.hostile.big_fall"),
     ENTITY_GENERIC_BURN("1.7 random.fizz", "1.8 random.fizz", "1.9 entity.generic.extinguish_fire", "1.10 entity.generic.extinguish_fire", "1.11 entity.generic.extinguish_fire", "1.12 entity.generic.extinguish_fire", "1.13 entity.generic.extinguish_fire", "1.14 block.lava.extinguish", "1.15 block.lava.extinguish", "1.16 block.lava.extinguish"),
     ENTITY_GENERIC_DEATH("1.7 game.hostile.die", "1.8 game.hostile.die", "1.9 entity.player.death", "1.10 entity.player.death", "1.11 entity.player.death", "1.12 entity.player.death", "1.13 entity.player.death", "1.14 entity.player.death", "1.15 entity.player.death", "1.16 entity.player.death"),
@@ -491,6 +514,7 @@ public enum SoundType
     ENTITY_HOGLIN_AMBIENT("1.16 entity.hoglin.ambient"),
     ENTITY_HOGLIN_ANGRY("1.16 entity.hoglin.angry"),
     ENTITY_HOGLIN_ATTACK("1.16 entity.hoglin.attack"),
+    ENTITY_HOGLIN_CONVERTED_TO_ZOMBIFIED("1.16 entity.hoglin.converted_to_zombified"),
     ENTITY_HOGLIN_DEATH("1.16 entity.hoglin.death"),
     ENTITY_HOGLIN_HURT("1.16 entity.hoglin.hurt"),
     ENTITY_HOGLIN_RETREAT("1.16 entity.hoglin.ambient"),
@@ -500,7 +524,7 @@ public enum SoundType
     ENTITY_HORSE_ARMOR("1.7 mob.horse.armor", "1.8 mob.horse.armor", "1.9 entity.horse.armor", "1.10 entity.horse.armor", "1.11 entity.horse.armor", "1.12 entity.horse.armor", "1.13 entity.horse.armor", "1.14 entity.horse.armor", "1.15 entity.horse.armor", "1.16 entity.horse.armor"),
     ENTITY_HORSE_BREATHE("1.7 mob.horse.breathe", "1.8 mob.horse.breathe", "1.9 entity.horse.breathe", "1.10 entity.horse.breathe", "1.11 entity.horse.breathe", "1.12 entity.horse.breathe", "1.13 entity.horse.breathe", "1.14 entity.horse.breathe", "1.15 entity.horse.breathe", "1.16 entity.horse.breathe"),
     ENTITY_HORSE_DEATH("1.7 mob.horse.death", "1.8 mob.horse.death", "1.9 entity.horse.death", "1.10 entity.horse.death", "1.11 entity.horse.death", "1.12 entity.horse.death", "1.13 entity.horse.death", "1.14 entity.horse.death", "1.15 entity.horse.death", "1.16 entity.horse.death"),
-    ENTITY_HORSE_EAT("1.9 entity.horse.eat", "1.10 entity.horse.eat", "1.11 entity.horse.eat", "1.12 entity.horse.eat", "1.13 entity.horse.eat", "1.14 entity.horse.eat", "1.15 entity.horse.eat", "1.16 entity.horse.eat"),
+    ENTITY_HORSE_EAT("1.9 entity.horse.eat", "1.10 entity.horse.eat", "1.11 entity.horse.eat", "1.12 entity.horse.eat", "1.13 entity.horse.eat", "1.14 entity.horse.eat", "1.15 entity.horse.eat", "1.16 entity.donkey.eat"),
     ENTITY_HORSE_GALLOP("1.7 mob.horse.gallop", "1.8 mob.horse.gallop", "1.9 entity.horse.gallop", "1.10 entity.horse.gallop", "1.11 entity.horse.gallop", "1.12 entity.horse.gallop", "1.13 entity.horse.gallop", "1.14 entity.horse.gallop", "1.15 entity.horse.gallop", "1.16 entity.horse.gallop"),
     ENTITY_HORSE_HURT("1.7 mob.horse.hit", "1.8 mob.horse.hit", "1.9 entity.horse.hurt", "1.10 entity.horse.hurt", "1.11 entity.horse.hurt", "1.12 entity.horse.hurt", "1.13 entity.horse.hurt", "1.14 entity.horse.hurt", "1.15 entity.horse.hurt", "1.16 entity.horse.hurt"),
     ENTITY_HORSE_JUMP("1.7 mob.horse.jump", "1.8 mob.horse.jump", "1.9 entity.horse.jump", "1.10 entity.horse.jump", "1.11 entity.horse.jump", "1.12 entity.horse.jump", "1.13 entity.horse.jump", "1.14 entity.horse.jump", "1.15 entity.horse.jump", "1.16 entity.horse.jump"),
@@ -568,8 +592,10 @@ public enum SoundType
     ENTITY_MOOSHROOM_SHEAR("1.7 mob.sheep.shear", "1.8 mob.sheep.shear", "1.9 entity.sheep.shear", "1.10 entity.sheep.shear", "1.11 entity.sheep.shear", "1.12 entity.sheep.shear", "1.13 entity.sheep.shear", "1.14 entity.sheep.shear", "1.15 entity.sheep.shear", "1.16 entity.sheep.shear"),
     ENTITY_MOOSHROOM_SUSPICIOUS_MILK("1.14 entity.mooshroom.suspicious_milk", "1.15 entity.mooshroom.suspicious_milk", "1.16 entity.mooshroom.suspicious_milk"),
     ENTITY_MULE_AMBIENT("1.7 mob.horse.donkey.idle", "1.8 mob.horse.donkey.idle", "1.9 entity.donkey.ambient", "1.10 entity.donkey.ambient", "1.11 entity.donkey.ambient", "1.12 entity.donkey.ambient", "1.13 entity.donkey.ambient", "1.14 entity.donkey.ambient", "1.15 entity.donkey.ambient", "1.16 entity.donkey.ambient"),
+    ENTITY_MULE_ANGRY("1.7 mob.horse.donkey.angry", "1.8 mob.horse.donkey.angry", "1.9 entity.donkey.angry", "1.10 entity.donkey.angry", "1.11 entity.donkey.angry", "1.12 entity.donkey.angry", "1.13 entity.donkey.angry", "1.14 entity.donkey.angry", "1.15 entity.donkey.angry", "1.16 entity.mule.angry"),
     ENTITY_MULE_CHEST("1.7 mob.chicken.plop", "1.8 mob.chicken.plop", "1.9 entity.donkey.chest", "1.10 entity.donkey.chest", "1.11 entity.donkey.chest", "1.12 entity.donkey.chest", "1.13 entity.donkey.chest", "1.14 entity.donkey.chest", "1.15 entity.donkey.chest", "1.16 entity.donkey.chest"),
     ENTITY_MULE_DEATH("1.7 mob.horse.donkey.death", "1.8 mob.horse.donkey.death", "1.9 entity.donkey.death", "1.10 entity.donkey.death", "1.11 entity.donkey.death", "1.12 entity.donkey.death", "1.13 entity.donkey.death", "1.14 entity.mule.death", "1.15 entity.mule.death", "1.16 entity.mule.death"),
+    ENTITY_MULE_EAT("1.9 entity.horse.eat", "1.10 entity.horse.eat", "1.11 entity.horse.eat", "1.12 entity.horse.eat", "1.13 entity.horse.eat", "1.14 entity.horse.eat", "1.15 entity.horse.eat", "1.16 entity.donkey.eat"),
     ENTITY_MULE_HURT("1.7 mob.horse.donkey.hit", "1.8 mob.horse.donkey.hit", "1.9 entity.donkey.hurt", "1.10 entity.donkey.hurt", "1.11 entity.donkey.hurt", "1.12 entity.donkey.hurt", "1.13 entity.donkey.hurt", "1.14 entity.mule.hurt", "1.15 entity.mule.hurt", "1.16 entity.mule.hurt"),
     ENTITY_OCELOT_AMBIENT("1.14 entity.ocelot.ambient", "1.15 entity.ocelot.ambient", "1.16 entity.ocelot.ambient"),
     ENTITY_OCELOT_DEATH("1.14 entity.ocelot.death", "1.15 entity.ocelot.death", "1.16 entity.ocelot.death"),
@@ -601,10 +627,12 @@ public enum SoundType
     ENTITY_PARROT_IMITATE_EVOKER("1.13 entity.parrot.imitate.evoker", "1.14 entity.parrot.imitate.evoker", "1.15 entity.parrot.imitate.evoker", "1.16 entity.parrot.imitate.evoker"),
     ENTITY_PARROT_IMITATE_GHAST("1.12 entity.parrot.imitate.ghast", "1.13 entity.parrot.imitate.ghast", "1.14 entity.parrot.imitate.ghast", "1.15 entity.parrot.imitate.ghast", "1.16 entity.parrot.imitate.ghast"),
     ENTITY_PARROT_IMITATE_GUARDIAN("1.14 entity.parrot.imitate.guardian", "1.15 entity.parrot.imitate.guardian", "1.16 entity.parrot.imitate.guardian"),
+    ENTITY_PARROT_IMITATE_HOGLIN("1.16 entity.parrot.imitate.hoglin"),
     ENTITY_PARROT_IMITATE_HUSK("1.12 entity.parrot.imitate.husk", "1.13 entity.parrot.imitate.husk", "1.14 entity.parrot.imitate.husk", "1.15 entity.parrot.imitate.husk", "1.16 entity.parrot.imitate.husk"),
     ENTITY_PARROT_IMITATE_ILLUSIONER("1.13 entity.parrot.imitate.illusioner", "1.14 entity.parrot.imitate.illusioner", "1.15 entity.parrot.imitate.illusioner", "1.16 entity.parrot.imitate.illusioner"),
     ENTITY_PARROT_IMITATE_MAGMA_CUBE("1.13 entity.parrot.imitate.magma_cube", "1.14 entity.parrot.imitate.magma_cube", "1.15 entity.parrot.imitate.magma_cube", "1.16 entity.parrot.imitate.magma_cube"),
     ENTITY_PARROT_IMITATE_PHANTOM("1.13 entity.parrot.imitate.phantom", "1.14 entity.parrot.imitate.phantom", "1.15 entity.parrot.imitate.phantom", "1.16 entity.parrot.imitate.phantom"),
+    ENTITY_PARROT_IMITATE_PIGLIN("1.16 entity.parrot.imitate.piglin"),
     ENTITY_PARROT_IMITATE_PILLAGER("1.14 entity.parrot.imitate.pillager", "1.15 entity.parrot.imitate.pillager", "1.16 entity.parrot.imitate.pillager"),
     ENTITY_PARROT_IMITATE_RAVAGER("1.14 entity.parrot.imitate.ravager", "1.15 entity.parrot.imitate.ravager", "1.16 entity.parrot.imitate.ravager"),
     ENTITY_PARROT_IMITATE_SHULKER("1.12 entity.parrot.imitate.shulker", "1.13 entity.parrot.imitate.shulker", "1.14 entity.parrot.imitate.shulker", "1.15 entity.parrot.imitate.shulker", "1.16 entity.parrot.imitate.shulker"),
@@ -618,6 +646,7 @@ public enum SoundType
     ENTITY_PARROT_IMITATE_WITCH("1.12 entity.parrot.imitate.witch", "1.13 entity.parrot.imitate.witch", "1.14 entity.parrot.imitate.witch", "1.15 entity.parrot.imitate.witch", "1.16 entity.parrot.imitate.witch"),
     ENTITY_PARROT_IMITATE_WITHER("1.12 entity.parrot.imitate.wither", "1.13 entity.parrot.imitate.wither", "1.14 entity.parrot.imitate.wither", "1.15 entity.parrot.imitate.wither", "1.16 entity.parrot.imitate.wither"),
     ENTITY_PARROT_IMITATE_WITHER_SKELETON("1.12 entity.parrot.imitate.wither_skeleton", "1.13 entity.parrot.imitate.wither_skeleton", "1.14 entity.parrot.imitate.wither_skeleton", "1.15 entity.parrot.imitate.wither_skeleton", "1.16 entity.parrot.imitate.wither_skeleton"),
+    ENTITY_PARROT_IMITATE_ZOGLIN("1.16 entity.parrot.imitate.zoglin"),
     ENTITY_PARROT_IMITATE_ZOMBIE("1.12 entity.parrot.imitate.zombie", "1.13 entity.parrot.imitate.zombie", "1.14 entity.parrot.imitate.zombie", "1.15 entity.parrot.imitate.zombie", "1.16 entity.parrot.imitate.zombie"),
     ENTITY_PARROT_IMITATE_ZOMBIE_VILLAGER("1.12 entity.parrot.imitate.zombie_villager", "1.13 entity.parrot.imitate.zombie_villager", "1.14 entity.parrot.imitate.zombie_villager", "1.15 entity.parrot.imitate.zombie_villager", "1.16 entity.parrot.imitate.zombie_villager"),
     ENTITY_PARROT_STEP("1.12 entity.parrot.step", "1.13 entity.parrot.step", "1.14 entity.parrot.step", "1.15 entity.parrot.step", "1.16 entity.parrot.step"),
@@ -762,6 +791,7 @@ public enum SoundType
     ENTITY_STRIDER_HAPPY("1.16 entity.strider.happy"),
     ENTITY_STRIDER_HURT("1.16 entity.strider.hurt"),
     ENTITY_STRIDER_RETREAT("1.16 entity.strider.retreat"),
+    ENTITY_STRIDER_SADDLE("1.7 mob.horse.leather", "1.8 mob.horse.leather", "1.9 entity.horse.saddle", "1.10 entity.horse.saddle", "1.11 entity.horse.saddle", "1.12 entity.horse.saddle", "1.13 entity.horse.saddle", "1.14 entity.horse.saddle", "1.15 entity.horse.saddle", "1.16 entity.horse.saddle"),
     ENTITY_STRIDER_STEP("1.16 entity.strider.step"),
     ENTITY_STRIDER_STEP_LAVA("1.16 entity.strider.step_lava"),
     ENTITY_TNT_PRIMED("1.7 game.tnt.primed", "1.8 game.tnt.primed", "1.9 entity.creeper.primed", "1.10 entity.creeper.primed", "1.11 entity.creeper.primed", "1.12 entity.creeper.primed", "1.13 entity.creeper.primed", "1.14 entity.creeper.primed", "1.15 entity.creeper.primed", "1.16 entity.creeper.primed"),
@@ -844,6 +874,12 @@ public enum SoundType
     ENTITY_WOLF_SHAKE("1.7 mob.wolf.shake", "1.8 mob.wolf.shake", "1.9 entity.wolf.shake", "1.10 entity.wolf.shake", "1.11 entity.wolf.shake", "1.12 entity.wolf.shake", "1.13 entity.wolf.shake", "1.14 entity.wolf.shake", "1.15 entity.wolf.shake", "1.16 entity.wolf.shake"),
     ENTITY_WOLF_STEP("1.7 mob.wolf.step", "1.8 mob.wolf.step", "1.9 entity.wolf.step", "1.10 entity.wolf.step", "1.11 entity.wolf.step", "1.12 entity.wolf.step", "1.13 entity.wolf.step", "1.14 entity.wolf.step", "1.15 entity.wolf.step", "1.16 entity.wolf.step"),
     ENTITY_WOLF_WHINE("1.7 mob.wolf.whine", "1.8 mob.wolf.whine", "1.9 entity.wolf.whine", "1.10 entity.wolf.whine", "1.11 entity.wolf.whine", "1.12 entity.wolf.whine", "1.13 entity.wolf.whine", "1.14 entity.wolf.whine", "1.15 entity.wolf.whine", "1.16 entity.wolf.whine"),
+    ENTITY_ZOGLIN_AMBIENT("1.16 entity.zoglin.ambient"),
+    ENTITY_ZOGLIN_ANGRY("1.16 entity.zoglin.angry"),
+    ENTITY_ZOGLIN_ATTACK("1.16 entity.zoglin.attack"),
+    ENTITY_ZOGLIN_DEATH("1.16 entity.zoglin.death"),
+    ENTITY_ZOGLIN_HURT("1.16 entity.zoglin.hurt"),
+    ENTITY_ZOGLIN_STEP("1.16 entity.zoglin.step"),
     ENTITY_ZOMBIE_AMBIENT("1.7 mob.zombie.say", "1.8 mob.zombie.say", "1.9 entity.zombie_villager.ambient", "1.10 entity.zombie_villager.ambient", "1.11 entity.zombie.ambient", "1.12 entity.zombie.ambient", "1.13 entity.zombie.ambient", "1.14 entity.zombie.ambient", "1.15 entity.zombie.ambient", "1.16 entity.zombie.ambient"),
     ENTITY_ZOMBIE_ATTACK_IRON_DOOR("1.7 mob.zombie.metal", "1.8 mob.zombie.metal", "1.9 entity.zombie.attack_iron_door", "1.10 entity.zombie.attack_iron_door", "1.11 entity.zombie.attack_iron_door", "1.12 entity.zombie.attack_iron_door", "1.13 entity.zombie.attack_iron_door", "1.14 entity.zombie.attack_iron_door", "1.15 entity.zombie.attack_iron_door", "1.16 entity.zombie.attack_iron_door"),
     ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR("1.7 mob.zombie.wood", "1.8 mob.zombie.wood", "1.9 entity.zombie.attack_door_wood", "1.10 entity.zombie.attack_door_wood", "1.11 entity.zombie.attack_door_wood", "1.12 entity.zombie.attack_door_wood", "1.13 entity.zombie.attack_wooden_door", "1.14 entity.zombie.attack_wooden_door", "1.15 entity.zombie.attack_wooden_door", "1.16 entity.zombie.attack_wooden_door"),
@@ -925,7 +961,11 @@ public enum SoundType
     MUSIC_END("1.7 music.game.end", "1.8 music.game.end", "1.9 music.end", "1.10 music.end", "1.11 music.end", "1.12 music.end", "1.13 music.end", "1.14 music.end", "1.15 music.end", "1.16 music.end"),
     MUSIC_GAME("1.7 music.game", "1.8 music.game", "1.9 music.game", "1.10 music.game", "1.11 music.game", "1.12 music.game", "1.13 music.game", "1.14 music.game", "1.15 music.game", "1.16 music.game"),
     MUSIC_MENU("1.7 music.menu", "1.8 music.menu", "1.9 music.menu", "1.10 music.menu", "1.11 music.menu", "1.12 music.menu", "1.13 music.menu", "1.14 music.menu", "1.15 music.menu", "1.16 music.menu"),
-    MUSIC_NETHER("1.7 music.game.nether", "1.8 music.game.nether", "1.9 music.nether", "1.10 music.nether", "1.11 music.nether", "1.12 music.nether", "1.13 music.nether", "1.14 music.nether", "1.15 music.nether", "1.16 music.nether"),
+    MUSIC_NETHER_BASALT_DELTAS("1.7 music.game.nether", "1.8 music.game.nether", "1.9 music.nether", "1.10 music.nether", "1.11 music.nether", "1.12 music.nether", "1.13 music.nether", "1.14 music.nether", "1.15 music.nether", "1.16 music.nether.basalt_deltas"),
+    MUSIC_NETHER_CRIMSON_FOREST("1.7 music.game.nether", "1.8 music.game.nether", "1.9 music.nether", "1.10 music.nether", "1.11 music.nether", "1.12 music.nether", "1.13 music.nether", "1.14 music.nether", "1.15 music.nether", "1.16 music.nether.basalt_deltas"),
+    MUSIC_NETHER_NETHER_WASTES("1.7 music.game.nether", "1.8 music.game.nether", "1.9 music.nether", "1.10 music.nether", "1.11 music.nether", "1.12 music.nether", "1.13 music.nether", "1.14 music.nether", "1.15 music.nether", "1.16 music.nether.basalt_deltas"),
+    MUSIC_NETHER_SOUL_SAND_VALLEY("1.7 music.game.nether", "1.8 music.game.nether", "1.9 music.nether", "1.10 music.nether", "1.11 music.nether", "1.12 music.nether", "1.13 music.nether", "1.14 music.nether", "1.15 music.nether", "1.16 music.nether.basalt_deltas"),
+    MUSIC_NETHER_WARPED_FOREST("1.16 music.nether.warped_forest"),
     MUSIC_UNDER_WATER("1.13 music.under_water", "1.14 music.under_water", "1.15 music.under_water", "1.16 music.under_water"),
     MUSIC_DISC_11("1.7 records.11", "1.8 records.11", "1.9 record.11", "1.10 record.11", "1.11 record.11", "1.12 record.11", "1.13 music_disc.11", "1.14 music_disc.11", "1.15 music_disc.11", "1.16 music_disc.11"),
     MUSIC_DISC_13("1.7 records.13", "1.8 records.13", "1.9 record.13", "1.10 record.13", "1.11 record.13", "1.12 record.13", "1.13 music_disc.13", "1.14 music_disc.13", "1.15 music_disc.13", "1.16 music_disc.13"),
@@ -935,6 +975,7 @@ public enum SoundType
     MUSIC_DISC_FAR("1.7 records.far", "1.8 records.far", "1.9 record.far", "1.10 record.far", "1.11 record.far", "1.12 record.far", "1.13 music_disc.far", "1.14 music_disc.far", "1.15 music_disc.far", "1.16 music_disc.far"),
     MUSIC_DISC_MALL("1.7 records.mall", "1.8 records.mall", "1.9 record.mall", "1.10 record.mall", "1.11 record.mall", "1.12 record.mall", "1.13 music_disc.mall", "1.14 music_disc.mall", "1.15 music_disc.mall", "1.16 music_disc.mall"),
     MUSIC_DISC_MELLOHI("1.7 records.mellohi", "1.8 records.mellohi", "1.9 record.mellohi", "1.10 record.mellohi", "1.11 record.mellohi", "1.12 record.mellohi", "1.13 music_disc.mellohi", "1.14 music_disc.mellohi", "1.15 music_disc.mellohi", "1.16 music_disc.mellohi"),
+    MUSIC_DISC_PIGSTEP("1.16 music_disc.pigstep"),
     MUSIC_DISC_STAL("1.7 records.stal", "1.8 records.stal", "1.9 record.stal", "1.10 record.stal", "1.11 record.stal", "1.12 record.stal", "1.13 music_disc.stal", "1.14 music_disc.stal", "1.15 music_disc.stal", "1.16 music_disc.stal"),
     MUSIC_DISC_STRAD("1.7 records.strad", "1.8 records.strad", "1.9 record.strad", "1.10 record.strad", "1.11 record.strad", "1.12 record.strad", "1.13 music_disc.strad", "1.14 music_disc.strad", "1.15 music_disc.strad", "1.16 music_disc.strad"),
     MUSIC_DISC_WAIT("1.7 records.wait", "1.8 records.wait", "1.9 record.wait", "1.10 record.wait", "1.11 record.wait", "1.12 record.wait", "1.13 music_disc.wait", "1.14 music_disc.wait", "1.15 music_disc.wait", "1.16 music_disc.wait"),
@@ -952,21 +993,27 @@ public enum SoundType
     WEATHER_RAIN("1.7 ambient.weather.rain", "1.8 ambient.weather.rain", "1.9 weather.rain.above", "1.10 weather.rain.above", "1.11 weather.rain.above", "1.12 weather.rain.above", "1.13 weather.rain.above", "1.14 weather.rain.above", "1.15 weather.rain.above", "1.16 weather.rain.above"),
     WEATHER_RAIN_ABOVE("1.7 ambient.weather.rain", "1.8 ambient.weather.rain", "1.9 weather.rain.above", "1.10 weather.rain.above", "1.11 weather.rain.above", "1.12 weather.rain.above", "1.13 weather.rain.above", "1.14 weather.rain.above", "1.15 weather.rain.above", "1.16 weather.rain.above");
 
-    private String versionDependentName;
+    private @Nullable String versionDependentName;
 
     SoundType(String... versionDependentNames)
     {
         for (String versionDependentName : versionDependentNames) {
-            String[] sound = versionDependentName.split(" ");
+            String[] sound = StaticFields.spaceRegex.split(versionDependentName);
 
-            if (PlayMoreSounds.BUKKIT_VERSION.contains(sound[0])) {
+            if (VersionUtils.getBukkitVersion().startsWith(sound[0])) {
                 this.versionDependentName = sound[1];
+                break;
             }
         }
     }
 
-    public String getSoundOnVersion()
+    public @Nullable String getSoundOnVersion()
     {
         return versionDependentName;
+    }
+
+    private static class StaticFields
+    {
+        protected static final Pattern spaceRegex = Pattern.compile(" ");
     }
 }
