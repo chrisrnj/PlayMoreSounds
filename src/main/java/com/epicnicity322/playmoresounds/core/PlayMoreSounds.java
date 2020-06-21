@@ -1,18 +1,23 @@
 package com.epicnicity322.playmoresounds.core;
 
-import com.epicnicity322.epicpluginlib.logger.ErrorLogger;
-import com.epicnicity322.epicpluginlib.logger.Logger;
+import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
+import com.epicnicity322.epicpluginlib.core.logger.ErrorLogger;
 import com.epicnicity322.playmoresounds.core.addons.AddonManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 
 public interface PlayMoreSounds
 {
-    ErrorLogger getErrorLogger();
+    String version = "3.0.0";
 
-    Logger getPMSLogger();
+    @NotNull Path getJar();
 
-    Path getFolder();
+    @NotNull Path getCoreDataFolder();
 
-    AddonManager getAddonManager();
+    @NotNull ErrorLogger getCoreErrorLogger();
+
+    @NotNull ConsoleLogger<?> getCoreLogger();
+
+    @NotNull AddonManager getAddonManager();
 }

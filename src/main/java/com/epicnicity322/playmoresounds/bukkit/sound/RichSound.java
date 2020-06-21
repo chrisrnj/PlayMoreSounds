@@ -1,16 +1,15 @@
 package com.epicnicity322.playmoresounds.bukkit.sound;
 
 import com.epicnicity322.playmoresounds.bukkit.sound.events.PlayRichSoundEvent;
-import org.apache.commons.lang.Validate;
+import com.epicnicity322.yamlhandler.Configuration;
+import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
@@ -19,7 +18,7 @@ import java.util.Objects;
 
 public class RichSound implements Playable
 {
-    private String name;
+    private final String name;
     private ConfigurationSection section;
     private boolean enabled;
     private boolean cancellable;
@@ -27,27 +26,25 @@ public class RichSound implements Playable
 
     public RichSound(@NotNull ConfigurationSection section)
     {
-        Validate.notNull(section, "section is null");
+        if (section instanceof Configuration)
+            throw new UnsupportedOperationException("Section can not be Configuration.");
 
         this.section = section;
-        this.name = section.getCurrentPath();
-        enabled = section.getBoolean("Enabled");
-        cancellable = section.getBoolean("Cancellable");
+        this.name = section.getPath();
+        enabled = section.getBoolean("Enabled").orElse(false);
+        cancellable = section.getBoolean("Cancellable").orElse(false);
         childSounds = new LinkedHashSet<>();
 
-        if (section.contains("Sounds")) {
-            ConfigurationSection soundsSection = section.getConfigurationSection("Sounds");
+        ConfigurationSection sounds = section.getConfigurationSection("Sounds");
 
-            for (String childSound : soundsSection.getKeys(false)) {
-                childSounds.add(new Sound(soundsSection.getConfigurationSection(childSound)));
-            }
+        if (sounds != null) {
+            for (String childSound : sounds.getNodes().keySet())
+                childSounds.add(new Sound(sounds.getConfigurationSection(childSound)));
         }
     }
 
     public RichSound(@NotNull String name, boolean enabled, boolean cancellable, @Nullable Collection<Sound> childSounds)
     {
-        Validate.notNull(name, "name is null");
-
         this.name = name;
         this.enabled = enabled;
         this.cancellable = cancellable;
@@ -91,72 +88,55 @@ public class RichSound implements Playable
 
     public void setChildSounds(@Nullable Collection<Sound> sounds)
     {
-        if (sounds == null) {
+        if (sounds == null)
             this.childSounds = new HashSet<>();
-        } else {
+        else
             this.childSounds = sounds;
-        }
     }
 
     public void save(@NotNull Path path) throws IOException
     {
-        Validate.notNull(path);
-
-        if (Files.isDirectory(path)) {
-            throw new IllegalArgumentException("path is pointing to a directory");
-        }
-        if (!Files.exists(path)) {
-            Files.createFile(path);
-        }
-
-
     }
 
     @Override
     public void play(@NotNull Location sourceLocation)
     {
-        if (enabled) {
-            if (!getChildSounds().isEmpty()) {
-                PlayRichSoundEvent event = new PlayRichSoundEvent(null, sourceLocation, this);
+        if (isEnabled() && !getChildSounds().isEmpty()) {
+            PlayRichSoundEvent event = new PlayRichSoundEvent(null, sourceLocation, this);
 
-                Bukkit.getPluginManager().callEvent(event);
+            Bukkit.getPluginManager().callEvent(event);
 
-                if (!event.isCancelled())
-                    for (Sound s : getChildSounds())
-                        s.play(event.getLocation());
-            }
+            if (!event.isCancelled())
+                for (Sound s : getChildSounds())
+                    s.play(event.getLocation());
         }
     }
 
     @Override
     public void play(@NotNull Player player)
     {
-        if (enabled) {
-            if (!getChildSounds().isEmpty()) {
-                PlayRichSoundEvent event = new PlayRichSoundEvent(player, player.getLocation(), this);
+        if (isEnabled() && !getChildSounds().isEmpty()) {
+            PlayRichSoundEvent event = new PlayRichSoundEvent(player, player.getLocation(), this);
 
-                Bukkit.getPluginManager().callEvent(event);
+            Bukkit.getPluginManager().callEvent(event);
 
-                if (!event.isCancelled())
-                    for (Sound s : getChildSounds())
-                        s.play(player);
-            }
+            if (!event.isCancelled())
+                for (Sound s : getChildSounds())
+                    s.play(player);
         }
     }
 
     @Override
     public void play(@Nullable Player player, @NotNull Location sourceLocation)
     {
-        if (enabled) {
-            if (!getChildSounds().isEmpty()) {
-                PlayRichSoundEvent event = new PlayRichSoundEvent(player, sourceLocation, this);
+        if (isEnabled() && !getChildSounds().isEmpty()) {
+            PlayRichSoundEvent event = new PlayRichSoundEvent(player, sourceLocation, this);
 
-                Bukkit.getPluginManager().callEvent(event);
+            Bukkit.getPluginManager().callEvent(event);
 
-                if (!event.isCancelled())
-                    for (Sound s : getChildSounds())
-                        s.play(player, event.getLocation());
-            }
+            if (!event.isCancelled())
+                for (Sound s : getChildSounds())
+                    s.play(player, event.getLocation());
         }
     }
 

@@ -1,197 +1,300 @@
 package com.epicnicity322.playmoresounds.bukkit.inventory;
 
-import com.epicnicity322.epicpluginlib.lang.MessageSender;
+import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
+import com.epicnicity322.epicpluginlib.bukkit.logger.Logger;
+import com.epicnicity322.epicpluginlib.core.config.PluginConfig;
+import com.epicnicity322.epicpluginlib.core.logger.ErrorLogger;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
+import com.epicnicity322.playmoresounds.bukkit.sound.SoundType;
 import com.epicnicity322.playmoresounds.bukkit.util.PMSHelper;
+import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
+import com.epicnicity322.playmoresounds.core.config.Configurations;
+import com.epicnicity322.yamlhandler.Configuration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.logging.Level;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
-public class ListInventory implements PMSInventory
+public class ListInventory implements PMSInventory, Listener
 {
-    public static NamespacedKey button;
+    private static final @NotNull PluginConfig config = Configurations.CONFIG.getPluginConfig();
+    private static final @NotNull MessageSender lang = PlayMoreSounds.getMessageSender();
+    private static final @NotNull Logger logger = PlayMoreSounds.getPMSLogger();
+    private static final @NotNull ErrorLogger errorLogger = PlayMoreSounds.getErrorLogger();
+    private static final @NotNull HashMap<Integer, HashMap<Long, ArrayList<String>>> soundPagesCache = new HashMap<>();
+    private static final @NotNull Pattern spaceRegex = Pattern.compile(" ");
+    private static NamespacedKey button;
 
-    private Inventory inventory;
-    private HashMap<String, Integer> count = new HashMap<>();
+    static {
+        // Clear cache on disable.
+        PlayMoreSounds.addOnDisableRunnable(soundPagesCache::clear);
+    }
 
-    public ListInventory(int page)
+    private final @NotNull Inventory inventory;
+    private final int soundsPerPage;
+    private final long page;
+    private final @NotNull HashSet<HumanEntity> openInventories = new HashSet<>();
+
+    public ListInventory(long page)
     {
-        if (PlayMoreSounds.getPlugin() == null)
-            throw new IllegalStateException("PlayMoreSounds isn't enabled.");
+        if (!VersionUtils.hasPersistentData())
+            throw new UnsupportedOperationException("This class only works with bukkit 1.14+.");
 
-        if (PlayMoreSounds.CONFIG == null)
-            throw new IllegalStateException("Configuration isn't loaded.");
-
-        if (PlayMoreSounds.MESSAGE_SENDER == null)
-            throw new IllegalStateException("Language isn't loaded.");
+        if (PlayMoreSounds.getInstance() == null)
+            throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
         if (button == null)
-            button = new NamespacedKey(PlayMoreSounds.getPlugin(), "button");
+            button = InventoryUtils.getButton();
 
-        MessageSender lang = PlayMoreSounds.MESSAGE_SENDER;
-        int rowsPerPage = PMSHelper.getConfig("config").getInt("Inventories.List.Rows Per Page");
+        PlayMoreSounds.addOnDisableRunnable(() -> {
+            openInventories.forEach(HumanEntity::closeInventory);
+            openInventories.clear();
+        });
+
+        int rowsPerPage = config.getConfiguration().getNumber("Inventories.List.Rows Per Page").orElse(4).intValue();
 
         if (rowsPerPage > 4)
             rowsPerPage = 4;
         else if (rowsPerPage < 1)
             rowsPerPage = 1;
 
-        int maxPerPage = rowsPerPage * 9;
-        int count = 18;
-        HashMap<Integer, LinkedHashSet<String>> soundList = PMSHelper.chopSet(PlayMoreSounds.SOUND_LIST, maxPerPage);
-        LinkedHashSet<String> soundPage = soundList.get(page);
+        soundsPerPage = rowsPerPage * 9;
 
-        inventory = Bukkit.createInventory(null, ((soundPage.size() + 8) / 9 * 9) + count,
-                lang.getColored("List.GUI.Title").replace("<page>", Integer.toString(page))
-                        .replace("<totalpages>", Integer.toString(soundList.size())));
+        HashMap<Long, ArrayList<String>> soundPages;
+
+        if (soundPagesCache.containsKey(soundsPerPage)) {
+            soundPages = soundPagesCache.get(soundsPerPage);
+        } else {
+            soundPages = PMSHelper.splitIntoPages(new TreeSet<>(SoundManager.getSoundList()), soundsPerPage);
+
+            soundPagesCache.put(soundsPerPage, soundPages);
+        }
+
+        if (page > soundPages.size())
+            page = soundPages.size();
+        else if (page < 1)
+            page = 1;
+
+        this.page = page;
+
+        int count = 18;
+
+        inventory = Bukkit.createInventory(null, soundsPerPage + count, lang.getColored("List.GUI.Title")
+                .replace("<page>", Long.toString(page))
+                .replace("<totalpages>", Integer.toString(soundPages.size())));
 
         if (page > 1) {
-            ItemStack previousPageItem = getItemStack(Items.PREVIOUS_PAGE);
+            ItemStack previousPageItem = Items.PREVIOUS_PAGE.getItemStack();
             ItemMeta previousPageItemMeta = previousPageItem.getItemMeta();
 
-            previousPageItemMeta.getPersistentDataContainer().set(button, PersistentDataType.STRING, "GOTO " + (page - 1));
+            previousPageItemMeta.getPersistentDataContainer().set(button, PersistentDataType.STRING,
+                    "GOTO " + (page - 1));
             previousPageItem.setItemMeta(previousPageItemMeta);
             inventory.setItem(0, previousPageItem);
         }
 
-        inventory.setItem(4, getItemStack(Items.STOP_SOUND));
+        inventory.setItem(4, Items.STOP_SOUND.getItemStack());
 
-        if (page != soundList.size()) {
-            ItemStack nextPageItem = getItemStack(Items.NEXT_PAGE);
+        if (page != soundPages.size()) {
+            ItemStack nextPageItem = Items.NEXT_PAGE.getItemStack();
             ItemMeta nextPageItemMeta = nextPageItem.getItemMeta();
 
-            nextPageItemMeta.getPersistentDataContainer().set(button, PersistentDataType.STRING, "GOTO " + (page + 1));
+            nextPageItemMeta.getPersistentDataContainer().set(button, PersistentDataType.STRING,
+                    "GOTO " + (page + 1));
             nextPageItem.setItemMeta(nextPageItemMeta);
             inventory.setItem(8, nextPageItem);
         }
 
-        for (String sound : soundPage) {
-            ItemStack soundItem = getItemStack(Items.SOUND);
+        for (String sound : soundPages.get(page)) {
+            ItemStack soundItem = Items.SOUND.getItemStack();
             ItemMeta soundItemMeta = soundItem.getItemMeta();
 
-            soundItemMeta.setDisplayName(lang.getColored("List.GUI.Sound.Display Name").replace("<sound>",
-                    sound));
+            soundItemMeta.setDisplayName(lang.getColored("List.GUI.Sound.Display Name").replace(
+                    "<sound>", sound));
             soundItemMeta.getPersistentDataContainer().set(button, PersistentDataType.STRING, sound);
             soundItem.setItemMeta(soundItemMeta);
-
-            inventory.setItem(count, soundItem);
-            ++count;
+            inventory.setItem(count++, soundItem);
         }
     }
 
-    @Override
-    public Inventory getInventory()
+    public long getPage()
     {
-        return inventory;
+        return page;
+    }
+
+    public int getSoundsPerPage()
+    {
+        return soundsPerPage;
     }
 
     @Override
-    public PMSInventoryItem[] getItems()
+    public @NotNull PMSInventoryItem[] getItems()
     {
         return Items.values();
     }
 
     @Override
-    public ItemStack getItemStack(PMSInventoryItem item)
+    public @NotNull Inventory getInventory()
     {
-        FileConfiguration config = PMSHelper.getConfig("config");
-        MessageSender lang = PlayMoreSounds.MESSAGE_SENDER;
-        ItemStack itemStack = new ItemStack(Material.MUSIC_DISC_13);
-
-        try {
-            if (item.getId().equals("SOUND")) {
-                List<String> materials = config.getStringList(item.getConfigPath() + ".Material");
-
-                if (!count.containsKey(item.getId()) || count.get(item.getId()) >= materials.size()) {
-                    count.put(item.getId(), 0);
-                }
-
-                itemStack = new ItemStack(Material.valueOf(materials.get(count.get(item.getId()))));
-                count.put(item.getId(), count.get(item.getId()) + 1);
-            } else {
-                itemStack = new ItemStack(Material.valueOf(config.getString(item.getConfigPath() + ".Material")));
-            }
-        } catch (IllegalArgumentException ex) {
-            PlayMoreSounds.LOGGER.log("&cYour config.yml has an invalid Material in the path '" +
-                    item.getConfigPath() + "'. Sound List GUI could not be created.", Level.WARNING);
-            PlayMoreSounds.ERROR_LOGGER.report(ex, "Invalid material in config.yml at " + item.getConfigPath() + ":");
-        }
-
-        ItemMeta itemMeta = itemStack.getItemMeta();
-
-        itemMeta.setLore(Arrays.asList(lang.getColored(item.getLangPath() + ".Lore").split("<line>")));
-        itemMeta.addItemFlags(ItemFlag.values());
-
-        if (!item.getId().equals("SOUND")) {
-            itemMeta.setDisplayName(lang.getColored(item.getLangPath() + ".Display Name"));
-        }
-
-        if (item.getId().equals("STOP_SOUND")) {
-            itemMeta.getPersistentDataContainer().set(button, PersistentDataType.STRING, "STOP_SOUND");
-        }
-
-        if (config.getBoolean(item.getConfigPath() + ".Glowing")) {
-            itemMeta.addEnchant(Enchantment.DURABILITY, 1, false);
-        }
-
-        itemStack.setItemMeta(itemMeta);
-        return itemStack;
+        return inventory;
     }
 
+    @Override
+    public void openInventory(@NotNull HumanEntity humanEntity)
+    {
+        humanEntity.openInventory(inventory);
+        openInventories.add(humanEntity);
+        Bukkit.getPluginManager().registerEvents(this, PlayMoreSounds.getInstance());
+    }
+
+    @EventHandler
+    public final void onInventoryClick(InventoryClickEvent event)
+    {
+        ItemStack itemStack = event.getCurrentItem();
+
+        if (itemStack != null) {
+            HumanEntity humanEntity = event.getWhoClicked();
+
+            if (openInventories.contains(humanEntity)) {
+                event.setCancelled(true);
+
+                Player player = (Player) humanEntity;
+                String button = itemStack.getItemMeta().getPersistentDataContainer().get(ListInventory.button,
+                        PersistentDataType.STRING);
+
+                if (button.startsWith("GOTO")) {
+                    Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> new ListInventory(Long.parseLong(spaceRegex.split(button)[1])).openInventory(humanEntity), 10);
+                } else if (button.equals("STOP_SOUND")) {
+                    SoundManager.stopSounds(player, null, 0);
+                } else {
+                    player.playSound(player.getLocation(), SoundType.valueOf(button).getSoundOnVersion(), 10, 1);
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public final void onInventoryClose(InventoryCloseEvent event)
+    {
+        openInventories.remove(event.getPlayer());
+
+        if (openInventories.isEmpty())
+            HandlerList.unregisterAll(this);
+    }
 
     public enum Items implements PMSInventoryItem
     {
-        STOP_SOUND("Stop Sound"),
+        STOP_SOUND("Stop Sound", itemMeta -> itemMeta.getPersistentDataContainer().set(button,
+                PersistentDataType.STRING, "STOP_SOUND")),
         NEXT_PAGE("Next Page"),
         PREVIOUS_PAGE("Previous Page"),
         SOUND("Sound");
 
-        private String name;
-        private String configPath;
-        private String langPath;
+        private final @NotNull String name;
+        private final @NotNull String configPath;
+        private final @NotNull String langPath;
+        private final @NotNull String id = name();
+        private final @Nullable Consumer<ItemMeta> consumer;
+        private int count = 0;
 
-        Items(String name)
+        Items(@NotNull String name)
+        {
+            this(name, null);
+        }
+
+
+        Items(@NotNull String name, @Nullable Consumer<ItemMeta> consumer)
         {
             this.name = name;
             configPath = "Inventories.List." + name + " Item";
             langPath = "List.GUI." + name;
+            this.consumer = consumer;
         }
 
         @Override
-        public String getName()
+        public @NotNull String getName()
         {
             return name;
         }
 
         @Override
-        public String getConfigPath()
+        public @NotNull String getConfigPath()
         {
             return configPath;
         }
 
-        @Override
-        public String getLangPath()
+        public @NotNull String getLangPath()
         {
             return langPath;
         }
 
         @Override
-        public String getId()
+        public @NotNull String getId()
         {
-            return name();
+            return id;
+        }
+
+        @Override
+        public @NotNull ItemStack getItemStack()
+        {
+            Configuration yamlConfig = config.getConfiguration();
+            ItemStack itemStack = new ItemStack(Material.MUSIC_DISC_13);
+
+            try {
+                if (name().equals("SOUND")) {
+                    ArrayList<String> materials = yamlConfig.getCollection(configPath + ".Material", Object::toString);
+
+                    if (!materials.isEmpty()) {
+                        if (count >= materials.size())
+                            count = 0;
+
+                        itemStack = new ItemStack(Material.valueOf(materials.get(count)));
+                        ++count;
+                    }
+                } else {
+                    itemStack = new ItemStack(Material.valueOf(yamlConfig.getString(configPath + ".Material").orElse("")));
+                }
+            } catch (IllegalArgumentException ex) {
+                logger.log("&cYour config.yml has an invalid Material in the path '" + configPath + "'.");
+                errorLogger.report(ex, "Invalid material in config.yml at " + configPath + ":");
+            }
+
+            ItemMeta itemMeta = itemStack.getItemMeta();
+
+            itemMeta.setLore(Arrays.asList(lang.getColored(langPath + ".Lore").split("<line>")));
+            itemMeta.addItemFlags(ItemFlag.values());
+
+            if (!name().equals("SOUND"))
+                itemMeta.setDisplayName(lang.getColored(langPath + ".Display Name"));
+
+            if (yamlConfig.getBoolean(configPath + ".Glowing").orElse(false))
+                itemMeta.addEnchant(Enchantment.DURABILITY, 1, false);
+
+            if (consumer != null)
+                consumer.accept(itemMeta);
+
+            itemStack.setItemMeta(itemMeta);
+
+            return itemStack;
         }
     }
 }

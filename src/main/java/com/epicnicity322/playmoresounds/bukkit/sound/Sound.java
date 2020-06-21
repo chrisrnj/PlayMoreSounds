@@ -1,16 +1,17 @@
 package com.epicnicity322.playmoresounds.bukkit.sound;
 
+import com.epicnicity322.epicpluginlib.core.config.PluginConfig;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.events.PlaySoundEvent;
 import com.epicnicity322.playmoresounds.bukkit.sound.events.PrePlaySoundEvent;
 import com.epicnicity322.playmoresounds.bukkit.util.PMSHelper;
-import org.apache.commons.lang.Validate;
+import com.epicnicity322.playmoresounds.core.config.Configurations;
+import com.epicnicity322.yamlhandler.Configuration;
+import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,10 +19,11 @@ import java.util.HashSet;
 
 public class Sound implements Playable
 {
-    private String id;
-    private String name;
+    private static final @NotNull PluginConfig config = Configurations.CONFIG.getPluginConfig();
+    private final @NotNull String name;
+    private final @NotNull String id;
     private String sound;
-    private SoundType soundType;
+    private @Nullable SoundType soundType;
     private float volume;
     private float pitch;
     private long delay;
@@ -33,11 +35,10 @@ public class Sound implements Playable
         setSound(sound);
         setOptions(options);
 
-        if (id == null) {
-            id = PMSHelper.getRandomString(5);
-        } else {
+        if (id == null)
+            this.id = PMSHelper.getRandomString(5);
+        else
             this.id = id;
-        }
 
         name = id;
         this.volume = volume;
@@ -56,32 +57,30 @@ public class Sound implements Playable
      */
     public Sound(@NotNull ConfigurationSection section)
     {
-        Validate.notNull(section, "section is null");
+        if (section instanceof Configuration)
+            throw new UnsupportedOperationException("Section can not be Configuration.");
 
-        setSound(section.getString("Sound", "BLOCK_NOTE_BLOCK_PLING"));
+        setSound(section.getString("Sound").orElse("BLOCK_NOTE_BLOCK_PLING"));
         id = section.getName();
-        name = section.getCurrentPath();
-        delay = section.getLong("Delay");
+        name = section.getPath();
+        delay = section.getNumber("Delay").orElse(0).longValue();
+        volume = section.getNumber("Volume").orElse(10).floatValue();
+        pitch = section.getNumber("Pitch").orElse(1).floatValue();
 
-        // Spigot team please add a way of getting floats on configurations.
-        volume = (float) section.getDouble("Volume", 10);
-        pitch = (float) section.getDouble("Pitch", 1);
+        ConfigurationSection options = section.getConfigurationSection("Options");
 
-        if (section.contains("Options")) {
-            options = new SoundOptions(section.getConfigurationSection("Options"));
-        } else {
+        if (options == null)
             setOptions(null);
-        }
+        else
+            this.options = new SoundOptions(options);
     }
 
-    @NotNull
-    public String getId()
+    public @NotNull String getId()
     {
         return id;
     }
 
-    @NotNull
-    public String getName()
+    public @NotNull String getName()
     {
         return name;
     }
@@ -92,17 +91,14 @@ public class Sound implements Playable
      * @return The sound that will be played.
      * @see #getSoundType()
      */
-    @NotNull
-    public String getSound()
+    public @NotNull String getSound()
     {
         return sound;
     }
 
     public void setSound(@NotNull String sound)
     {
-        Validate.notNull(sound, "sound is null");
-
-        if (PlayMoreSounds.SOUND_LIST.contains(sound.toUpperCase())) {
+        if (SoundManager.getSoundList().contains(sound.toUpperCase())) {
             SoundType type = SoundType.valueOf(sound.toUpperCase());
 
             this.sound = type.getSoundOnVersion();
@@ -148,20 +144,18 @@ public class Sound implements Playable
         this.delay = delay;
     }
 
-    @NotNull
-    public SoundOptions getOptions()
+    public @NotNull SoundOptions getOptions()
     {
         return options;
     }
 
     public void setOptions(@Nullable SoundOptions options)
     {
-        if (options == null) {
+        if (options == null)
             this.options = new SoundOptions(false, false, null,
                     null, 0.0, null);
-        } else {
+        else
             this.options = options;
-        }
     }
 
     @Override
@@ -173,8 +167,6 @@ public class Sound implements Playable
     @Override
     public void play(@NotNull Player player)
     {
-        Validate.notNull(player, "player is null");
-
         if (options.isEyeLocation())
             play(player, player.getEyeLocation());
         else
@@ -184,8 +176,6 @@ public class Sound implements Playable
     @Override
     public void play(@Nullable Player player, @NotNull Location sourceLocation)
     {
-        Validate.notNull(sourceLocation, "sourceLocation is null");
-
         PrePlaySoundEvent preEvent = new PrePlaySoundEvent(player, sourceLocation, this);
 
         Bukkit.getPluginManager().callEvent(preEvent);
@@ -201,18 +191,11 @@ public class Sound implements Playable
 
             Sound instance = this;
 
-            if (delay == 0) {
+            if (delay == 0)
                 play(player, players, soundLocation, instance);
-            } else {
-                new BukkitRunnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        play(player, players, soundLocation, instance);
-                    }
-                }.runTaskLater(PlayMoreSounds.getPlugin(), delay);
-            }
+            else
+                Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () ->
+                        play(player, players, soundLocation, instance), delay);
         }
     }
 
@@ -220,8 +203,8 @@ public class Sound implements Playable
                       @NotNull Sound instance)
     {
         for (Player inRange : players) {
-            if (!PMSHelper.getConfig("config").getStringList("World-BlackList").contains(inRange.getWorld().getName())
-                    && (options.ignoresToggle() || !PlayMoreSounds.IGNORED_PLAYERS.contains(inRange.getName()))
+            if (!config.getConfiguration().getCollection("World-BlackList").contains(inRange.getWorld().getName())
+                    && (options.ignoresToggle() || !SoundManager.getIgnoredPlayers().contains(inRange.getUniqueId()))
                     && (options.getPermissionToListen() == null || inRange.hasPermission(options.getPermissionToListen()))
                     && (sourcePlayer == null || inRange.canSee(sourcePlayer))) {
                 Location fixedLocation = soundLocation;
@@ -240,9 +223,8 @@ public class Sound implements Playable
 
                 Bukkit.getPluginManager().callEvent(event);
 
-                if (!event.isCancelled()) {
+                if (!event.isCancelled())
                     inRange.playSound(event.getLocation(), sound, volume, pitch);
-                }
             }
         }
     }
