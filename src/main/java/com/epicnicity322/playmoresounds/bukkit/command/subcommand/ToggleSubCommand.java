@@ -1,114 +1,130 @@
 package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
 
-import com.epicnicity322.epicpluginlib.command.Command;
-import com.epicnicity322.epicpluginlib.lang.MessageSender;
+import com.epicnicity322.epicpluginlib.bukkit.command.Command;
+import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
+import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandUtils;
+import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
+import java.util.UUID;
 
-public class ToggleSubCommand implements Command
+public final class ToggleSubCommand extends Command implements Helpable
 {
+    private static final @NotNull HashSet<UUID> ignoredPlayers = SoundManager.getIgnoredPlayers();
+    private static final @NotNull MessageSender lang = PlayMoreSounds.getMessageSender();
+
     @Override
-    public String getName()
+    public @NotNull CommandRunnable onHelp()
+    {
+        return (label, sender, args) -> lang.send(sender, false, lang.get("Help.Toggle").replace("<label>", label));
+    }
+
+    @Override
+    public @NotNull String getName()
     {
         return "toggle";
     }
 
     @Override
-    public void onCommand(String label, CommandSender sender, String[] args)
+    public @Nullable String getPermission()
     {
-        MessageSender lang = PlayMoreSounds.MESSAGE_SENDER;
+        return "playmoresounds.toggle";
+    }
 
-        if (sender.hasPermission("playmoresounds.toggle")) {
-            HashSet<Player> targets;
-            Boolean on = null;
+    @Override
+    protected @Nullable CommandRunnable getNoPermissionRunnable()
+    {
+        return (label, sender, args) -> lang.send(sender, lang.get("General.No Permission"));
+    }
 
-            targets = CommandUtils.getTargets(sender, args, 1, lang.get("General.Invalid Arguments")
-                            .replace("<label>", label).replace("<label2>", args[0]).replace("<args>",
-                            "<" + lang.get("General.Target") + "> [on|off|toggle]"),
-                    "playmoresounds.toggle.others");
+    private String getInvalidArgsMessage(String label, CommandSender sender, String[] args)
+    {
+        return lang.get("General.Invalid Arguments")
+                .replace("<label>", label).replace("<label2>", args[0])
+                .replace("<args>", (sender instanceof Player ?
+                        "[" + lang.get("General.Target") + "]" : "<" + lang.get("General.Target") + ">") +
+                        " [on|off|toggle]");
+    }
 
-            if (targets == null) {
+    @Override
+    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
+    {
+        Boolean on = null;
+        String invalidArgsMessage = getInvalidArgsMessage(label, sender, args);
+        HashSet<Player> targets = CommandUtils.getTargets(sender, args, 1, invalidArgsMessage,
+                "playmoresounds.toggle.others");
+
+        if (targets == null)
+            return;
+
+        if (args.length > 2) {
+            if (args[2].equalsIgnoreCase("on"))
+                on = true;
+            else if (args[2].equalsIgnoreCase("off"))
+                on = false;
+            else if (!args[2].equalsIgnoreCase("toggle")) {
+                lang.send(sender, invalidArgsMessage);
                 return;
             }
+        }
 
-            if (args.length > 2) {
-                if (args[2].equalsIgnoreCase("on")) {
-                    on = true;
-                } else if (args[2].equalsIgnoreCase("off")) {
-                    on = false;
-                } else if (!args[2].equalsIgnoreCase("toggle")) {
-                    lang.send(sender, true, lang.get("General.Invalid Arguments")
-                            .replace("<label>", label).replace("<label2>", args[0])
-                            .replace("<args>", (sender instanceof Player ?
-                                    "[" + lang.get("General.Target") + "]" : "<" + lang.get("General.Target") + ">") +
-                                    " [on|off|toggle]"));
-                    return;
+        if (on == null) {
+            HashSet<Player> toOff = new HashSet<>();
+            HashSet<Player> toOn = new HashSet<>();
+
+            for (Player player : targets) {
+                UUID uuid = player.getUniqueId();
+
+                if (ignoredPlayers.contains(uuid)) {
+                    ignoredPlayers.remove(uuid);
+                    toOn.add(player);
+                } else {
+                    ignoredPlayers.add(uuid);
+                    toOff.add(player);
                 }
             }
 
-            if (on == null) {
-                HashSet<Player> toOff = new HashSet<>();
-                HashSet<Player> toOn = new HashSet<>();
+            if (!toOff.isEmpty()) {
+                String who = CommandUtils.getWho(toOff, sender);
 
-                for (Player player : targets) {
-                    if (PlayMoreSounds.IGNORED_PLAYERS.contains(player.getName())) {
-                        PlayMoreSounds.IGNORED_PLAYERS.remove(player.getName());
-                        toOn.add(player);
-                    } else {
-                        PlayMoreSounds.IGNORED_PLAYERS.add(player.getName());
-                        toOff.add(player);
-                    }
-                }
+                if (who.equals(lang.get("General.You")))
+                    lang.send(sender, lang.get("Toggle.Disabled.Default"));
+                else
+                    lang.send(sender, lang.get("Toggle.Disabled.Player").replace("<target>", who));
+            }
+            if (!toOn.isEmpty()) {
+                String who = CommandUtils.getWho(toOn, sender);
 
-                if (!toOff.isEmpty()) {
-                    String who = CommandUtils.getWho(toOff, sender);
-
-                    if (who.equals(lang.get("General.You"))) {
-                        lang.send(sender, true, lang.get("Toggle.Disabled.Default"));
-                    } else {
-                        lang.send(sender, true, lang.get("Toggle.Disabled.Player").replace("<target>", who));
-                    }
-                }
-                if (!toOn.isEmpty()) {
-                    String who = CommandUtils.getWho(toOn, sender);
-
-                    if (who.equals(lang.get("General.You"))) {
-                        lang.send(sender, true, lang.get("Toggle.Enabled.Default"));
-                    } else {
-                        lang.send(sender, true, lang.get("Toggle.Enabled.Player").replace("<target>", who));
-                    }
-                }
-            } else {
-                String who = CommandUtils.getWho(targets, sender);
-
-                if (on) {
-                    for (Player player : targets) {
-                        PlayMoreSounds.IGNORED_PLAYERS.remove(player.getName());
-                    }
-
-                    if (who.equals(lang.get("General.You"))) {
-                        lang.send(sender, true, lang.get("Toggle.Enabled.Default"));
-                    } else {
-                        lang.send(sender, true, lang.get("Toggle.Enabled.Player").replace("<player>", who));
-                    }
-                } else {
-                    for (Player player : targets) {
-                        PlayMoreSounds.IGNORED_PLAYERS.add(player.getName());
-                    }
-
-                    if (who.equals(lang.get("General.You"))) {
-                        lang.send(sender, true, lang.get("Toggle.Disabled.Default"));
-                    } else {
-                        lang.send(sender, true, lang.get("Toggle.Disabled.Player").replace("<player>", who));
-                    }
-                }
+                if (who.equals(lang.get("General.You")))
+                    lang.send(sender, lang.get("Toggle.Enabled.Default"));
+                else
+                    lang.send(sender, lang.get("Toggle.Enabled.Player").replace("<target>", who));
             }
         } else {
-            lang.send(sender, true, lang.get("General.No Permission"));
+            String who = CommandUtils.getWho(targets, sender);
+            String mode = "Enabled";
+
+            if (on) {
+                for (Player player : targets)
+                    ignoredPlayers.remove(player.getUniqueId());
+
+            } else {
+                for (Player player : targets)
+                    ignoredPlayers.add(player.getUniqueId());
+
+                mode = "Disabled";
+            }
+
+            if (who.equals(lang.get("General.You")))
+                lang.send(sender, lang.get("Toggle." + mode + ".Default"));
+            else
+                lang.send(sender, lang.get("Toggle." + mode + ".Player").replace("<player>", who));
         }
     }
 }

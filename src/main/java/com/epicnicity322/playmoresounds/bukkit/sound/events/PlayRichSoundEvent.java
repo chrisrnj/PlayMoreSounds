@@ -18,14 +18,10 @@ import org.jetbrains.annotations.Nullable;
 public class PlayRichSoundEvent extends Event implements Cancellable
 {
     private static final HandlerList handlers = new HandlerList();
-
+    private final @Nullable Player player;
+    private final @NotNull RichSound richSound;
     private boolean cancelled;
-    @Nullable
-    private Player player;
-    @NotNull
-    private Location location;
-    @NotNull
-    private RichSound richSound;
+    private @NotNull Location location;
 
     public PlayRichSoundEvent(@Nullable Player player, @NotNull Location location, @NotNull RichSound richSound)
     {
@@ -62,8 +58,7 @@ public class PlayRichSoundEvent extends Event implements Cancellable
      *
      * @return The source player.
      */
-    @Nullable
-    public Player getPlayer()
+    public @Nullable Player getPlayer()
     {
         return player;
     }
@@ -74,8 +69,7 @@ public class PlayRichSoundEvent extends Event implements Cancellable
      *
      * @return The source location of the sound.
      */
-    @NotNull
-    public Location getLocation()
+    public @NotNull Location getLocation()
     {
         return location;
     }
@@ -97,8 +91,7 @@ public class PlayRichSoundEvent extends Event implements Cancellable
      *
      * @return The rich sound object that will play.
      */
-    @NotNull
-    public RichSound getRichSound()
+    public @NotNull RichSound getRichSound()
     {
         return richSound;
     }

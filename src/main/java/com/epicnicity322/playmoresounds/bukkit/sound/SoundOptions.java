@@ -1,7 +1,6 @@
 package com.epicnicity322.playmoresounds.bukkit.sound;
 
-import org.apache.commons.lang.Validate;
-import org.bukkit.configuration.ConfigurationSection;
+import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,10 +12,10 @@ public class SoundOptions
 {
     private boolean ignoresToggle;
     private boolean eyeLocation;
-    private String permissionToListen;
-    private String permissionRequired;
+    private @Nullable String permissionToListen;
+    private @Nullable String permissionRequired;
     private double radius;
-    private Map<Direction, Double> relativeLocation = new HashMap<>();
+    private @NotNull Map<Direction, Double> relativeLocation = new HashMap<>();
 
     /**
      * SoundOptions is used to get the Options of a PMSSound more easily.
@@ -51,24 +50,19 @@ public class SoundOptions
      */
     public SoundOptions(@NotNull ConfigurationSection section)
     {
-        Validate.notNull(section, "section is null");
+        setPermissionRequired(section.getString("Permission Required").orElse(null));
+        setPermissionToListen(section.getString("Permission To Listen").orElse(null));
 
-        if (section.contains("Permission Required"))
-            setPermissionRequired(section.getString("Permission Required"));
+        radius = section.getNumber("Radius").orElse(0).doubleValue();
+        eyeLocation = section.getBoolean("Eye Location").orElse(false);
+        ignoresToggle = section.getBoolean("Ignores Toggle").orElse(false);
 
-        if (section.contains("Permission To Listen"))
-            setPermissionToListen(section.getString("Permission To Listen"));
+        ConfigurationSection relativeLoc = section.getConfigurationSection("Relative Location");
 
-        radius = section.getDouble("Radius");
-        eyeLocation = section.getBoolean("Eye Location");
-        ignoresToggle = section.getBoolean("Ignores Toggle");
-
-        if (section.contains("Relative Location")) {
-            ConfigurationSection relativeLoc = section.getConfigurationSection("Relative Location");
-
-            for (String s : relativeLoc.getKeys(false)) {
+        if (relativeLoc != null) {
+            for (String s : relativeLoc.getNodes().keySet()) {
                 try {
-                    relativeLocation.put(Direction.valueOf(s.toUpperCase()), relativeLoc.getDouble(s));
+                    relativeLocation.put(Direction.valueOf(s.toUpperCase()), relativeLoc.getNumber(s).orElse(0).doubleValue());
                 } catch (IllegalArgumentException ignored) {
                 }
             }
@@ -118,19 +112,17 @@ public class SoundOptions
      *
      * @return The permission the player needs to hear the sound.
      */
-    @Nullable
-    public String getPermissionToListen()
+    public @Nullable String getPermissionToListen()
     {
         return permissionToListen;
     }
 
     public void setPermissionToListen(@Nullable String permissionToListen)
     {
-        this.permissionToListen = permissionToListen;
-
-        if (permissionToListen != null && permissionToListen.equals("")) {
+        if (permissionToListen != null && permissionToListen.trim().isEmpty())
             this.permissionToListen = null;
-        }
+        else
+            this.permissionToListen = permissionToListen;
     }
 
     /**
@@ -141,19 +133,17 @@ public class SoundOptions
      *
      * @return The permission the player needs to play the sound.
      */
-    @Nullable
-    public String getPermissionRequired()
+    public @Nullable String getPermissionRequired()
     {
         return permissionRequired;
     }
 
     public void setPermissionRequired(@Nullable String permissionRequired)
     {
-        this.permissionRequired = permissionRequired;
-
-        if (permissionRequired != null && permissionRequired.equals("")) {
+        if (permissionRequired != null && permissionRequired.trim().isEmpty())
             this.permissionRequired = null;
-        }
+        else
+            this.permissionRequired = permissionRequired;
     }
 
     /**
@@ -180,19 +170,17 @@ public class SoundOptions
      *
      * @return The distance to add to the final sound location relative to where the player is looking.
      */
-    @NotNull
-    public Map<Direction, Double> getRelativeLocation()
+    public @NotNull Map<Direction, Double> getRelativeLocation()
     {
         return relativeLocation;
     }
 
     public void setRelativeLocation(@Nullable Map<Direction, Double> relativePositions)
     {
-        if (relativePositions == null) {
+        if (relativePositions == null)
             this.relativeLocation = new HashMap<>();
-        } else {
+        else
             this.relativeLocation = relativePositions;
-        }
     }
 
     /**

@@ -2,7 +2,6 @@ package com.epicnicity322.playmoresounds.bukkit.sound.events;
 
 import com.epicnicity322.playmoresounds.bukkit.sound.Sound;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundOptions;
-import org.apache.commons.lang.Validate;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -22,14 +21,13 @@ import java.util.HashSet;
 public class PlaySoundEvent extends Event implements Cancellable
 {
     private static final HandlerList handlers = new HandlerList();
-
+    private final @Nullable Player sourcePlayer;
+    private final @NotNull Player player;
+    private final @NotNull HashSet<Player> otherListeners;
+    private final @NotNull Location sourceLocation;
+    private final @NotNull Sound sound;
     private boolean cancelled;
-    private Player sourcePlayer;
-    private Player player;
-    private HashSet<Player> otherListeners;
-    private Location sourceLocation;
-    private Location location;
-    private Sound sound;
+    private @NotNull Location location;
 
     public PlaySoundEvent(@NotNull Sound sound, @NotNull Player player, @NotNull Location location,
                           @NotNull HashSet<Player> otherListeners, @Nullable Player sourcePlayer,
@@ -48,8 +46,8 @@ public class PlaySoundEvent extends Event implements Cancellable
         return handlers;
     }
 
-    @NotNull
-    public HandlerList getHandlers()
+    @Override
+    public @NotNull HandlerList getHandlers()
     {
         return handlers;
     }
@@ -69,10 +67,9 @@ public class PlaySoundEvent extends Event implements Cancellable
     /**
      * Gets the player who played the sound.
      *
-     * @return The player who played this sound.
+     * @return The player who played this sound, null if this sound was not played by a player.
      */
-    @Nullable
-    public Player getSourcePlayer()
+    public @Nullable Player getSourcePlayer()
     {
         return sourcePlayer;
     }
@@ -82,8 +79,7 @@ public class PlaySoundEvent extends Event implements Cancellable
      *
      * @return The player who is listening to this sound.
      */
-    @NotNull
-    public Player getPlayer()
+    public @NotNull Player getPlayer()
     {
         return player;
     }
@@ -93,7 +89,7 @@ public class PlaySoundEvent extends Event implements Cancellable
      *
      * @return The players that are hearing this sound.
      */
-    public HashSet<Player> getOtherListeners()
+    public @NotNull HashSet<Player> getOtherListeners()
     {
         return otherListeners;
     }
@@ -103,7 +99,7 @@ public class PlaySoundEvent extends Event implements Cancellable
      *
      * @return The location of the sound of the source player.
      */
-    public Location getSourceLocation()
+    public @NotNull Location getSourceLocation()
     {
         return sourceLocation;
     }
@@ -113,7 +109,7 @@ public class PlaySoundEvent extends Event implements Cancellable
      *
      * @return The location of the sound of the hearing player.
      */
-    public Location getLocation()
+    public @NotNull Location getLocation()
     {
         return location;
     }
@@ -122,12 +118,11 @@ public class PlaySoundEvent extends Event implements Cancellable
      * Changes the location where the sound of the hearing player will play.
      *
      * @param location The location you want to change to.
+     * @throws IllegalArgumentException If the location is in a different world.
      */
     public void setLocation(@NotNull Location location)
     {
-        Validate.notNull(location);
-
-        if (location.getWorld().equals(this.location.getWorld()))
+        if (!location.getWorld().equals(this.location.getWorld()))
             throw new IllegalArgumentException("Can't set location to a different world");
 
         this.location = location;
@@ -135,12 +130,11 @@ public class PlaySoundEvent extends Event implements Cancellable
 
     /**
      * Gets the instance used to play the sound. You can change the {@link SoundOptions} but they wont be taken to
-     * account, you may use this only to change the properties of {@link Sound}. You can also play the sound
-     * again using this instance, making this event be called over and over... It's your choice.
+     * account as this event is called after the options were applied.
      *
      * @return The instance of the sound.
      */
-    public Sound getSound()
+    public @NotNull Sound getSound()
     {
         return sound;
     }
