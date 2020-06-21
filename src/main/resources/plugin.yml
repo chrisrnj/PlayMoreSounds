@@ -14,3 +14,12 @@ commands:
       - sounds
       - moresounds
     description: 'PlayMoreSounds''s main command.'
+
+permissions:
+  playmoresounds.player:
+    description: Player recommended permissions.
+    default: true
+    children:
+      playmoresounds.check: true
+      playmoresounds.help: true
+      playmoresounds.toggle: true
