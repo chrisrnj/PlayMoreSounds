@@ -1,7 +1,6 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
-import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionEnterEvent;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionLeaveEvent;
 import org.bukkit.Bukkit;
@@ -13,46 +12,41 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 public final class OnPlayerMove implements Listener
 {
     protected static void callRegionEnterLeaveEvents(Cancellable event, Player player, Location from, Location to)
     {
-        Stream<SoundRegion> regions = RegionManager.getAllRegions().stream();
-        Set<SoundRegion> fromRegions = regions.filter(region -> region.isInside(from)).collect(Collectors.toSet());
-        Set<SoundRegion> toRegions = regions.filter(region -> region.isInside(to)).collect(Collectors.toSet());
+        RegionManager.getAllRegions().forEach(region -> {
+            boolean isInFrom = region.isInside(from);
+            boolean isInTo = region.isInside(to);
 
-        for (SoundRegion fromRegion : fromRegions) {
-            if (!toRegions.contains(fromRegion)) {
-                RegionLeaveEvent regionLeaveEvent = new RegionLeaveEvent(fromRegion, player, from, to);
+            if (isInFrom && !isInTo) {
+                RegionLeaveEvent regionLeaveEvent = new RegionLeaveEvent(region, player, from, to);
                 Bukkit.getPluginManager().callEvent(regionLeaveEvent);
 
                 if (regionLeaveEvent.isCancelled())
                     event.setCancelled(true);
-            }
-        }
-
-        for (SoundRegion toRegion : toRegions) {
-            if (!fromRegions.contains(toRegion)) {
-                RegionEnterEvent regionEnterEvent = new RegionEnterEvent(toRegion, player, from, to);
+            } else if (!isInFrom && isInTo) {
+                RegionEnterEvent regionEnterEvent = new RegionEnterEvent(region, player, from, to);
                 Bukkit.getPluginManager().callEvent(regionEnterEvent);
 
                 if (regionEnterEvent.isCancelled())
                     event.setCancelled(true);
             }
-        }
+        });
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerMove(PlayerMoveEvent event)
     {
-        if (!event.isCancelled())
-            callRegionEnterLeaveEvents(event, event.getPlayer(), event.getFrom(), event.getTo());
+        Location from = event.getFrom();
+        Location to = event.getFrom();
 
+        if (from.getBlockX() != to.getBlockX() || from.getBlockY() != to.getBlockY() || from.getBlockZ() != to.getBlockZ()) {
+            if (!event.isCancelled())
+                callRegionEnterLeaveEvents(event, event.getPlayer(), from, to);
 
-        //TODO: Run biome leave and enter sounds.
+            //TODO: Run biome leave and enter sounds.
+        }
     }
 }
