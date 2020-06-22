@@ -196,7 +196,7 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
             // Registering region wand tool listener.
             pm.registerEvents(new OnPlayerInteract(), this);
             // Registering region enter event caller.
-            pm.registerEvents(new OnPlayerJoin(), this);
+            pm.registerEvents(new OnPlayerJoin(this), this);
             // Registering region enter and leave event caller.
             pm.registerEvents(new OnPlayerMove(), this);
             // Registering region leave event caller.
