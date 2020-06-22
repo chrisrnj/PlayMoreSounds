@@ -25,6 +25,13 @@ public final class OnPlayerJoin implements Listener
 {
     private static final @NotNull MessageSender lang = PlayMoreSounds.getMessageSender();
     private static final @NotNull Logger logger = PlayMoreSounds.getPMSLogger();
+    private final @NotNull PlayMoreSounds plugin;
+
+    public OnPlayerJoin(@NotNull PlayMoreSounds plugin)
+    {
+        this.plugin = plugin;
+    }
+
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event)
@@ -33,25 +40,20 @@ public final class OnPlayerJoin implements Listener
         Location location = player.getLocation();
 
         // Playing join sound
-        new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                if (player.isOnline()) {
-                    Configuration sounds = Configurations.SOUNDS.getPluginConfig().getConfiguration();
-                    ConfigurationSection section;
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (player.isOnline()) {
+                Configuration sounds = Configurations.SOUNDS.getPluginConfig().getConfiguration();
+                ConfigurationSection section;
 
-                    if (player.hasPlayedBefore())
-                        section = sounds.getConfigurationSection("Join Server");
-                    else
-                        section = sounds.getConfigurationSection("First Join");
+                if (player.hasPlayedBefore())
+                    section = sounds.getConfigurationSection("Join Server");
+                else
+                    section = sounds.getConfigurationSection("First Join");
 
-                    if (section != null)
-                        new RichSound(section).play(player);
-                }
+                if (section != null)
+                    new RichSound(section).play(player);
             }
-        }.runTaskLater(PlayMoreSounds.getInstance(), 1);
+        }, 1);
 
         // Send update available message.
         if (UpdateManager.isUpdateAvailable())
