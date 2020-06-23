@@ -6,7 +6,7 @@
 
     <groupId>com.epicnicity322</groupId>
     <artifactId>PlayMoreSounds</artifactId>
-    <version>3.0.0</version>
+    <version>3.1</version>
 
     <build>
         <plugins>
@@ -55,7 +55,7 @@
         <dependency>
             <groupId>com.github.Epicnicity322</groupId>
             <artifactId>EpicPluginLib</artifactId>
-            <version>1.5.1</version>
+            <version>1.6</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>
