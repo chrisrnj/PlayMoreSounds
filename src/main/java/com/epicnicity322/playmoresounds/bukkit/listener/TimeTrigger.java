@@ -17,6 +17,10 @@ public final class TimeTrigger
 {
     private static final @NotNull HashMap<World, BukkitTask> runningWorlds = new HashMap<>();
 
+    private TimeTrigger()
+    {
+    }
+
     public static void load()
     {
         Configuration timeTriggers = Configurations.TIME_TRIGGERS.getPluginConfig().getConfiguration();
