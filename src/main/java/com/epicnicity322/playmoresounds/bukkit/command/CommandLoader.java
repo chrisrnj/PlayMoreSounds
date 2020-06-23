@@ -24,7 +24,7 @@ public final class CommandLoader
         PlayMoreSounds.addOnInstanceRunnable(() -> {
             description = (label, sender, args) -> {
                 lang.send(sender, false, lang.get("Description.Header").replace("<version>",
-                        PlayMoreSounds.getVersion()));
+                        PlayMoreSounds.getVersion().getVersion()));
                 lang.send(sender, false, "&6Author: &7Epicnicity322");
                 lang.send(sender, false, "&6Description: &7" + PlayMoreSounds.getInstance().getDescription().getDescription());
 

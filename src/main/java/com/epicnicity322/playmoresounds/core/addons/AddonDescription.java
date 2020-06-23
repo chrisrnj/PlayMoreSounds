@@ -1,5 +1,6 @@
 package com.epicnicity322.playmoresounds.core.addons;
 
+import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.core.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.core.addons.exceptions.InvalidAddonException;
 import com.epicnicity322.yamlhandler.Configuration;
@@ -22,8 +23,8 @@ public class AddonDescription
     private static final @NotNull YamlConfigurationLoader loader = YamlConfigurationLoader.build();
     private final @NotNull String main;
     private final @NotNull String name;
-    private final @NotNull String version;
-    private final @NotNull String apiVersion;
+    private final @NotNull Version version;
+    private final @NotNull Version apiVersion;
     private final @NotNull StartTime startTime;
     private final @NotNull Collection<String> authors;
     private final @NotNull Collection<String> hookPlugins;
@@ -59,8 +60,8 @@ public class AddonDescription
             else
                 this.startTime = StartTime.SERVER_LOAD_COMPLETE;
 
-            version = description.getString("Version").orElse("1.0");
-            apiVersion = description.getString("Api Version").orElse(PlayMoreSounds.version);
+            version = new Version(description.getString("Version").orElse("1.0"));
+            apiVersion = new Version(description.getString("Api Version").orElse(PlayMoreSounds.version.getVersion()));
             authors = Collections.unmodifiableCollection(description.getCollection("Authors", Object::toString));
             hookPlugins = Collections.unmodifiableCollection(description.getCollection("Hook Plugins", Object::toString));
             requiredPlugins = Collections.unmodifiableCollection(description.getCollection("Required Plugins", Object::toString));
@@ -100,12 +101,12 @@ public class AddonDescription
         return name;
     }
 
-    public @NotNull String getVersion()
+    public @NotNull Version getVersion()
     {
         return version;
     }
 
-    public @NotNull String getApiVersion()
+    public @NotNull Version getApiVersion()
     {
         return apiVersion;
     }

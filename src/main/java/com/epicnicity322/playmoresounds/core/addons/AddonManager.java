@@ -44,7 +44,12 @@ public class AddonManager
 
         Thread addonRunner = new Thread(() -> jars.forEach(jar -> {
             try {
-                addonClassLoaders.add(new AddonClassLoader(new AddonDescription(jar), jar));
+                AddonDescription description = new AddonDescription(jar);
+
+                if (PlayMoreSounds.version.compareTo(description.getApiVersion()) <= 0)
+                    addonClassLoaders.add(new AddonClassLoader(description, jar));
+                else
+                    corePMS.getCoreLogger().log("&e" + description.getName() + "&e addon was made for PlayMoreSounds v" + description.getApiVersion() + " and you are currently on " + PlayMoreSounds.version + ".");
             } catch (Exception e) {
                 corePMS.getCoreLogger().log("&eException while initializing the addon '" + jar.getFileName() + "&e': " + e.getMessage());
                 corePMS.getCoreErrorLogger().report(e, "Path: " + jar.toAbsolutePath() + "\nRegister as addon exception:");
@@ -102,7 +107,7 @@ public class AddonManager
     {
         String name = addon.getDescription().getName();
 
-        corePMS.getCoreLogger().log("&eStarting " + (name.contains("addon") ? name + "." : name + " addon."));
+        corePMS.getCoreLogger().log("&eStarting " + (name.toLowerCase().contains("addon") ? name + "." : name + " addon."));
 
         try {
             addon.onStart();

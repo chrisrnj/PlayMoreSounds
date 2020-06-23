@@ -5,6 +5,7 @@ import com.epicnicity322.epicpluginlib.bukkit.logger.Logger;
 import com.epicnicity322.epicpluginlib.bukkit.reflection.ReflectionUtil;
 import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.epicpluginlib.core.logger.ErrorLogger;
+import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandLoader;
 import com.epicnicity322.playmoresounds.bukkit.listener.*;
 import com.epicnicity322.playmoresounds.bukkit.util.ListenerRegister;
@@ -38,7 +39,7 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
     private static final @NotNull MessageSender messageSender = new MessageSender(Configurations.CONFIG.getPluginConfig(),
             Configurations.LANGUAGE_EN.getPluginConfig());
     private static @Nullable PlayMoreSounds instance;
-    private static @NotNull String version = com.epicnicity322.playmoresounds.core.PlayMoreSounds.version;
+    private static final @NotNull Version version = com.epicnicity322.playmoresounds.core.PlayMoreSounds.version;
     private static @NotNull ErrorLogger errorLogger;
 
     static {
@@ -51,12 +52,12 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
             }
         }
 
-        errorLogger = new ErrorLogger(folder, "PlayMoreSounds", getVersion(),
+        errorLogger = new ErrorLogger(folder, "PlayMoreSounds", getVersion().getVersion(),
                 Collections.singleton("Epicnicity322"), "https://www.spigotmc.org/resources/37429/", null);
     }
 
     private final @NotNull Path jar = getFile().toPath();
-    private final @NotNull AddonManager addonManager = new AddonManager(this);
+    private final @NotNull AddonManager addonManager;
 
     public PlayMoreSounds()
     {
@@ -64,9 +65,19 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
 
         PluginDescriptionFile descriptionFile = getDescription();
 
-        version = descriptionFile.getVersion();
-        errorLogger = new ErrorLogger(folder, descriptionFile.getName(), version, descriptionFile.getAuthors(),
+        errorLogger = new ErrorLogger(folder, descriptionFile.getName(), version.toString(), descriptionFile.getAuthors(),
                 descriptionFile.getWebsite(), getLogger());
+
+        addonManager = new AddonManager(this);
+
+        try {
+            addonManager.registerAddons();
+        } catch (IllegalStateException ignored) {
+            // Only thrown if addons were registered before.
+        } catch (IOException ex) {
+            logger.log("&cFailed to register addons.");
+            errorLogger.report(ex, "Addon registration error:");
+        }
 
         new Thread(() -> {
             for (Runnable runnable : onInstanceRunnables)
@@ -142,7 +153,7 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
     /**
      * Gets the running version of PlayMoreSounds.
      */
-    public static @NotNull String getVersion()
+    public static @NotNull Version getVersion()
     {
         return version;
     }
@@ -166,7 +177,7 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
     }
 
     @Override
-    public @NotNull ConsoleLogger<?> getCoreLogger()
+    public @NotNull ConsoleLogger<?, ?> getCoreLogger()
     {
         return logger;
     }
@@ -183,12 +194,6 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
         boolean success = true;
 
         try {
-            try {
-                addonManager.registerAddons();
-            } catch (IllegalStateException ignored) {
-                // Only thrown if addons were registered before.
-            }
-
             addonManager.startAddons(StartTime.BEFORE_CONFIGURATION);
             Configurations.getConfigLoader().loadConfigurations();
 

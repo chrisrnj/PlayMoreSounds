@@ -1,6 +1,6 @@
 package com.epicnicity322.playmoresounds.bukkit.util;
 
-import com.epicnicity322.epicpluginlib.core.util.StringUtils;
+import com.epicnicity322.epicpluginlib.core.tools.Version;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
@@ -11,21 +11,22 @@ public final class VersionUtils
     private static final boolean hasPersistentData;
     private static final boolean hasStopSound;
     private static final boolean hasOffHand;
-    private static @NotNull String bukkitVersion;
+    private static final @NotNull Version bukkitVersion;
 
     static {
-        bukkitVersion = Bukkit.getBukkitVersion();
+        String version = Bukkit.getBukkitVersion();
 
         // Removing release number.
-        bukkitVersion = bukkitVersion.substring(0, bukkitVersion.indexOf("-"));
+        bukkitVersion = new Version(version.substring(0, version.indexOf("-")));
 
-        // Checking if bukkit version is greater than 1.13.2 because persistent data was added in bukkit 1.14.
-        hasPersistentData = StringUtils.isVersionGreater(bukkitVersion, "1.13.2");
+        // Checking if bukkit version is 1.14 because persistent data was added in that version.
+        hasPersistentData = bukkitVersion.compareTo(new Version("1.14")) >= 0;
 
-        // Checking if bukkit version is greater than 1.10 because Player#stopSound was added in 1.10.2.
-        hasStopSound = StringUtils.isVersionGreater(bukkitVersion, "1.10");
+        // Checking if bukkit version is 1.10.2 because Player#stopSound was added in that version.
+        hasStopSound = bukkitVersion.compareTo(new Version("1.10.2")) >= 0;
 
-        hasOffHand = StringUtils.isVersionGreater(bukkitVersion, "1.8.8");
+        // Checking if bukkit version is 1.9 because off hand was added in that version.
+        hasOffHand = bukkitVersion.compareTo(new Version("1.9")) >= 0;
     }
 
     private VersionUtils()
@@ -37,7 +38,7 @@ public final class VersionUtils
      *
      * @return The version of bukkit.
      */
-    public static @NotNull String getBukkitVersion()
+    public static @NotNull Version getBukkitVersion()
     {
         return bukkitVersion;
     }

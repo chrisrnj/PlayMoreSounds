@@ -5,7 +5,7 @@ import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.epicpluginlib.bukkit.updater.Updater;
 import com.epicnicity322.epicpluginlib.core.tools.Downloader;
-import com.epicnicity322.epicpluginlib.core.util.StringUtils;
+import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.util.UpdateManager;
 import org.bukkit.command.CommandSender;
@@ -83,11 +83,11 @@ public final class UpdateSubCommand extends Command implements Helpable
 
                     switch (result) {
                         case SUCCESS:
-                            String version = UpdateManager.getUpdater().getLatestVersion();
+                            Version version = UpdateManager.getUpdater().getLatestVersion();
 
-                            lang.send(sender, lang.get("Update.Download.Success").replace("<version>", version));
+                            lang.send(sender, lang.get("Update.Download.Success").replace("<version>", version.getVersion()));
 
-                            if (!version.equals(PlayMoreSounds.getVersion()) && !StringUtils.isVersionGreater(version, PlayMoreSounds.getVersion()))
+                            if (version.compareTo(PlayMoreSounds.getVersion()) < 0)
                                 lang.send(sender, lang.get("Update.Download.Lower"));
 
                             break;
@@ -121,7 +121,8 @@ public final class UpdateSubCommand extends Command implements Helpable
                     lang.send(sender, lang.get("Update.Error.Offline"));
                     break;
                 case AVAILABLE:
-                    lang.send(sender, lang.get("Update.Available").replace("<label>", label).replace("<version>", UpdateManager.getUpdater().getLatestVersion()));
+                    lang.send(sender, lang.get("Update.Available").replace("<label>", label)
+                            .replace("<version>", UpdateManager.getUpdater().getLatestVersion().getVersion()));
                     break;
                 case TIMEOUT:
                     lang.send(sender, lang.get("Update.Error.Timeout"));

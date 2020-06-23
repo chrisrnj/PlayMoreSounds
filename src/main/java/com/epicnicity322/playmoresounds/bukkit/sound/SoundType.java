@@ -997,10 +997,12 @@ public enum SoundType
 
     SoundType(String... versionDependentNames)
     {
+        String bukkitVersion = VersionUtils.getBukkitVersion().getVersion();
+
         for (String versionDependentName : versionDependentNames) {
             String[] sound = StaticFields.spaceRegex.split(versionDependentName);
 
-            if (VersionUtils.getBukkitVersion().startsWith(sound[0])) {
+            if (bukkitVersion.startsWith(sound[0])) {
                 this.versionDependentName = sound[1];
                 break;
             }
