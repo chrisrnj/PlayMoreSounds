@@ -1,24 +1,29 @@
 package com.epicnicity322.playmoresounds.core.addons;
 
 import com.epicnicity322.playmoresounds.core.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.core.addons.exceptions.InvalidAddonException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class AddonManager
 {
-    protected static final @NotNull HashSet<AddonClassLoader> addonClassLoaders = new HashSet<>();
+    protected static final @NotNull Set<AddonClassLoader> addonClassLoaders = ConcurrentHashMap.newKeySet();
     private final @NotNull PlayMoreSounds corePMS;
+    private final @NotNull HashSet<String> pluginNames;
 
-    public AddonManager(@NotNull PlayMoreSounds corePMS)
+    public AddonManager(@NotNull PlayMoreSounds corePMS, @NotNull HashSet<String> pluginNames)
     {
         this.corePMS = corePMS;
+        this.pluginNames = pluginNames;
     }
 
     /**
@@ -42,19 +47,47 @@ public class AddonManager
             jars = paths.filter(file -> file.getFileName().toString().endsWith(".jar")).collect(Collectors.toSet());
         }
 
-        Thread addonRunner = new Thread(() -> jars.forEach(jar -> {
-            try {
-                AddonDescription description = new AddonDescription(jar);
+        Thread addonRunner = new Thread(() -> {
+            HashMap<Path, AddonDescription> descriptions = new HashMap<>();
+            HashSet<String> addonNames = new HashSet<>();
 
-                if (PlayMoreSounds.version.compareTo(description.getApiVersion()) <= 0)
-                    addonClassLoaders.add(new AddonClassLoader(description, jar));
-                else
-                    corePMS.getCoreLogger().log("&e" + description.getName() + "&e addon was made for PlayMoreSounds v" + description.getApiVersion() + " and you are currently on " + PlayMoreSounds.version + ".");
-            } catch (Exception e) {
-                corePMS.getCoreLogger().log("&eException while initializing the addon '" + jar.getFileName() + "&e': " + e.getMessage());
-                corePMS.getCoreErrorLogger().report(e, "Path: " + jar.toAbsolutePath() + "\nRegister as addon exception:");
+            for (Path jar : jars) {
+                try {
+                    AddonDescription description = new AddonDescription(jar);
+                    String name = description.getName();
+
+                    if (addonNames.contains(name)) {
+                        corePMS.getCoreLogger().log("&eTwo addons with the name '" + name + "' were found, only initializing the first one.");
+                    } else {
+                        if (PlayMoreSounds.version.compareTo(description.getApiVersion()) <= 0)
+                            if (pluginNames.containsAll(description.getRequiredPlugins())) {
+                                descriptions.put(jar, description);
+                                addonNames.add(name);
+                            } else
+                                corePMS.getCoreLogger().log("&e" + name + " addon depends on the plugin(s): " + description.getRequiredPlugins());
+                        else
+                            corePMS.getCoreLogger().log("&e" + name + " addon was made for PlayMoreSounds v" + description.getApiVersion() + ". You are currently on " + PlayMoreSounds.version + ".");
+                    }
+                } catch (InvalidAddonException e) {
+                    corePMS.getCoreLogger().log("&e" + e.getMessage());
+                } catch (Exception e) {
+                    corePMS.getCoreLogger().log("&eException while initializing the addon '" + jar.getFileName() + "&e': " + e.getMessage());
+                    corePMS.getCoreErrorLogger().report(e, "Path: " + jar.toAbsolutePath() + "\nRegister as addon exception:");
+                }
             }
-        }), "PMSAddon Runner");
+
+            descriptions.forEach((addon, description) -> {
+                try {
+                    if (addonNames.containsAll(description.getRequiredAddons()))
+                        addonClassLoaders.add(new AddonClassLoader(description, addon));
+                    else
+                        corePMS.getCoreLogger().log("&e" + description.getName() + " addon depends on the other addon(s): " + description.getRequiredAddons());
+                } catch (Exception e) {
+                    corePMS.getCoreLogger().log("&eException while initializing the addon '" + description.getName() + "&e': " + e.getMessage());
+                    corePMS.getCoreErrorLogger().report(e, "Path: " + addon.toAbsolutePath() + "\nRegister as addon exception:");
+                }
+            });
+        }, "PMSAddon Runner");
 
         addonRunner.start();
 
