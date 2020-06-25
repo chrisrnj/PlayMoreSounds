@@ -42,7 +42,7 @@ public abstract class PMSAddon
     /**
      * @return If this addon was already started once.
      */
-    public final boolean isStarted()
+    public final boolean hasStarted()
     {
         return started;
     }
@@ -50,7 +50,7 @@ public abstract class PMSAddon
     /**
      * @return If this addon was already stopped once.
      */
-    public final boolean isStopped()
+    public final boolean hasStopped()
     {
         return stopped;
     }
