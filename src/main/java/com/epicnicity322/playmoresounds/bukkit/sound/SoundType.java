@@ -1,9 +1,11 @@
 package com.epicnicity322.playmoresounds.bukkit.sound;
 
+import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.regex.Pattern;
+import java.util.Optional;
 
 public enum SoundType
 {
@@ -993,29 +995,91 @@ public enum SoundType
     WEATHER_RAIN("1.7 ambient.weather.rain", "1.8 ambient.weather.rain", "1.9 weather.rain.above", "1.10 weather.rain.above", "1.11 weather.rain.above", "1.12 weather.rain.above", "1.13 weather.rain.above", "1.14 weather.rain.above", "1.15 weather.rain.above", "1.16 weather.rain.above"),
     WEATHER_RAIN_ABOVE("1.7 ambient.weather.rain", "1.8 ambient.weather.rain", "1.9 weather.rain.above", "1.10 weather.rain.above", "1.11 weather.rain.above", "1.12 weather.rain.above", "1.13 weather.rain.above", "1.14 weather.rain.above", "1.15 weather.rain.above", "1.16 weather.rain.above");
 
-    private @Nullable String versionDependentName;
+    private final @NotNull String[] versionDependentNames;
+    private final @Nullable String versionDependentName;
 
     SoundType(String... versionDependentNames)
     {
-        String bukkitVersion = VersionUtils.getBukkitVersion().getVersion();
+        this.versionDependentNames = versionDependentNames;
 
-        for (String versionDependentName : versionDependentNames) {
-            String[] sound = StaticFields.spaceRegex.split(versionDependentName);
-
-            if (bukkitVersion.startsWith(sound[0])) {
-                this.versionDependentName = sound[1];
-                break;
-            }
-        }
+        if (StaticFields.greaterThanMax)
+            this.versionDependentName = getSound(getMaxSupportedVersion()).orElse(null);
+        else if (StaticFields.lowerThanMin)
+            this.versionDependentName = getSound(getMinSupportedVersion()).orElse(null);
+        else
+            this.versionDependentName = getSound(VersionUtils.getBukkitVersion()).orElse(null);
     }
 
+    /**
+     * @return The version the sound names were get from.
+     */
+    public static @NotNull Version getMaxSupportedVersion()
+    {
+        return StaticFields.maxSupportedVersion;
+    }
+
+    /**
+     * @return The minimum supported version.
+     */
+    public static @NotNull Version getMinSupportedVersion()
+    {
+        return StaticFields.minSupportedVersion;
+    }
+
+    /**
+     * @return The sound on the current running server version, null if there is no sound for the version.
+     * @deprecated Use {@link #getSound()} instead.
+     */
+    @Deprecated
     public @Nullable String getSoundOnVersion()
     {
         return versionDependentName;
     }
 
-    private static class StaticFields
+    /**
+     * The sound on the current running server version, empty if there is no sound for the version.
+     *
+     * @return An optional with the vanilla sound name.
+     */
+    public @NotNull Optional<String> getSound()
     {
-        protected static final Pattern spaceRegex = Pattern.compile(" ");
+        return Optional.ofNullable(versionDependentName);
+    }
+
+    /**
+     * Gets the sound on the specified version, empty if there is no sound for the version.
+     *
+     * @param version The version to get the sound.
+     * @return An optional with the vanilla sound name on this version.
+     */
+    public @NotNull Optional<String> getSound(@NotNull Version version)
+    {
+        String sound = null;
+
+        for (String versionDependentName : versionDependentNames) {
+            int spaceIndex = versionDependentName.indexOf(' ');
+            String soundVersion = versionDependentName.substring(0, spaceIndex);
+
+            if (version.getVersion().startsWith(soundVersion)) {
+                sound = versionDependentName.substring(spaceIndex + 1);
+                break;
+            }
+        }
+
+        return Optional.ofNullable(sound);
+    }
+
+    private static final class StaticFields
+    {
+        private static final @NotNull Version maxSupportedVersion = new Version("1.16");
+        private static final @NotNull Version minSupportedVersion = new Version("1.7");
+        /**
+         * If the current bukkit version is greater than the maximum supported.
+         */
+        private static final boolean greaterThanMax = !VersionUtils.getBukkitVersion().getVersion().startsWith(maxSupportedVersion.getVersion()) && VersionUtils.getBukkitVersion().compareTo(maxSupportedVersion) > 0;
+        /**
+         * If the current bukkit version is lower than the minimum supported.
+         */
+        private static final boolean lowerThanMin = VersionUtils.getBukkitVersion().compareTo(minSupportedVersion) < 0;
     }
 }
