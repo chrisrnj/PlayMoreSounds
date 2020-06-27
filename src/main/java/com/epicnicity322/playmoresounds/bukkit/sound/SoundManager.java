@@ -5,7 +5,6 @@ import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,15 +12,15 @@ import java.util.*;
 
 public final class SoundManager
 {
-    private static final HashSet<UUID> ignoredPlayers = new HashSet<>();
-    private static Set<String> soundList = new HashSet<>();
-    private static Set<SoundType> soundTypes = new HashSet<>();
+    private static final @NotNull HashSet<UUID> ignoredPlayers = new HashSet<>();
+    private static @NotNull Set<String> soundList = new HashSet<>();
+    private static @NotNull Set<SoundType> soundTypes = new HashSet<>();
 
     static {
-        for (SoundType s : SoundType.values()) {
-            if (s.getSoundOnVersion() != null) {
-                soundTypes.add(s);
-                soundList.add(s.name());
+        for (SoundType type : SoundType.values()) {
+            if (type.getSound().isPresent()) {
+                soundTypes.add(type);
+                soundList.add(type.name());
             }
         }
 
@@ -34,7 +33,7 @@ public final class SoundManager
     }
 
     /**
-     * Gets all {@link SoundType} names that are available in the version this plugin is running.
+     * Gets all {@link SoundType} names that are available in the version bukkit is running.
      *
      * @return The sounds available in this version.
      */
@@ -44,7 +43,7 @@ public final class SoundManager
     }
 
     /**
-     * Gets all {@link SoundType} that are available in the version this plugin is running.
+     * Gets all {@link SoundType} that are available in the version bukkit is running.
      *
      * @return The sounds available in this version.
      */
@@ -68,24 +67,23 @@ public final class SoundManager
         if (PlayMoreSounds.getInstance() == null)
             throw new IllegalStateException("PlayMoreSounds must be loaded before using this method.");
 
-        new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                if (VersionUtils.hasStopSound())
-                    if (sounds == null)
-                        for (SoundType toStop : SoundManager.getSoundTypes())
-                            player.stopSound(toStop.getSoundOnVersion());
-                    else
-                        for (String sound : sounds)
-                            player.stopSound(sound);
+        Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> {
+            if (VersionUtils.hasStopSound())
+                if (sounds == null)
+                    for (SoundType toStop : SoundManager.getSoundTypes())
+                        // Sounds of #getSoundTypes() are always present.
+                        player.stopSound(toStop.getSound().get());
                 else
-                    for (int i = 0; i < 70; ++i)
-                        player.playSound(player.getLocation(), SoundType.ENTITY_CHICKEN_HURT.getSoundOnVersion(),
-                                1.0E-4f, 1.0f);
+                    for (String sound : sounds)
+                        player.stopSound(sound);
+            else {
+                // ENTITY_CHICKEN_HURT is always present.
+                String chickenSound = SoundType.ENTITY_CHICKEN_HURT.getSound().get();
+
+                for (int i = 0; i < 70; ++i)
+                    player.playSound(player.getLocation(), chickenSound, 1.0E-4f, 1.0f);
             }
-        }.runTaskLater(PlayMoreSounds.getInstance(), delay);
+        }, delay);
     }
 
     /**

@@ -181,13 +181,13 @@ public class ListInventory implements PMSInventory, Listener
                 String button = itemStack.getItemMeta().getPersistentDataContainer().get(ListInventory.button,
                         PersistentDataType.STRING);
 
-                if (button.startsWith("GOTO")) {
+                if (button.startsWith("GOTO"))
                     Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> new ListInventory(Long.parseLong(spaceRegex.split(button)[1])).openInventory(humanEntity), 10);
-                } else if (button.equals("STOP_SOUND")) {
+                else if (button.equals("STOP_SOUND"))
                     SoundManager.stopSounds(player, null, 0);
-                } else {
-                    player.playSound(player.getLocation(), SoundType.valueOf(button).getSoundOnVersion(), 10, 1);
-                }
+                else
+                    // As the sounds of the list can only be sounds of SoundManager#getSoundList(), sounds are always present.
+                    player.playSound(player.getLocation(), SoundType.valueOf(button).getSound().get(), 10, 1);
             }
         }
     }

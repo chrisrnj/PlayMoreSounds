@@ -101,7 +101,7 @@ public class Sound implements Playable
         if (SoundManager.getSoundList().contains(sound.toUpperCase())) {
             SoundType type = SoundType.valueOf(sound.toUpperCase());
 
-            this.sound = type.getSoundOnVersion();
+            this.sound = type.getSound().orElse(null);
             soundType = type;
         } else {
             this.sound = sound;

@@ -189,7 +189,7 @@ public final class OnRegionEnterLeave extends PMSListener
                 String soundToStop = section.getString("Sounds." + sound + ".Sound").orElse("");
 
                 sounds.add(SoundManager.getSoundList().contains(soundToStop) ?
-                        SoundType.valueOf(soundToStop).getSoundOnVersion() : soundToStop);
+                        SoundType.valueOf(soundToStop).getSound().get() : soundToStop);
             }
 
             soundsToStop.put(key, sounds);
