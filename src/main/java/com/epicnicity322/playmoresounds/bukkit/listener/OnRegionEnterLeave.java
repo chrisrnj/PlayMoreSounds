@@ -24,7 +24,6 @@ public final class OnRegionEnterLeave extends PMSListener
 {
     private final @NotNull HashMap<String, BukkitRunnable> regionsInLoop = new HashMap<>();
     private final @NotNull HashMap<String, HashSet<String>> soundsToStop = new HashMap<>();
-
     private final @NotNull PlayMoreSounds plugin;
 
     public OnRegionEnterLeave(@NotNull PlayMoreSounds plugin)
@@ -102,6 +101,8 @@ public final class OnRegionEnterLeave extends PMSListener
                         if (!event.isCancelled() || !enterSound.isCancellable()) {
                             enterSound.play(player);
 
+                            stopOnExit(player, enter);
+
                             if (enter.getBoolean("Stop Other Sounds").orElse(false))
                                 defaultSound = false;
                         }
@@ -117,8 +118,11 @@ public final class OnRegionEnterLeave extends PMSListener
             if (section != null) {
                 RichSound sound = new RichSound(section);
 
-                if (!event.isCancelled() || !sound.isCancellable())
+                if (!event.isCancelled() || !sound.isCancellable()) {
                     sound.play(player);
+
+                    stopOnExit(player, section);
+                }
             }
         }
     }
@@ -184,13 +188,15 @@ public final class OnRegionEnterLeave extends PMSListener
         if (section.getBoolean("Stop On Exit.Enabled").orElse(false)) {
             String key = player.getName() + ";" + section.getNumber("Stop On Exit.Delay").orElse(0);
             HashSet<String> sounds = soundsToStop.getOrDefault(key, new HashSet<>());
+            ConfigurationSection soundsSection = section.getConfigurationSection("Sounds");
 
-            for (String sound : section.getConfigurationSection("Sounds").getNodes().keySet()) {
-                String soundToStop = section.getString("Sounds." + sound + ".Sound").orElse("");
+            if (soundsSection != null)
+                for (String sound : soundsSection.getNodes().keySet()) {
+                    String soundToStop = soundsSection.getString(sound + ".Sound").orElse("");
 
-                sounds.add(SoundManager.getSoundList().contains(soundToStop) ?
-                        SoundType.valueOf(soundToStop).getSound().get() : soundToStop);
-            }
+                    sounds.add(SoundManager.getSoundList().contains(soundToStop) ?
+                            SoundType.valueOf(soundToStop).getSound().get() : soundToStop);
+                }
 
             soundsToStop.put(key, sounds);
         }
