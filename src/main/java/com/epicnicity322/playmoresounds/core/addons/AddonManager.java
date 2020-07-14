@@ -59,14 +59,19 @@ public class AddonManager
                     if (addonNames.contains(name)) {
                         corePMS.getCoreLogger().log("&eTwo addons with the name '" + name + "' were found, only initializing the first one.");
                     } else {
-                        if (PlayMoreSounds.version.compareTo(description.getApiVersion()) <= 0)
-                            if (pluginNames.containsAll(description.getRequiredPlugins())) {
-                                descriptions.put(jar, description);
-                                addonNames.add(name);
-                            } else
-                                corePMS.getCoreLogger().log("&e" + name + " addon depends on the plugin(s): " + description.getRequiredPlugins());
-                        else
+                        if (description.getApiVersion().compareTo(PlayMoreSounds.version) > 0)
                             corePMS.getCoreLogger().log("&e" + name + " addon was made for PlayMoreSounds v" + description.getApiVersion() + ". You are currently on " + PlayMoreSounds.version + ".");
+                        else {
+                            for (String required : description.getRequiredPlugins()) {
+                                if (!pluginNames.contains(required)) {
+                                    corePMS.getCoreLogger().log("&e" + name + " addon depends on the plugin(s): " + description.getRequiredPlugins());
+                                    return;
+                                }
+                            }
+
+                            descriptions.put(jar, description);
+                            addonNames.add(name);
+                        }
                     }
                 } catch (InvalidAddonException e) {
                     corePMS.getCoreLogger().log("&e" + e.getMessage());
