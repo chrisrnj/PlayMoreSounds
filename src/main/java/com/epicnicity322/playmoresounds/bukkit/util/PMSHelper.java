@@ -2,13 +2,14 @@ package com.epicnicity322.playmoresounds.bukkit.util;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Random;
 
 public final class PMSHelper
 {
+    private static final @NotNull SecureRandom random = new SecureRandom();
     private static final @NotNull String chars = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789";
     private static final int charsLength = chars.length();
 
@@ -18,16 +19,12 @@ public final class PMSHelper
 
     public static @NotNull String getRandomString(int length)
     {
-        Random random = new Random();
-        StringBuilder string = new StringBuilder();
+        StringBuilder builder = new StringBuilder(length);
 
-        while (string.length() < length) {
-            int index = Math.round(random.nextFloat() * charsLength);
+        for (int i = 0; i < length; ++i)
+            builder.append(chars.charAt(random.nextInt(charsLength)));
 
-            string.append(chars.charAt(index));
-        }
-
-        return string.toString();
+        return builder.toString();
     }
 
     public static <T> @NotNull HashMap<Long, ArrayList<T>> splitIntoPages(@NotNull Collection<T> collection,
