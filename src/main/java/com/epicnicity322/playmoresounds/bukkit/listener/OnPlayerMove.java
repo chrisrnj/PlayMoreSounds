@@ -1,6 +1,7 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
+import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionEnterEvent;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionLeaveEvent;
 import org.bukkit.Bukkit;
@@ -16,7 +17,7 @@ public final class OnPlayerMove implements Listener
 {
     protected static void callRegionEnterLeaveEvents(Cancellable event, Player player, Location from, Location to)
     {
-        RegionManager.getAllRegions().forEach(region -> {
+        for (SoundRegion region : RegionManager.getAllRegions()) {
             boolean isInFrom = region.isInside(from);
             boolean isInTo = region.isInside(to);
 
@@ -33,14 +34,14 @@ public final class OnPlayerMove implements Listener
                 if (regionEnterEvent.isCancelled())
                     event.setCancelled(true);
             }
-        });
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerMove(PlayerMoveEvent event)
     {
         Location from = event.getFrom();
-        Location to = event.getFrom();
+        Location to = event.getTo();
 
         if (from.getBlockX() != to.getBlockX() || from.getBlockY() != to.getBlockY() || from.getBlockZ() != to.getBlockZ()) {
             if (!event.isCancelled())
