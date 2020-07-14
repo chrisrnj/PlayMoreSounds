@@ -45,10 +45,9 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
     private static final @NotNull Path folder = Paths.get("plugins").resolve("PlayMoreSounds");
     private static final @NotNull Logger logger = new Logger("&6[&9PlayMoreSounds&6] ");
     private static final @NotNull MessageSender messageSender = new MessageSender(Configurations.CONFIG.getPluginConfig(),
-            Configurations.LANGUAGE_EN.getPluginConfig());
+            Configurations.LANGUAGE_EN_US.getPluginConfig());
     private static @Nullable PlayMoreSounds instance;
     private static ErrorLogger errorLogger;
-    private static boolean success = true;
 
     static {
         // Creating data folder.
@@ -60,27 +59,21 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
             }
         }
 
-        try {
-            Class.forName("com.epicnicity322.epicpluginlib.core.tools.Version");
+        messageSender.addLanguage("EN_US", Configurations.LANGUAGE_EN_US.getPluginConfig());
+        messageSender.addLanguage("ES_LA", Configurations.LANGUAGE_ES_LA.getPluginConfig());
+        messageSender.addLanguage("PT_BR", Configurations.LANGUAGE_PT_BR.getPluginConfig());
+        messageSender.addLanguage("ZH_CN", Configurations.LANGUAGE_ZH_CN.getPluginConfig());
 
-            errorLogger = new ErrorLogger(folder, "PlayMoreSounds", getVersion().getVersion(),
-                    Collections.singleton("Epicnicity322"), "https://www.spigotmc.org/resources/37429/", null);
-
-        } catch (ClassNotFoundException e) {
-            logger.log("&cYou are running an old version of EpicPluginLib, please update.");
-            success = false;
-        }
+        errorLogger = new ErrorLogger(folder, "PlayMoreSounds", getVersion().getVersion(),
+                Collections.singleton("Epicnicity322"), "https://www.spigotmc.org/resources/37429/", null);
     }
 
     private final @NotNull Path jar = getFile().toPath();
-    private AddonManager addonManager;
+    private final @NotNull AddonManager addonManager;
 
     public PlayMoreSounds()
     {
         instance = this;
-
-        if (!success)
-            return;
 
         PluginDescriptionFile descriptionFile = getDescription();
 
@@ -108,12 +101,14 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
                         startedAddons.add(addon.getDescription().getName());
 
                         for (PMSAddon toStart : addonManager.getAddons())
-                            if (startedAddons.containsAll(toStart.getDescription().getHookAddons()))
-                                addonManager.startAddon(toStart);
+                            if (addon.getDescription().getStartTime() == StartTime.HOOK_ADDONS)
+                                if (startedAddons.containsAll(toStart.getDescription().getHookAddons()))
+                                    addonManager.startAddon(toStart);
                     } else
                         for (PMSAddon toStop : addonManager.getAddons())
-                            if (toStop.getDescription().getHookAddons().contains(addon.getDescription().getName()))
-                                addonManager.stopAddon(toStop);
+                            if (addon.getDescription().getStartTime() == StartTime.HOOK_ADDONS)
+                                if (toStop.getDescription().getHookAddons().contains(addon.getDescription().getName()))
+                                    addonManager.stopAddon(toStop);
                 }
             });
         } catch (IllegalStateException ignored) {
@@ -235,10 +230,9 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
     @Override
     public void onEnable()
     {
-        try {
-            if (!success)
-                return;
+        boolean success = true;
 
+        try {
             HashSet<String> enabledPlugins = new HashSet<>();
 
             for (Plugin plugin : Bukkit.getPluginManager().getPlugins())
@@ -254,9 +248,11 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
 
                     enabledPlugins.add(plugin.getName());
 
-                    for (PMSAddon addon : addonManager.getAddons())
-                        if (enabledPlugins.containsAll(addon.getDescription().getHookPlugins()))
-                            addonManager.startAddon(addon);
+                    for (PMSAddon addon : addonManager.getAddons()) {
+                        if (addon.getDescription().getStartTime() == StartTime.HOOK_PLUGINS)
+                            if (enabledPlugins.containsAll(addon.getDescription().getHookPlugins()))
+                                addonManager.startAddon(addon);
+                    }
                 }
             }, this);
 
@@ -266,15 +262,21 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
                 public void onPluginDisable(PluginDisableEvent event)
                 {
                     for (PMSAddon addon : addonManager.getAddons())
-                        if (addon.getDescription().getHookPlugins().contains(event.getPlugin().getName()))
-                            addonManager.stopAddon(addon);
+                        if (addon.getDescription().getStartTime() == StartTime.HOOK_PLUGINS)
+                            if (addon.getDescription().getHookPlugins().contains(event.getPlugin().getName()))
+                                addonManager.stopAddon(addon);
                 }
             }, this);
 
             addonManager.startAddons(StartTime.BEFORE_CONFIGURATION);
+
             Configurations.getConfigLoader().loadConfigurations();
+            logger.log("&6-> &eConfigurations loaded.");
 
             addonManager.startAddons(StartTime.BEFORE_EVENTS);
+
+            // Registering all listeners:
+
             // Registering region wand tool listener.
             pm.registerEvents(new OnPlayerInteract(), this);
             // Registering region enter event caller.
@@ -289,19 +291,24 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
             pm.registerEvents(new OnRegionEnterLeave(this), this);
             // TimeTrigger checks itself it does need to load or not on load method.
             TimeTrigger.load();
+            ListenerRegister.loadListeners();
 
-            // 6 because First Join, Join Server, Biomes, Player Ban, Leave Server, and Teleport are always loaded.
-            logger.log("&6-> &e&n" + (ListenerRegister.loadListeners() + 6) + "&e events loaded.");
+            logger.log("&6-> &eListeners loaded.");
 
             addonManager.startAddons(StartTime.BEFORE_COMMANDS);
+
             CommandLoader.loadCommands();
+
+            logger.log("&6-> &eCommands loaded.");
+
             UpdateManager.loadUpdater();
         } catch (Exception e) {
             success = false;
             errorLogger.report(e, "PMSLoadingError (Unknown):");
         } finally {
+            logger.log("&6============================================");
+
             if (success) {
-                logger.log("&6============================================");
                 logger.log("&aPlayMoreSounds has been enabled");
                 logger.log("&aVersion " + ReflectionUtil.getNmsVersion() + " detected");
                 logger.log("&6============================================");
@@ -326,7 +333,6 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
                         }
                 }).start();
             } else {
-                logger.log("&6============================================");
                 logger.log("&cSomething went wrong while loading PMS");
                 logger.log("&cMake sure you read messages before reporting");
                 logger.log("&6============================================");
