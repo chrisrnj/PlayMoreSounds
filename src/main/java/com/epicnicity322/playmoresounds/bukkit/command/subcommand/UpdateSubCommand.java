@@ -4,8 +4,6 @@ import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.epicpluginlib.bukkit.updater.Updater;
-import com.epicnicity322.epicpluginlib.core.tools.Downloader;
-import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.util.UpdateManager;
 import org.bukkit.command.CommandSender;
@@ -47,6 +45,8 @@ public final class UpdateSubCommand extends Command implements Helpable
         if (args.length > 1) {
             if (args[1].equalsIgnoreCase("download")) {
                 if (sender.hasPermission("playmoresounds.update.download")) {
+                    lang.send(sender, "Download was disabled temporarily.");
+                    /*
                     boolean force = false;
 
                     if (args.length > 2) {
@@ -101,6 +101,7 @@ public final class UpdateSubCommand extends Command implements Helpable
                             lang.send(sender, lang.get("Update.Error.Default"));
                             break;
                     }
+                     */
                 } else {
                     lang.send(sender, lang.get("General.No Permission"));
                 }
