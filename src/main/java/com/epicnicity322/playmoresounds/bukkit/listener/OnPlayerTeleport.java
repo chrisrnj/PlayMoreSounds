@@ -16,7 +16,8 @@ public final class OnPlayerTeleport implements Listener
     {
         Player player = event.getPlayer();
 
-        OnPlayerMove.callRegionEnterLeaveEvents(event, player, event.getFrom(), event.getTo());
+        if (!event.isCancelled())
+            OnPlayerMove.callRegionEnterLeaveEvents(event, player, event.getFrom(), event.getTo());
 
         if (event.getCause() == PlayerTeleportEvent.TeleportCause.COMMAND) {
             ConfigurationSection section = Configurations.SOUNDS.getPluginConfig().getConfiguration()
