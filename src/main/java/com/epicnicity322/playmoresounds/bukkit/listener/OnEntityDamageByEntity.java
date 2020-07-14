@@ -209,8 +209,9 @@ public final class OnEntityDamageByEntity extends PMSListener
         if (defaultSound) {
             RichSound sound = getRichSound();
 
-            if (!event.isCancelled() || !sound.isCancellable())
-                sound.play(player, damagerLocation);
+            if (sound != null)
+                if (!event.isCancelled() || !sound.isCancellable())
+                    sound.play(player, damagerLocation);
         }
     }
 }

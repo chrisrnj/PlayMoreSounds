@@ -112,8 +112,9 @@ public final class OnPlayerCommandPreprocess extends PMSListener
         if (defaultSound) {
             RichSound sound = getRichSound();
 
-            if (!event.isCancelled() || !sound.isCancellable())
-                sound.play(player);
+            if (sound != null)
+                if (!event.isCancelled() || !sound.isCancellable())
+                    sound.play(player);
         }
     }
 }

@@ -132,8 +132,9 @@ public final class OnAsyncPlayerChat extends PMSListener
         if (defaultSound) {
             RichSound sound = getRichSound();
 
-            if (!event.isCancelled() || !sound.isCancellable())
-                Bukkit.getScheduler().runTask(plugin, () -> sound.play(player));
+            if (sound != null)
+                if (!event.isCancelled() || !sound.isCancellable())
+                    Bukkit.getScheduler().runTask(plugin, () -> sound.play(player));
         }
     }
 }

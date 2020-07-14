@@ -112,8 +112,12 @@ public final class OnPlayerDeath extends PMSListener
             }
         }
 
-        if (defaultSound)
-            getRichSound().play(player);
+        if (defaultSound) {
+            RichSound sound = getRichSound();
+
+            if (sound != null)
+                sound.play(player);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
