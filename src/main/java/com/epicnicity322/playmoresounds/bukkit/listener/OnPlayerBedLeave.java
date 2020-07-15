@@ -65,11 +65,14 @@ public final class OnPlayerBedLeave extends PMSListener
     {
         Player player = event.getPlayer();
 
-        bedLeave.play(player);
+        if (bedLeave != null)
+            bedLeave.play(player);
 
-        long time = player.getWorld().getTime();
+        if (wakeUp != null) {
+            long time = player.getWorld().getTime();
 
-        if (time < 300)
-            wakeUp.play(player);
+            if (time < 300)
+                wakeUp.play(player);
+        }
     }
 }
