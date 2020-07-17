@@ -15,6 +15,7 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -59,6 +60,8 @@ public final class ListSubCommand extends Command implements Helpable
         return (label, sender, args) -> lang.send(sender, lang.get("General.No Permission"));
     }
 
+    // Using BaseComponent[] on HoverEvent is deprecated on newer versions of spigot but is necessary on older ones.
+    @SuppressWarnings(value = "deprecation")
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
@@ -156,9 +159,13 @@ public final class ListSubCommand extends Command implements Helpable
                     TextComponent fancySound = new TextComponent((prefix + sound).replace("&",
                             "§"));
 
-                    fancySound.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(lang
-                            .get("List.Sound Tooltip").replace("&", "§").replace("<sound>",
-                                    sound)).create()));
+                    if (VersionUtils.hasHoverContentApi())
+                        fancySound.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(lang
+                                .get("List.Sound Tooltip").replace("&", "§").replace("<sound>", sound))));
+                    else
+                        fancySound.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(lang
+                                .get("List.Sound Tooltip").replace("&", "§").replace("<sound>", sound)).create()));
+
                     fancySound.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pms play " +
                             sound + " " + sender.getName()));
 
