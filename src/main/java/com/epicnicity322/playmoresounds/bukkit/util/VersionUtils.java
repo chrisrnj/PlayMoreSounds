@@ -12,6 +12,7 @@ public final class VersionUtils
     private static final boolean hasStopSound;
     private static final boolean hasOffHand;
     private static final @NotNull Version bukkitVersion;
+    private static boolean hasHoverContentApi = false;
 
     static {
         String version = Bukkit.getBukkitVersion();
@@ -27,6 +28,12 @@ public final class VersionUtils
 
         // Checking if bukkit version is 1.9 because off hand was added in that version.
         hasOffHand = bukkitVersion.compareTo(new Version("1.9")) >= 0;
+
+        try {
+            Class.forName("net.md_5.bungee.api.chat.hover.content.Content");
+            hasHoverContentApi = true;
+        } catch (ClassNotFoundException ignored) {
+        }
     }
 
     private VersionUtils()
@@ -69,5 +76,13 @@ public final class VersionUtils
     public static boolean hasOffHand()
     {
         return hasOffHand;
+    }
+
+    /**
+     * Whether you are running Spigot and the bungee text component api has net.md_5.bungee.api.chat.hover.content package.
+     */
+    public static boolean hasHoverContentApi()
+    {
+        return hasHoverContentApi;
     }
 }
