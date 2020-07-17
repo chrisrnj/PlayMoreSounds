@@ -2,6 +2,7 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
@@ -158,6 +159,8 @@ public final class OnEntityDamageByEntity extends PMSListener
         }
     }
 
+    // getItemInHand() is deprecated but is only used if you are running on older version of bukkit.
+    @SuppressWarnings(value = "deprecation")
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event)
     {
@@ -180,7 +183,10 @@ public final class OnEntityDamageByEntity extends PMSListener
             }
 
             if (equipment != null)
-                damagerHand = equipment.getItemInMainHand().getType();
+                if (VersionUtils.hasOffHand())
+                    damagerHand = equipment.getItemInMainHand().getType();
+                else
+                    damagerHand = equipment.getItemInHand().getType();
         }
 
         // If the default sound should play.
