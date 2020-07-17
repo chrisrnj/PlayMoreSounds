@@ -2,14 +2,15 @@ package com.epicnicity322.playmoresounds.bukkit;
 
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.epicpluginlib.bukkit.logger.Logger;
-import com.epicnicity322.epicpluginlib.bukkit.reflection.ReflectionUtil;
 import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.epicpluginlib.core.logger.ErrorLogger;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandLoader;
 import com.epicnicity322.playmoresounds.bukkit.listener.*;
+import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
 import com.epicnicity322.playmoresounds.bukkit.util.ListenerRegister;
 import com.epicnicity322.playmoresounds.bukkit.util.UpdateManager;
+import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.addons.AddonEventManager;
 import com.epicnicity322.playmoresounds.core.addons.AddonManager;
 import com.epicnicity322.playmoresounds.core.addons.PMSAddon;
@@ -310,7 +311,7 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
 
             if (success) {
                 logger.log("&aPlayMoreSounds has been enabled");
-                logger.log("&aVersion " + ReflectionUtil.getNmsVersion() + " detected");
+                logger.log("&a" + SoundManager.getSoundTypes().size() + " sounds available on " + VersionUtils.getBukkitVersion());
                 logger.log("&6============================================");
                 addonManager.startAddons(StartTime.END);
 
