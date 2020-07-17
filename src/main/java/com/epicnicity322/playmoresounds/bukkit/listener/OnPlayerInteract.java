@@ -56,7 +56,7 @@ public class OnPlayerInteract implements Listener
         selectedDiagonals.put(ObjectUtils.getOrDefault(player, console), selection);
     }
 
-    // Deprecated method is only used if PMS is running on older version of bukkit.
+    // getItemInHand() is deprecated but is only used if you are running on older version of bukkit.
     @SuppressWarnings(value = "deprecation")
     // Other region plugins may cancel the event, so priority is set to high. If you wanted to play a sound on this event
     //you should use HIGHEST.
