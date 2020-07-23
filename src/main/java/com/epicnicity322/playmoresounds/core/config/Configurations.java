@@ -205,7 +205,7 @@ public enum Configurations
         config.addDefault("Contains SubString.play.Enabled", true);
         config.addDefault("Contains SubString.play.Stop Other Sounds.Default Sound", true);
         config.addDefault("Contains SubString.play.Stop Other Sounds.Other Filters", true);
-    }),
+    }, "3.0.0", StaticFields.version),
     CONFIG(PlayMoreSounds.getFolder().resolve("config.yml"), config -> {
         config.addDefaultComment("################################");
         config.addDefaultComment("#  PlayMoreSounds Configuration");
@@ -273,7 +273,7 @@ public enum Configurations
         config.addDefaultComment("- 'sample'");
         config.addDefaultComment("- 'sample2'\n");
         config.addDefault("World-BlackList", new ArrayList<>());
-    }),
+    }, StaticFields.version),
     CHAT(StaticFields.sounds.resolve("chat.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when a player type a sentence in chat.");
         config.addDefaultComment("");
@@ -390,7 +390,7 @@ public enum Configurations
         config.addDefaultComment("");
         config.addDefaultComment(" More information about sounds on sounds.yml");
         config.addDefault("Version", StaticFields.version);
-    }),
+    }, "3.0.0", StaticFields.version),
     DEATH_TYPES(StaticFields.sounds.resolve("deathtypes.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when a player die for a specific cause of death.");
         config.addDefaultComment("");
@@ -430,7 +430,7 @@ public enum Configurations
         config.addDefaultComment("");
         config.addDefaultComment(" More information about sounds on sounds.yml\n");
         config.addDefault("Version", StaticFields.version);
-    }),
+    }, "3.0.0", StaticFields.version),
     GAME_MODES(StaticFields.sounds.resolve("game modes.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when you change your gamemode.");
         config.addDefaultComment("");
@@ -456,7 +456,7 @@ public enum Configurations
         config.addDefaultComment(" to the sound options.");
         config.addDefaultComment(" More information about sounds on sounds.yml.\n");
         config.addDefault("Version", StaticFields.version);
-    }),
+    }, "3.0.0", StaticFields.version),
     HURT_SOUNDS(StaticFields.sounds.resolve("hurt sounds.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when an entity hits another entity with a specific item on hand.");
         config.addDefaultComment("");
@@ -514,7 +514,7 @@ public enum Configurations
         config.addDefaultComment(" Hope everything is clear, if you have any doubts of a condition that you wanna use but can't find how, contact me on discord:");
         config.addDefaultComment(" https://discord.gg/eAHPbc3\n");
         config.addDefault("Version", StaticFields.version);
-    }),
+    }, "3.0.0", StaticFields.version),
     REGIONS(StaticFields.sounds.resolve("regions.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when you enter, exit or stand on a specific region.");
         config.addDefaultComment("");
@@ -579,7 +579,7 @@ public enum Configurations
         config.addDefaultComment("");
         config.addDefaultComment(" More information about sounds on sounds.yml.\n");
         config.addDefault("Version", StaticFields.version);
-    }),
+    }, "3.0.0", StaticFields.version),
     SOUNDS(PlayMoreSounds.getFolder().resolve("sounds.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when a player triggers an event.");
         config.addDefaultComment("");
@@ -860,7 +860,7 @@ public enum Configurations
         config.addDefault("Wake Up.Sounds.0.Sound", "ENTITY_CHICKEN_HURT");
         config.addDefault("Wake Up.Sounds.0.Volume", 0.4F);
 
-    }),
+    }, "3.0.0", StaticFields.version),
     TIME_TRIGGERS(StaticFields.sounds.resolve("time triggers.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when a world reaches a specific time of the day.");
         config.addDefaultComment("");
@@ -878,7 +878,7 @@ public enum Configurations
         config.addDefaultComment("");
         config.addDefaultComment(" More information about sounds on sounds.yml\n");
         config.addDefault("Version", StaticFields.version);
-    }),
+    }, "3.0.0", StaticFields.version),
     LANGUAGE_EN_US(StaticFields.lang.resolve("Language EN-US.yml"), config -> {
         config.addDefaultComment("Language EN-US");
         config.addDefault("Version", StaticFields.version);
@@ -1105,7 +1105,7 @@ public enum Configurations
         config.addDefault("Update.Error.Offline", "&cYou are offline or spigot.org is down.");
         config.addDefault("Update.Error.Timeout", "&cTook too long to establish a connection.");
         config.addDefault("Update.Not Available", "&eNo updates available.");
-    }),
+    }, StaticFields.version),
     LANGUAGE_ES_LA(StaticFields.lang.resolve("Language ES-LA.yml"), config -> {
         config.addDefaultComment("Idioma ES-LA");
         config.addDefaultComment("Traducido por Epicnicity");
@@ -1333,7 +1333,7 @@ public enum Configurations
         config.addDefault("Update.Error.Offline", "&cEstá desconectado o spigot.org está caído.");
         config.addDefault("Update.Error.Timeout", "&cTomó demasiado tiempo para establecer una conexión.");
         config.addDefault("Update.Not Available", "&eNo hay actualizaciones disponibles.");
-    }),
+    }, StaticFields.version),
     LANGUAGE_PT_BR(StaticFields.lang.resolve("Language PT-BR.yml"), config -> {
         config.addDefaultComment("Linguagem PT-BR");
         config.addDefaultComment("Traduzido por Epicnicity");
@@ -1561,7 +1561,7 @@ public enum Configurations
         config.addDefault("Update.Error.Offline", "&cVocê está offline ou spigot.org caiu.");
         config.addDefault("Update.Error.Timeout", "&cLevou tempo demais para estabelecer uma conexão.");
         config.addDefault("Update.Not Available", "&eNenhuma atualização disponível.");
-    }),
+    }, StaticFields.version),
     LANGUAGE_ZH_CN(StaticFields.lang.resolve("Language ZH-CN.yml"), config -> {
         config.addDefaultComment("语言ZH-CN");
         config.addDefaultComment("译者：秋风残叶");
@@ -1789,23 +1789,25 @@ public enum Configurations
         config.addDefault("Update.Error.Offline", "&c您当前未连接网络，或者您的防火墙拦截了联网请求，更新失败");
         config.addDefault("Update.Error.Timeout", "&c连接超时，请检查网络");
         config.addDefault("Update.Not Available", "&e没有可用更新");
-    });
+    }, StaticFields.version);
 
     private static final @NotNull ConfigLoader configLoader = new ConfigLoader();
 
     static {
         for (Configurations configuration : Configurations.values())
-            configLoader.registerConfiguration(configuration.getPluginConfig(), StaticFields.version);
+            configLoader.registerConfiguration(configuration.getPluginConfig(), configuration.versions);
     }
 
     private final @NotNull PluginConfig pluginConfig;
+    private final @NotNull String[] versions;
 
-    Configurations(@NotNull Path path, @NotNull Consumer<PluginConfig> defaults)
+    Configurations(@NotNull Path path, @NotNull Consumer<PluginConfig> defaults, @NotNull String... versions)
     {
         PluginConfig pluginConfig = new PluginConfig(path);
 
         defaults.accept(pluginConfig);
         this.pluginConfig = pluginConfig;
+        this.versions = versions;
     }
 
     public static @NotNull ConfigLoader getConfigLoader()
@@ -1820,8 +1822,12 @@ public enum Configurations
 
     private static class StaticFields
     {
+        //TODO: Get main folder without relying on platform dependent classes.
         protected static final @NotNull Path sounds = PlayMoreSounds.getFolder().resolve("Sounds");
         protected static final @NotNull Path lang = PlayMoreSounds.getFolder().resolve("Language");
-        protected static final @NotNull String version = "3.0.0";
+        /**
+         * The version the configurations had their last changes.
+         */
+        protected static final @NotNull String version = "3.1.1";
     }
 }
