@@ -7,9 +7,9 @@ import java.util.Objects;
 
 public abstract class PMSAddon
 {
-    protected boolean started = false;
-    protected boolean stopped = false;
-    protected boolean loaded = false;
+    protected volatile boolean started = false;
+    protected volatile boolean stopped = false;
+    protected volatile boolean loaded = false;
     private AddonDescription description;
     private Path jar;
 
