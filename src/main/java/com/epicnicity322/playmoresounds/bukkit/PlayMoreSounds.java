@@ -11,17 +11,11 @@ import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
 import com.epicnicity322.playmoresounds.bukkit.util.ListenerRegister;
 import com.epicnicity322.playmoresounds.bukkit.util.UpdateManager;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
-import com.epicnicity322.playmoresounds.core.addons.AddonEventManager;
 import com.epicnicity322.playmoresounds.core.addons.AddonManager;
-import com.epicnicity322.playmoresounds.core.addons.PMSAddon;
 import com.epicnicity322.playmoresounds.core.addons.StartTime;
-import com.epicnicity322.playmoresounds.core.addons.events.AddonLoadUnloadEvent;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
+import com.epicnicity322.playmoresounds.core.util.LoadableHashSet;
 import org.bukkit.Bukkit;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.server.PluginDisableEvent;
-import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
@@ -42,6 +36,7 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
     private static final @NotNull HashSet<Runnable> onDisableRunnables = new HashSet<>();
     private static final @NotNull HashSet<Runnable> onEnableRunnables = new HashSet<>();
     private static final @NotNull HashSet<Runnable> onInstanceRunnables = new HashSet<>();
+    private static final @NotNull LoadableHashSet<String> serverPlugins = new LoadableHashSet<>();
     private static final @NotNull PluginManager pm = Bukkit.getPluginManager();
     private static final @NotNull Path folder = Paths.get("plugins").resolve("PlayMoreSounds");
     private static final @NotNull Logger logger = new Logger("&6[&9PlayMoreSounds&6] ");
@@ -80,44 +75,7 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
 
         errorLogger = new ErrorLogger(folder, descriptionFile.getName(), version.toString(), descriptionFile.getAuthors(),
                 descriptionFile.getWebsite(), getLogger());
-
-        HashSet<String> pluginNames = new HashSet<>();
-
-        for (Plugin plugin : Bukkit.getPluginManager().getPlugins())
-            pluginNames.add(plugin.getName());
-
-        addonManager = new AddonManager(this, pluginNames);
-
-        try {
-            addonManager.registerAddons();
-
-            AddonEventManager.registerLoadUnloadEvent(new AddonLoadUnloadEvent()
-            {
-                private final @NotNull HashSet<String> startedAddons = new HashSet<>();
-
-                @Override
-                public void onLoadUnload(@NotNull PMSAddon addon)
-                {
-                    if (addon.isLoaded()) {
-                        startedAddons.add(addon.getDescription().getName());
-
-                        for (PMSAddon toStart : addonManager.getAddons())
-                            if (addon.getDescription().getStartTime() == StartTime.HOOK_ADDONS)
-                                if (startedAddons.containsAll(toStart.getDescription().getHookAddons()))
-                                    addonManager.startAddon(toStart);
-                    } else
-                        for (PMSAddon toStop : addonManager.getAddons())
-                            if (addon.getDescription().getStartTime() == StartTime.HOOK_ADDONS)
-                                if (toStop.getDescription().getHookAddons().contains(addon.getDescription().getName()))
-                                    addonManager.stopAddon(toStop);
-                }
-            });
-        } catch (IllegalStateException ignored) {
-            // Only thrown if addons were registered before.
-        } catch (IOException ex) {
-            logger.log("&cFailed to register addons.");
-            errorLogger.report(ex, "Addon registration error:");
-        }
+        addonManager = new AddonManager(this, serverPlugins);
 
         new Thread(() -> {
             for (Runnable runnable : onInstanceRunnables)
@@ -234,40 +192,20 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
         boolean success = true;
 
         try {
-            HashSet<String> enabledPlugins = new HashSet<>();
+            if (serverPlugins.isEmpty())
+                for (Plugin plugin : Bukkit.getPluginManager().getPlugins())
+                    serverPlugins.add(plugin.getName());
 
-            for (Plugin plugin : Bukkit.getPluginManager().getPlugins())
-                if (plugin.isEnabled())
-                    enabledPlugins.add(plugin.getName());
+            serverPlugins.setLoaded(true);
 
-            Bukkit.getPluginManager().registerEvents(new Listener()
-            {
-                @EventHandler
-                public void onPluginEnable(PluginEnableEvent event)
-                {
-                    Plugin plugin = event.getPlugin();
-
-                    enabledPlugins.add(plugin.getName());
-
-                    for (PMSAddon addon : addonManager.getAddons()) {
-                        if (addon.getDescription().getStartTime() == StartTime.HOOK_PLUGINS)
-                            if (enabledPlugins.containsAll(addon.getDescription().getHookPlugins()))
-                                addonManager.startAddon(addon);
-                    }
-                }
-            }, this);
-
-            Bukkit.getPluginManager().registerEvents(new Listener()
-            {
-                @EventHandler
-                public void onPluginDisable(PluginDisableEvent event)
-                {
-                    for (PMSAddon addon : addonManager.getAddons())
-                        if (addon.getDescription().getStartTime() == StartTime.HOOK_PLUGINS)
-                            if (addon.getDescription().getHookPlugins().contains(event.getPlugin().getName()))
-                                addonManager.stopAddon(addon);
-                }
-            }, this);
+            try {
+                addonManager.registerAddons();
+            } catch (UnsupportedOperationException ignored) {
+                // Only thrown if addons were registered before.
+            } catch (IOException ex) {
+                logger.log("&cFailed to register addons.");
+                errorLogger.report(ex, "Addon registration error:");
+            }
 
             addonManager.startAddons(StartTime.BEFORE_CONFIGURATION);
 
@@ -315,15 +253,7 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
                 logger.log("&6============================================");
                 addonManager.startAddons(StartTime.END);
 
-                Bukkit.getScheduler().runTaskLater(this, () -> {
-                    addonManager.startAddons(StartTime.SERVER_LOAD_COMPLETE);
-
-                    // Starting all not started addons.
-                    for (PMSAddon addon : addonManager.getAddons())
-                        // Making sure to not start another thread unnecessarily
-                        if (!addon.hasStarted())
-                            addonManager.startAddon(addon);
-                }, 1);
+                Bukkit.getScheduler().runTaskLater(this, () -> addonManager.startAddons(StartTime.SERVER_LOAD_COMPLETE), 1);
 
                 new Thread(() -> {
                     for (Runnable runnable : onEnableRunnables)
