@@ -15,11 +15,11 @@ public final class AddonEventManager
     }
 
     /**
-     * Adds an event to run when an addon is loaded or unloaded.
+     * Adds an event to run when an addon is loaded or unloaded successfully.
      *
      * @param event The event to run.
      */
-    public static void registerLoadUnloadEvent(AddonLoadUnloadEvent event)
+    public static void registerLoadUnloadEvent(@NotNull AddonLoadUnloadEvent event)
     {
         registeredLoadUnloadEvents.add(event);
     }
@@ -29,16 +29,16 @@ public final class AddonEventManager
      *
      * @param event The event to unregister.
      */
-    public static void unregisterLoadUnloadEvent(AddonLoadUnloadEvent event)
+    public static void unregisterLoadUnloadEvent(@NotNull AddonLoadUnloadEvent event)
     {
         registeredLoadUnloadEvents.remove(event);
     }
 
     protected static void callLoadUnloadEvent(PMSAddon addon, PlayMoreSounds corePMS)
     {
-        for (AddonLoadUnloadEvent e : registeredLoadUnloadEvents)
+        for (AddonLoadUnloadEvent event : registeredLoadUnloadEvents)
             try {
-                e.onLoadUnload(addon);
+                event.onLoadUnload(addon);
             } catch (Exception ex) {
                 corePMS.getCoreLogger().log("&eException while calling addon load unload event: " + ex.getMessage());
                 corePMS.getCoreErrorLogger().report(ex, "Call addon load unload event exception:");
