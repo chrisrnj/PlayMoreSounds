@@ -73,7 +73,7 @@ public final class ConfirmSubCommand extends Command implements Helpable
                 lang.send(sender, lang.get("Confirm.List.Header"));
 
                 for (Map.Entry<Runnable, String> confirmation : confirmations.entrySet())
-                    lang.send(sender, lang.get("Confirm.List.Confirmation").replace("<id>", Long.toString(id++))
+                    lang.send(sender, false, lang.get("Confirm.List.Confirmation").replace("<id>", Long.toString(id++))
                             .replace("<description>", confirmation.getValue()));
 
                 return;
