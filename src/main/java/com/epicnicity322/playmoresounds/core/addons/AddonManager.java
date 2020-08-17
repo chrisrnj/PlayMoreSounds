@@ -124,11 +124,12 @@ public class AddonManager
         if (startTime == StartTime.HOOK_ADDONS || startTime == StartTime.HOOK_PLUGINS)
             throw new IllegalArgumentException("Hooking addons are started automatically.");
 
-        new Thread(() -> {
-            for (PMSAddon addon : getAddons())
-                if (!addon.started && !addon.stopped && addon.getDescription().getStartTime() == startTime)
-                    callOnStart(addon);
-        }, "PMSAddon Runner").start();
+        if (!addonClassLoaders.isEmpty())
+            new Thread(() -> {
+                for (PMSAddon addon : getAddons())
+                    if (!addon.started && !addon.stopped && addon.getDescription().getStartTime() == startTime)
+                        callOnStart(addon);
+            }, "PMSAddon Runner").start();
     }
 
     /**
@@ -136,7 +137,7 @@ public class AddonManager
      *
      * @param addon The addon to start.
      */
-    public void startAddon(@NotNull PMSAddon addon)
+    public synchronized void startAddon(@NotNull PMSAddon addon)
     {
         if (!addon.started && !addon.stopped)
             callOnStart(addon);
@@ -147,17 +148,16 @@ public class AddonManager
         String name = addon.getDescription().getName();
 
         corePMS.getCoreLogger().log("&eStarting " + (name.toLowerCase().contains("addon") ? name + "." : name + " addon."));
+        addon.started = true;
 
         try {
             addon.onStart();
+            addon.loaded = true;
+            AddonEventManager.callLoadUnloadEvent(addon, corePMS);
         } catch (Exception ex) {
             corePMS.getCoreLogger().log("&eException while starting the addon '" + name + "&e': " + ex.getMessage());
             corePMS.getCoreErrorLogger().report(ex, "Path: " + addon.getJar() + "\nStart addon exception:");
         }
-
-        addon.started = true;
-        addon.loaded = true;
-        AddonEventManager.callLoadUnloadEvent(addon, corePMS);
     }
 
     /**
@@ -166,22 +166,16 @@ public class AddonManager
     public synchronized void stopAddons()
     {
         new Thread(() -> {
-            for (PMSAddon addon : getAddons()) {
-                if (addon.started && !addon.stopped) {
-                    StartTime startTime = addon.getDescription().getStartTime();
-
-                    // HOOK_PLUGINS and HOOK_ADDONS are called automatically when the hooked addon or plugin is disabled.
-                    if (startTime != StartTime.HOOK_PLUGINS && startTime != StartTime.HOOK_ADDONS)
-                        callOnStop(addon);
-                }
-            }
+            for (PMSAddon addon : getAddons())
+                if (addon.started && !addon.stopped)
+                    callOnStop(addon);
         }, "PMSAddon Stopper").start();
     }
 
     /**
      * Stops the specified addon if it was not stopped yet on the main thread.
      */
-    public void stopAddon(@NotNull PMSAddon addon)
+    public synchronized void stopAddon(@NotNull PMSAddon addon)
     {
         if (addon.started && !addon.stopped)
             callOnStop(addon);
@@ -193,22 +187,22 @@ public class AddonManager
 
         corePMS.getCoreLogger().log("&eStopping " + (name.contains("addon") ? name + "." : name + " addon."));
 
+        addon.stopped = true;
+
         try {
             addon.onStop();
+            addon.loaded = false;
+            AddonEventManager.callLoadUnloadEvent(addon, corePMS);
         } catch (Exception ex) {
             corePMS.getCoreLogger().log("&eException while stopping the addon '" + name + "&e': " + ex.getMessage());
             corePMS.getCoreErrorLogger().report(ex, "Path: " + addon.getJar() + "\nStop addon exception:");
         }
-
-        addon.stopped = true;
-        addon.loaded = false;
-        AddonEventManager.callLoadUnloadEvent(addon, corePMS);
     }
 
     /**
      * @return A immutable set with all registered addons.
      */
-    public @NotNull HashSet<PMSAddon> getAddons()
+    public synchronized @NotNull HashSet<PMSAddon> getAddons()
     {
         HashSet<PMSAddon> addons = new HashSet<>();
 
