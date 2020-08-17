@@ -1,103 +1,278 @@
 package com.epicnicity322.playmoresounds.sponge;
 
-import com.epicnicity322.playmoresounds.sponge.utils.PMSLogger;
+import com.epicnicity322.epicpluginlib.core.EpicPluginLib;
+import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
+import com.epicnicity322.epicpluginlib.core.logger.ErrorLogger;
+import com.epicnicity322.epicpluginlib.core.tools.Version;
+import com.epicnicity322.epicpluginlib.sponge.logger.Logger;
+import com.epicnicity322.playmoresounds.core.addons.AddonManager;
+import com.epicnicity322.playmoresounds.core.addons.StartTime;
+import com.epicnicity322.playmoresounds.core.util.LoadableHashSet;
+import com.epicnicity322.playmoresounds.sponge.listeners.OnClientConnection;
 import com.google.inject.Inject;
+import org.bstats.sponge.Metrics2;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.event.EventManager;
+import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
+import org.spongepowered.api.event.game.state.GameStoppingEvent;
+import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
 
-import java.nio.file.Paths;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
 
-@Plugin(id = "playmoresounds", name = "PlayMoreSounds", version = "3.0.0-SNAPSHOT#7", description = "Plays sounds at player events.")
-public class PlayMoreSounds
+@Plugin(id = "playmoresounds",
+        name = "PlayMoreSounds",
+        version = com.epicnicity322.playmoresounds.core.PlayMoreSounds.versionString,
+        description = "Plays sounds at player events.",
+        dependencies = @Dependency(id = "epicpluginlib"))
+public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.core.PlayMoreSounds
 {
-    public static String FILE_NAME;
-    public static String SPONGE_VERSION;
-    public static PlayMoreSounds PLUGIN;
-    public static Game GAME;
-    private static EventManager em = Sponge.getEventManager();
-    @Inject
-    private PluginManager pm;
+    private static final @NotNull HashSet<Runnable> onDisableRunnables = new HashSet<>();
+    private static final @NotNull HashSet<Runnable> onEnableRunnables = new HashSet<>();
+    private static final @NotNull HashSet<Runnable> onInstanceRunnables = new HashSet<>();
+    private static final @NotNull LoadableHashSet<String> serverPlugins = new LoadableHashSet<>();
+    private static @Nullable PlayMoreSounds instance;
+    private static boolean success = true;
+
+    static {
+        if (EpicPluginLib.version.compareTo(new Version("1.6.1")) < 0) {
+            success = false;
+
+            addOnEnableRunnable(() -> {
+                Optional<PluginContainer> plugin = Sponge.getGame().getPluginManager().getPlugin("playmoresounds");
+
+                // EpicPluginLib didn't had platform independent message leveling before 1.6.1 so I'm using l4fj logger.
+                if (plugin.isPresent())
+                    plugin.get().getLogger().error("You are running an old version of EpicPluginLib, make sure you are using the latest one.");
+                else
+                    System.out.println("You are running an old version of EpicPluginLib, make sure you are using the latest one.");
+            });
+        }
+    }
+
+    private final @NotNull String gameVersion;
+    private final @NotNull Logger logger;
+    private final @NotNull ErrorLogger errorLogger;
+    private final @NotNull AddonManager addonManager;
+    private final @NotNull Path privateConfigDir;
 
     @Inject
-    private Game game;
+    private PluginContainer container;
+
+    @Inject
+    private PluginManager pluginManager;
+
+    @Inject
+    public PlayMoreSounds(Game game,
+                          @ConfigDir(sharedRoot = false) @NotNull Path privateConfigDir,
+                          org.slf4j.Logger lf4jLogger,
+                          Metrics2.Factory metricsFactory) throws IOException
+    {
+        instance = this;
+        logger = new Logger("&6[&9PlayMoreSounds&6] ", lf4jLogger);
+        gameVersion = game.getPlatform().getContainer(Platform.Component.GAME).getVersion().orElse("0");
+        addonManager = new AddonManager(this, serverPlugins);
+        this.privateConfigDir = privateConfigDir;
+
+        if (Files.notExists(privateConfigDir))
+            Files.createDirectories(privateConfigDir);
+
+        errorLogger = new ErrorLogger(privateConfigDir, "PlayMoreSounds", getVersion().getVersion(),
+                Collections.singleton("Epicnicity322"), "https://www.spigotmc.org/resources/37429/");
+
+        // success can be false if EpicPluginLib version is not supported.
+        if (success)
+            metricsFactory.make(8393);
+
+        new Thread(() -> {
+            for (Runnable runnable : onInstanceRunnables)
+                try {
+                    runnable.run();
+                } catch (Exception e) {
+                    logger.log("&cAn unknown error occurred on PlayMoreSounds initialization.");
+                    errorLogger.report(e, "PMSInitializationError (Unknown):");
+                }
+        }).start();
+    }
+
+    /**
+     * @return An instance of this class, null if it wasn't instantiated by sponge yet.
+     */
+    public static @Nullable PlayMoreSounds getInstance()
+    {
+        return instance;
+    }
+
+    /**
+     * Adds a runnable to run when PlayMoreSounds is disabled by bukkit.
+     *
+     * @param runnable The runnable to run on disable.
+     */
+    public static void addOnDisableRunnable(@NotNull Runnable runnable)
+    {
+        onDisableRunnables.add(runnable);
+    }
+
+    /**
+     * Adds a runnable to run when PlayMoreSounds is enabled.
+     *
+     * @param runnable The runnable to run on enable.
+     */
+    public static void addOnEnableRunnable(@NotNull Runnable runnable)
+    {
+        onEnableRunnables.add(runnable);
+    }
+
+    /**
+     * Adds a runnable to run when PlayMoreSounds is instantiated by sponge. If PlayMoreSounds was already instantiated,
+     * the runnable is automatically ran.
+     *
+     * @param runnable The runnable to run when PlayMoreSounds is instantiated.
+     */
+    public static void addOnInstanceRunnable(@NotNull Runnable runnable)
+    {
+        if (getInstance() != null)
+            runnable.run();
+
+        onInstanceRunnables.add(runnable);
+    }
+
+    /**
+     * Gets the running version of PlayMoreSounds.
+     */
+    public static @NotNull Version getVersion()
+    {
+        return version;
+    }
+
+    @Override
+    public @NotNull Path getJar()
+    {
+        return container.getSource().orElseThrow(NullPointerException::new);
+    }
+
+    @Override
+    public @NotNull Path getCoreDataFolder()
+    {
+        return privateConfigDir;
+    }
+
+    @Override
+    public @NotNull ErrorLogger getCoreErrorLogger()
+    {
+        return errorLogger;
+    }
+
+    @Override
+    public @NotNull ConsoleLogger<?> getCoreLogger()
+    {
+        return logger;
+    }
+
+    @Override
+    public @NotNull AddonManager getAddonManager()
+    {
+        return addonManager;
+    }
 
     @Listener
-    public void onServerStart(GameStartedServerEvent e)
+    public void onGameInitialization(@SuppressWarnings("unused") GameInitializationEvent event)
     {
-        boolean success = true;
-
         try {
-            GAME = game;
-            FILE_NAME = pm.getPlugin("playmoresounds").get().getSource().orElse(Paths.get("PlayMoreSounds-LIGHT.jar")).getFileName().toString();
-            SPONGE_VERSION = GAME.getPlatform().getContainer(Platform.Component.GAME).getVersion().orElse("0");
-            PLUGIN = this;
+            if (!success)
+                return;
 
-            /*if (!PMSConfig.loadConfig()) {
-                throw new Exception("Unable to load sounds.yml or config.yml configurations");
-            }*/
+            for (PluginContainer plugin : pluginManager.getPlugins())
+                serverPlugins.add(plugin.getId());
 
-            PMSLogger.log("&6-> &eConfiguration not loaded.");
+            serverPlugins.setLoaded(true);
 
-            /*for (PMSSound s : PMSSound.values()) {
-                if (s.bukkitSound() != null) {
-                    SOUND_LIST.add(s.toString());
-                }
+            try {
+                addonManager.registerAddons();
+            } catch (UnsupportedOperationException ignored) {
+                // Only thrown if addons were registered before.
+            } catch (IOException ex) {
+                logger.log("&cFailed to register addons.");
+                errorLogger.report(ex, "Addon registration error:");
             }
 
-            for (Instrument i : Instrument.values()) {
-                INSTRUMENT_LIST.add(i.toString());
-            }*/
+            addonManager.startAddons(StartTime.BEFORE_CONFIGURATION);
 
-            PMSLogger.log("&6-> &e&n000&e sounds loaded.");
+            logger.log("&6-> &eConfigurations not loaded.");
 
-            /*
-            pm.registerEvents(new InventoryClick(), this);
-            pm.registerEvents(new JoinServer(), this);
-            pm.registerEvents(new PlayerMove(), this);
-            pm.registerEvents(new PlayerTeleport(), this);
-            pm.registerEvents(new LeaveServer(), this);
-            WorldTiming.time();
-*/
-            PMSLogger.log("&6-> &e&n000&e events loaded.");
+            addonManager.startAddons(StartTime.BEFORE_EVENTS);
 
+            Sponge.getEventManager().registerListeners(this, new OnClientConnection());
 
+            logger.log("&6-> &eOne listener loaded.");
 
-            /*
-            PluginCommand cmd = getCommand("playmoresounds");
-            cmd.setExecutor(new CommandsHandler());
-            CommandsHandler.loadCommands();
-            cmd.setTabCompleter(new TabCompleterHandler());
+            addonManager.startAddons(StartTime.BEFORE_COMMANDS);
 
-            pm.registerEvents(new AreaSelector(), this);
-            pm.registerEvents(new InappropriateEvents(), this);
-
-            UpdaterManager.loadUpdater();
-
-             */
-        } catch (Exception ex) {
+            logger.log("&6-> &eCommands not loaded.");
+        } catch (Exception e) {
             success = false;
-            //Error report
+            errorLogger.report(e, "PMSLoadingError (Unknown):");
         } finally {
             if (success) {
-                PMSLogger.log("&6============================================");
-                PMSLogger.log("&aPlayMoreSounds isn't working with sponge yet.");
-                PMSLogger.log("&aI'm sorry.");
-                PMSLogger.log("&aVersion v" + SPONGE_VERSION + " detected");
-                PMSLogger.log("&6============================================");
+                logger.log("&6============================================");
+                logger.log("&a PlayMoreSounds is not fully functional on");
+                logger.log("&asponge yet.");
+                logger.log("&a 000 sounds available on " + gameVersion);
+                logger.log("&6============================================");
+                logger.log("&ePlayMoreSounds is collecting anonymous data using bStats. If you don't want to send data, edit bStats configuration.");
+                addonManager.startAddons(StartTime.END);
             } else {
-                PMSLogger.log("&6============================================");
-                PMSLogger.log("&cSomething went wrong while loading PMS");
-                PMSLogger.log("&cPlease report this error to the developer");
-                PMSLogger.log("&6============================================");
-                PMSLogger.log("&4ERROR.LOG generated, please check.");
-                PMSLogger.log("&4Plugin disabled.");
+                logger.log("&6============================================", ConsoleLogger.Level.ERROR);
+                logger.log("&cSomething went wrong while loading PMS", ConsoleLogger.Level.ERROR);
+                logger.log("&cMake sure you read messages before reporting", ConsoleLogger.Level.ERROR);
+                logger.log("&6============================================", ConsoleLogger.Level.ERROR);
+                logger.log("&4Error log generated on data folder.", ConsoleLogger.Level.WARN);
             }
+
+            new Thread(() -> {
+                for (Runnable runnable : onEnableRunnables)
+                    try {
+                        runnable.run();
+                    } catch (Exception e) {
+                        logger.log("&cAn unknown error occurred on PlayMoreSounds startup.");
+                        errorLogger.report(e, "PMSLoadingError (Unknown):");
+                    }
+            }).start();
         }
+    }
+
+    @Listener
+    public void onGameStartedServer(@SuppressWarnings("unused") GameStartedServerEvent event)
+    {
+        addonManager.startAddons(StartTime.SERVER_LOAD_COMPLETE);
+    }
+
+    @Listener
+    public void onGameStopping(@SuppressWarnings("unused") GameStoppingEvent event)
+    {
+        addonManager.stopAddons();
+
+        new Thread(() -> {
+            for (Runnable runnable : onDisableRunnables)
+                try {
+                    runnable.run();
+                } catch (Exception e) {
+                    logger.log("&cAn unknown error occurred on PlayMoreSounds shutdown.");
+                    errorLogger.report(e, "PMSUnloadingError (Unknown):");
+                }
+        }).start();
     }
 }
