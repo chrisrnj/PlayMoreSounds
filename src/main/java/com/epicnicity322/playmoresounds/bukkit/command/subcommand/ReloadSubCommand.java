@@ -37,7 +37,8 @@ public final class ReloadSubCommand extends Command implements Helpable
                 try {
                     runnable.run();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    PlayMoreSounds.getPMSLogger().log("&cAn unknown error occurred on PlayMoreSounds reload.");
+                    PlayMoreSounds.getErrorLogger().report(e, "PMSReloadingError (Unknown):");
                 }
         }).start();
     }
