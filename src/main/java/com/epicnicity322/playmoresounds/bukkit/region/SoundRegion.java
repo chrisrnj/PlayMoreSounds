@@ -16,8 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class SoundRegion
@@ -32,11 +31,12 @@ public class SoundRegion
     private @Nullable String description;
     private @NotNull Location maxDiagonal;
     private @NotNull Location minDiagonal;
+    private @NotNull Set<Location> border;
 
-    protected SoundRegion(Path path)
+    protected SoundRegion(@NotNull Path path)
     {
         try {
-            Configuration region = YamlConfigurationLoader.build().load(path);
+            Configuration region = loader.load(path);
 
             id = UUID.fromString(region.getName().substring(0, region.getName().indexOf(".")));
             creator = region.getString("Creator").map(UUID::fromString).orElse(null);
@@ -80,6 +80,32 @@ public class SoundRegion
         setName(name);
         setMinDiagonal(minDiagonal);
         save = PlayMoreSounds.getFolder().resolve("Data").resolve("Regions").resolve(id.toString() + ".yml");
+    }
+
+    private Set<Location> parseBorder()
+    {
+        HashSet<Location> border = new HashSet<>();
+
+        double startX = minDiagonal.getX();
+        double endX = maxDiagonal.getX() + 1d;
+        double startY = minDiagonal.getY();
+        double endY = maxDiagonal.getY() + 1d;
+        double startZ = minDiagonal.getZ();
+        double endZ = maxDiagonal.getZ() + 1d;
+        World world = minDiagonal.getWorld();
+
+        for (double x = startX; x <= endX; ++x)
+            for (double y = startY; y <= endY; ++y)
+                for (double z = startZ; z <= endZ; ++z) {
+                    boolean edgeX = x == startX || x == endX;
+                    boolean edgeY = y == startY || y == endY;
+                    boolean edgeZ = z == startZ || z == endZ;
+
+                    if ((edgeX && edgeY) || (edgeZ && edgeY) || (edgeX && edgeZ))
+                        border.add(new Location(world, x, y, z));
+                }
+
+        return Collections.unmodifiableSet(border);
     }
 
     /**
@@ -170,6 +196,7 @@ public class SoundRegion
 
         maxDiagonal = new Location(world, maxX, maxY, maxZ);
         minDiagonal = new Location(world, minX, minY, minZ);
+        border = parseBorder();
     }
 
     /**
@@ -203,6 +230,17 @@ public class SoundRegion
 
         maxDiagonal = new Location(world, maxX, maxY, maxZ);
         minDiagonal = new Location(world, minX, minY, minZ);
+        border = parseBorder();
+    }
+
+    /**
+     * Gets the coordinates of the border blocks of this region.
+     *
+     * @return The coordinates of the border of this region.
+     */
+    public @NotNull Set<Location> getBorder()
+    {
+        return border;
     }
 
     /**
