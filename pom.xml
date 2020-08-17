@@ -8,13 +8,63 @@
     <artifactId>PlayMoreSounds</artifactId>
     <version>3.1.2</version>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <version.template.file>
+            src/main/java-templates/com/epicnicity322/playmoresounds/core/PlayMoreSounds.java.template
+        </version.template.file>
+        <version.file>src/main/java/com/epicnicity322/playmoresounds/core/PlayMoreSounds.java</version.file>
+    </properties>
+
     <build>
+        <finalName>${project.artifactId}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>maven-replacer-plugin</artifactId>
+                <version>1.4.0</version>
+                <executions>
+                    <execution>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <file>${version.template.file}</file>
+                    <outputFile>${version.file}</outputFile>
+                    <replacements>
+                        <replacement>
+                            <token>#PROJECT_VERSION#</token>
+                            <value>${project.version}</value>
+                        </replacement>
+                    </replacements>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>com.epicnicity322.playmoresounds.core.Main</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <encoding>UTF-8</encoding>
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
@@ -55,7 +105,7 @@
         <dependency>
             <groupId>com.github.Epicnicity322</groupId>
             <artifactId>EpicPluginLib</artifactId>
-            <version>1.6</version>
+            <version>1.6.1</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>
