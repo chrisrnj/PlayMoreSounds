@@ -10,7 +10,9 @@ import java.nio.file.Path;
 
 public interface PlayMoreSounds
 {
-    Version version = new Version("3.1.2");
+    @NotNull String versionString = "3.1.2";
+
+    @NotNull Version version = new Version(versionString);
 
     @NotNull Path getJar();
 
@@ -18,7 +20,7 @@ public interface PlayMoreSounds
 
     @NotNull ErrorLogger getCoreErrorLogger();
 
-    @NotNull ConsoleLogger<?, ?> getCoreLogger();
+    @NotNull ConsoleLogger<?> getCoreLogger();
 
     @NotNull AddonManager getAddonManager();
 }
