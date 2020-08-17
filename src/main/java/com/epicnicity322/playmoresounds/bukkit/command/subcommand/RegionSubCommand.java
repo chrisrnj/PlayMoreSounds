@@ -10,15 +10,18 @@ import com.epicnicity322.playmoresounds.bukkit.listener.OnPlayerInteract;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
 import com.epicnicity322.playmoresounds.bukkit.util.PMSHelper;
+import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -328,7 +331,35 @@ public final class RegionSubCommand extends Command implements Helpable
             }
         }
 
+        Random random = new Random();
+
         for (SoundRegion region : regions) {
+            // Checking if particles should be sent.
+            if (VersionUtils.hasOffHand() && (sender instanceof Player)) {
+                int count;
+                double r, g, b;
+
+                // If the player is standing on multiple regions, they should make different color particles.
+                if (regions.size() == 1) {
+                    count = 1;
+                    r = 0;
+                    g = 0;
+                    b = 0;
+                } else {
+                    count = 0;
+                    r = random.nextDouble();
+                    g = random.nextDouble();
+                    b = random.nextDouble();
+                }
+
+                BukkitTask task = Bukkit.getScheduler().runTaskTimer(PlayMoreSounds.getInstance(), () -> {
+                    for (Location border : region.getBorder())
+                        ((Player) sender).spawnParticle(Particle.NOTE, border, count, r, g, b);
+                }, 0, 5);
+
+                Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), task::cancel, 100);
+            }
+
             lang.send(sender, lang.get("Region.Info.Header").replace("<name>", region.getName()));
             lang.send(sender, false, lang.get("Region.Info.Owner").replace("<owner>", Bukkit.getOfflinePlayer(region.getCreator()).getName()));
             lang.send(sender, false, lang.get("Region.Info.Id").replace("<uuid>", region.getId().toString()));
