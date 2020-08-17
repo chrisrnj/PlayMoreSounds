@@ -6,7 +6,7 @@ public class Main
 {
     public static void main(String[] args)
     {
-        System.out.println("I am a bukkit/sponge dependent application! I'm sorry.");
+        System.out.println("I am a bukkit/sponge dependent application!");
 
         JFrame frame = new JFrame("Sorry");
         JLabel textArea = new JLabel(" I am a bukkit/sponge dependent application!");
