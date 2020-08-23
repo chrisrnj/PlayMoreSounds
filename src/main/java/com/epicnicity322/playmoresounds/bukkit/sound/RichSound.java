@@ -1,15 +1,17 @@
 package com.epicnicity322.playmoresounds.bukkit.sound;
 
+import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.events.PlayRichSoundEvent;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
@@ -18,6 +20,7 @@ import java.util.Objects;
 
 public class RichSound implements Playable
 {
+    private static final @NotNull BukkitScheduler scheduler = Bukkit.getScheduler();
     private final String name;
     private ConfigurationSection section;
     private boolean enabled;
@@ -94,36 +97,8 @@ public class RichSound implements Playable
             this.childSounds = sounds;
     }
 
-    public void save(@NotNull Path path) throws IOException
+    public void save(@NotNull Path path)
     {
-    }
-
-    @Override
-    public void play(@NotNull Location sourceLocation)
-    {
-        if (isEnabled() && !getChildSounds().isEmpty()) {
-            PlayRichSoundEvent event = new PlayRichSoundEvent(null, sourceLocation, this);
-
-            Bukkit.getPluginManager().callEvent(event);
-
-            if (!event.isCancelled())
-                for (Sound s : getChildSounds())
-                    s.play(event.getLocation());
-        }
-    }
-
-    @Override
-    public void play(@NotNull Player player)
-    {
-        if (isEnabled() && !getChildSounds().isEmpty()) {
-            PlayRichSoundEvent event = new PlayRichSoundEvent(player, player.getLocation(), this);
-
-            Bukkit.getPluginManager().callEvent(event);
-
-            if (!event.isCancelled())
-                for (Sound s : getChildSounds())
-                    s.play(player);
-        }
     }
 
     @Override
@@ -138,6 +113,34 @@ public class RichSound implements Playable
                 for (Sound s : getChildSounds())
                     s.play(player, event.getLocation());
         }
+    }
+
+    /**
+     * Plays the sound repeatedly after the time set on period.
+     * The task will be cancelled if the sound is disabled or has no child sounds.
+     * {@link PlayRichSoundEvent} will be called for every time the sound is played by this loop.
+     *
+     * @param player         The player to play the sound.
+     * @param sourceLocation The location where the sound will play. May change depending on
+     *                       {@link SoundOptions#getRelativeLocation()} and {@link SoundOptions#isEyeLocation()}.
+     * @param delay          The time in ticks to wait before playing the first sound.
+     * @param period         The time in ticks to wait before playing the sound again.
+     * @return The {@link BukkitTask} of the loop that can be used to cancel later.
+     * @throws IllegalStateException If PlayMoreSounds was not instantiated by bukkit yet.
+     */
+    public @NotNull BukkitTask playInLoop(@Nullable Player player, @NotNull Location sourceLocation, long delay, long period)
+    {
+        PlayMoreSounds main = PlayMoreSounds.getInstance();
+
+        if (main == null)
+            throw new IllegalStateException("PlayMoreSounds is not loaded.");
+
+        BukkitTask task = scheduler.runTaskTimer(main, () -> play(player, sourceLocation), delay, period);
+
+        if (!isEnabled() || getChildSounds().isEmpty())
+            task.cancel();
+
+        return task;
     }
 
     @Override
