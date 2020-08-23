@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,6 +21,7 @@ import java.util.HashSet;
 public class Sound implements Playable
 {
     private static final @NotNull PluginConfig config = Configurations.CONFIG.getPluginConfig();
+    private static final @NotNull BukkitScheduler scheduler = Bukkit.getScheduler();
     private final @NotNull String name;
     private final @NotNull String id;
     private String sound;
@@ -159,12 +161,6 @@ public class Sound implements Playable
     }
 
     @Override
-    public void play(@NotNull Location sourceLocation) throws NullPointerException
-    {
-        play(null, sourceLocation);
-    }
-
-    @Override
     public void play(@NotNull Player player)
     {
         if (options.isEyeLocation())
@@ -193,9 +189,14 @@ public class Sound implements Playable
 
             if (delay == 0)
                 play(player, players, soundLocation, instance);
-            else
-                Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () ->
-                        play(player, players, soundLocation, instance), delay);
+            else {
+                PlayMoreSounds main = PlayMoreSounds.getInstance();
+
+                if (main == null)
+                    throw new IllegalStateException("PlayMoreSounds is not loaded.");
+
+                scheduler.runTaskLater(main, () -> play(player, players, soundLocation, instance), delay);
+            }
         }
     }
 
