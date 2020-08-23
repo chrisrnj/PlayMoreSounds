@@ -5,6 +5,7 @@ import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,6 +13,7 @@ import java.util.*;
 
 public final class SoundManager
 {
+    private static final @NotNull BukkitScheduler scheduler = Bukkit.getScheduler();
     private static final @NotNull HashSet<UUID> ignoredPlayers = new HashSet<>();
     private static @NotNull Set<String> soundList = new HashSet<>();
     private static @NotNull Set<SoundType> soundTypes = new HashSet<>();
@@ -62,12 +64,25 @@ public final class SoundManager
         return ignoredPlayers;
     }
 
+    /**
+     * Stops the currently playing sounds. If the server is running 1.10.2+, {@link Player#stopSound(String)} method is
+     * used, if the server is running an older version, an old glitch of playing lots of sounds is used to stop the sounds.
+     * If the server is running a version older than 1.10.2, you can not specify the sounds to stop as all
+     * minecraft/resource pack sounds are stopped.
+     *
+     * @param player The player to stop the sound.
+     * @param sounds The sounds to stop, null if you want to stop all minecraft sounds.
+     * @param delay  The delay to wait before stopping the sounds.
+     * @throws IllegalStateException If PlayMoreSounds was not instantiated by bukkit yet.
+     */
     public static void stopSounds(@NotNull Player player, @Nullable HashSet<String> sounds, long delay)
     {
-        if (PlayMoreSounds.getInstance() == null)
-            throw new IllegalStateException("PlayMoreSounds must be loaded before using this method.");
+        PlayMoreSounds main = PlayMoreSounds.getInstance();
 
-        Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> {
+        if (main == null)
+            throw new IllegalStateException("PlayMoreSounds is not loaded.");
+
+        scheduler.runTaskLater(main, () -> {
             if (VersionUtils.hasStopSound())
                 if (sounds == null)
                     for (SoundType toStop : SoundManager.getSoundTypes())
