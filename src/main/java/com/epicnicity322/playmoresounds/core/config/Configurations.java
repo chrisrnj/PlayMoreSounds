@@ -12,8 +12,7 @@ import java.util.function.Consumer;
 
 public enum Configurations
 {
-    /*
-    BIOMES(StaticFields.sounds.resolve("biomes.yml"), config -> {
+    /* BIOMES(StaticFields.sounds.resolve("biomes.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when you enter, exit or stand on a specific biome.");
         config.addDefaultComment("");
         config.addDefaultComment(" Sample:");
@@ -205,15 +204,17 @@ public enum Configurations
         config.addDefault("Contains SubString.play.Enabled", true);
         config.addDefault("Contains SubString.play.Stop Other Sounds.Default Sound", true);
         config.addDefault("Contains SubString.play.Stop Other Sounds.Other Filters", true);
-    }, "3.0.0", StaticFields.version),
+    }, "3.0.0", "3.1.1", StaticFields.version),
     CONFIG(PlayMoreSounds.getFolder().resolve("config.yml"), config -> {
         config.addDefaultComment("################################");
         config.addDefaultComment("#  PlayMoreSounds Configuration");
-        config.addDefaultComment("#  v3.0.0");
+        config.addDefaultComment("#  v" + StaticFields.version);
         config.addDefaultComment("################################\n");
         config.addDefault("Version", StaticFields.version);
         config.addDefaultComment(" Should the sounds of players that disabled them be enabled on login?");
         config.addDefault("Enable Sounds After Re-Login", true);
+        config.addDefaultComment(" A simple halloween event, disable if you find it annoying.");
+        config.addDefault("Halloween Event", true);
         config.addDefault("Inventories.Finder.Back Item.Material", "PAPER");
         config.addDefault("Inventories.Finder.Back Item.Glowing", false);
         config.addDefault("Inventories.Finder.File Item.Material", "GLASS");
@@ -269,10 +270,10 @@ public enum Configurations
         config.addDefault("Updater.Log", false);
         config.addDefault("Updater.Period", 144000L);
         config.addDefaultComment(" The worlds that will not play any sounds.");
-        config.addDefaultComment("World-BlackList:");
+        config.addDefaultComment("World Black List:");
         config.addDefaultComment("- 'sample'");
         config.addDefaultComment("- 'sample2'\n");
-        config.addDefault("World-BlackList", new ArrayList<>());
+        config.addDefault("World Black List", new ArrayList<>());
     }, StaticFields.version),
     CHAT(StaticFields.sounds.resolve("chat.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when a player type a sentence in chat.");
@@ -390,8 +391,8 @@ public enum Configurations
         config.addDefaultComment("");
         config.addDefaultComment(" More information about sounds on sounds.yml");
         config.addDefault("Version", StaticFields.version);
-    }, "3.0.0", StaticFields.version),
-    DEATH_TYPES(StaticFields.sounds.resolve("deathtypes.yml"), config -> {
+    }, "3.0.0", "3.1.1", StaticFields.version),
+    DEATH_TYPES(StaticFields.sounds.resolve("death types.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when a player die for a specific cause of death.");
         config.addDefaultComment("");
         config.addDefaultComment(" To set a sound, just create a configuration section with the name of the");
@@ -430,7 +431,7 @@ public enum Configurations
         config.addDefaultComment("");
         config.addDefaultComment(" More information about sounds on sounds.yml\n");
         config.addDefault("Version", StaticFields.version);
-    }, "3.0.0", StaticFields.version),
+    }, "3.0.0", "3.1.1", StaticFields.version),
     GAME_MODES(StaticFields.sounds.resolve("game modes.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when you change your gamemode.");
         config.addDefaultComment("");
@@ -456,7 +457,7 @@ public enum Configurations
         config.addDefaultComment(" to the sound options.");
         config.addDefaultComment(" More information about sounds on sounds.yml.\n");
         config.addDefault("Version", StaticFields.version);
-    }, "3.0.0", StaticFields.version),
+    }, "3.0.0", "3.1.1", StaticFields.version),
     HURT_SOUNDS(StaticFields.sounds.resolve("hurt sounds.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when an entity hits another entity with a specific item on hand.");
         config.addDefaultComment("");
@@ -514,7 +515,7 @@ public enum Configurations
         config.addDefaultComment(" Hope everything is clear, if you have any doubts of a condition that you wanna use but can't find how, contact me on discord:");
         config.addDefaultComment(" https://discord.gg/eAHPbc3\n");
         config.addDefault("Version", StaticFields.version);
-    }, "3.0.0", StaticFields.version),
+    }, "3.0.0", "3.1.1", StaticFields.version),
     REGIONS(StaticFields.sounds.resolve("regions.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when you enter, exit or stand on a specific region.");
         config.addDefaultComment("");
@@ -579,7 +580,7 @@ public enum Configurations
         config.addDefaultComment("");
         config.addDefaultComment(" More information about sounds on sounds.yml.\n");
         config.addDefault("Version", StaticFields.version);
-    }, "3.0.0", StaticFields.version),
+    }, "3.0.0", "3.1.1", StaticFields.version),
     SOUNDS(PlayMoreSounds.getFolder().resolve("sounds.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when a player triggers an event.");
         config.addDefaultComment("");
@@ -614,10 +615,6 @@ public enum Configurations
         config.addDefaultComment("        # Even if a player has toggled it's sounds to off, the sound will");
         config.addDefaultComment("        #be played.");
         config.addDefaultComment("        Ignore Toggle: true");
-        config.addDefaultComment("        # You can say if you want the sound to be played in player's EYE");
-        config.addDefaultComment("         #location.");
-        config.addDefaultComment("        # Remember that eye location changes when crouching.");
-        config.addDefaultComment("        Eye Location: false");
         config.addDefaultComment("        # The sound will be only listened by who have this permission.");
         config.addDefaultComment("        Permission To Listen: 'pms.listen.playerteleport'");
         config.addDefaultComment("        # The sound will be only played to who have this permission.");
@@ -860,8 +857,8 @@ public enum Configurations
         config.addDefault("Wake Up.Sounds.0.Sound", "ENTITY_CHICKEN_HURT");
         config.addDefault("Wake Up.Sounds.0.Volume", 0.4F);
 
-    }, "3.0.0", StaticFields.version),
-    TIME_TRIGGERS(StaticFields.sounds.resolve("time triggers.yml"), config -> {
+    }, "3.0.0", "3.1.1", StaticFields.version),
+    WORLD_TIMES(StaticFields.sounds.resolve("world times.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when a world reaches a specific time of the day.");
         config.addDefaultComment("");
         config.addDefaultComment("world: # The name of the world that you want to track time.");
@@ -878,7 +875,7 @@ public enum Configurations
         config.addDefaultComment("");
         config.addDefaultComment(" More information about sounds on sounds.yml\n");
         config.addDefault("Version", StaticFields.version);
-    }, "3.0.0", StaticFields.version),
+    }, "3.0.0", "3.1.1", StaticFields.version),
     LANGUAGE_EN_US(StaticFields.lang.resolve("Language EN-US.yml"), config -> {
         config.addDefaultComment("Language EN-US");
         config.addDefault("Version", StaticFields.version);
@@ -996,7 +993,7 @@ public enum Configurations
         config.addDefault("Finder.Title.Sound", "&1&n<path>&9 sounds &8[&7<page>&8/&7<totalPages>&8]");
         config.addDefault("General.And", "and");
         config.addDefault("General.Description", "description");
-        config.addDefault("General.Everyone", "everyone");
+        config.addDefault("General.Everyone", "Everyone");
         config.addDefault("General.Invalid Arguments", "&cIncorrect command syntax! Use \"&7/&n<label> <label2> <args>&c\".");
         config.addDefault("General.Name", "name");
         config.addDefault("General.No Permission", "&4You don't have permission to do this!");
@@ -1010,7 +1007,7 @@ public enum Configurations
         config.addDefault("General.Unknown Command", "&cUnknown command. Use \"&7&n/<label> help&c\" to see the list of commands available to you.");
         config.addDefault("General.World", "world");
         config.addDefault("General.You", "You");
-        config.addDefault("Help.Confirm", "&e&n/<label> confirm [id|page]\n&7 > Confirms something");
+        config.addDefault("Help.Confirm", "&e/<label> confirm [id|page]\n&7 > Confirms something");
         config.addDefault("Help.Header", "List of PlayMoreSounds commands:");
         config.addDefault("Help.Help", "&e/<label> help [command]\n&7 > Shows the description of commands.");
         config.addDefault("Help.List", "&e/<label> list [page] [--gui]\n&7 > Shows the sounds available on your version.");
@@ -1105,7 +1102,7 @@ public enum Configurations
         config.addDefault("Update.Error.Offline", "&cYou are offline or spigot.org is down.");
         config.addDefault("Update.Error.Timeout", "&cTook too long to establish a connection.");
         config.addDefault("Update.Not Available", "&eNo updates available.");
-    }, StaticFields.version),
+    }, "3.1.1", StaticFields.version),
     LANGUAGE_ES_LA(StaticFields.lang.resolve("Language ES-LA.yml"), config -> {
         config.addDefaultComment("Idioma ES-LA");
         config.addDefaultComment("Traducido por Epicnicity");
@@ -1224,7 +1221,7 @@ public enum Configurations
         config.addDefault("Finder.Title.Sound", "&9Sonidos de &1&n<path> &8[&7<page>&8/&7<totalPages>&8]");
         config.addDefault("General.And", "y");
         config.addDefault("General.Description", "descripción");
-        config.addDefault("General.Everyone", "todos");
+        config.addDefault("General.Everyone", "Todos");
         config.addDefault("General.Invalid Arguments", "&c¡Sintaxis de comando incorrecta! Use \"&7/&n<label> <label2> <args>&c\".");
         config.addDefault("General.Name", "nombre");
         config.addDefault("General.No Permission", "&4¡No tienes permiso para hacer esto!");
@@ -1238,7 +1235,7 @@ public enum Configurations
         config.addDefault("General.Unknown Command", "&cComando desconocido. Use \"&7&n/<label> help&c\" para ver la lista de comandos disponibles para usted.");
         config.addDefault("General.World", "mundo");
         config.addDefault("General.You", "Tú");
-        config.addDefault("Help.Confirm", "&e&n/<label> confirm [id|page]\n&7 > Confirma algo");
+        config.addDefault("Help.Confirm", "&e/<label> confirm [id|page]\n&7 > Confirma algo");
         config.addDefault("Help.Header", "Lista de comandos de PlayMoreSounds:");
         config.addDefault("Help.Help", "&e/<label> help [comando]\n&7 > Muestra la descripción de los comandos.");
         config.addDefault("Help.List", "&e/<label> list [página] [--gui]\n&7 > Muestra los sonidos disponibles en su versión.");
@@ -1333,7 +1330,7 @@ public enum Configurations
         config.addDefault("Update.Error.Offline", "&cEstá desconectado o spigot.org está caído.");
         config.addDefault("Update.Error.Timeout", "&cTomó demasiado tiempo para establecer una conexión.");
         config.addDefault("Update.Not Available", "&eNo hay actualizaciones disponibles.");
-    }, StaticFields.version),
+    }, "3.1.1", StaticFields.version),
     LANGUAGE_PT_BR(StaticFields.lang.resolve("Language PT-BR.yml"), config -> {
         config.addDefaultComment("Linguagem PT-BR");
         config.addDefaultComment("Traduzido por Epicnicity");
@@ -1452,7 +1449,7 @@ public enum Configurations
         config.addDefault("Finder.Title.Sound", "&9Sons de &1&n<path> &8[&7<page>&8/&7<totalPages>&8]");
         config.addDefault("General.And", "e");
         config.addDefault("General.Description", "descrição");
-        config.addDefault("General.Everyone", "todos");
+        config.addDefault("General.Everyone", "Todos");
         config.addDefault("General.Invalid Arguments", "&cSintaxe de comando incorreta! Use \"&7/&n<label> <label2> <args>&c\".");
         config.addDefault("General.Name", "nome");
         config.addDefault("General.No Permission", "&4Você não tem permissão para fazer isso!");
@@ -1466,7 +1463,7 @@ public enum Configurations
         config.addDefault("General.Unknown Command", "&cComando desconhecido. Use \"&7&n/<label> help&c\" para ver a lista de comandos disponíveis para você.");
         config.addDefault("General.World", "mundo");
         config.addDefault("General.You", "Você");
-        config.addDefault("Help.Confirm", "&e&n/<label> confirm [id|page]\n&7 > Confirma algo");
+        config.addDefault("Help.Confirm", "&e/<label> confirm [id|page]\n&7 > Confirma algo");
         config.addDefault("Help.Header", "Lista de comandos do PlayMoreSounds:");
         config.addDefault("Help.Help", "&e/<label> help [comando]\n&7 > Mostra a descrição de comandos");
         config.addDefault("Help.List", "&e/<label> list [página] [--gui]\n&7 > Mostra os sons disponíveis em sua versão.");
@@ -1561,7 +1558,7 @@ public enum Configurations
         config.addDefault("Update.Error.Offline", "&cVocê está offline ou spigot.org caiu.");
         config.addDefault("Update.Error.Timeout", "&cLevou tempo demais para estabelecer uma conexão.");
         config.addDefault("Update.Not Available", "&eNenhuma atualização disponível.");
-    }, StaticFields.version),
+    }, "3.1.1", StaticFields.version),
     LANGUAGE_ZH_CN(StaticFields.lang.resolve("Language ZH-CN.yml"), config -> {
         config.addDefaultComment("语言ZH-CN");
         config.addDefaultComment("译者：秋风残叶");
@@ -1694,7 +1691,7 @@ public enum Configurations
         config.addDefault("General.Unknown Command", "&c未知指令，请使用 \"&7&n/<label> help&c\" 获得帮助");
         config.addDefault("General.World", "世界");
         config.addDefault("General.You", "你");
-        config.addDefault("Help.Confirm", "&e&n/<label> confirm [数|页]\n&7 > 确认");
+        config.addDefault("Help.Confirm", "&e/<label> confirm [数|页]\n&7 > 确认");
         config.addDefault("Help.Header", "指令列表:");
         config.addDefault("Help.Help", "&e/<label> help [指令]\n&7 > 指令描述");
         config.addDefault("Help.List", "&e/<label> list [页] [--gui]\n&7 > 此版本允许的音效列表");
@@ -1789,7 +1786,7 @@ public enum Configurations
         config.addDefault("Update.Error.Offline", "&c您当前未连接网络，或者您的防火墙拦截了联网请求，更新失败");
         config.addDefault("Update.Error.Timeout", "&c连接超时，请检查网络");
         config.addDefault("Update.Not Available", "&e没有可用更新");
-    }, StaticFields.version);
+    }, "3.1.1", StaticFields.version);
 
     private static final @NotNull ConfigLoader configLoader = new ConfigLoader();
 
@@ -1828,6 +1825,6 @@ public enum Configurations
         /**
          * The version the configurations had their last changes.
          */
-        protected static final @NotNull String version = "3.1.1";
+        protected static final @NotNull String version = "3.1.2";
     }
 }
