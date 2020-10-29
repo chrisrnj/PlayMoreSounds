@@ -4,9 +4,7 @@ import com.epicnicity322.epicpluginlib.core.config.PluginConfig;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.events.PlaySoundEvent;
 import com.epicnicity322.playmoresounds.bukkit.sound.events.PrePlaySoundEvent;
-import com.epicnicity322.playmoresounds.bukkit.util.PMSHelper;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
-import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -17,13 +15,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
+import java.util.Objects;
 
 public class Sound implements Playable
 {
     private static final @NotNull PluginConfig config = Configurations.CONFIG.getPluginConfig();
     private static final @NotNull BukkitScheduler scheduler = Bukkit.getScheduler();
-    private final @NotNull String name;
-    private final @NotNull String id;
+    private final @Nullable ConfigurationSection section;
     private String sound;
     private @Nullable SoundType soundType;
     private float volume;
@@ -31,27 +29,21 @@ public class Sound implements Playable
     private long delay;
     private SoundOptions options;
 
-    public Sound(@Nullable String id, @NotNull String sound, float volume, float pitch, long delay,
-                 @Nullable SoundOptions options)
+    public Sound(@NotNull String sound, float volume, float pitch, long delay, @Nullable SoundOptions options)
     {
         setSound(sound);
         setOptions(options);
 
-        if (id == null)
-            this.id = PMSHelper.getRandomString(5);
-        else
-            this.id = id;
-
-        name = id;
         this.volume = volume;
         this.pitch = pitch;
         this.delay = delay;
+        this.section = null;
     }
 
     /**
-     * Creates a Sound instance based on a section. This section is where Delay, Options, Pitch, Sound and Volume
-     * stands. Options are automatically constructed by this, but they must follow {@link SoundOptions} ConfigurationSection
-     * constructor rules.
+     * Creates a {@link Sound} instance based on a section. This section is where Delay, Options, Pitch, Sound and
+     * Volume nodes stands. Options are automatically constructed by this, but they must follow {@link SoundOptions}
+     * {@link ConfigurationSection} constructor rules.
      *
      * @param section The section where the sound is.
      * @see SoundOptions
@@ -59,15 +51,11 @@ public class Sound implements Playable
      */
     public Sound(@NotNull ConfigurationSection section)
     {
-        if (section instanceof Configuration)
-            throw new UnsupportedOperationException("Section can not be Configuration.");
-
         setSound(section.getString("Sound").orElse("BLOCK_NOTE_BLOCK_PLING"));
-        id = section.getName();
-        name = section.getPath();
-        delay = section.getNumber("Delay").orElse(0).longValue();
         volume = section.getNumber("Volume").orElse(10).floatValue();
         pitch = section.getNumber("Pitch").orElse(1).floatValue();
+        delay = section.getNumber("Delay").orElse(0).longValue();
+        this.section = section;
 
         ConfigurationSection options = section.getConfigurationSection("Options");
 
@@ -77,14 +65,12 @@ public class Sound implements Playable
             this.options = new SoundOptions(options);
     }
 
-    public @NotNull String getId()
+    /**
+     * @return The {@link ConfigurationSection} of this sound or null if this sound was not constructed by a section.
+     */
+    public @Nullable ConfigurationSection getSection()
     {
-        return id;
-    }
-
-    public @NotNull String getName()
-    {
-        return name;
+        return section;
     }
 
     /**
@@ -103,19 +89,24 @@ public class Sound implements Playable
         if (SoundManager.getSoundList().contains(sound.toUpperCase())) {
             SoundType type = SoundType.valueOf(sound.toUpperCase());
 
-            this.sound = type.getSound().orElse(null);
+            this.sound = type.getSound().orElse("BLOCK_NOTE_BLOCK_PLING");
             soundType = type;
         } else {
             this.sound = sound;
         }
     }
 
-    @Nullable
-    public SoundType getSoundType()
+    /**
+     * @return The sound type that will be played.
+     */
+    public @Nullable SoundType getSoundType()
     {
         return soundType;
     }
 
+    /**
+     * @return The volume of this sound.
+     */
     public float getVolume()
     {
         return volume;
@@ -126,6 +117,9 @@ public class Sound implements Playable
         this.volume = volume;
     }
 
+    /**
+     * @return The pitch of this sound.
+     */
     public float getPitch()
     {
         return pitch;
@@ -136,11 +130,19 @@ public class Sound implements Playable
         this.pitch = pitch;
     }
 
+    /**
+     * @return The time in ticks to wait before playing this sound.
+     */
     public long getDelay()
     {
         return delay;
     }
 
+    /**
+     * Sets the time in ticks to wait before playing this sound. 1 second = 20 ticks
+     *
+     * @param delay The time in ticks.
+     */
     public void setDelay(long delay)
     {
         this.delay = delay;
@@ -154,19 +156,9 @@ public class Sound implements Playable
     public void setOptions(@Nullable SoundOptions options)
     {
         if (options == null)
-            this.options = new SoundOptions(false, false, null,
-                    null, 0.0, null);
+            this.options = new SoundOptions(false, null, null, 0.0, null);
         else
             this.options = options;
-    }
-
-    @Override
-    public void play(@NotNull Player player)
-    {
-        if (options.isEyeLocation())
-            play(player, player.getEyeLocation());
-        else
-            play(player, player.getLocation());
     }
 
     @Override
@@ -204,20 +196,14 @@ public class Sound implements Playable
                       @NotNull Sound instance)
     {
         for (Player inRange : players) {
-            if (!config.getConfiguration().getCollection("World-BlackList").contains(inRange.getWorld().getName())
+            if (!config.getConfiguration().getCollection("World Black List").contains(inRange.getWorld().getName())
                     && (options.ignoresToggle() || !SoundManager.getIgnoredPlayers().contains(inRange.getUniqueId()))
                     && (options.getPermissionToListen() == null || inRange.hasPermission(options.getPermissionToListen()))
                     && (sourcePlayer == null || inRange.canSee(sourcePlayer))) {
                 Location fixedLocation = soundLocation;
 
-                if (options.getRadius() < 0) {
-                    if (options.isEyeLocation())
-                        fixedLocation = inRange.getEyeLocation();
-                    else
-                        fixedLocation = inRange.getLocation();
-
+                if (options.getRadius() < 0)
                     fixedLocation = SoundManager.addRelativeLocation(fixedLocation, options.getRelativeLocation());
-                }
 
                 PlaySoundEvent event = new PlaySoundEvent(instance, inRange, fixedLocation, players, sourcePlayer,
                         soundLocation);
@@ -228,5 +214,39 @@ public class Sound implements Playable
                     inRange.playSound(event.getLocation(), sound, volume, pitch);
             }
         }
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Sound{" +
+                "sound='" + sound + '\'' +
+                ", volume=" + volume +
+                ", pitch=" + pitch +
+                ", delay=" + delay +
+                ", section=" + (section == null ? "null" : "'" + section.getPath() + '\'') +
+                ", options=" + options +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (!(o instanceof Sound)) return false;
+
+        Sound sound1 = (Sound) o;
+
+        return Float.compare(sound1.getVolume(), getVolume()) == 0 &&
+                Float.compare(sound1.getPitch(), getPitch()) == 0 &&
+                getDelay() == sound1.getDelay() &&
+                getSound().equals(sound1.getSound()) &&
+                getOptions().equals(sound1.getOptions());
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(getSound(), getVolume(), getPitch(), getDelay(), getOptions(), getSection());
     }
 }
