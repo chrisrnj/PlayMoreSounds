@@ -20,14 +20,13 @@ import java.util.jar.JarFile;
 
 public class AddonDescription
 {
-    private static final @NotNull YamlConfigurationLoader loader = YamlConfigurationLoader.build();
+    private static final @NotNull YamlConfigurationLoader loader = new YamlConfigurationLoader();
     private final @NotNull String main;
     private final @NotNull String name;
     private final @NotNull Version version;
     private final @NotNull Version apiVersion;
     private final @NotNull StartTime startTime;
     private final @NotNull Collection<String> authors;
-    private final @NotNull Collection<String> hookPlugins;
     private final @NotNull Collection<String> requiredPlugins;
     private final @NotNull Collection<String> hookAddons;
     private final @NotNull Collection<String> requiredAddons;
@@ -46,8 +45,8 @@ public class AddonDescription
         try {
             Configuration description = loader.load(new InputStreamReader(jarFile.getInputStream(entry)));
 
-            name = parseName(description.getString("Name").orElseThrow(() -> new InvalidAddonException("The addon '" + fileName + "' does not contain name property in description.")));
-            main = description.getString("Main").orElseThrow(() -> new InvalidAddonException("The addon '" + name + "' does not contain main property in description."));
+            name = parseName(description.getString("Name").orElseThrow(() -> new InvalidAddonException("The addon '" + fileName + "' does not contain 'Name' property in description.")));
+            main = description.getString("Main Class").orElseThrow(() -> new InvalidAddonException("The addon '" + name + "' does not contain 'Main Class' property in description."));
 
             Optional<String> startTime = description.getString("Start Time");
 
@@ -55,7 +54,7 @@ public class AddonDescription
                 try {
                     this.startTime = StartTime.valueOf(startTime.get());
                 } catch (IllegalArgumentException ex) {
-                    throw new InvalidAddonException("The addon '" + name + "' has an invalid Start Time.");
+                    throw new InvalidAddonException("The addon '" + name + "' has an invalid start time.");
                 }
             else
                 this.startTime = StartTime.SERVER_LOAD_COMPLETE;
@@ -63,10 +62,9 @@ public class AddonDescription
             version = new Version(description.getString("Version").orElse("1.0"));
             apiVersion = new Version(description.getString("Api Version").orElse(PlayMoreSounds.version.getVersion()));
             authors = Collections.unmodifiableCollection(description.getCollection("Authors", Object::toString));
-            hookPlugins = Collections.unmodifiableCollection(description.getCollection("Hook Plugins", Object::toString));
             requiredPlugins = Collections.unmodifiableCollection(description.getCollection("Required Plugins", Object::toString));
-            hookAddons = Collections.unmodifiableCollection(description.getCollection("Hook Addons", Object::toString));
             requiredAddons = Collections.unmodifiableCollection(description.getCollection("Required Addons", Object::toString));
+            hookAddons = Collections.unmodifiableCollection(description.getCollection("Hook Addons", Object::toString));
         } catch (InvalidConfigurationException ex) {
             throw new InvalidAddonException("The addon '" + fileName + "' has a misconfigured description file.", ex);
         }
@@ -121,23 +119,18 @@ public class AddonDescription
         return authors;
     }
 
-    public @NotNull Collection<String> getHookPlugins()
-    {
-        return hookPlugins;
-    }
-
     public @NotNull Collection<String> getRequiredPlugins()
     {
         return requiredPlugins;
     }
 
-    public @NotNull Collection<String> getHookAddons()
-    {
-        return hookAddons;
-    }
-
     public @NotNull Collection<String> getRequiredAddons()
     {
         return requiredAddons;
+    }
+
+    public @NotNull Collection<String> getHookAddons()
+    {
+        return hookAddons;
     }
 }

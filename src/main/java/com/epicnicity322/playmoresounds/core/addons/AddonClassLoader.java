@@ -14,16 +14,16 @@ public final class AddonClassLoader extends URLClassLoader
 {
     private static final @NotNull HashMap<String, Class<?>> cacheClasses = new HashMap<>();
     private final @NotNull PMSAddon addon;
-    private final @NotNull AddonDescription description;
     private final @NotNull Path jar;
+    private final @NotNull AddonDescription description;
 
-    protected AddonClassLoader(@NotNull AddonDescription description, @NotNull Path jar)
-            throws MalformedURLException, InvalidAddonException, IllegalAccessException, InstantiationException
+    protected AddonClassLoader(@NotNull Path jar, @NotNull AddonDescription description)
+            throws InvalidAddonException, MalformedURLException, IllegalAccessException, InstantiationException
     {
         super(new URL[]{jar.toUri().toURL()}, PlayMoreSounds.class.getClassLoader());
 
-        this.description = description;
         this.jar = jar;
+        this.description = description;
 
         try {
             Class<?> main = Class.forName(description.getMain(), true, this);
@@ -31,7 +31,7 @@ public final class AddonClassLoader extends URLClassLoader
 
             addon = addonClass.newInstance();
         } catch (ClassNotFoundException ex) {
-            throw new InvalidAddonException("Cannot find main class '" + description.getMain() + "'.", ex);
+            throw new InvalidAddonException("Cannot find main class '" + description.getMain() + "' of the addon '" + description.getName() + "'.", ex);
         } catch (ClassCastException ex) {
             throw new InvalidAddonException("The main class '" + description.getMain() + "' of the addon '" +
                     description.getName() + "' does not extend to PMSAddon.", ex);
@@ -53,32 +53,31 @@ public final class AddonClassLoader extends URLClassLoader
 
         try {
             clazz = super.findClass(name);
+            cacheClasses.put(name, clazz);
+            return clazz;
         } catch (ClassNotFoundException ignored) {
-            // Let clazz be null if not found.
+            // If clazz was not found then continue searching for it.
+        }
+
+        // Searching for clazz in other addons.
+        if (addons) {
+            for (AddonClassLoader loader : AddonManager.addonClassLoaders)
+                try {
+                    clazz = loader.findClass(name, false);
+                    // This will only break if clazz was found.
+                    break;
+                } catch (ClassNotFoundException ignored) {
+                }
         }
 
         if (clazz == null) {
-            // Searching the class in other addons.
-            if (addons)
-                for (AddonClassLoader loader : AddonManager.addonClassLoaders)
-                    try {
-                        clazz = loader.findClass(name, false);
-                        // This will only break if the class was found.
-                        break;
-                    } catch (ClassNotFoundException ignored) {
-                    }
-
-            if (clazz == null)
-                if (addon == null)
-                    throw new ClassNotFoundException(name);
-                else
-                    throw new ClassNotFoundException("The addon '" + addon.toString() + "' is missing the class " + name
-                            + " (Probably from a not specified dependency.). Please contact the addon author(s): " +
-                            addon.getDescription().getAuthors());
+            throw new ClassNotFoundException("The addon '" + addon.toString() + "' is missing the class " + name
+                    + " (Probably from a not specified dependency.). Please contact the addon author(s): " +
+                    addon.getDescription().getAuthors());
+        } else {
+            cacheClasses.put(name, clazz);
+            return clazz;
         }
-
-        cacheClasses.put(name, clazz);
-        return clazz;
     }
 
     @Override

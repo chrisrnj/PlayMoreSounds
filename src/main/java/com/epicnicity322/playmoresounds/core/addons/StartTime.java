@@ -9,11 +9,11 @@ public enum StartTime
     /**
      * Before PlayMoreSounds has loaded configurations.
      */
-    BEFORE_CONFIGURATION,
+    BEFORE_CONFIGURATIONS,
     /**
      * Before PlayMoreSounds has loaded its sound listeners.
      */
-    BEFORE_EVENTS,
+    BEFORE_LISTENERS,
     /**
      * When PlayMoreSounds finishes starting up.
      */
@@ -21,13 +21,5 @@ public enum StartTime
     /**
      * When the server finishes the load of all plugins.
      */
-    SERVER_LOAD_COMPLETE,
-    /**
-     * When the specified plugins are loaded.
-     */
-    HOOK_PLUGINS,
-    /**
-     * When the specified addons are started.
-     */
-    HOOK_ADDONS
+    SERVER_LOAD_COMPLETE
 }
