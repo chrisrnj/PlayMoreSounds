@@ -434,7 +434,7 @@ public final class RegionSubCommand extends Command implements Helpable
             if (StringUtils.isNumeric(args[3])) {
                 page = Long.parseLong(args[3]);
             } else {
-                lang.send(sender, lang.get("General.Not A Numer").replace("<number>", args[3]));
+                lang.send(sender, lang.get("General.Not A Number").replace("<number>", args[3]));
                 return;
             }
         }
@@ -452,7 +452,7 @@ public final class RegionSubCommand extends Command implements Helpable
         if (who.equals(lang.get("General.You")))
             lang.send(sender, lang.get("Region.List.Header.Default").replace("<page>", Long.toString(page)).replace("<totalPages>", Integer.toString(pages.size())));
         else
-            lang.send(sender, lang.get("Region.List.Header.Player").replace("<targets>", who).replace("<page>", args[3]).replace("<totalPages>", Integer.toString(pages.size())));
+            lang.send(sender, lang.get("Region.List.Header.Player").replace("<targets>", who).replace("<page>", Long.toString(page)).replace("<totalPages>", Integer.toString(pages.size())));
 
         for (SoundRegion region : pages.get(page))
             lang.send(sender, false, lang.get("Region.List.Region").replace("<uuid>", region.getId().toString()).replace("<name>", region.getName()));
