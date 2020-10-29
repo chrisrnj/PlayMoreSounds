@@ -24,13 +24,10 @@ public final class OnRegionEnterLeave extends PMSListener
 {
     private final @NotNull HashMap<String, BukkitRunnable> regionsInLoop = new HashMap<>();
     private final @NotNull HashMap<String, HashSet<String>> soundsToStop = new HashMap<>();
-    private final @NotNull PlayMoreSounds plugin;
 
     public OnRegionEnterLeave(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
-
-        this.plugin = plugin;
     }
 
     @Override
@@ -64,23 +61,12 @@ public final class OnRegionEnterLeave extends PMSListener
                     if (regionsInLoop.containsKey(key))
                         regionsInLoop.get(key).cancel();
 
-                    regionsInLoop.put(key, new BukkitRunnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            Configuration updatedRegions = Configurations.REGIONS.getPluginConfig().getConfiguration();
+                    regionsInLoop.put(key, loopSound.playInLoop(player, player.getLocation(), delay, period, () -> {
+                        Configuration updatedRegions = Configurations.REGIONS.getPluginConfig().getConfiguration();
 
-                            if (!updatedRegions.getBoolean("PlayMoreSounds." + region.getName() + ".Loop.Enabled").orElse(false)
-                                    || !RegionManager.getAllRegions().contains(region) || !player.isOnline() || !region.isInside(player.getLocation())) {
-                                cancel();
-                            }
-
-                            loopSound.play(player);
-                        }
-                    });
-
-                    regionsInLoop.get(key).runTaskTimer(plugin, delay, period);
+                        return !updatedRegions.getBoolean("PlayMoreSounds." + region.getName() + ".Loop.Enabled").orElse(false)
+                                || !RegionManager.getAllRegions().contains(region) || !player.isOnline() || !region.isInside(player.getLocation());
+                    }));
 
                     stopOnExit(player, loop);
 
