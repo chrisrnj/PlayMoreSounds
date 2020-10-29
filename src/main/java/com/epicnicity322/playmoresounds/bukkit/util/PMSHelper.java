@@ -1,8 +1,11 @@
 package com.epicnicity322.playmoresounds.bukkit.util;
 
+import com.epicnicity322.playmoresounds.core.config.Configurations;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,6 +28,20 @@ public final class PMSHelper
             builder.append(chars.charAt(random.nextInt(charsLength)));
 
         return builder.toString();
+    }
+
+    public static boolean halloweenEvent()
+    {
+        LocalDateTime now = LocalDateTime.now();
+
+        return now.getMonth() == Month.OCTOBER && now.getDayOfMonth() == 31 && Configurations.CONFIG.getPluginConfig().getConfiguration().getBoolean("Halloween Event").orElse(false);
+    }
+
+    public static boolean isChristmas()
+    {
+        LocalDateTime now = LocalDateTime.now();
+
+        return now.getMonth() == Month.DECEMBER && now.getDayOfMonth() == 25;
     }
 
     public static <T> @NotNull HashMap<Long, ArrayList<T>> splitIntoPages(@NotNull Collection<T> collection,

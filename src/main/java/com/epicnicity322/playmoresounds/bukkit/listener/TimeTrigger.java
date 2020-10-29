@@ -2,9 +2,11 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.util.PMSHelper;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
+import com.epicnicity322.yamlhandler.YamlConfigurationLoader;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -12,10 +14,12 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.Random;
 
 public final class TimeTrigger
 {
     private static final @NotNull HashMap<World, BukkitTask> runningWorlds = new HashMap<>();
+    private static final @NotNull Random random = new Random();
 
     private TimeTrigger()
     {
@@ -23,7 +27,10 @@ public final class TimeTrigger
 
     public static void load()
     {
-        Configuration timeTriggers = Configurations.TIME_TRIGGERS.getPluginConfig().getConfiguration();
+        Configuration worldTimes = Configurations.WORLD_TIMES.getPluginConfig().getConfiguration();
+
+        if (PMSHelper.halloweenEvent())
+            worldTimes = getHalloweenWorldTimesConfig();
 
         for (World world : Bukkit.getWorlds()) {
             if (runningWorlds.containsKey(world)) {
@@ -31,7 +38,7 @@ public final class TimeTrigger
                 runningWorlds.remove(world);
             }
 
-            ConfigurationSection worldSection = timeTriggers.getConfigurationSection(world.getName());
+            ConfigurationSection worldSection = worldTimes.getConfigurationSection(world.getName());
 
             if (worldSection != null) {
                 HashMap<Long, ConfigurationSection> times = new HashMap<>();
@@ -57,5 +64,28 @@ public final class TimeTrigger
                 }, 0, 1));
             }
         }
+    }
+
+    private static Configuration getHalloweenWorldTimesConfig()
+    {
+        Configuration worldTimes = new Configuration(new YamlConfigurationLoader());
+
+        for (World world : Bukkit.getWorlds()) {
+            if (world.getEnvironment() == World.Environment.NORMAL) {
+                for (int i = 0; i < 6; ++i) {
+                    int randomTime = random.nextInt(24001);
+
+                    worldTimes.set(world.getName() + "." + randomTime + ".Enabled", true);
+                    worldTimes.set(world.getName() + "." + randomTime + ".Sounds.0.Delay", 0);
+                    worldTimes.set(world.getName() + "." + randomTime + ".Sounds.0.Sound", "ENTITY_CREEPER_PRIMED");
+                    worldTimes.set(world.getName() + "." + randomTime + ".Sounds.0.Volume", 10);
+                    worldTimes.set(world.getName() + "." + randomTime + ".Sounds.0.Pitch", 1);
+                    worldTimes.set(world.getName() + "." + randomTime + ".Sounds.0.Options.Relative Location.BACK", 2);
+                    worldTimes.set(world.getName() + "." + randomTime + ".Sounds.0.Options.Radius", -2);
+                }
+            }
+        }
+
+        return worldTimes;
     }
 }

@@ -2,15 +2,20 @@ package com.epicnicity322.playmoresounds.bukkit.util;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.listener.*;
+import com.epicnicity322.playmoresounds.bukkit.sound.Sound;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public final class ListenerRegister
 {
     private static final @NotNull HashSet<PMSListener> listeners = new HashSet<>();
+    /**
+     * Scary sounds of halloween event.
+     */
+    private static final @NotNull List<String> scarySounds = Arrays.asList("ENTITY_GHAST_AMBIENT", "ENTITY_GHAST_HURT",
+            "ENTITY_ENDER_DRAGON_GROWL", "ENTITY_ENDERMAN_SCREAM", "ENTITY_GHAST_SCREAM");
+    private static final @NotNull Random random = new Random();
 
     static {
         PlayMoreSounds.addOnInstanceRunnable(() -> {
@@ -77,10 +82,18 @@ public final class ListenerRegister
     public static int loadListeners()
     {
         int loadedListeners = 0;
+        boolean halloween = PMSHelper.halloweenEvent();
 
         for (PMSListener listener : listeners) {
             try {
                 listener.load();
+
+                if (halloween && listener.getRichSound() != null)
+                    for (Sound sound : listener.getRichSound().getChildSounds()) {
+                        sound.setSound(scarySounds.get(random.nextInt(scarySounds.size() - 1)));
+                        sound.setPitch(1);
+                        sound.setVolume(10);
+                    }
 
                 if (listener.isLoaded())
                     ++loadedListeners;
