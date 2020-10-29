@@ -94,8 +94,7 @@ public final class PlaySubCommand extends Command implements Helpable
                 }
         }
 
-        Sound sound1 = new Sound(null, sound, volume, pitch, 0, new SoundOptions(true,
-                false, null, null, 0, null));
+        Sound sound1 = new Sound(sound, volume, pitch, 0, new SoundOptions(false, null, null, 0, null));
 
         for (Player player : targets)
             sound1.play(player);

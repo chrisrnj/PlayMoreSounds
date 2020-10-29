@@ -11,28 +11,26 @@ import java.util.Objects;
 public class SoundOptions
 {
     private boolean ignoresToggle;
-    private boolean eyeLocation;
     private @Nullable String permissionToListen;
     private @Nullable String permissionRequired;
     private double radius;
     private @NotNull Map<Direction, Double> relativeLocation = new HashMap<>();
 
     /**
-     * SoundOptions is used to get the Options of a PMSSound more easily.
+     * {@link SoundOptions} is used to get the Options of a {@link Sound} more easily.
      *
-     * @param ignoresToggle      If a player has toggle their sounds to off, should the sound be played anyway?
-     * @param eyeLocation        If the sound should be played in player's eye location.
-     * @param permissionToListen The permission the player needs to has to listen to this sound.
-     * @param permissionRequired The permission the player needs to has to play this sound.
-     * @param radius             Greater than 0 to a range in blocks that the sound will be heard, 0 to the player, -1 to
-     *                           everyone online or -2 to everyone in the world.
-     * @param relativeLocation   This position will be added to the final sound location relative to where the player is looking.
+     * @param ignoresToggle      If a player has toggled their sounds off, the sound will be played anyway.
+     * @param permissionToListen The permission the player needs to listen this sound.
+     * @param permissionRequired The permission the player needs to play this sound.
+     * @param radius             A radius of blocks the sound will be heard. Set 0 to play to only the player, -1 to all
+     *                           players online, -2 to all players in the {@link org.bukkit.World}.
+     * @param relativeLocation   The location in blocks to be added to the final sound playing location, in relation to
+     *                           where the player is looking.
      */
-    public SoundOptions(boolean ignoresToggle, boolean eyeLocation, @Nullable String permissionToListen,
-                        @Nullable String permissionRequired, double radius, @Nullable Map<Direction, Double> relativeLocation)
+    public SoundOptions(boolean ignoresToggle, @Nullable String permissionToListen, @Nullable String permissionRequired,
+                        double radius, @Nullable Map<Direction, Double> relativeLocation)
     {
         setIgnoresToggle(ignoresToggle);
-        setIfEyeLocation(eyeLocation);
         setPermissionToListen(permissionToListen);
         setPermissionRequired(permissionRequired);
         setRadius(radius);
@@ -40,10 +38,10 @@ public class SoundOptions
     }
 
     /**
-     * Create a SoundOptions based on a configuration section. In PlayMoreSounds this section is named 'Options', they
-     * must have the following keys: Permission Required, Permission To Listen, Radius, Eye Location, Ignores Toggle,
+     * Create a {@link SoundOptions} based on a configuration section. In PlayMoreSounds this section is named 'Options',
+     * it can have the following keys: Permission Required, Permission To Listen, Radius, Ignores Toggle,
      * Relative Location.UP, Relative Location.DOWN, Relative Location.FRONT, Relative Location.BACK,
-     * Relative Location.LEFT and Relative Location.RIGHT. All of them are optional, see from more details what key does
+     * Relative Location.LEFT and Relative Location.RIGHT. All of them are optional, see with more details what key does
      * what on PlayMoreSounds wiki.
      *
      * @param section The section where the options are.
@@ -54,7 +52,6 @@ public class SoundOptions
         setPermissionToListen(section.getString("Permission To Listen").orElse(null));
 
         radius = section.getNumber("Radius").orElse(0).doubleValue();
-        eyeLocation = section.getBoolean("Eye Location").orElse(false);
         ignoresToggle = section.getBoolean("Ignores Toggle").orElse(false);
 
         ConfigurationSection relativeLoc = section.getConfigurationSection("Relative Location");
@@ -70,7 +67,7 @@ public class SoundOptions
     }
 
     /**
-     * Checks if Ignores Toggle option is enabled.
+     * If Ignores Toggle option is enabled.
      *
      * @return If the sound should ignore if the player has disabled their sounds.
      */
@@ -85,30 +82,10 @@ public class SoundOptions
     }
 
     /**
-     * Checks if Eye Location option is enabled.
-     *
-     * @return If the sound should be played in the player's eye location.
-     */
-    public boolean isEyeLocation()
-    {
-        return eyeLocation;
-    }
-
-    /**
-     * Changes the value of Eye Location option.
-     *
-     * @param eyeLocation If the sound should be played in player's eye location.
-     */
-    public void setIfEyeLocation(boolean eyeLocation)
-    {
-        this.eyeLocation = eyeLocation;
-    }
-
-    /**
-     * Gets the value of Permission Listen option.
+     * Gets the value of Permission To Listen option.
      * <p>
-     * The Permission Listen option allows the sound to be played normally, but only those who have this permission can
-     * hear the sound.
+     * The Permission To Listen option allows the sound to be played normally, but only who has this permission can hear
+     * the sound.
      *
      * @return The permission the player needs to hear the sound.
      */
@@ -128,8 +105,7 @@ public class SoundOptions
     /**
      * Gets the value of Permission Required option.
      * <p>
-     * The Permission Required option only allows the sound to play if the player has this permission, unlike the
-     * Permission Listen option that plays the sound anyway, but only those who have permission to listen can hear it.
+     * The Permission Required option allows the sound to play only if the player has this permission.
      *
      * @return The permission the player needs to play the sound.
      */
@@ -184,15 +160,14 @@ public class SoundOptions
     }
 
     /**
-     * If a SoundOptions contains the same values of {@link #ignoresToggle()}, {@link #isEyeLocation()},
-     * {@link #getRadius()}, {@link #getPermissionToListen()}, {@link #getPermissionRequired()} and
-     * {@link #getRelativeLocation()}.
+     * If a {@link SoundOptions} contains the same values of {@link #ignoresToggle()}, {@link #getRadius()},
+     * {@link #getPermissionToListen()}, {@link #getPermissionRequired()} and {@link #getRelativeLocation()}.
      *
-     * @param o The SoundOptions to compare.
-     * @return If the SoundOptions has the same values as this one.
+     * @param o The {@link SoundOptions} to compare.
+     * @return If the {@link SoundOptions} has the same values as this one.
      */
     @Override
-    public boolean equals(Object o)
+    public boolean equals(@Nullable Object o)
     {
         if (this == o) return true;
         if (!(o instanceof SoundOptions)) return false;
@@ -200,17 +175,28 @@ public class SoundOptions
         SoundOptions options = (SoundOptions) o;
 
         return ignoresToggle() == options.ignoresToggle() &&
-                isEyeLocation() == options.isEyeLocation() &&
                 Double.compare(options.getRadius(), getRadius()) == 0 &&
                 Objects.equals(getPermissionToListen(), options.getPermissionToListen()) &&
                 Objects.equals(getPermissionRequired(), options.getPermissionRequired()) &&
-                Objects.equals(getRelativeLocation(), options.getRelativeLocation());
+                getRelativeLocation().equals(options.getRelativeLocation());
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(ignoresToggle(), isEyeLocation(), getPermissionToListen(), getPermissionRequired(), getRadius(), getRelativeLocation());
+        return Objects.hash(ignoresToggle(), getPermissionToListen(), getPermissionRequired(), getRadius(), getRelativeLocation());
+    }
+
+    @Override
+    public @NotNull String toString()
+    {
+        return "SoundOptions{" +
+                "ignoresToggle=" + ignoresToggle +
+                ", permissionToListen='" + permissionToListen + '\'' +
+                ", permissionRequired='" + permissionRequired + '\'' +
+                ", radius=" + radius +
+                ", relativeLocation=" + relativeLocation +
+                '}';
     }
 
     public enum Direction

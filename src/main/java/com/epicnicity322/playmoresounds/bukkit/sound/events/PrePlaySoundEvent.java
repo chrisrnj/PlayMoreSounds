@@ -70,7 +70,7 @@ public class PrePlaySoundEvent extends Event implements Cancellable
      * Gets the location where the sound was requested to play.
      * <p>
      * Be aware that this is not the final location. The final location is calculated later when
-     * {@link SoundOptions#isEyeLocation()} and {@link SoundOptions#getRelativeLocation()} are taken into account.
+     * {@link SoundOptions#getRelativeLocation()} are taken into account.
      *
      * @return The requested sound location.
      */
@@ -102,7 +102,6 @@ public class PrePlaySoundEvent extends Event implements Cancellable
     {
         SoundOptions options = getSound().getOptions();
 
-        options.setIfEyeLocation(false);
         options.setRelativeLocation(null);
 
         location = preciseLocation;
