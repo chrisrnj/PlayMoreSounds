@@ -10,7 +10,7 @@ import com.epicnicity322.playmoresounds.core.addons.StartTime;
 import com.epicnicity322.playmoresounds.core.util.LoadableHashSet;
 import com.epicnicity322.playmoresounds.sponge.listeners.OnClientConnection;
 import com.google.inject.Inject;
-import org.bstats.sponge.Metrics2;
+import org.bstats.sponge.MetricsLite2;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Game;
@@ -79,7 +79,7 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
     public PlayMoreSounds(Game game,
                           @ConfigDir(sharedRoot = false) @NotNull Path privateConfigDir,
                           org.slf4j.Logger lf4jLogger,
-                          Metrics2.Factory metricsFactory) throws IOException
+                          MetricsLite2.Factory metricsFactory) throws IOException
     {
         instance = this;
         logger = new Logger("&6[&9PlayMoreSounds&6] ", lf4jLogger);
@@ -209,11 +209,11 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
                 errorLogger.report(ex, "Addon registration error:");
             }
 
-            addonManager.startAddons(StartTime.BEFORE_CONFIGURATION);
+            addonManager.startAddons(StartTime.BEFORE_CONFIGURATIONS);
 
             logger.log("&6-> &eConfigurations not loaded.");
 
-            addonManager.startAddons(StartTime.BEFORE_EVENTS);
+            addonManager.startAddons(StartTime.BEFORE_LISTENERS);
 
             Sponge.getEventManager().registerListeners(this, new OnClientConnection());
 
@@ -232,7 +232,7 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
                 logger.log("&asponge yet.");
                 logger.log("&a 000 sounds available on " + gameVersion);
                 logger.log("&6============================================");
-                logger.log("&ePlayMoreSounds is collecting anonymous data using bStats. If you don't want to send data, edit bStats configuration.");
+                logger.log("&ePlayMoreSounds is using bStats. If you don't want to send anonymous data, edit bStats configuration.");
                 addonManager.startAddons(StartTime.END);
             } else {
                 logger.log("&6============================================", ConsoleLogger.Level.ERROR);
