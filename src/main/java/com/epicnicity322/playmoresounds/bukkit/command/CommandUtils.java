@@ -141,8 +141,14 @@ public final class CommandUtils
      */
     public static String getWho(@NotNull Set<Player> players, @NotNull CommandSender sender)
     {
-        if (players.size() == 1 && players.iterator().next() == sender)
-            return lang.get("General.You");
+        if (players.size() == 1) {
+            Player theOne = players.iterator().next();
+
+            if (theOne == sender)
+                return lang.get("General.You");
+            else
+                return theOne.getName();
+        }
 
         if (players.containsAll(Bukkit.getOnlinePlayers()))
             return lang.get("General.Everyone");
