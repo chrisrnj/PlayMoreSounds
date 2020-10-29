@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 public class SoundRegion
 {
-    private static final @NotNull YamlConfigurationLoader loader = YamlConfigurationLoader.build();
+    private static final @NotNull YamlConfigurationLoader loader = new YamlConfigurationLoader();
     private static final @NotNull Pattern allowedRegionNameChars = Pattern.compile("^[A-Za-z0-9_]+$");
     protected final @NotNull Path save;
     private final @NotNull UUID id;
@@ -116,8 +116,8 @@ public class SoundRegion
     public boolean isInside(@NotNull Location location)
     {
         return location.getWorld().equals(minDiagonal.getWorld()) &&
-                location.getBlockX() >= minDiagonal.getBlockX() && location.getBlockX() <= maxDiagonal.getBlockX() &
-                location.getBlockY() >= minDiagonal.getBlockY() && location.getBlockY() <= maxDiagonal.getBlockY() &
+                location.getBlockX() >= minDiagonal.getBlockX() && location.getBlockX() <= maxDiagonal.getBlockX() &&
+                location.getBlockY() >= minDiagonal.getBlockY() && location.getBlockY() <= maxDiagonal.getBlockY() &&
                 location.getBlockZ() >= minDiagonal.getBlockZ() && location.getBlockZ() <= maxDiagonal.getBlockZ();
     }
 

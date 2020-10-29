@@ -40,7 +40,7 @@ import java.util.*;
 
 public class FinderInventory implements PMSInventory, Listener
 {
-    private static final @NotNull YamlConfigurationLoader loader = YamlConfigurationLoader.build();
+    private static final @NotNull YamlConfigurationLoader loader = new YamlConfigurationLoader();
     private static final @NotNull PluginConfig config = Configurations.CONFIG.getPluginConfig();
     private static final @NotNull MessageSender lang = PlayMoreSounds.getMessageSender();
     private static final @NotNull Logger logger = PlayMoreSounds.getPMSLogger();
