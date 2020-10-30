@@ -29,7 +29,7 @@ import java.nio.file.Path;
 
 public interface PlayMoreSounds
 {
-    @NotNull String versionString = "3.1.2";
+    @NotNull String versionString = "3.1.3";
 
     @NotNull Version version = new Version(versionString);
 
