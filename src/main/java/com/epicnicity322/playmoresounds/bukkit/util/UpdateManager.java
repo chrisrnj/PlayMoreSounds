@@ -19,31 +19,27 @@
 
 package com.epicnicity322.playmoresounds.bukkit.util;
 
+import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.epicpluginlib.bukkit.logger.Logger;
-import com.epicnicity322.epicpluginlib.bukkit.updater.Updater;
+import com.epicnicity322.epicpluginlib.bukkit.updater.UpdateChecker;
 import com.epicnicity322.epicpluginlib.core.config.PluginConfig;
-import com.epicnicity322.epicpluginlib.core.tools.Downloader;
+import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
-
-import java.nio.file.Files;
+import org.jetbrains.annotations.Nullable;
 
 public final class UpdateManager
 {
     private static final @NotNull PluginConfig config = Configurations.CONFIG.getPluginConfig();
     private static final @NotNull Logger logger = PlayMoreSounds.getPMSLogger();
-    private static boolean updateAvailable = false;
     private static boolean alreadyLoaded = false;
-    private static boolean updateDownloaded = false;
-    private static Updater updater;
-
-    static {
-        PlayMoreSounds.addOnInstanceRunnable(() -> updater = new Updater(PlayMoreSounds.getInstance().getJar().toFile(), PlayMoreSounds.getVersion(), 37429));
-    }
+    private static volatile Version latestVersion = null;
+    private static volatile boolean updateAvailable = false;
 
     private UpdateManager()
     {
@@ -54,22 +50,9 @@ public final class UpdateManager
         return updateAvailable;
     }
 
-    public static boolean isUpdateDownloaded()
-    {
-        PlayMoreSounds instance = PlayMoreSounds.getInstance();
-
-        return updateDownloaded || instance != null &&
-                Files.exists(Bukkit.getUpdateFolderFile().toPath().resolve(instance.getJar().getFileName().toString()));
-    }
-
-    public static Updater getUpdater()
-    {
-        return updater;
-    }
-
     public static void loadUpdater()
     {
-        if (updater == null)
+        if (PlayMoreSounds.getInstance() == null)
             throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
         if (alreadyLoaded)
@@ -80,7 +63,7 @@ public final class UpdateManager
         Configuration yamlConfig = config.getConfiguration();
 
         if (yamlConfig.getBoolean("Updater.Enabled").orElse(true)) {
-            check(true);
+            check(Bukkit.getConsoleSender(), true);
 
             long ticks = yamlConfig.getNumber("Updater.Period").orElse(144000).longValue();
 
@@ -94,120 +77,66 @@ public final class UpdateManager
                     } else {
                         // Getting YamlConfiguration again because YamlConfiguration field can change in PluginConfig
                         // class when the configuration is reloaded.
-                        check(config.getConfiguration().getBoolean("Updater.Log").orElse(true));
+                        check(Bukkit.getConsoleSender(), config.getConfiguration().getBoolean("Updater.Log").orElse(true));
                     }
                 }
             }.runTaskTimer(PlayMoreSounds.getInstance(), ticks, ticks);
         }
     }
 
-    public static @NotNull Updater.CheckResult check(boolean log)
+    public static synchronized void check(@NotNull CommandSender sender, boolean log)
     {
         PlayMoreSounds plugin = PlayMoreSounds.getInstance();
 
-        if (updater == null)
+        if (plugin == null)
             throw new IllegalStateException("PlayMoreSounds is not loaded.");
+
+        MessageSender lang = PlayMoreSounds.getMessageSender();
 
         if (updateAvailable) {
             if (log)
-                logger.log("&2Update Available! To download use: &n/pms update download");
-
-            return Updater.CheckResult.AVAILABLE;
+                lang.send(sender, lang.get("Update.Available").replace("<version>", latestVersion.getVersion()).replace("<label>", "pms"));
         } else {
             if (log)
-                logger.log("&6Checking for updates...");
+                lang.send(sender, lang.get("Update.Check"));
 
-            Updater.CheckResult result = getUpdater().check();
+            new Thread(new UpdateChecker(37429, PlayMoreSounds.version)
+            {
+                @Override
+                public void onUpdateCheck(@NotNull CheckResult checkResult, @Nullable Version latestVersion)
+                {
+                    if (latestVersion != null)
+                        UpdateManager.latestVersion = latestVersion;
 
-            switch (result) {
-                case AVAILABLE:
-                    updateAvailable = true;
+                    if (checkResult == CheckResult.AVAILABLE) {
+                        updateAvailable = true;
 
-                    if (log)
-                        logger.log("&2UPDATE FOUND! Type &n/pms update download&r&2 to update.");
+                        if (log)
+                            lang.send(sender, lang.get("Update.Available").replace("<version>", UpdateManager.latestVersion.getVersion()).replace("<label>", "pms"));
 
-                    Bukkit.getScheduler().runTaskTimer(plugin, () ->
-                                    logger.log("&2PMS has a new update available. Please download using /pms update download."),
-                            12000, 12000);
+                        Bukkit.getScheduler().runTaskTimer(plugin, () ->
+                                logger.log("&2PMS has a new update available. Please download using /pms update download."), 12000, 12000);
+                    } else if (log) {
+                        switch (checkResult) {
+                            case OFFLINE:
+                                lang.send(sender, lang.get("Update.Error.Offline"));
+                                break;
 
-                    break;
+                            case TIMEOUT:
+                                lang.send(sender, lang.get("Update.Error.Timeout"));
+                                break;
 
-                case OFFLINE:
-                    if (log)
-                        logger.log("&cFailed: &eThe network is off or spigot is down.");
+                            case UNEXPECTED_ERROR:
+                                lang.send(sender, lang.get("Update.Error.Default"));
+                                break;
 
-                    break;
-
-                case TIMEOUT:
-                    if (log)
-                        logger.log("&cFailed: &eTook too long to connect to api.spiget.org.");
-
-                    break;
-
-                case UNEXPECTED_ERROR:
-                    if (log)
-                        logger.log("&cSomething went wrong while checking for updates.");
-
-                    break;
-
-                default:
-                    if (log)
-                        logger.log("&6No updates found.");
-
-                    break;
-            }
-
-            return result;
-        }
-    }
-
-    public static @NotNull Downloader.Result download(boolean log)
-    {
-        if (updater == null)
-            throw new IllegalStateException("PlayMoreSounds is not loaded.");
-
-        if (updateDownloaded) {
-            if (log)
-                logger.log("&2Update Downloaded! Restart your server to start using it.");
-            return Downloader.Result.SUCCESS;
-        } else {
-            if (log)
-                logger.log("&6Downloading update...");
-
-            Downloader.Result result = getUpdater().download();
-
-            switch (result) {
-                case SUCCESS:
-                    updateDownloaded = true;
-
-                    if (log)
-                        logger.log("&2Update was downloaded successfully and it will be installed on restart.");
-
-                    Bukkit.getScheduler().runTaskTimer(PlayMoreSounds.getInstance(), () ->
-                                    logger.log("&2PMS has a new update downloaded. Please restart your server."),
-                            144000, 144000);
-
-                    break;
-                case OFFLINE:
-                    if (log)
-                        logger.log("&cFailed: &eThe network is off or spigot is down.");
-
-                    break;
-
-                case TIMEOUT:
-                    if (log)
-                        logger.log("&cFailed: &eTook too long to connect to api.spiget.org.");
-
-                    break;
-
-                case UNEXPECTED_ERROR:
-                    if (log)
-                        logger.log("&cSomething went wrong while downloading update.");
-
-                    break;
-            }
-
-            return result;
+                            default:
+                                lang.send(sender, lang.get("Update.Not Available"));
+                                break;
+                        }
+                    }
+                }
+            }, "Update Checker").start();
         }
     }
 }

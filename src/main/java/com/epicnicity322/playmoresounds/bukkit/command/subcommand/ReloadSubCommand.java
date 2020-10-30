@@ -27,6 +27,7 @@ import com.epicnicity322.playmoresounds.bukkit.listener.TimeTrigger;
 import com.epicnicity322.playmoresounds.bukkit.util.ListenerRegister;
 import com.epicnicity322.playmoresounds.bukkit.util.UpdateManager;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -49,7 +50,7 @@ public final class ReloadSubCommand extends Command implements Helpable
         Configurations.getConfigLoader().loadConfigurations();
         ListenerRegister.loadListeners();
         TimeTrigger.load();
-        UpdateManager.check(true);
+        UpdateManager.check(Bukkit.getConsoleSender(), true);
 
         new Thread(() -> {
             for (Runnable runnable : onReloadRunnables)
