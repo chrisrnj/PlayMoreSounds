@@ -222,7 +222,7 @@ public class Sound implements Playable
                 Location fixedLocation = soundLocation;
 
                 if (options.getRadius() < 0)
-                    fixedLocation = SoundManager.addRelativeLocation(fixedLocation, options.getRelativeLocation());
+                    fixedLocation = SoundManager.addRelativeLocation(inRange.getLocation(), options.getRelativeLocation());
 
                 PlaySoundEvent event = new PlaySoundEvent(instance, inRange, fixedLocation, players, sourcePlayer,
                         soundLocation);
