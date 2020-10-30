@@ -1,6 +1,6 @@
 api-version: '1.13'
 author: Epicnicity322
-depend: [EpicPluginLib]
+depend: [ EpicPluginLib ]
 description: Plays sounds at player events.
 main: com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds
 name: PlayMoreSounds
