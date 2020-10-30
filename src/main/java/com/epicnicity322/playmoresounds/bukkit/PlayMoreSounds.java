@@ -21,7 +21,6 @@ package com.epicnicity322.playmoresounds.bukkit;
 
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.epicpluginlib.bukkit.logger.Logger;
-import com.epicnicity322.epicpluginlib.bukkit.reflection.ReflectionUtil;
 import com.epicnicity322.epicpluginlib.core.EpicPluginLib;
 import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.epicpluginlib.core.logger.ErrorLogger;
@@ -85,13 +84,13 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
         errorLogger = new ErrorLogger(folder, "PlayMoreSounds", getVersion().getVersion(),
                 Collections.singleton("Epicnicity322"), "https://www.spigotmc.org/resources/37429/", Bukkit.getLogger());
 
-        // Checking if EpicPluginLib is on 1.6.1 by checking if version field exists because this field was added on 1.6.1.
-        if (ReflectionUtil.getField(EpicPluginLib.class, "version") == null) {
+        // Checking if EpicPluginLib is outdated.
+        if (EpicPluginLib.version.compareTo(new Version("1.6.4")) < 0) {
             success = false;
 
-            // There were no logger level on version 1.6, so I'm just using bukkit logger.
-            addOnEnableRunnable(() -> Bukkit.getLogger().severe("You are running an old version of EpicPluginLib, make sure you are using the latest one."));
+            addOnEnableRunnable(() -> logger.log("You are running an old version of EpicPluginLib, make sure you are using the latest one.", ConsoleLogger.Level.ERROR));
         } else {
+            // Continue initializing PMS.
             messageSender.addLanguage("EN_US", Configurations.LANGUAGE_EN_US.getPluginConfig());
             messageSender.addLanguage("ES_LA", Configurations.LANGUAGE_ES_LA.getPluginConfig());
             messageSender.addLanguage("PT_BR", Configurations.LANGUAGE_PT_BR.getPluginConfig());
