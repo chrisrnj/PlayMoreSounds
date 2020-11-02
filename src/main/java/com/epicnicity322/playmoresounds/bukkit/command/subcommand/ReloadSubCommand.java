@@ -52,15 +52,16 @@ public final class ReloadSubCommand extends Command implements Helpable
         TimeTrigger.load();
         UpdateManager.check(Bukkit.getConsoleSender(), true);
 
-        new Thread(() -> {
-            for (Runnable runnable : onReloadRunnables)
-                try {
-                    runnable.run();
-                } catch (Exception e) {
-                    PlayMoreSounds.getPMSLogger().log("&cAn unknown error occurred on PlayMoreSounds reload.");
-                    PlayMoreSounds.getErrorLogger().report(e, "PMSReloadingError (Unknown):");
-                }
-        }).start();
+        if (!onReloadRunnables.isEmpty())
+            new Thread(() -> {
+                for (Runnable runnable : onReloadRunnables)
+                    try {
+                        runnable.run();
+                    } catch (Exception e) {
+                        PlayMoreSounds.getPMSLogger().log("&cAn unknown error occurred on PlayMoreSounds reload.");
+                        PlayMoreSounds.getErrorLogger().report(e, "PMSReloadingError (Unknown):");
+                    }
+            }).start();
     }
 
     /**
