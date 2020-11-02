@@ -144,9 +144,9 @@ public final class OnRegionEnterLeave extends PMSListener
 
                     stopOnExit(player, loop);
 
-                    if (loop.getBoolean("Stop Other Sounds.Default Sound").orElse(false))
+                    if (loop.getBoolean("Prevent Other Sounds.Default Sound").orElse(false))
                         defaultSound = false;
-                    if (loop.getBoolean("Stop Other Sounds.Enter Sound").orElse(false))
+                    if (loop.getBoolean("Prevent Other Sounds.Enter Sound").orElse(false))
                         playEnterSound = false;
                 }
             }
@@ -163,7 +163,7 @@ public final class OnRegionEnterLeave extends PMSListener
 
                             stopOnExit(player, enter);
 
-                            if (enter.getBoolean("Stop Other Sounds").orElse(false))
+                            if (enter.getBoolean("Prevent Default Sound").orElse(false))
                                 defaultSound = false;
                         }
                     }
@@ -176,7 +176,6 @@ public final class OnRegionEnterLeave extends PMSListener
                 regionEnterSound.play(player);
                 stopOnExit(player, regionEnterSound.getSection());
             }
-
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -216,7 +215,7 @@ public final class OnRegionEnterLeave extends PMSListener
                 if (!event.isCancelled() || !leaveSound.isCancellable()) {
                     leaveSound.play(player);
 
-                    if (leave.getBoolean("Stop Other Sounds").orElse(false))
+                    if (leave.getBoolean("Prevent Default Sound").orElse(false))
                         defaultSound = false;
                 }
             }

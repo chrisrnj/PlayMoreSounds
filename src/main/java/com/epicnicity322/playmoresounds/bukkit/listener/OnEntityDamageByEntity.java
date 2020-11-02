@@ -220,11 +220,11 @@ public final class OnEntityDamageByEntity extends PMSListener
                     condition.play(player, damagerLocation);
 
                     // Checking if default sound should play.
-                    if (conditionSection.getBoolean("Stop Other Sounds.Default Sound").orElse(false))
+                    if (conditionSection.getBoolean("Prevent Other Sounds.Default Sound").orElse(false))
                         defaultSound = false;
 
                     // Checking if this loop should continue checking for other conditions.
-                    if (conditionSection.getBoolean("Stop Other Sounds.Other Conditions").orElse(false))
+                    if (conditionSection.getBoolean("Prevent Other Sounds.Other Conditions").orElse(false))
                         break;
                 }
             }

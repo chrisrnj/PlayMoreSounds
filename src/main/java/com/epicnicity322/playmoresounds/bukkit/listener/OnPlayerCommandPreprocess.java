@@ -118,10 +118,10 @@ public final class OnPlayerCommandPreprocess extends PMSListener
                     if (OnAsyncPlayerChat.matchesFilter(filter.getKey(), criteriaSection.getName(), message)) {
                         criteria.play(player);
 
-                        if (criteriaSection.getBoolean("Stop Other Sounds.Default Sound").orElse(false))
+                        if (criteriaSection.getBoolean("Prevent Other Sounds.Default Sound").orElse(false))
                             defaultSound = false;
 
-                        if (criteriaSection.getBoolean("Stop Other Sounds.Other Filters").orElse(false))
+                        if (criteriaSection.getBoolean("Prevent Other Sounds.Other Filters").orElse(false))
                             break filterLoop;
                     }
                 }

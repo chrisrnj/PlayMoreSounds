@@ -138,10 +138,10 @@ public final class OnAsyncPlayerChat extends PMSListener
                     if (matchesFilter(filter.getKey(), criteriaSection.getName(), message)) {
                         Bukkit.getScheduler().runTask(plugin, () -> criteria.play(player));
 
-                        if (criteriaSection.getBoolean("Stop Other Sounds.Default Sound").orElse(false))
+                        if (criteriaSection.getBoolean("Prevent Other Sounds.Default Sound").orElse(false))
                             defaultSound = false;
 
-                        if (criteriaSection.getBoolean("Stop Other Sounds.Other Filters").orElse(false))
+                        if (criteriaSection.getBoolean("Prevent Other Sounds.Other Filters").orElse(false))
                             break filterLoop;
                     }
                 }
