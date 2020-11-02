@@ -57,8 +57,8 @@ public final class OnPlayerToggleFlight extends PMSListener
         Configuration sounds = Configurations.SOUNDS.getPluginConfig().getConfiguration();
         ConfigurationSection stop = sounds.getConfigurationSection("Stop Flying");
         ConfigurationSection start = sounds.getConfigurationSection("Start Flying");
-        boolean stopEnabled = stop == null ? false : stop.getBoolean("Enabled").orElse(false);
-        boolean startEnabled = start == null ? false : start.getBoolean("Enabled").orElse(false);
+        boolean stopEnabled = stop != null && stop.getBoolean("Enabled").orElse(false);
+        boolean startEnabled = start != null && start.getBoolean("Enabled").orElse(false);
 
         if (stopEnabled || startEnabled) {
             stopSound = new RichSound(stop);
