@@ -125,7 +125,7 @@ public final class OnPlayerDeath extends PMSListener
                 if (specificDeathSound != null) {
                     specificDeathSound.play(player);
 
-                    if (specificDeathSound.getSection().getBoolean("Stop Other Sounds.Default Sound").orElse(false))
+                    if (specificDeathSound.getSection().getBoolean("Prevent Default Sound").orElse(false))
                         defaultSound = false;
                 }
             }

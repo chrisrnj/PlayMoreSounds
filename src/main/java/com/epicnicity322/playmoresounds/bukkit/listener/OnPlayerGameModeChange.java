@@ -103,7 +103,7 @@ public final class OnPlayerGameModeChange extends PMSListener
             if (!event.isCancelled() || !specificGameModeSound.isCancellable()) {
                 specificGameModeSound.play(player);
 
-                if (specificGameModeSound.getSection().getBoolean("Stop Other Sounds.Default Sound").orElse(false))
+                if (specificGameModeSound.getSection().getBoolean("Prevent Default Sound").orElse(false))
                     defaultSound = false;
             }
         }
