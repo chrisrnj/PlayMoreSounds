@@ -21,6 +21,7 @@ package com.epicnicity322.playmoresounds.core.config;
 
 import com.epicnicity322.epicpluginlib.core.config.ConfigLoader;
 import com.epicnicity322.epicpluginlib.core.config.PluginConfig;
+import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,60 +32,63 @@ import java.util.function.Consumer;
 
 public enum Configurations
 {
-    /* BIOMES(StaticFields.sounds.resolve("biomes.yml"), config -> {
-        config.addDefaultComment(" Set a sound to play when you enter, exit or stand on a specific biome.");
+    BIOMES(StaticFields.sounds.resolve("biomes.yml"), config -> {
+        config.addDefaultComment(" Set a sound to play when you enter, leave or stand on a specific biome.");
         config.addDefaultComment("");
         config.addDefaultComment(" Sample:");
         config.addDefaultComment(" (Take a note that this is a sample and the sounds may not be available");
         config.addDefaultComment(" on your MC version.)");
         config.addDefaultComment("");
-        config.addDefaultComment("world: #The world name.");
-        config.addDefaultComment("  PLAINS: #The biome name.");
-        config.addDefaultComment("    Enter: #When a player enters this biome.");
+        config.addDefaultComment("world: # The world name, replace 'world' with the name of your world.");
+        config.addDefaultComment("  PLAINS: # The biome name.");
+        config.addDefaultComment("    Enter: # When a player enters this biome.");
         config.addDefaultComment("      Cancellable: true");
         config.addDefaultComment("      Enabled: true");
+        config.addDefaultComment("      Stop On Exit:");
+        config.addDefaultComment("        Enabled: true # If enabled, the sound will be stopped when the player leaves the biome.");
+        config.addDefaultComment("        Delay: 20 # The time to wait before stopping the sound.");
         config.addDefaultComment("      Sounds:");
         config.addDefaultComment("        '0':");
         config.addDefaultComment("          Delay: 0");
         config.addDefaultComment("          Options:");
-        config.addDefaultComment("            Radius: 0");
-        config.addDefaultComment("          Pitch: 1");
+        config.addDefaultComment("            Radius: 0.0");
+        config.addDefaultComment("          Pitch: 1.0");
         config.addDefaultComment("          Sound: BLOCK_NOTE_BLOCK_PLING");
-        config.addDefaultComment("          Volume: 10");
-        config.addDefaultComment("    Leave: #When a player exits this biome.");
+        config.addDefaultComment("          Volume: 10.0");
+        config.addDefaultComment("    Leave: # When a player exits this biome.");
         config.addDefaultComment("      Cancellable: true");
         config.addDefaultComment("      Enabled: true");
         config.addDefaultComment("      Sounds:");
         config.addDefaultComment("        '0':");
         config.addDefaultComment("          Delay: 0");
         config.addDefaultComment("          Options:");
-        config.addDefaultComment("            Radius: 0");
-        config.addDefaultComment("          Pitch: 1");
+        config.addDefaultComment("            Radius: 0.0");
+        config.addDefaultComment("          Pitch: 1.0");
         config.addDefaultComment("          Sound: BLOCK_NOTE_BLOCK_BASS");
-        config.addDefaultComment("          Volume: 10");
-        config.addDefaultComment("    Loop: #When a player enters the biome, a loop will be triggered and play.");
+        config.addDefaultComment("          Volume: 10.0");
+        config.addDefaultComment("    Loop: # When a player enters the biome, a loop will be triggered and play.");
         config.addDefaultComment("      Cancellable: true");
-        config.addDefaultComment("      Delay: 0 #Time in ticks to wait to start the loop once triggered.");
+        config.addDefaultComment("      Delay: 0 # Time in ticks to wait to start the loop once triggered.");
         config.addDefaultComment("      Enabled: true");
-        config.addDefaultComment("      Period: 100 #Time in ticks to wait before playing these sounds again.");
-        config.addDefaultComment("      Stop On Exit: #Stops the sound only, the loop is stopped automatically.");
-        config.addDefaultComment("        Enabled: true #When the player leaves the biome, the sound will be stopped.");
-        config.addDefaultComment("        Delay: 20 #The delay to stop the sound.");
-        config.addDefaultComment("      Stop Enter Sound: true #Stops Enter sound from playing if enabled.");
+        config.addDefaultComment("      Period: 100 # Time in ticks to wait before playing these sounds again.");
+        config.addDefaultComment("      Stop On Exit:");
+        config.addDefaultComment("        Enabled: true");
+        config.addDefaultComment("        Delay: 20");
+        config.addDefaultComment("      Prevent Enter Sound: true # Makes so Enter sound is not played when Loop is enabled.");
         config.addDefaultComment("      Sounds:");
         config.addDefaultComment("        '0':");
         config.addDefaultComment("          Delay: 0");
         config.addDefaultComment("          Options:");
-        config.addDefaultComment("            Radius: 0");
-        config.addDefaultComment("          Pitch: 1");
+        config.addDefaultComment("            Radius: 0.0");
+        config.addDefaultComment("          Pitch: 1.0");
         config.addDefaultComment("          Sound: BLOCK_NOTE_BLOCK_BASS");
-        config.addDefaultComment("          Volume: 10");
+        config.addDefaultComment("          Volume: 10.0");
         config.addDefaultComment("");
         config.addDefaultComment(" This is a small sample. You can add more biomes, worlds and more options");
         config.addDefaultComment(" to the sound options.");
         config.addDefaultComment(" More information about sounds on sounds.yml.\n");
-        config.addDefault("Version", StaticFields.version);
-    }),*/
+        config.addDefault("Version", PlayMoreSounds.versionString);
+    }, StaticFields.version3_2_0),
     COMMANDS(StaticFields.sounds.resolve("commands.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when a player type a specific command.");
         config.addDefaultComment("");
@@ -98,7 +102,7 @@ public enum Configurations
         config.addDefaultComment("  play:");
         config.addDefaultComment("    Cancellable: true");
         config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Stop Other Sounds:");
+        config.addDefaultComment("    Prevent Other Sounds:");
         config.addDefaultComment("      Default Sound: true # This will prevent the default sound set on sounds.yml from playing.");
         config.addDefaultComment("      Other Filters: true # If the command match other filters, this will make so this is the only filter that will play a sound.");
         config.addDefaultComment("");
@@ -111,7 +115,7 @@ public enum Configurations
         config.addDefaultComment("  set:");
         config.addDefaultComment("    Cancellable: true");
         config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Stop Other Sounds:");
+        config.addDefaultComment("    Prevent Other Sounds:");
         config.addDefaultComment("      Default Sound: true # This will prevent the default sound set on sounds.yml from playing.");
         config.addDefaultComment("      Other Filters: true # If the command match other filters, this will make so this is the only filter that will play a sound.");
         config.addDefaultComment("");
@@ -123,7 +127,7 @@ public enum Configurations
         config.addDefaultComment("  -force:");
         config.addDefaultComment("    Cancellable: true");
         config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Stop Other Sounds:");
+        config.addDefaultComment("    Prevent Other Sounds:");
         config.addDefaultComment("      Default Sound: true");
         config.addDefaultComment("      Other Filters: true");
         config.addDefaultComment("    Sounds:");
@@ -143,7 +147,7 @@ public enum Configurations
         config.addDefaultComment("  /warp MALL:");
         config.addDefaultComment("    Cancellable: true");
         config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Stop Other Sounds:");
+        config.addDefaultComment("    Prevent Other Sounds:");
         config.addDefaultComment("      Default Sound: true");
         config.addDefaultComment("      Other Filters: true");
         config.addDefaultComment("    Sounds:");
@@ -167,7 +171,7 @@ public enum Configurations
         config.addDefaultComment("  /spawn:");
         config.addDefaultComment("    Cancellable: false");
         config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Stop Other Sounds:");
+        config.addDefaultComment("    Prevent Other Sounds:");
         config.addDefaultComment("      Default Sound: true");
         config.addDefaultComment("      Other Filters: true");
         config.addDefaultComment("    Sounds:");
@@ -188,7 +192,7 @@ public enum Configurations
         config.addDefaultComment("  /teleport:");
         config.addDefaultComment("    Cancellable: true");
         config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Stop Other Sounds:");
+        config.addDefaultComment("    Prevent Other Sounds:");
         config.addDefaultComment("      Default Sound: true");
         config.addDefaultComment("      Other Filters: true");
         config.addDefaultComment("    Sounds:");
@@ -202,34 +206,34 @@ public enum Configurations
         config.addDefaultComment("");
         config.addDefaultComment(" More information about sounds on sounds.yml");
         config.addDefaultComment(" The following sounds are here just to prevent the default sound on sounds.yml from playing.\n");
-        config.addDefault("Version", StaticFields.version);
+        config.addDefault("Version", PlayMoreSounds.versionString);
         config.addDefault("Starts With./tp.Cancellable", false);
         config.addDefault("Starts With./tp.Enabled", true);
-        config.addDefault("Starts With./tp.Stop Other Sounds.Default Sound", true);
-        config.addDefault("Starts With./tp.Stop Other Sounds.Other Filters", true);
+        config.addDefault("Starts With./tp.Prevent Other Sounds.Default Sound", true);
+        config.addDefault("Starts With./tp.Prevent Other Sounds.Other Filters", true);
         config.addDefault("Starts With./warp.Cancellable", false);
         config.addDefault("Starts With./warp.Enabled", true);
-        config.addDefault("Starts With./warp.Stop Other Sounds.Default Sound", true);
-        config.addDefault("Starts With./warp.Stop Other Sounds.Other Filters", true);
+        config.addDefault("Starts With./warp.Prevent Other Sounds.Default Sound", true);
+        config.addDefault("Starts With./warp.Prevent Other Sounds.Other Filters", true);
         config.addDefault("Starts With./spawn.Cancellable", false);
         config.addDefault("Starts With./spawn.Enabled", true);
-        config.addDefault("Starts With./spawn.Stop Other Sounds.Default Sound", true);
-        config.addDefault("Starts With./spawn.Stop Other Sounds.Other Filters", true);
+        config.addDefault("Starts With./spawn.Prevent Other Sounds.Default Sound", true);
+        config.addDefault("Starts With./spawn.Prevent Other Sounds.Other Filters", true);
         config.addDefault("Starts With./gamemode.Cancellable", false);
         config.addDefault("Starts With./gamemode.Enabled", true);
-        config.addDefault("Starts With./gamemode.Stop Other Sounds.Default Sound", true);
-        config.addDefault("Starts With./gamemode.Stop Other Sounds.Other Filters", true);
+        config.addDefault("Starts With./gamemode.Prevent Other Sounds.Default Sound", true);
+        config.addDefault("Starts With./gamemode.Prevent Other Sounds.Other Filters", true);
         config.addDefault("Contains SubString.play.Cancellable", false);
         config.addDefault("Contains SubString.play.Enabled", true);
-        config.addDefault("Contains SubString.play.Stop Other Sounds.Default Sound", true);
-        config.addDefault("Contains SubString.play.Stop Other Sounds.Other Filters", true);
-    }, "3.0.0", "3.1.1", StaticFields.version),
+        config.addDefault("Contains SubString.play.Prevent Other Sounds.Default Sound", true);
+        config.addDefault("Contains SubString.play.Prevent Other Sounds.Other Filters", true);
+    }, StaticFields.version3_2_0),
     CONFIG(PlayMoreSounds.getFolder().resolve("config.yml"), config -> {
         config.addDefaultComment("################################");
         config.addDefaultComment("#  PlayMoreSounds Configuration");
-        config.addDefaultComment("#  v" + StaticFields.version);
+        config.addDefaultComment("#  v" + PlayMoreSounds.versionString);
         config.addDefaultComment("################################\n");
-        config.addDefault("Version", StaticFields.version);
+        config.addDefault("Version", PlayMoreSounds.versionString);
         config.addDefaultComment(" Should the sounds of players that disabled them be enabled on login?");
         config.addDefault("Enable Sounds After Re-Login", true);
         config.addDefaultComment(" A simple halloween event, disable if you find it annoying.");
@@ -293,7 +297,7 @@ public enum Configurations
         config.addDefaultComment("- 'sample'");
         config.addDefaultComment("- 'sample2'\n");
         config.addDefault("World Black List", new ArrayList<>());
-    }, StaticFields.version),
+    }, StaticFields.version3_1_2),
     CHAT(StaticFields.sounds.resolve("chat.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when a player type a sentence in chat.");
         config.addDefaultComment("");
@@ -307,7 +311,7 @@ public enum Configurations
         config.addDefaultComment("  hello:");
         config.addDefaultComment("    Cancellable: true");
         config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Stop Other Sounds:");
+        config.addDefaultComment("    Prevent Other Sounds:");
         config.addDefaultComment("      Default Sound: true # This will prevent the default sound set on sounds.yml from playing.");
         config.addDefaultComment("      Other Filters: true # If the message match other filters, this will make so this is the only filter that will play a sound.");
         config.addDefaultComment("");
@@ -320,7 +324,7 @@ public enum Configurations
         config.addDefaultComment("  pling:");
         config.addDefaultComment("    Cancellable: true");
         config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Stop Other Sounds:");
+        config.addDefaultComment("    Prevent Other Sounds:");
         config.addDefaultComment("      Default Sound: true # This will prevent the default sound set on sounds.yml from playing.");
         config.addDefaultComment("      Other Filters: true # If the command match other filters, this will make so this is the only filter that will play a sound.");
         config.addDefaultComment("");
@@ -332,7 +336,7 @@ public enum Configurations
         config.addDefaultComment("  something:");
         config.addDefaultComment("    Cancellable: true");
         config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Stop Other Sounds:");
+        config.addDefaultComment("    Prevent Other Sounds:");
         config.addDefaultComment("      Default Sound: true");
         config.addDefaultComment("      Other Filters: true");
         config.addDefaultComment("    Sounds:");
@@ -352,7 +356,7 @@ public enum Configurations
         config.addDefaultComment("  play BLOCK_PORTAL_TRAVEL sound:");
         config.addDefaultComment("    Cancellable: true");
         config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Stop Other Sounds:");
+        config.addDefaultComment("    Prevent Other Sounds:");
         config.addDefaultComment("      Default Sound: true");
         config.addDefaultComment("      Other Filters: true");
         config.addDefaultComment("    Sounds:");
@@ -376,7 +380,7 @@ public enum Configurations
         config.addDefaultComment("  something:");
         config.addDefaultComment("    Cancellable: false");
         config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Stop Other Sounds:");
+        config.addDefaultComment("    Prevent Other Sounds:");
         config.addDefaultComment("      Default Sound: true");
         config.addDefaultComment("      Other Filters: true");
         config.addDefaultComment("    Sounds:");
@@ -396,7 +400,7 @@ public enum Configurations
         config.addDefaultComment("  hello:");
         config.addDefaultComment("    Cancellable: true");
         config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Stop Other Sounds:");
+        config.addDefaultComment("    Prevent Other Sounds:");
         config.addDefaultComment("      Default Sound: true");
         config.addDefaultComment("      Other Filters: true");
         config.addDefaultComment("    Sounds:");
@@ -409,8 +413,8 @@ public enum Configurations
         config.addDefaultComment("        Volume: 0.4");
         config.addDefaultComment("");
         config.addDefaultComment(" More information about sounds on sounds.yml");
-        config.addDefault("Version", StaticFields.version);
-    }, "3.0.0", "3.1.1", StaticFields.version),
+        config.addDefault("Version", PlayMoreSounds.versionString);
+    }, StaticFields.version3_2_0),
     DEATH_TYPES(StaticFields.sounds.resolve("death types.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when a player die for a specific cause of death.");
         config.addDefaultComment("");
@@ -423,7 +427,7 @@ public enum Configurations
         config.addDefaultComment("MAGIC:");
         config.addDefaultComment("  Enabled: true");
         config.addDefaultComment("  #This should stop the sound set in sounds.yml");
-        config.addDefaultComment("  Stop Other Sounds: true");
+        config.addDefaultComment("  Prevent Default Sound: true # This will prevent the default sound set on sounds.yml from playing.");
         config.addDefaultComment("  Sounds:");
         config.addDefaultComment("    #This should play for players who has a specific vip perm.");
         config.addDefaultComment("    '0':");
@@ -449,8 +453,8 @@ public enum Configurations
         config.addDefaultComment("      Volume: 1.0");
         config.addDefaultComment("");
         config.addDefaultComment(" More information about sounds on sounds.yml\n");
-        config.addDefault("Version", StaticFields.version);
-    }, "3.0.0", "3.1.1", StaticFields.version),
+        config.addDefault("Version", PlayMoreSounds.versionString);
+    }, StaticFields.version3_2_0),
     GAME_MODES(StaticFields.sounds.resolve("game modes.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when you change your gamemode.");
         config.addDefaultComment("");
@@ -461,8 +465,7 @@ public enum Configurations
         config.addDefaultComment("CREATIVE: # The gamemode that you changed to.");
         config.addDefaultComment("  Cancellable: true");
         config.addDefaultComment("  Enabled: true");
-        config.addDefaultComment("  # Stops other sounds on sounds.yml from playing.");
-        config.addDefaultComment("  Stop Other Sounds: true");
+        config.addDefaultComment("  Prevent Default Sound: true # This will prevent the default sound set on sounds.yml from playing.");
         config.addDefaultComment("  Sounds:");
         config.addDefaultComment("    '0':");
         config.addDefaultComment("      Delay: 0");
@@ -475,8 +478,8 @@ public enum Configurations
         config.addDefaultComment(" This is a small sample. You can add more gamemodes and more options");
         config.addDefaultComment(" to the sound options.");
         config.addDefaultComment(" More information about sounds on sounds.yml.\n");
-        config.addDefault("Version", StaticFields.version);
-    }, "3.0.0", "3.1.1", StaticFields.version),
+        config.addDefault("Version", PlayMoreSounds.versionString);
+    }, StaticFields.version3_2_0),
     HURT_SOUNDS(StaticFields.sounds.resolve("hurt sounds.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when an entity hits another entity with a specific item on hand.");
         config.addDefaultComment("");
@@ -493,7 +496,7 @@ public enum Configurations
         config.addDefaultComment("PLAYER hurt ZOMBIE holding IRON_SWORD: # This sound will play when a player hurts a zombie holding an iron sword.");
         config.addDefaultComment("  Enabled: true");
         config.addDefaultComment("  Cancellable: true");
-        config.addDefaultComment("  Stop Other Sounds:");
+        config.addDefaultComment("  Prevent Other Sounds:");
         config.addDefaultComment("    Default Sound: true # This will prevent the default sound set on sounds.yml from playing.");
         config.addDefaultComment("    Other Conditions: true # If the hurt event matches more than one condition, this will make so this is the only condition that will play a sound.");
         config.addDefaultComment("  Sounds:");
@@ -533,8 +536,8 @@ public enum Configurations
         config.addDefaultComment("");
         config.addDefaultComment(" Hope everything is clear, if you have any doubts of a condition that you wanna use but can't find how, contact me on discord:");
         config.addDefaultComment(" https://discord.gg/eAHPbc3\n");
-        config.addDefault("Version", StaticFields.version);
-    }, "3.0.0", "3.1.1", StaticFields.version),
+        config.addDefault("Version", PlayMoreSounds.versionString);
+    }, StaticFields.version3_2_0),
     REGIONS(StaticFields.sounds.resolve("regions.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when you enter, exit or stand on a specific region.");
         config.addDefaultComment("");
@@ -543,14 +546,14 @@ public enum Configurations
         config.addDefaultComment(" on your MC version.)");
         config.addDefaultComment("");
         config.addDefaultComment("PlayMoreSounds: # The region plugin.");
-        config.addDefaultComment("  Spawn: # The region name, replace the name here.");
+        config.addDefaultComment("  Spawn: # The region name, replace 'Spawn' with the name of your region.");
         config.addDefaultComment("    Enter: # When a player enters this region.");
         config.addDefaultComment("      Cancellable: true");
         config.addDefaultComment("      Enabled: true");
         config.addDefaultComment("      Stop On Exit:");
         config.addDefaultComment("        Enabled: true # If enabled, the sound will be stopped when the player leaves the region.");
         config.addDefaultComment("        Delay: 20 # The time to wait before stopping the sound.");
-        config.addDefaultComment("      Stop Other Sounds: true # If enabled, region sounds in sounds.yml won't be played.");
+        config.addDefaultComment("      Prevent Default Sound: true # If enabled, Region Enter sound in sounds.yml won't be played.");
         config.addDefaultComment("      Sounds:");
         config.addDefaultComment("        '0':");
         config.addDefaultComment("          Delay: 0");
@@ -562,7 +565,7 @@ public enum Configurations
         config.addDefaultComment("    Leave: # When a player exits this region.");
         config.addDefaultComment("      Cancellable: true");
         config.addDefaultComment("      Enabled: true");
-        config.addDefaultComment("      Stop Other Sounds: true");
+        config.addDefaultComment("      Prevent Default Sound: true # If enabled, Region Leave sound in sounds.yml won't be played.");
         config.addDefaultComment("      Sounds:");
         config.addDefaultComment("        '0':");
         config.addDefaultComment("          Delay: 0");
@@ -582,9 +585,9 @@ public enum Configurations
         config.addDefaultComment("      Stop On Exit:");
         config.addDefaultComment("        Delay: 10");
         config.addDefaultComment("        Enabled: true");
-        config.addDefaultComment("      Stop Other Sounds:");
-        config.addDefaultComment("        Enter Sound: true # If enabled, region enter sounds in regions.yml won't be played.");
-        config.addDefaultComment("        Default Sound: true # If enabled, region enter sounds in sounds.yml won't be played.");
+        config.addDefaultComment("      Prevent Other Sounds:");
+        config.addDefaultComment("        Enter Sound: true # If enabled, Enter sound in regions.yml won't be played.");
+        config.addDefaultComment("        Default Sound: true # If enabled, Region Enter sound in sounds.yml won't be played.");
         config.addDefaultComment("      Sounds:");
         config.addDefaultComment("        '0':");
         config.addDefaultComment("          Delay: 0");
@@ -598,8 +601,8 @@ public enum Configurations
         config.addDefaultComment("addons on https://www.spigotmc.org/resources/37429/");
         config.addDefaultComment("");
         config.addDefaultComment(" More information about sounds on sounds.yml.\n");
-        config.addDefault("Version", StaticFields.version);
-    }, "3.0.0", "3.1.1", StaticFields.version),
+        config.addDefault("Version", PlayMoreSounds.versionString);
+    }, StaticFields.version3_2_0),
     SOUNDS(PlayMoreSounds.getFolder().resolve("sounds.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when a player triggers an event.");
         config.addDefaultComment("");
@@ -683,7 +686,7 @@ public enum Configurations
         config.addDefaultComment("      Pitch: 1.0");
         config.addDefaultComment("      Sound: 'customsoundname'");
         config.addDefaultComment("      Volume: 10\n");
-        config.addDefault("Version", StaticFields.version);
+        config.addDefault("Version", PlayMoreSounds.versionString);
         config.addDefaultComment(" When a player lies in bed.");
         config.addDefault("Bed Enter.Cancellable", true);
         config.addDefault("Bed Enter.Enabled", true);
@@ -876,7 +879,7 @@ public enum Configurations
         config.addDefault("Wake Up.Sounds.0.Sound", "ENTITY_CHICKEN_HURT");
         config.addDefault("Wake Up.Sounds.0.Volume", 0.4F);
 
-    }, "3.0.0", "3.1.1", StaticFields.version),
+    }, StaticFields.version3_0_0),
     WORLD_TIMES(StaticFields.sounds.resolve("world times.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when a world reaches a specific time of the day.");
         config.addDefaultComment("");
@@ -893,11 +896,11 @@ public enum Configurations
         config.addDefaultComment("        Volume: 10.0");
         config.addDefaultComment("");
         config.addDefaultComment(" More information about sounds on sounds.yml\n");
-        config.addDefault("Version", StaticFields.version);
-    }, "3.0.0", "3.1.1", StaticFields.version),
+        config.addDefault("Version", PlayMoreSounds.versionString);
+    }, StaticFields.version3_0_0),
     LANGUAGE_EN_US(StaticFields.lang.resolve("Language EN-US.yml"), config -> {
         config.addDefaultComment("Language EN-US");
-        config.addDefault("Version", StaticFields.version);
+        config.addDefault("Version", PlayMoreSounds.versionString);
         config.addDefault("Confirm.Error.Nothing Pending", "&cThere is nothing pending to confirm.");
         config.addDefault("Confirm.List.Confirmation", " &f<id> &7- <description>");
         config.addDefault("Confirm.List.Header", "&8List of pending confirmations:");
@@ -1026,7 +1029,8 @@ public enum Configurations
         config.addDefault("General.Unknown Command", "&cUnknown command. Use \"&7&n/<label> help&c\" to see the list of commands available to you.");
         config.addDefault("General.World", "world");
         config.addDefault("General.You", "You");
-        config.addDefault("Help.Confirm", "&e/<label> confirm [id|page]\n&7 > Confirms something");
+        config.addDefault("Help.Confirm", "&e/<label> confirm [id|page]\n&7 > Confirms something.");
+        config.addDefault("Help.Check", "&e/<label> check [target]\n&7 > Checks if sounds are enabled.");
         config.addDefault("Help.Header", "List of PlayMoreSounds commands:");
         config.addDefault("Help.Help", "&e/<label> help [command]\n&7 > Shows the description of commands.");
         config.addDefault("Help.List", "&e/<label> list [page] [--gui]\n&7 > Shows the sounds available on your version.");
@@ -1121,11 +1125,11 @@ public enum Configurations
         config.addDefault("Update.Error.Offline", "&cYou are offline or spigot.org is down.");
         config.addDefault("Update.Error.Timeout", "&cTook too long to establish a connection.");
         config.addDefault("Update.Not Available", "&eNo updates available.");
-    }, "3.1.1", StaticFields.version),
+    }, StaticFields.version3_2_0),
     LANGUAGE_ES_LA(StaticFields.lang.resolve("Language ES-LA.yml"), config -> {
         config.addDefaultComment("Idioma ES-LA");
         config.addDefaultComment("Traducido por Epicnicity");
-        config.addDefault("Version", StaticFields.version);
+        config.addDefault("Version", PlayMoreSounds.versionString);
         config.addDefault("Confirm.Error.Nothing Pending", "&cNo hay nada pendiente de confirmar.");
         config.addDefault("Confirm.List.Confirmation", " &f<id> &7- <description>");
         config.addDefault("Confirm.List.Header", "&8Lista de confirmaciones pendientes::");
@@ -1349,11 +1353,11 @@ public enum Configurations
         config.addDefault("Update.Error.Offline", "&cEstá desconectado o spigot.org está caído.");
         config.addDefault("Update.Error.Timeout", "&cTomó demasiado tiempo para establecer una conexión.");
         config.addDefault("Update.Not Available", "&eNo hay actualizaciones disponibles.");
-    }, "3.1.1", StaticFields.version),
+    }, StaticFields.version3_2_0),
     LANGUAGE_PT_BR(StaticFields.lang.resolve("Language PT-BR.yml"), config -> {
         config.addDefaultComment("Linguagem PT-BR");
         config.addDefaultComment("Traduzido por Epicnicity");
-        config.addDefault("Version", StaticFields.version);
+        config.addDefault("Version", "3.2.0");
         config.addDefault("Confirm.Error.Nothing Pending", "&cNão há nada pendente para confirmar.");
         config.addDefault("Confirm.List.Confirmation", " &f<id> &7- <description>");
         config.addDefault("Confirm.List.Header", "&8Lista de confirmações pendentes:");
@@ -1577,11 +1581,11 @@ public enum Configurations
         config.addDefault("Update.Error.Offline", "&cVocê está offline ou spigot.org caiu.");
         config.addDefault("Update.Error.Timeout", "&cLevou tempo demais para estabelecer uma conexão.");
         config.addDefault("Update.Not Available", "&eNenhuma atualização disponível.");
-    }, "3.1.1", StaticFields.version),
+    }, StaticFields.version3_2_0),
     LANGUAGE_ZH_CN(StaticFields.lang.resolve("Language ZH-CN.yml"), config -> {
         config.addDefaultComment("语言ZH-CN");
         config.addDefaultComment("译者：秋风残叶");
-        config.addDefault("Version", StaticFields.version);
+        config.addDefault("Version", "3.2.0");
         config.addDefault("Confirm.Error.Nothing Pending", "&c无待确认项目");
         config.addDefault("Confirm.List.Confirmation", " &f<id> &7- <description>");
         config.addDefault("Confirm.List.Header", "&8待确认列表:");
@@ -1805,25 +1809,25 @@ public enum Configurations
         config.addDefault("Update.Error.Offline", "&c您当前未连接网络，或者您的防火墙拦截了联网请求，更新失败");
         config.addDefault("Update.Error.Timeout", "&c连接超时，请检查网络");
         config.addDefault("Update.Not Available", "&e没有可用更新");
-    }, "3.1.1", StaticFields.version);
+    }, StaticFields.version3_2_0);
 
     private static final @NotNull ConfigLoader configLoader = new ConfigLoader();
 
     static {
         for (Configurations configuration : Configurations.values())
-            configLoader.registerConfiguration(configuration.getPluginConfig(), configuration.versions);
+            configLoader.registerConfiguration(configuration.getPluginConfig(), configuration.minVersion, PlayMoreSounds.version);
     }
 
     private final @NotNull PluginConfig pluginConfig;
-    private final @NotNull String[] versions;
+    private final @NotNull Version minVersion;
 
-    Configurations(@NotNull Path path, @NotNull Consumer<PluginConfig> defaults, @NotNull String... versions)
+    Configurations(@NotNull Path path, @NotNull Consumer<PluginConfig> defaults, @NotNull Version minVersion)
     {
         PluginConfig pluginConfig = new PluginConfig(path);
 
         defaults.accept(pluginConfig);
         this.pluginConfig = pluginConfig;
-        this.versions = versions;
+        this.minVersion = minVersion;
     }
 
     public static @NotNull ConfigLoader getConfigLoader()
@@ -1841,9 +1845,8 @@ public enum Configurations
         //TODO: Get main folder without relying on platform dependent classes.
         protected static final @NotNull Path sounds = PlayMoreSounds.getFolder().resolve("Sounds");
         protected static final @NotNull Path lang = PlayMoreSounds.getFolder().resolve("Language");
-        /**
-         * The version the configurations had their last changes.
-         */
-        protected static final @NotNull String version = "3.1.2";
+        protected static final @NotNull Version version3_0_0 = new Version("3");
+        protected static final @NotNull Version version3_1_2 = new Version("3.1.2");
+        protected static final @NotNull Version version3_2_0 = new Version("3.2");
     }
 }
