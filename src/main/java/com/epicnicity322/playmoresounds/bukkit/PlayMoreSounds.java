@@ -262,8 +262,6 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
             pluginManager.registerEvents(new OnPlayerQuit(), this);
             // Registering region enter and leave event caller.
             pluginManager.registerEvents(new OnPlayerTeleport(this), this);
-            //TODO: Design better way to register OnRegionEnterLeave listener
-            pluginManager.registerEvents(new OnRegionEnterLeave(this), this);
             // TimeTrigger checks itself it does need to load or not on load method.
             TimeTrigger.load();
             ListenerRegister.loadListeners();

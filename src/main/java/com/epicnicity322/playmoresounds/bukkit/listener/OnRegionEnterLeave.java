@@ -19,6 +19,7 @@
 
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
+import com.epicnicity322.epicpluginlib.core.util.ObjectUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
@@ -30,29 +31,83 @@ import com.epicnicity322.playmoresounds.bukkit.sound.SoundType;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 public final class OnRegionEnterLeave extends PMSListener
 {
+    private final @NotNull PlayMoreSounds plugin;
     private final @NotNull HashMap<String, BukkitRunnable> regionsInLoop = new HashMap<>();
     private final @NotNull HashMap<String, HashSet<String>> soundsToStop = new HashMap<>();
+    private @Nullable RichSound regionEnterSound = null;
+    private @Nullable RichSound regionLeaveSound = null;
 
     public OnRegionEnterLeave(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
+        this.plugin = plugin;
     }
 
     @Override
     public @NotNull String getName()
     {
         return "Region Enter|Region Leave";
+    }
+
+    @Override
+    public void load()
+    {
+        Configuration sounds = Configurations.SOUNDS.getPluginConfig().getConfiguration();
+        Configuration regions = Configurations.REGIONS.getPluginConfig().getConfiguration();
+        ConfigurationSection regionEnterSection = sounds.getConfigurationSection("Region Enter");
+        ConfigurationSection regionLeaveSection = sounds.getConfigurationSection("Region Leave");
+        ConfigurationSection defaultSection = ObjectUtils.getOrDefault(regionEnterSection, regionLeaveSection);
+        ConfigurationSection regionsYAMLSection = regions.getConfigurationSection("PlayMoreSounds");
+        boolean load = !soundsToStop.isEmpty();
+
+        if (!load)
+            if (defaultSection != null)
+                load = defaultSection.getBoolean("Enabled").orElse(false);
+
+        if (!load) {
+            if (regionsYAMLSection != null) {
+                for (Map.Entry<String, Object> section : regionsYAMLSection.getAbsoluteNodes().entrySet()) {
+                    if (section.getKey().endsWith("Enabled")) {
+                        if (section.getValue() == Boolean.TRUE) {
+                            load = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (load) {
+            if (regionEnterSection != null)
+                regionEnterSound = new RichSound(regionEnterSection);
+            if (regionLeaveSection != null)
+                regionLeaveSound = new RichSound(regionLeaveSection);
+
+            if (!isLoaded()) {
+                Bukkit.getPluginManager().registerEvents(this, plugin);
+                setLoaded(true);
+            }
+        } else {
+            if (isLoaded()) {
+                HandlerList.unregisterAll(this);
+                setLoaded(false);
+            }
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -116,20 +171,12 @@ public final class OnRegionEnterLeave extends PMSListener
             }
         }
 
-        if (defaultSound) {
-            ConfigurationSection section = Configurations.SOUNDS.getPluginConfig().getConfiguration()
-                    .getConfigurationSection("Region Enter");
-
-            if (section != null) {
-                RichSound sound = new RichSound(section);
-
-                if (!event.isCancelled() || !sound.isCancellable()) {
-                    sound.play(player);
-
-                    stopOnExit(player, section);
-                }
+        if (defaultSound && regionEnterSound != null)
+            if (!event.isCancelled() || !regionEnterSound.isCancellable()) {
+                regionEnterSound.play(player);
+                stopOnExit(player, regionEnterSound.getSection());
             }
-        }
+
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -175,17 +222,9 @@ public final class OnRegionEnterLeave extends PMSListener
             }
         }
 
-        if (defaultSound) {
-            ConfigurationSection section = Configurations.SOUNDS.getPluginConfig().getConfiguration()
-                    .getConfigurationSection("Region Leave");
-
-            if (section != null) {
-                RichSound sound = new RichSound(section);
-
-                if (!event.isCancelled() || !sound.isCancellable())
-                    sound.play(event.getPlayer());
-            }
-        }
+        if (defaultSound && regionLeaveSound != null)
+            if (!event.isCancelled() || !regionLeaveSound.isCancellable())
+                regionLeaveSound.play(event.getPlayer());
     }
 
     private void stopOnExit(Player player, ConfigurationSection section)

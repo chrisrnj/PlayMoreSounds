@@ -57,7 +57,7 @@ public final class ListenerRegister
             listeners.add(new OnPlayerLevelChange(instance));
             listeners.add(new OnPlayerToggleFlight(instance));
             listeners.add(new OnPlayerToggleSneak(instance));
-            //listeners.add(new OnRegionEnterLeave(instance));
+            listeners.add(new OnRegionEnterLeave(instance));
         });
     }
 
