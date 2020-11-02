@@ -85,7 +85,7 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
                 Collections.singleton("Epicnicity322"), "https://www.spigotmc.org/resources/37429/", Bukkit.getLogger());
 
         // Checking if EpicPluginLib is outdated.
-        if (EpicPluginLib.version.compareTo(new Version("1.6.4")) < 0) {
+        if (EpicPluginLib.version.compareTo(new Version("1.6.5")) < 0) {
             success = false;
 
             addOnEnableRunnable(() -> logger.log("You are running an old version of EpicPluginLib, make sure you are using the latest one.", ConsoleLogger.Level.ERROR));
@@ -112,15 +112,16 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
                 descriptionFile.getWebsite(), getLogger());
         addonManager = new AddonManager(this, serverPlugins);
 
-        new Thread(() -> {
-            for (Runnable runnable : onInstanceRunnables)
-                try {
-                    runnable.run();
-                } catch (Exception e) {
-                    logger.log("&cAn unknown error occurred on PlayMoreSounds initialization.");
-                    errorLogger.report(e, "PMSInitializationError (Unknown):");
-                }
-        }).start();
+        if (!onInstanceRunnables.isEmpty())
+            new Thread(() -> {
+                for (Runnable runnable : onInstanceRunnables)
+                    try {
+                        runnable.run();
+                    } catch (Exception e) {
+                        logger.log("&cAn unknown error occurred on PlayMoreSounds initialization.");
+                        errorLogger.report(e, "PMSInitializationError (Unknown):");
+                    }
+            }).start();
     }
 
     /**
@@ -323,15 +324,16 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
                 Bukkit.getPluginManager().disablePlugin(this);
             }
 
-            new Thread(() -> {
-                for (Runnable runnable : onEnableRunnables)
-                    try {
-                        runnable.run();
-                    } catch (Exception e) {
-                        logger.log("&cAn unknown error occurred on PlayMoreSounds startup.");
-                        errorLogger.report(e, "PMSLoadingError (Unknown):");
-                    }
-            }).start();
+            if (!onEnableRunnables.isEmpty())
+                new Thread(() -> {
+                    for (Runnable runnable : onEnableRunnables)
+                        try {
+                            runnable.run();
+                        } catch (Exception e) {
+                            logger.log("&cAn unknown error occurred on PlayMoreSounds startup.");
+                            errorLogger.report(e, "PMSLoadingError (Unknown):");
+                        }
+                }).start();
         }
     }
 
@@ -340,14 +342,15 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
     {
         addonManager.stopAddons();
 
-        new Thread(() -> {
-            for (Runnable runnable : onDisableRunnables)
-                try {
-                    runnable.run();
-                } catch (Exception e) {
-                    logger.log("&cAn unknown error occurred on PlayMoreSounds shutdown.");
-                    errorLogger.report(e, "PMSUnloadingError (Unknown):");
-                }
-        }).start();
+        if (!onDisableRunnables.isEmpty())
+            new Thread(() -> {
+                for (Runnable runnable : onDisableRunnables)
+                    try {
+                        runnable.run();
+                    } catch (Exception e) {
+                        logger.log("&cAn unknown error occurred on PlayMoreSounds shutdown.");
+                        errorLogger.report(e, "PMSUnloadingError (Unknown):");
+                    }
+            }).start();
     }
 }
