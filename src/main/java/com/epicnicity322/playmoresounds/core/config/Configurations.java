@@ -1845,8 +1845,8 @@ public enum Configurations
         //TODO: Get main folder without relying on platform dependent classes.
         protected static final @NotNull Path sounds = PlayMoreSounds.getFolder().resolve("Sounds");
         protected static final @NotNull Path lang = PlayMoreSounds.getFolder().resolve("Language");
-        protected static final @NotNull Version version3_0_0 = new Version("3");
+        protected static final @NotNull Version version3_0_0 = new Version("3.0.0");
         protected static final @NotNull Version version3_1_2 = new Version("3.1.2");
-        protected static final @NotNull Version version3_2_0 = new Version("3.2");
+        protected static final @NotNull Version version3_2_0 = new Version("3.2.0");
     }
 }
