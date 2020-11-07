@@ -220,11 +220,8 @@ public class SoundOptions
 
     public enum Direction
     {
-        UP,
-        DOWN,
-        LEFT,
-        RIGHT,
-        FRONT,
-        BACK
+        FRONT_BACK,
+        LEFT_RIGHT,
+        UP_DOWN
     }
 }
