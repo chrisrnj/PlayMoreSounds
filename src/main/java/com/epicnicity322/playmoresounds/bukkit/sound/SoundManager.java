@@ -147,52 +147,29 @@ public final class SoundManager
     /**
      * Adds blocks to up, down, right, left, front, back from original sound location based on pitch and yaw.
      */
-    protected static Location addRelativeLocation(Location soundLoc, Map<SoundOptions.Direction, Double> locations)
+    protected static @NotNull Location addRelativeLocation(@NotNull Location location, @NotNull Map<SoundOptions.Direction, Double> locationToAdd)
     {
-        if (!locations.isEmpty()) {
-            double front = locations.getOrDefault(SoundOptions.Direction.FRONT, 0.0);
-            double back = locations.getOrDefault(SoundOptions.Direction.BACK, 0.0);
-            double up = locations.getOrDefault(SoundOptions.Direction.UP, 0.0);
-            double down = locations.getOrDefault(SoundOptions.Direction.DOWN, 0.0);
-            double right = locations.getOrDefault(SoundOptions.Direction.RIGHT, 0.0);
-            double left = locations.getOrDefault(SoundOptions.Direction.LEFT, 0.0);
+        if (!locationToAdd.isEmpty()) {
+            location = location.clone();
 
-            double FB = 0;
+            if (locationToAdd.containsKey(SoundOptions.Direction.FRONT_BACK)) {
+                double distance = locationToAdd.get(SoundOptions.Direction.FRONT_BACK);
+                double angle = Math.PI * 2 * location.getYaw() * -1 / 360;
 
-            if (front != 0 | back != 0)
-                FB = front
-                        + (Double.toString(back).startsWith("-") ? Double.parseDouble(Double.toString(back).substring(1))
-                        : Double.parseDouble("-" + back));
-
-            double UD = 0;
-
-            if (up != 0 | down != 0)
-                UD = up + (Double.toString(down).startsWith("-") ? Double.parseDouble(Double.toString(down).substring(1))
-                        : Double.parseDouble("-" + down));
-
-            double LR = 0;
-
-            if (right != 0 | left != 0)
-                LR = left
-                        + (Double.toString(right).startsWith("-") ? Double.parseDouble(Double.toString(right).substring(1))
-                        : Double.parseDouble("-" + right));
-
-            double newX = soundLoc.getX();
-            double newZ = soundLoc.getZ();
-
-            float yaw = soundLoc.getYaw();
-
-            if (FB != 0) {
-                newX = (newX + (FB * Math.cos(Math.toRadians(yaw + 90))));
-                newZ = (newZ + (FB * Math.sin(Math.toRadians(yaw + 90))));
-            }
-            if (LR != 0) {
-                newX = (newX + (LR * Math.cos(Math.toRadians(yaw))));
-                newZ = (newZ + (LR * Math.sin(Math.toRadians(yaw))));
+                location.add(distance * Math.sin(angle), 0.0, distance * Math.cos(angle));
             }
 
-            return new Location(soundLoc.getWorld(), newX, soundLoc.getY() + UD, newZ);
+            if (locationToAdd.containsKey(SoundOptions.Direction.LEFT_RIGHT)) {
+                double distance = locationToAdd.get(SoundOptions.Direction.LEFT_RIGHT);
+                double angle = Math.PI * 2 * location.getYaw() / 360;
+
+                location.add(distance * Math.cos(angle), 0.0, distance * Math.sin(angle));
+            }
+
+            if (locationToAdd.containsKey(SoundOptions.Direction.UP_DOWN))
+                location.add(0.0, locationToAdd.get(SoundOptions.Direction.UP_DOWN), 0.0);
         }
-        return soundLoc;
+
+        return location;
     }
 }
