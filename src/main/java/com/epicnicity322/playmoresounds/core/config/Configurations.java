@@ -1029,14 +1029,15 @@ public enum Configurations
         config.addDefault("General.Unknown Command", "&cUnknown command. Use \"&7&n/<label> help&c\" to see the list of commands available to you.");
         config.addDefault("General.World", "world");
         config.addDefault("General.You", "You");
-        config.addDefault("Help.Confirm", "&e/<label> confirm [id|page]\n&7 > Confirms something.");
         config.addDefault("Help.Check", "&e/<label> check [target]\n&7 > Checks if sounds are enabled.");
+        config.addDefault("Help.Confirm", "&e/<label> confirm [id|page]\n&7 > Confirms something.");
         config.addDefault("Help.Header", "List of PlayMoreSounds commands:");
         config.addDefault("Help.Help", "&e/<label> help [command]\n&7 > Shows the description of commands.");
         config.addDefault("Help.List", "&e/<label> list [page] [--gui]\n&7 > Shows the sounds available on your version.");
         config.addDefault("Help.Play", "&e/<label> play <sound> [target] [vol] [pitch]\n&7 > Plays a sound.");
         config.addDefault("Help.Region", "&e/<label> region <create|info|list|remove|rename|set|teleport|wand>\n&7 > Regions command.");
         config.addDefault("Help.Reload", "&e/<label> reload\n&7 > Reloads configurations and events.");
+        config.addDefault("Help.Stop Sound", "&e/<label> stopsound [sounds] [target]\n&7 > Stops sounds from playing.");
         config.addDefault("Help.Toggle", "&e/<label> toggle [target] [on|off]\n&7 > Enables or disables sounds from playing.");
         config.addDefault("Help.Update", "&e/<label> update [download] [--force]\n&7 > Checks and downloads updates.");
         config.addDefault("List.Error.Not Exists", "&cThe page &7<page>&c doesn't exist! Max: <totalpages>.");
