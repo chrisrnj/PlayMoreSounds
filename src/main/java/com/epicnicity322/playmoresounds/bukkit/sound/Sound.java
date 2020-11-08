@@ -216,7 +216,7 @@ public class Sound implements Playable
     {
         for (Player inRange : players) {
             if (!config.getConfiguration().getCollection("World Black List").contains(inRange.getWorld().getName())
-                    && (options.ignoresToggle() || !SoundManager.getIgnoredPlayers().contains(inRange.getUniqueId()))
+                    && (options.ignoresDisabled() || SoundManager.getSoundsState(inRange))
                     && (options.getPermissionToListen() == null || inRange.hasPermission(options.getPermissionToListen()))
                     && (sourcePlayer == null || inRange.canSee(sourcePlayer))) {
                 Location fixedLocation = soundLocation;

@@ -31,11 +31,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
-import java.util.UUID;
 
 public final class ToggleSubCommand extends Command implements Helpable
 {
-    private static final @NotNull HashSet<UUID> ignoredPlayers = SoundManager.getIgnoredPlayers();
     private static final @NotNull MessageSender lang = PlayMoreSounds.getMessageSender();
 
     @Override
@@ -98,14 +96,12 @@ public final class ToggleSubCommand extends Command implements Helpable
             HashSet<Player> toOn = new HashSet<>();
 
             for (Player player : targets) {
-                UUID uuid = player.getUniqueId();
-
-                if (ignoredPlayers.contains(uuid)) {
-                    ignoredPlayers.remove(uuid);
-                    toOn.add(player);
-                } else {
-                    ignoredPlayers.add(uuid);
+                if (SoundManager.getSoundsState(player)) {
+                    SoundManager.toggleSoundsState(player, false);
                     toOff.add(player);
+                } else {
+                    SoundManager.toggleSoundsState(player, true);
+                    toOn.add(player);
                 }
             }
 
@@ -131,11 +127,10 @@ public final class ToggleSubCommand extends Command implements Helpable
 
             if (on) {
                 for (Player player : targets)
-                    ignoredPlayers.remove(player.getUniqueId());
-
+                    SoundManager.toggleSoundsState(player, true);
             } else {
                 for (Player player : targets)
-                    ignoredPlayers.add(player.getUniqueId());
+                    SoundManager.toggleSoundsState(player, false);
 
                 mode = "Disabled";
             }

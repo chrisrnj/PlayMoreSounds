@@ -83,8 +83,8 @@ public final class OnPlayerJoin implements Listener
         Configuration config = Configurations.CONFIG.getPluginConfig().getConfiguration();
 
         // Enabling sounds on login.
-        if (config.getBoolean("Enable Sounds After Re-Login").orElse(true))
-            SoundManager.getIgnoredPlayers().remove(player.getUniqueId());
+        if (config.getBoolean("Enable Sounds On Login").orElse(false))
+            SoundManager.toggleSoundsState(player, true);
 
         // Calling region enter events.
         RegionManager.getAllRegions().stream().filter(region -> region.isInside(location)).forEach(region -> {
