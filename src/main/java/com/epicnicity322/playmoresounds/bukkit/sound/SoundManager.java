@@ -106,7 +106,7 @@ public final class SoundManager
                 soundState = new NamespacedKey(plugin, "sound_state");
             }
 
-            return player.getPersistentDataContainer().get(soundState, PersistentDataType.INTEGER) == 1;
+            return player.getPersistentDataContainer().getOrDefault(soundState, PersistentDataType.INTEGER, 1) == 1;
         } else {
             return !disabledSoundsPlayers.contains(player.getUniqueId());
         }
