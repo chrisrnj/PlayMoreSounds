@@ -235,7 +235,7 @@ public enum Configurations
         config.addDefaultComment("################################\n");
         config.addDefault("Version", PlayMoreSounds.versionString);
         config.addDefaultComment(" Should the sounds of players that disabled them be enabled on login?");
-        config.addDefault("Enable Sounds After Re-Login", true);
+        config.addDefault("Enable Sounds On Login", true);
         config.addDefaultComment(" A simple halloween event, disable if you find it annoying.");
         config.addDefault("Halloween Event", true);
         config.addDefault("Inventories.Finder.Back Item.Material", "PAPER");
@@ -297,7 +297,7 @@ public enum Configurations
         config.addDefaultComment("- 'sample'");
         config.addDefaultComment("- 'sample2'\n");
         config.addDefault("World Black List", new ArrayList<>());
-    }, StaticFields.version3_1_2),
+    }, StaticFields.version3_2_0),
     CHAT(StaticFields.sounds.resolve("chat.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when a player type a sentence in chat.");
         config.addDefaultComment("");
@@ -608,11 +608,6 @@ public enum Configurations
         config.addDefaultComment("");
         config.addDefaultComment(" To set a sound to be played when a player triggers a event, create a");
         config.addDefaultComment(" section with the name of the event and add the sound options.");
-        config.addDefaultComment(" Available PMS events: [Bed Enter, Bed Leave, Change Held Item, Change Level,");
-        config.addDefaultComment(" Craft Item, First Join, Furnace Extract, Game Mode Change,");
-        config.addDefaultComment(" Inventory Click, Join Server, Leave Server, Player Ban, Player Chat,");
-        config.addDefaultComment(" Send Command, Player Death, Drop Item, Start Flying, Stop Flying");
-        config.addDefaultComment(" Player Kicked, Teleport, Region Enter, Region Leave].");
         config.addDefaultComment("");
         config.addDefaultComment(" -> Event and multiple sound sample:");
         config.addDefaultComment("");
@@ -636,7 +631,7 @@ public enum Configurations
         config.addDefaultComment("      Options:");
         config.addDefaultComment("        # Even if a player has toggled it's sounds to off, the sound will");
         config.addDefaultComment("        #be played.");
-        config.addDefaultComment("        Ignore Toggle: true");
+        config.addDefaultComment("        Ignores Disabled: true");
         config.addDefaultComment("        # The sound will be only listened by who have this permission.");
         config.addDefaultComment("        Permission To Listen: 'pms.listen.playerteleport'");
         config.addDefaultComment("        # The sound will be only played to who have this permission.");
@@ -649,14 +644,11 @@ public enum Configurations
         config.addDefaultComment("        Radius: 15.2");
         config.addDefaultComment("        # You can specify in blocks the location of the sound. The sound");
         config.addDefaultComment("        #can be played to player's Front, Back, Right, Left, Up and Down.");
-        config.addDefaultComment("        #It's not necessary to add the ones that you wont use.");
+        config.addDefaultComment("        #You can use negative numbers to add to the opposite direction.");
         config.addDefaultComment("        Relative Location:");
-        config.addDefaultComment("          FRONT: 1.3");
-        config.addDefaultComment("          BACK: 0.1");
-        config.addDefaultComment("          RIGHT: 0.8");
-        config.addDefaultComment("          LEFT: 4.2");
-        config.addDefaultComment("          UP: 0.13");
-        config.addDefaultComment("          DOWN: 1.0");
+        config.addDefaultComment("          FRONT_BACK: 1.3");
+        config.addDefaultComment("          RIGHT_LEFT: -0.8");
+        config.addDefaultComment("          UP_DOWN: 0.13");
         config.addDefaultComment("      # Set how pitchy the sound will be. Values greater than 2 don't have");
         config.addDefaultComment("      #any difference.");
         config.addDefaultComment("      Pitch: 1.0");
@@ -845,7 +837,7 @@ public enum Configurations
         config.addDefault("Start Flying.Enabled", true);
         config.addDefault("Start Flying.Sounds.0.Delay", 0L);
         config.addDefault("Start Flying.Sounds.0.Options.Radius", 12D);
-        config.addDefault("Start Flying.Sounds.0.Options.Relative Location.UP", 2D);
+        config.addDefault("Start Flying.Sounds.0.Options.Relative Location.UP_DOWN", 2D);
         config.addDefault("Start Flying.Sounds.0.Pitch", 1F);
         config.addDefault("Start Flying.Sounds.0.Sound", "BLOCK_PISTON_EXTEND");
         config.addDefault("Start Flying.Sounds.0.Volume", 0.5F);
@@ -854,7 +846,7 @@ public enum Configurations
         config.addDefault("Stop Flying.Enabled", true);
         config.addDefault("Stop Flying.Sounds.0.Delay", 0L);
         config.addDefault("Stop Flying.Sounds.0.Options.Radius", 12D);
-        config.addDefault("Stop Flying.Sounds.0.Options.Relative Location.DOWN", 1D);
+        config.addDefault("Stop Flying.Sounds.0.Options.Relative Location.UP_DOWN", -1D);
         config.addDefault("Stop Flying.Sounds.0.Pitch", 1F);
         config.addDefault("Stop Flying.Sounds.0.Sound", "BLOCK_PISTON_CONTRACT");
         config.addDefault("Stop Flying.Sounds.0.Volume", 0.5F);
@@ -879,7 +871,7 @@ public enum Configurations
         config.addDefault("Wake Up.Sounds.0.Sound", "ENTITY_CHICKEN_HURT");
         config.addDefault("Wake Up.Sounds.0.Volume", 0.4F);
 
-    }, StaticFields.version3_0_0),
+    }, StaticFields.version3_2_0),
     WORLD_TIMES(StaticFields.sounds.resolve("world times.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when a world reaches a specific time of the day.");
         config.addDefaultComment("");
@@ -1847,7 +1839,6 @@ public enum Configurations
         protected static final @NotNull Path sounds = PlayMoreSounds.getFolder().resolve("Sounds");
         protected static final @NotNull Path lang = PlayMoreSounds.getFolder().resolve("Language");
         protected static final @NotNull Version version3_0_0 = new Version("3.0.0");
-        protected static final @NotNull Version version3_1_2 = new Version("3.1.2");
         protected static final @NotNull Version version3_2_0 = new Version("3.2.0");
     }
 }
