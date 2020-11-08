@@ -57,6 +57,7 @@ public final class RegionSubCommand extends Command implements Helpable
     private static final @NotNull MessageSender lang = PlayMoreSounds.getMessageSender();
     private static final @NotNull Pattern allowedRegionNameChars = Pattern.compile("^[A-Za-z0-9_]+$");
     private static final @NotNull PluginConfig config = Configurations.CONFIG.getPluginConfig();
+    private static final @NotNull AtomicInteger showingBorders = new AtomicInteger(0);
 
     @Override
     public @NotNull CommandRunnable onHelp()
@@ -188,8 +189,6 @@ public final class RegionSubCommand extends Command implements Helpable
                 break;
         }
     }
-
-    private static final @NotNull AtomicInteger showingBorders = new AtomicInteger(0);
 
     private void create(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
