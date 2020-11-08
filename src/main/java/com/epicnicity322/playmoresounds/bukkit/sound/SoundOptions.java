@@ -29,7 +29,7 @@ import java.util.Objects;
 
 public class SoundOptions
 {
-    private boolean ignoresToggle;
+    private boolean ignoresDisabled;
     private @Nullable String permissionToListen;
     private @Nullable String permissionRequired;
     private double radius;
@@ -38,7 +38,7 @@ public class SoundOptions
     /**
      * {@link SoundOptions} is used to get the Options of a {@link Sound} more easily.
      *
-     * @param ignoresToggle      If a player has toggled their sounds off, the sound will be played anyway.
+     * @param ignoresDisabled    If a player has toggled their sounds off, the sound will be played anyway.
      * @param permissionToListen The permission the player needs to listen this sound.
      * @param permissionRequired The permission the player needs to play this sound.
      * @param radius             A radius of blocks the sound will be heard. Set 0 to play to only the player, -1 to all
@@ -46,10 +46,10 @@ public class SoundOptions
      * @param relativeLocation   The location in blocks to be added to the final sound playing location, in relation to
      *                           where the player is looking.
      */
-    public SoundOptions(boolean ignoresToggle, @Nullable String permissionToListen, @Nullable String permissionRequired,
+    public SoundOptions(boolean ignoresDisabled, @Nullable String permissionToListen, @Nullable String permissionRequired,
                         double radius, @Nullable Map<Direction, Double> relativeLocation)
     {
-        setIgnoresToggle(ignoresToggle);
+        setIgnoresDisabled(ignoresDisabled);
         setPermissionToListen(permissionToListen);
         setPermissionRequired(permissionRequired);
         setRadius(radius);
@@ -58,10 +58,9 @@ public class SoundOptions
 
     /**
      * Create a {@link SoundOptions} based on a configuration section. In PlayMoreSounds this section is named 'Options',
-     * it can have the following keys: Permission Required, Permission To Listen, Radius, Ignores Toggle,
-     * Relative Location.UP, Relative Location.DOWN, Relative Location.FRONT, Relative Location.BACK,
-     * Relative Location.LEFT and Relative Location.RIGHT. All of them are optional, see with more details what key does
-     * what on PlayMoreSounds wiki.
+     * it can have the following keys: Permission Required, Permission To Listen, Radius, Ignores Disabled,
+     * Relative Location.FRONT_BACK, Relative Location.LEFT_RIGHT, Relative Location.UP_DOWN. All of them are optional,
+     * see with more details what key does what on PlayMoreSounds wiki.
      *
      * @param section The section where the options are.
      */
@@ -71,7 +70,7 @@ public class SoundOptions
         setPermissionToListen(section.getString("Permission To Listen").orElse(null));
 
         radius = section.getNumber("Radius").orElse(0).doubleValue();
-        ignoresToggle = section.getBoolean("Ignores Toggle").orElse(false);
+        ignoresDisabled = section.getBoolean("Ignores Disabled").orElse(false);
 
         ConfigurationSection relativeLoc = section.getConfigurationSection("Relative Location");
 
@@ -86,18 +85,18 @@ public class SoundOptions
     }
 
     /**
-     * If Ignores Toggle option is enabled.
+     * If Ignores Disabled option is enabled.
      *
      * @return If the sound should ignore if the player has disabled their sounds.
      */
-    public boolean ignoresToggle()
+    public boolean ignoresDisabled()
     {
-        return ignoresToggle;
+        return ignoresDisabled;
     }
 
-    public void setIgnoresToggle(boolean ignoresToggle)
+    public void setIgnoresDisabled(boolean ignoresDisabled)
     {
-        this.ignoresToggle = ignoresToggle;
+        this.ignoresDisabled = ignoresDisabled;
     }
 
     /**
@@ -179,7 +178,7 @@ public class SoundOptions
     }
 
     /**
-     * If a {@link SoundOptions} contains the same values of {@link #ignoresToggle()}, {@link #getRadius()},
+     * If a {@link SoundOptions} contains the same values of {@link #ignoresDisabled()}, {@link #getRadius()},
      * {@link #getPermissionToListen()}, {@link #getPermissionRequired()} and {@link #getRelativeLocation()}.
      *
      * @param o The {@link SoundOptions} to compare.
@@ -193,7 +192,7 @@ public class SoundOptions
 
         SoundOptions options = (SoundOptions) o;
 
-        return ignoresToggle() == options.ignoresToggle() &&
+        return ignoresDisabled() == options.ignoresDisabled() &&
                 Double.compare(options.getRadius(), getRadius()) == 0 &&
                 Objects.equals(getPermissionToListen(), options.getPermissionToListen()) &&
                 Objects.equals(getPermissionRequired(), options.getPermissionRequired()) &&
@@ -203,14 +202,14 @@ public class SoundOptions
     @Override
     public int hashCode()
     {
-        return Objects.hash(ignoresToggle(), getPermissionToListen(), getPermissionRequired(), getRadius(), getRelativeLocation());
+        return Objects.hash(ignoresDisabled(), getPermissionToListen(), getPermissionRequired(), getRadius(), getRelativeLocation());
     }
 
     @Override
     public @NotNull String toString()
     {
         return "SoundOptions{" +
-                "ignoresToggle=" + ignoresToggle +
+                "ignoresDisabled=" + ignoresDisabled +
                 ", permissionToListen='" + permissionToListen + '\'' +
                 ", permissionRequired='" + permissionRequired + '\'' +
                 ", radius=" + radius +
