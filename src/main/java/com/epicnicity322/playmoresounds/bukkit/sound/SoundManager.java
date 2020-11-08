@@ -23,7 +23,9 @@ import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,9 +35,10 @@ import java.util.*;
 public final class SoundManager
 {
     private static final @NotNull BukkitScheduler scheduler = Bukkit.getScheduler();
-    private static final @NotNull HashSet<UUID> ignoredPlayers = new HashSet<>();
+    private static final @NotNull HashSet<UUID> disabledSoundsPlayers = new HashSet<>();
     private static @NotNull Set<String> soundList = new HashSet<>();
     private static @NotNull Set<SoundType> soundTypes = new HashSet<>();
+    private static NamespacedKey soundState;
 
     static {
         for (SoundType type : SoundType.values()) {
@@ -51,6 +54,62 @@ public final class SoundManager
 
     private SoundManager()
     {
+    }
+
+    /**
+     * Enables or Disables sounds of a {@link Player}.
+     * <p>
+     * Sounds that have the option {@link SoundOptions#ignoresDisabled()} will be played anyway.
+     * If bukkit is running on 1.14+ the sounds will persist a server restart.
+     *
+     * @param player The player to toggle the sounds.
+     * @param state  The state of sounds: Enabled or Disabled.
+     * @throws IllegalStateException If the server is running on 1.14+ and PlayMoreSounds is disabled.
+     */
+    public static void toggleSoundsState(@NotNull Player player, boolean state)
+    {
+        if (VersionUtils.hasPersistentData()) {
+            if (soundState == null) {
+                PlayMoreSounds plugin = PlayMoreSounds.getInstance();
+
+                if (plugin == null)
+                    throw new IllegalStateException("PlayMoreSounds must be loaded to use this method.");
+
+                soundState = new NamespacedKey(plugin, "sound_state");
+            }
+
+            player.getPersistentDataContainer().set(soundState, PersistentDataType.INTEGER, state ? 1 : 0);
+        } else {
+            if (state)
+                disabledSoundsPlayers.remove(player.getUniqueId());
+            else
+                disabledSoundsPlayers.add(player.getUniqueId());
+        }
+    }
+
+    /**
+     * Gets sounds state of a {@link Player}, if they are enabled or disabled.
+     *
+     * @param player The player to get the state.
+     * @return If sounds are enabled or disabled for this player.
+     * @throws IllegalStateException If the server is running on 1.14+ and PlayMoreSounds is disabled.
+     */
+    public static boolean getSoundsState(@NotNull Player player)
+    {
+        if (VersionUtils.hasPersistentData()) {
+            if (soundState == null) {
+                PlayMoreSounds plugin = PlayMoreSounds.getInstance();
+
+                if (plugin == null)
+                    throw new IllegalStateException("PlayMoreSounds must be loaded to use this method.");
+
+                soundState = new NamespacedKey(plugin, "sound_state");
+            }
+
+            return player.getPersistentDataContainer().get(soundState, PersistentDataType.INTEGER) == 1;
+        } else {
+            return !disabledSoundsPlayers.contains(player.getUniqueId());
+        }
     }
 
     /**
@@ -71,16 +130,6 @@ public final class SoundManager
     public static @NotNull Set<SoundType> getSoundTypes()
     {
         return soundTypes;
-    }
-
-    /**
-     * Gets the names of the players that won't hear the sounds played by PlayMoreSounds.
-     *
-     * @return The players that won't hear sounds played by PlayMoreSounds.
-     */
-    public static @NotNull HashSet<UUID> getIgnoredPlayers()
-    {
-        return ignoredPlayers;
     }
 
     /**
