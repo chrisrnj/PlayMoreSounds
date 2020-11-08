@@ -119,6 +119,13 @@ public final class OnRegionEnterLeave extends PMSListener
         SoundRegion region = event.getRegion();
         boolean defaultSound = true;
 
+        String key = region.getId() + ";" + player.getName();
+
+        if (regionsInLoop.containsKey(key)) {
+            regionsInLoop.get(key).cancel();
+            regionsInLoop.remove(key);
+        }
+
         if (regions != null) {
             ConfigurationSection loop = regions.getConfigurationSection(region.getName() + ".Loop");
             boolean playEnterSound = true;
@@ -126,28 +133,25 @@ public final class OnRegionEnterLeave extends PMSListener
             if (loop != null) {
                 RichSound loopSound = new RichSound(loop);
 
-                if (!event.isCancelled() || !loopSound.isCancellable()) {
-                    long delay = loop.getNumber("Delay").orElse(0).longValue();
-                    long period = loop.getNumber("Period").orElse(0).longValue();
+                if (loopSound.isEnabled()) {
+                    if (!event.isCancelled() || !loopSound.isCancellable()) {
+                        long delay = loop.getNumber("Delay").orElse(0).longValue();
+                        long period = loop.getNumber("Period").orElse(0).longValue();
 
-                    String key = region.getId() + ";" + player.getName();
+                        regionsInLoop.put(key, loopSound.playInLoop(player, player::getLocation, delay, period, () -> {
+                            Configuration updatedRegions = Configurations.REGIONS.getPluginConfig().getConfiguration();
 
-                    if (regionsInLoop.containsKey(key))
-                        regionsInLoop.get(key).cancel();
+                            return !updatedRegions.getBoolean("PlayMoreSounds." + region.getName() + ".Loop.Enabled").orElse(false)
+                                    || !RegionManager.getAllRegions().contains(region) || !player.isOnline() || !region.isInside(player.getLocation());
+                        }));
 
-                    regionsInLoop.put(key, loopSound.playInLoop(player, player.getLocation(), delay, period, () -> {
-                        Configuration updatedRegions = Configurations.REGIONS.getPluginConfig().getConfiguration();
+                        stopOnExit(player, loop);
 
-                        return !updatedRegions.getBoolean("PlayMoreSounds." + region.getName() + ".Loop.Enabled").orElse(false)
-                                || !RegionManager.getAllRegions().contains(region) || !player.isOnline() || !region.isInside(player.getLocation());
-                    }));
-
-                    stopOnExit(player, loop);
-
-                    if (loop.getBoolean("Prevent Other Sounds.Default Sound").orElse(false))
-                        defaultSound = false;
-                    if (loop.getBoolean("Prevent Other Sounds.Enter Sound").orElse(false))
-                        playEnterSound = false;
+                        if (loop.getBoolean("Prevent Other Sounds.Default Sound").orElse(false))
+                            defaultSound = false;
+                        if (loop.getBoolean("Prevent Other Sounds.Enter Sound").orElse(false))
+                            playEnterSound = false;
+                    }
                 }
             }
 
@@ -174,7 +178,9 @@ public final class OnRegionEnterLeave extends PMSListener
         if (defaultSound && regionEnterSound != null)
             if (!event.isCancelled() || !regionEnterSound.isCancellable()) {
                 regionEnterSound.play(player);
-                stopOnExit(player, regionEnterSound.getSection());
+
+                if (regionEnterSound.isEnabled())
+                    stopOnExit(player, regionEnterSound.getSection());
             }
     }
 
