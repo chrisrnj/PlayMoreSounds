@@ -56,8 +56,9 @@ public class SoundRegion
     {
         try {
             Configuration region = loader.load(path);
+            String fileName = path.getFileName().toString();
 
-            id = UUID.fromString(region.getName().substring(0, region.getName().indexOf(".")));
+            id = UUID.fromString(fileName.substring(0, fileName.indexOf(".")));
             creator = region.getString("Creator").map(UUID::fromString).orElse(null);
             creationDate = region.getString("Creation Date").map(ZonedDateTime::parse).orElse(
                     Files.readAttributes(path, BasicFileAttributes.class).creationTime().toInstant().atZone(ZoneId.systemDefault()));
