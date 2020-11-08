@@ -24,6 +24,7 @@ import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -47,9 +48,13 @@ public final class OnPlayerTeleport implements Listener
     public void onPlayerTeleport(PlayerTeleportEvent event)
     {
         Player player = event.getPlayer();
+        Location from = event.getFrom();
+        Location to = event.getTo();
 
         if (!event.isCancelled())
-            OnPlayerMove.callRegionEnterLeaveEvents(event, player, event.getFrom(), event.getTo());
+            OnPlayerMove.callRegionEnterLeaveEvents(event, player, from, to);
+
+        OnPlayerMove.checkBiomeEnterLeaveSounds(event, player, from, to);
 
         if (event.getCause() == PlayerTeleportEvent.TeleportCause.COMMAND) {
             ConfigurationSection section = Configurations.SOUNDS.getPluginConfig().getConfiguration()
@@ -59,7 +64,7 @@ public final class OnPlayerTeleport implements Listener
                 RichSound sound = new RichSound(section);
 
                 if (sound.isEnabled() && (!event.isCancelled() || !sound.isCancellable()))
-                    scheduler.runTaskLater(main, () -> sound.play(event.getPlayer()), 1);
+                    scheduler.runTaskLater(main, () -> sound.play(player), 1);
             }
         }
     }
