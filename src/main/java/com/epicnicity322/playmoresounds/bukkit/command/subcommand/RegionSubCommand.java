@@ -22,6 +22,7 @@ package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
+import com.epicnicity322.epicpluginlib.core.config.PluginConfig;
 import com.epicnicity322.epicpluginlib.core.util.StringUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandUtils;
@@ -47,6 +48,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -54,6 +56,7 @@ public final class RegionSubCommand extends Command implements Helpable
 {
     private static final @NotNull MessageSender lang = PlayMoreSounds.getMessageSender();
     private static final @NotNull Pattern allowedRegionNameChars = Pattern.compile("^[A-Za-z0-9_]+$");
+    private static final @NotNull PluginConfig config = Configurations.CONFIG.getPluginConfig();
 
     @Override
     public @NotNull CommandRunnable onHelp()
@@ -186,6 +189,8 @@ public final class RegionSubCommand extends Command implements Helpable
         }
     }
 
+    private static final @NotNull AtomicInteger showingBorders = new AtomicInteger(0);
+
     private void create(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
         UUID creator;
@@ -239,9 +244,9 @@ public final class RegionSubCommand extends Command implements Helpable
             for (int i = 3; i < args.length; ++i)
                 builder.append(" ").append(args[i]);
 
-            description = builder.substring(1);
+            description = builder.toString().trim();
         } else
-            description = "A sound playing region.";
+            description = lang.getColored("Region.Create.Default Description");
 
         SoundRegion region = new SoundRegion(name, selected[0], selected[1], creator, description);
 
@@ -354,7 +359,7 @@ public final class RegionSubCommand extends Command implements Helpable
 
         for (SoundRegion region : regions) {
             // Checking if particles should be sent.
-            if (VersionUtils.hasOffHand() && (sender instanceof Player)) {
+            if (VersionUtils.hasOffHand() && (sender instanceof Player) && showingBorders.get() < config.getConfiguration().getNumber("Sound Regions.Border.Max Showing Borders").orElse(30).intValue()) {
                 int count;
                 double r, g, b;
 
@@ -371,12 +376,17 @@ public final class RegionSubCommand extends Command implements Helpable
                     b = random.nextDouble();
                 }
 
+                showingBorders.incrementAndGet();
+
                 BukkitTask task = Bukkit.getScheduler().runTaskTimer(PlayMoreSounds.getInstance(), () -> {
                     for (Location border : region.getBorder())
                         ((Player) sender).spawnParticle(Particle.NOTE, border, count, r, g, b);
                 }, 0, 5);
 
-                Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), task::cancel, 100);
+                Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> {
+                    task.cancel();
+                    showingBorders.decrementAndGet();
+                }, config.getConfiguration().getNumber("Sound Regions.Border.Showing Time").orElse(100).longValue());
             }
 
             lang.send(sender, lang.get("Region.Info.Header").replace("<name>", region.getName()));

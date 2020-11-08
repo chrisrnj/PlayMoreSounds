@@ -278,6 +278,8 @@ public enum Configurations
         config.addDefault("Resource Packs.Force.Enabled", false);
         config.addDefault("Resource Packs.Force.Even If Download Fail", false);
         config.addDefaultComment(" Sound Regions configuration:");
+        config.addDefault("Sound Regions.Border.Max Showing Borders", 30);
+        config.addDefault("Sound Regions.Border.Showing Time", 100);
         config.addDefault("Sound Regions.Max Area", 1000000L);
         config.addDefault("Sound Regions.Max Name Characters", 20);
         config.addDefault("Sound Regions.Max Regions", 5);
@@ -1054,6 +1056,7 @@ public enum Configurations
         config.addDefault("Play.Success.Config", "&7Playing the sound &f<sound>&7 of the file &f<file>&7 to &f<player>&7.");
         config.addDefault("Play.Success.Default", "&7Playing the sound &f<sound>&7 with volume &f<volume>&7 and pitch &f<pitch>&7 to &f<player>&7.");
         config.addDefault("Play.Volume", "volume");
+        config.addDefault("Region.Create.Default Description", "A sound playing region.");
         config.addDefault("Region.Create.Error.Already Exists", "&cThis name was already taken, chose another.");
         config.addDefault("Region.Create.Error.Default", "&cSomething went wrong while creating the region \"&7<name>&c\".");
         config.addDefault("Region.Create.Error.Different Worlds", "&cYour selections are in different worlds!");
@@ -1288,6 +1291,7 @@ public enum Configurations
         config.addDefault("Play.Success.Config", "&7Tocando el sonido &f<sound>&7 del archivo &f<file>&7 a &f<player>&7.");
         config.addDefault("Play.Success.Default", "&7Tocando el sonido &f<sound>&7 con volumen &f<volume>&7 y tono &f<pitch>&7 a &f<player>&7.");
         config.addDefault("Play.Volume", "volumen");
+        config.addDefault("Region.Create.Default Description", "Una región de reproducción de sonido.");
         config.addDefault("Region.Create.Error.Already Exists", "&cEste nombre ya se ha utilizado, elija otro.");
         config.addDefault("Region.Create.Error.Default", "&cAlgo salió mal al crear la región \"&7<name>&c\".");
         config.addDefault("Region.Create.Error.Different Worlds", "&c¡Tus selecciones están en mundos diferentes!");
@@ -1360,7 +1364,7 @@ public enum Configurations
     LANGUAGE_PT_BR(StaticFields.lang.resolve("Language PT-BR.yml"), config -> {
         config.addDefaultComment("Linguagem PT-BR");
         config.addDefaultComment("Traduzido por Epicnicity");
-        config.addDefault("Version", "3.2.0");
+        config.addDefault("Version", PlayMoreSounds.versionString);
         config.addDefault("Confirm.Error.Nothing Pending", "&cNão há nada pendente para confirmar.");
         config.addDefault("Confirm.List.Confirmation", " &f<id> &7- <description>");
         config.addDefault("Confirm.List.Header", "&8Lista de confirmações pendentes:");
@@ -1522,6 +1526,7 @@ public enum Configurations
         config.addDefault("Play.Success.Config", "&7Tocando o som &f<sound>&7 do arquivo &f<file>&7 para &f<player>&7.");
         config.addDefault("Play.Success.Default", "&7Tocando o som &f<sound>&7 com volume &f<volume>&7 e tom &f<pitch>&7 para &f<player>&7.");
         config.addDefault("Play.Volume", "volume");
+        config.addDefault("Region.Create.Default Description", "Uma região de reprodução de som.");
         config.addDefault("Region.Create.Error.Already Exists", "&cEste nome já foi usado, escolha outro.");
         config.addDefault("Region.Create.Error.Default", "&cAlgo de errado ocorreu ao criar a região \"&7<name>&c\".");
         config.addDefault("Region.Create.Error.Different Worlds", "&cSuas seleções estão em mundos diferentes!");
@@ -1594,7 +1599,7 @@ public enum Configurations
     LANGUAGE_ZH_CN(StaticFields.lang.resolve("Language ZH-CN.yml"), config -> {
         config.addDefaultComment("语言ZH-CN");
         config.addDefaultComment("译者：秋风残叶");
-        config.addDefault("Version", "3.2.0");
+        config.addDefault("Version", PlayMoreSounds.versionString);
         config.addDefault("Confirm.Error.Nothing Pending", "&c无待确认项目");
         config.addDefault("Confirm.List.Confirmation", " &f<id> &7- <description>");
         config.addDefault("Confirm.List.Header", "&8待确认列表:");
@@ -1754,6 +1759,7 @@ public enum Configurations
         config.addDefault("Play.Success.Config", "&7播放音效： &f<sound>&7 来自文件： &f<file>&7 对应玩家： &f<player>&7.");
         config.addDefault("Play.Success.Default", "&7播放音效： &f<sound>&7 音量： &f<volume>&7 音调： &f<pitch>&7 对应玩家： &f<player>&7.");
         config.addDefault("Play.Volume", "音量");
+        config.addDefault("Region.Create.Default Description", "声音播放区域");
         config.addDefault("Region.Create.Error.Already Exists", "&c此名称已被占用");
         config.addDefault("Region.Create.Error.Default", "&c创建区域 \"&7<name>&c\" 时失败.");
         config.addDefault("Region.Create.Error.Different Worlds", "&c选区不在同一个世界内");
