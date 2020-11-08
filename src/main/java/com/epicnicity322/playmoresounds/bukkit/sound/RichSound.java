@@ -141,7 +141,7 @@ public class RichSound implements Playable
      * @return The {@link BukkitRunnable} of the loop that can be used to cancel later.
      * @throws IllegalStateException If PlayMoreSounds was not instantiated by bukkit yet.
      */
-    public @NotNull BukkitRunnable playInLoop(@Nullable Player player, @NotNull Location sourceLocation, long delay, long period, @Nullable Supplier<Boolean> breaker)
+    public @NotNull BukkitRunnable playInLoop(@Nullable Player player, @NotNull Supplier<Location> sourceLocation, long delay, long period, @Nullable Supplier<Boolean> breaker)
     {
         PlayMoreSounds main = PlayMoreSounds.getInstance();
 
@@ -157,7 +157,7 @@ public class RichSound implements Playable
                 @Override
                 public void run()
                 {
-                    play(player, sourceLocation);
+                    play(player, sourceLocation.get());
                 }
             };
         else
@@ -171,7 +171,7 @@ public class RichSound implements Playable
                         return;
                     }
 
-                    play(player, sourceLocation);
+                    play(player, sourceLocation.get());
                 }
             };
 
