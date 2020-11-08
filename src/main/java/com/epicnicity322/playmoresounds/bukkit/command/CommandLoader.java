@@ -56,6 +56,7 @@ public final class CommandLoader
             unknownCommand = (label, sender, args) ->
                     lang.send(sender, lang.get("General.Unknown Command").replace("<label>", label));
 
+            commands.add(new CheckSubCommand());
             commands.add(new ConfirmSubCommand());
             commands.add(new HelpSubCommand());
             commands.add(new ListSubCommand());
