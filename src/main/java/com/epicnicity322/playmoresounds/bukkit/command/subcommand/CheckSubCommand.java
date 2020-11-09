@@ -73,7 +73,7 @@ public final class CheckSubCommand extends Command implements Helpable
                         .replace("<label>", label).replace("<label2>", args[0])
                         .replace("<args>", (sender instanceof Player ?
                                 "[" + lang.get("General.Target") + "]" : "<" + lang.get("General.Target") + ">")),
-                "playmoresounds.toggle.check");
+                "playmoresounds.toggle.check.others");
 
         if (targets == null)
             return;
