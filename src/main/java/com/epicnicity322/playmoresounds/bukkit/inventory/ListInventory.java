@@ -206,7 +206,7 @@ public class ListInventory implements PMSInventory, Listener
                     SoundManager.stopSounds(player, null, 0);
                 else
                     // As the sounds of the list can only be sounds of SoundManager#getSoundList(), sounds are always present.
-                    player.playSound(player.getLocation(), SoundType.valueOf(button).getSound().get(), 10, 1);
+                    player.playSound(player.getLocation(), SoundType.valueOf(button).getSound().orElse(""), 10, 1);
             }
         }
     }

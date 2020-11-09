@@ -155,13 +155,13 @@ public final class SoundManager
                 if (sounds == null)
                     for (SoundType toStop : SoundManager.getSoundTypes())
                         // Sounds of #getSoundTypes() are always present.
-                        player.stopSound(toStop.getSound().get());
+                        player.stopSound(toStop.getSound().orElse(""));
                 else
                     for (String sound : sounds)
                         player.stopSound(sound);
             else {
                 // ENTITY_CHICKEN_HURT is always present.
-                String chickenSound = SoundType.ENTITY_CHICKEN_HURT.getSound().get();
+                String chickenSound = SoundType.ENTITY_CHICKEN_HURT.getSound().orElse("");
 
                 for (int i = 0; i < 70; ++i)
                     player.playSound(player.getLocation(), chickenSound, 1.0E-4f, 1.0f);

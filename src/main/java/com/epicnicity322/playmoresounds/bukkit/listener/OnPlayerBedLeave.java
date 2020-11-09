@@ -57,8 +57,8 @@ public final class OnPlayerBedLeave extends PMSListener
         Configuration sounds = Configurations.SOUNDS.getPluginConfig().getConfiguration();
         ConfigurationSection leave = sounds.getConfigurationSection("Bed Leave");
         ConfigurationSection wake = sounds.getConfigurationSection("Wake Up");
-        boolean leaveEnabled = leave == null ? false : leave.getBoolean("Enabled").orElse(false);
-        boolean wakeEnabled = wake == null ? false : wake.getBoolean("Enabled").orElse(false);
+        boolean leaveEnabled = leave != null && leave.getBoolean("Enabled").orElse(false);
+        boolean wakeEnabled = wake != null && wake.getBoolean("Enabled").orElse(false);
 
         if (leaveEnabled || wakeEnabled) {
             if (leaveEnabled)

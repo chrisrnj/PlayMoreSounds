@@ -83,9 +83,9 @@ public final class RegionManager
         String material = null;
 
         try {
-            material = wandSection.getString("Material").get();
-            String name = wandSection.getString("Name").get();
-            boolean glowing = wandSection.getBoolean("Glowing").orElse(false);
+            material = wandSection.getString("Material").orElse("FEATHER");
+            String name = wandSection.getString("Name").orElse("&6&l&nRegion Selection Tool");
+            boolean glowing = wandSection.getBoolean("Glowing").orElse(true);
 
             ItemStack item = new ItemStack(Material.valueOf(material));
             ItemMeta meta = item.getItemMeta();

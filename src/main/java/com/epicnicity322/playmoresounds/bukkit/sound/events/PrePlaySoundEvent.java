@@ -39,11 +39,10 @@ import org.jetbrains.annotations.Nullable;
 public class PrePlaySoundEvent extends Event implements Cancellable
 {
     private static final HandlerList handlers = new HandlerList();
-
+    private final @Nullable Player player;
+    private final @NotNull Sound sound;
     private boolean cancelled;
-    private Player player;
-    private Location location;
-    private Sound sound;
+    private @NotNull Location location;
 
     public PrePlaySoundEvent(@Nullable Player player, @NotNull Location location, @NotNull Sound sound)
     {
@@ -57,7 +56,7 @@ public class PrePlaySoundEvent extends Event implements Cancellable
         return handlers;
     }
 
-    public HandlerList getHandlers()
+    public @NotNull HandlerList getHandlers()
     {
         return handlers;
     }
@@ -79,8 +78,7 @@ public class PrePlaySoundEvent extends Event implements Cancellable
      *
      * @return The player who played the sound. Null if isn't a player-based sound.
      */
-    @Nullable
-    public Player getPlayer()
+    public @Nullable Player getPlayer()
     {
         return player;
     }
@@ -93,7 +91,7 @@ public class PrePlaySoundEvent extends Event implements Cancellable
      *
      * @return The requested sound location.
      */
-    public Location getLocation()
+    public @NotNull Location getLocation()
     {
         return location;
     }
@@ -132,7 +130,7 @@ public class PrePlaySoundEvent extends Event implements Cancellable
      *
      * @return The instance of the sound.
      */
-    public Sound getSound()
+    public @NotNull Sound getSound()
     {
         return sound;
     }
