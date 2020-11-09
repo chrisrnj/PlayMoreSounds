@@ -119,7 +119,7 @@ public final class OnRegionEnterLeave extends PMSListener
         SoundRegion region = event.getRegion();
         boolean defaultSound = true;
 
-        String key = region.getId() + ";" + player.getName();
+        String key = region.getId() + ";" + player.getUniqueId();
 
         if (regionsInLoop.containsKey(key)) {
             regionsInLoop.get(key).cancel();
@@ -133,25 +133,23 @@ public final class OnRegionEnterLeave extends PMSListener
             if (loop != null) {
                 RichSound loopSound = new RichSound(loop);
 
-                if (loopSound.isEnabled()) {
-                    if (!event.isCancelled() || !loopSound.isCancellable()) {
-                        long delay = loop.getNumber("Delay").orElse(0).longValue();
-                        long period = loop.getNumber("Period").orElse(0).longValue();
+                if (loopSound.isEnabled() && (!event.isCancelled() || !loopSound.isCancellable())) {
+                    long delay = loop.getNumber("Delay").orElse(0).longValue();
+                    long period = loop.getNumber("Period").orElse(0).longValue();
 
-                        regionsInLoop.put(key, loopSound.playInLoop(player, player::getLocation, delay, period, () -> {
-                            Configuration updatedRegions = Configurations.REGIONS.getPluginConfig().getConfiguration();
+                    regionsInLoop.put(key, loopSound.playInLoop(player, player::getLocation, delay, period, () -> {
+                        Configuration updatedRegions = Configurations.REGIONS.getPluginConfig().getConfiguration();
 
-                            return !updatedRegions.getBoolean("PlayMoreSounds." + region.getName() + ".Loop.Enabled").orElse(false)
-                                    || !RegionManager.getAllRegions().contains(region) || !player.isOnline() || !region.isInside(player.getLocation());
-                        }));
+                        return !updatedRegions.getBoolean("PlayMoreSounds." + region.getName() + ".Loop.Enabled").orElse(false)
+                                || !RegionManager.getAllRegions().contains(region) || !player.isOnline() || !region.isInside(player.getLocation());
+                    }));
 
-                        stopOnExit(player, loop);
+                    stopOnExit(player, loop);
 
-                        if (loop.getBoolean("Prevent Other Sounds.Default Sound").orElse(false))
-                            defaultSound = false;
-                        if (loop.getBoolean("Prevent Other Sounds.Enter Sound").orElse(false))
-                            playEnterSound = false;
-                    }
+                    if (loop.getBoolean("Prevent Other Sounds.Default Sound").orElse(false))
+                        defaultSound = false;
+                    if (loop.getBoolean("Prevent Other Sounds.Enter Sound").orElse(false))
+                        playEnterSound = false;
                 }
             }
 
@@ -192,7 +190,7 @@ public final class OnRegionEnterLeave extends PMSListener
         soundsToStop.entrySet().removeIf(entry -> {
             String key = entry.getKey();
 
-            if (key.startsWith(player.getName())) {
+            if (key.startsWith(player.getUniqueId().toString())) {
                 long delay = Long.parseLong(key.substring(key.indexOf(";") + 1));
 
                 SoundManager.stopSounds(player, entry.getValue(), delay);
@@ -203,7 +201,7 @@ public final class OnRegionEnterLeave extends PMSListener
         });
 
         SoundRegion region = event.getRegion();
-        String key = region.getName() + ";" + player.getName();
+        String key = region.getId() + ";" + player.getUniqueId();
 
         if (regionsInLoop.containsKey(key)) {
             regionsInLoop.get(key).cancel();
@@ -235,7 +233,7 @@ public final class OnRegionEnterLeave extends PMSListener
     private void stopOnExit(Player player, ConfigurationSection section)
     {
         if (section.getBoolean("Stop On Exit.Enabled").orElse(false)) {
-            String key = player.getName() + ";" + section.getNumber("Stop On Exit.Delay").orElse(0);
+            String key = player.getUniqueId() + ";" + section.getNumber("Stop On Exit.Delay").orElse(0);
             HashSet<String> sounds = soundsToStop.getOrDefault(key, new HashSet<>());
             ConfigurationSection soundsSection = section.getConfigurationSection("Sounds");
 
@@ -243,8 +241,7 @@ public final class OnRegionEnterLeave extends PMSListener
                 for (String sound : soundsSection.getNodes().keySet()) {
                     String soundToStop = soundsSection.getString(sound + ".Sound").orElse("");
 
-                    sounds.add(SoundManager.getSoundList().contains(soundToStop) ?
-                            SoundType.valueOf(soundToStop).getSound().get() : soundToStop);
+                    sounds.add(SoundManager.getSoundList().contains(soundToStop) ? SoundType.valueOf(soundToStop).getSound().orElse("") : soundToStop);
                 }
 
             soundsToStop.put(key, sounds);

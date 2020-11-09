@@ -87,7 +87,7 @@ public final class OnPlayerMove implements Listener
                 soundsToStop.entrySet().removeIf(entry -> {
                     String key = entry.getKey();
 
-                    if (key.startsWith(player.getName())) {
+                    if (key.startsWith(player.getUniqueId().toString())) {
                         long delay = Long.parseLong(key.substring(key.indexOf(";") + 1));
 
                         SoundManager.stopSounds(player, entry.getValue(), delay);
@@ -158,7 +158,7 @@ public final class OnPlayerMove implements Listener
     private static void stopOnExit(Player player, ConfigurationSection section)
     {
         if (section.getBoolean("Stop On Exit.Enabled").orElse(false)) {
-            String key = player.getName() + ";" + section.getNumber("Stop On Exit.Delay").orElse(0);
+            String key = player.getUniqueId() + ";" + section.getNumber("Stop On Exit.Delay").orElse(0);
             HashSet<String> sounds = soundsToStop.getOrDefault(key, new HashSet<>());
             ConfigurationSection soundsSection = section.getConfigurationSection("Sounds");
 
@@ -166,7 +166,7 @@ public final class OnPlayerMove implements Listener
                 for (String sound : soundsSection.getNodes().keySet()) {
                     String soundToStop = soundsSection.getString(sound + ".Sound").orElse("");
 
-                    sounds.add(SoundManager.getSoundList().contains(soundToStop) ? SoundType.valueOf(soundToStop).getSound().get() : soundToStop);
+                    sounds.add(SoundManager.getSoundList().contains(soundToStop) ? SoundType.valueOf(soundToStop).getSound().orElse("") : soundToStop);
                 }
 
             soundsToStop.put(key, sounds);
