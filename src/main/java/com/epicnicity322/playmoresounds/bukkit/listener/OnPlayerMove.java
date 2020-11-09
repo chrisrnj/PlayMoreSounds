@@ -20,6 +20,7 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.epicpluginlib.core.config.PluginConfig;
+import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionEnterEvent;
@@ -51,6 +52,13 @@ public final class OnPlayerMove implements Listener
     private static final @NotNull PluginConfig biomes = Configurations.BIOMES.getPluginConfig();
     private static final @NotNull HashMap<UUID, BukkitRunnable> biomesInLoop = new HashMap<>();
     private static final @NotNull HashMap<String, HashSet<String>> soundsToStop = new HashMap<>();
+
+    static {
+        PlayMoreSounds.addOnDisableRunnable(() -> biomesInLoop.entrySet().removeIf(entry -> {
+            entry.getValue().cancel();
+            return true;
+        }));
+    }
 
     protected static void callRegionEnterLeaveEvents(Cancellable event, Player player, Location from, Location to)
     {
