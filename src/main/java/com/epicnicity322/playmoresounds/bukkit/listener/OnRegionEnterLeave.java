@@ -212,7 +212,7 @@ public final class OnRegionEnterLeave extends PMSListener
 
         boolean defaultSound = true;
 
-        ConfigurationSection leave = Configurations.REGIONS.getPluginConfig().getConfiguration().getConfigurationSection("PlayMoreSounds." + region.getName() + ".Enter");
+        ConfigurationSection leave = Configurations.REGIONS.getPluginConfig().getConfiguration().getConfigurationSection("PlayMoreSounds." + region.getName() + ".Leave");
 
         if (leave != null) {
             RichSound leaveSound = new RichSound(leave);
