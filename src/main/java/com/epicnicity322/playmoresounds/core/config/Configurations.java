@@ -35,8 +35,12 @@ public enum Configurations
     BIOMES(StaticFields.sounds.resolve("biomes.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when you enter, leave or stand on a specific biome.");
         config.addDefaultComment("");
+        config.addDefaultComment(" To set a sound, just create a configuration section with the name of the biome or");
+        config.addDefaultComment(" just copy the sample below.");
+        config.addDefaultComment(" Biome list: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/Biome.html");
+        config.addDefaultComment("");
         config.addDefaultComment(" Sample:");
-        config.addDefaultComment(" (Take a note that this is a sample and the sounds may not be available");
+        config.addDefaultComment(" (Take a note that this is a sample and the sounds and biomes may not be available");
         config.addDefaultComment(" on your MC version.)");
         config.addDefaultComment("");
         config.addDefaultComment("world: # The world name, replace 'world' with the name of your world.");
@@ -420,11 +424,13 @@ public enum Configurations
     DEATH_TYPES(StaticFields.sounds.resolve("death types.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when a player die for a specific cause of death.");
         config.addDefaultComment("");
-        config.addDefaultComment(" To set a sound, just create a configuration section with the name of the");
-        config.addDefaultComment(" cause of death or just copy the sample below.");
-        config.addDefaultComment(" (Causes of death: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html");
+        config.addDefaultComment(" To set a sound, just create a configuration section with the name of the cause of");
+        config.addDefaultComment(" death or just copy the sample below.");
+        config.addDefaultComment(" Causes of death: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html");
         config.addDefaultComment("");
         config.addDefaultComment(" Sample:");
+        config.addDefaultComment(" (Take a note that this is a sample and the sounds and causes of death may not be");
+        config.addDefaultComment(" available on your MC version.)");
         config.addDefaultComment("");
         config.addDefaultComment("MAGIC:");
         config.addDefaultComment("  Enabled: true");
@@ -460,8 +466,12 @@ public enum Configurations
     GAME_MODES(StaticFields.sounds.resolve("game modes.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when you change your gamemode.");
         config.addDefaultComment("");
+        config.addDefaultComment(" To set a sound, just create a configuration section with the name of the game mode");
+        config.addDefaultComment(" or just copy the sample below.");
+        config.addDefaultComment(" Game mode list: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/GameMode.html");
+        config.addDefaultComment("");
         config.addDefaultComment(" Sample:");
-        config.addDefaultComment(" (Take a note that this is a sample and the sounds may not be available");
+        config.addDefaultComment(" (Take a note that this is a sample and the sounds and game modes may not be available");
         config.addDefaultComment(" on your MC version.)");
         config.addDefaultComment("");
         config.addDefaultComment("CREATIVE: # The gamemode that you changed to.");
