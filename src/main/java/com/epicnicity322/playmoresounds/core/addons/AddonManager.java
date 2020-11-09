@@ -72,7 +72,6 @@ public class AddonManager
      * @throws UnsupportedOperationException If addons were already registered.
      * @throws IllegalStateException         If the server has not registered all plugins yet.
      */
-    //TODO: Change addons main class instantiation order based on 'Hook Addons' setting on description.
     public synchronized void registerAddons() throws IOException
     {
         if (registered)
