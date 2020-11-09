@@ -63,6 +63,7 @@ public final class CommandLoader
             commands.add(new PlaySubCommand());
             commands.add(new RegionSubCommand());
             commands.add(new ReloadSubCommand());
+            commands.add(new StopSoundSubCommand());
             commands.add(new ToggleSubCommand());
             commands.add(new UpdateSubCommand());
         });
