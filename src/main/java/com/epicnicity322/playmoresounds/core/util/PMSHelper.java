@@ -17,7 +17,7 @@
  * SOFTWARE.
  */
 
-package com.epicnicity322.playmoresounds.bukkit.util;
+package com.epicnicity322.playmoresounds.core.util;
 
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import org.jetbrains.annotations.NotNull;
