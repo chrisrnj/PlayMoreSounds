@@ -27,6 +27,7 @@ import com.epicnicity322.epicpluginlib.sponge.logger.Logger;
 import com.epicnicity322.playmoresounds.core.addons.AddonManager;
 import com.epicnicity322.playmoresounds.core.addons.StartTime;
 import com.epicnicity322.playmoresounds.core.util.LoadableHashSet;
+import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import com.epicnicity322.playmoresounds.sponge.listeners.OnClientConnection;
 import com.google.inject.Inject;
 import org.bstats.sponge.MetricsLite2;
@@ -44,13 +45,18 @@ import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
+import org.spongepowered.api.util.Tristate;
+import org.spongepowered.api.util.metric.MetricsConfigManager;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Random;
 
 @Plugin(id = "playmoresounds",
         name = "PlayMoreSounds",
@@ -63,6 +69,7 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
     private static final @NotNull HashSet<Runnable> onEnableRunnables = new HashSet<>();
     private static final @NotNull HashSet<Runnable> onInstanceRunnables = new HashSet<>();
     private static final @NotNull LoadableHashSet<String> serverPlugins = new LoadableHashSet<>();
+    private static final @NotNull Random random = new Random();
     private static @Nullable PlayMoreSounds instance;
     private static boolean success = true;
 
@@ -87,12 +94,12 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
     private final @NotNull ErrorLogger errorLogger;
     private final @NotNull AddonManager addonManager;
     private final @NotNull Path privateConfigDir;
-
     @Inject
     private PluginContainer container;
-
     @Inject
     private PluginManager pluginManager;
+    @Inject
+    private MetricsConfigManager metricsConfigManager;
 
     @Inject
     public PlayMoreSounds(Game game,
@@ -101,7 +108,7 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
                           MetricsLite2.Factory metricsFactory) throws IOException
     {
         instance = this;
-        logger = new Logger("&6[&9PlayMoreSounds&6] ", lf4jLogger);
+        logger = new Logger(PMSHelper.isChristmas() ? "&f[&4PlayMoreSounds&f] " : "&6[&9PlayMoreSounds&6] ", lf4jLogger);
         gameVersion = game.getPlatform().getContainer(Platform.Component.GAME).getVersion().orElse("0");
         addonManager = new AddonManager(this, serverPlugins);
         this.privateConfigDir = privateConfigDir;
@@ -251,7 +258,30 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
                 logger.log("&asponge yet.");
                 logger.log("&a 000 sounds available on " + gameVersion);
                 logger.log("&6============================================");
-                logger.log("&ePlayMoreSounds is using bStats. If you don't want to send anonymous data, edit bStats configuration.");
+
+                LocalDateTime now = LocalDateTime.now();
+
+                if (now.getMonth() == Month.OCTOBER && now.getDayOfMonth() == 31) {
+                    boolean bool = random.nextBoolean();
+
+                    if (bool)
+                        logger.log("&6H&ea&6p&ep&6y&e H&6a&el&6l&eo&6w&ee&6e&en&6!");
+                    else
+                        logger.log("&6T&er&6i&ec&6k&e o&6r&e T&6r&ee&6a&et&6?");
+                }
+
+                if (PMSHelper.isChristmas()) {
+                    boolean bool = random.nextBoolean();
+
+                    if (bool)
+                        logger.log("&cMerry Christmas!");
+                    else
+                        logger.log("&cHappy Christmas!");
+                }
+
+                if (metricsConfigManager.getCollectionState(container) == Tristate.TRUE)
+                    logger.log("&ePlayMoreSounds is using bStats. If you don't want to send anonymous data, edit bStats configuration.");
+
                 addonManager.startAddons(StartTime.END);
             } else {
                 logger.log("&6============================================", ConsoleLogger.Level.ERROR);
