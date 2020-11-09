@@ -47,7 +47,6 @@ public class AddonDescription
     private final @NotNull StartTime startTime;
     private final @NotNull Collection<String> authors;
     private final @NotNull Collection<String> requiredPlugins;
-    private final @NotNull Collection<String> hookAddons;
     private final @NotNull Collection<String> requiredAddons;
 
     protected AddonDescription(@NotNull Path jar) throws IOException, InvalidAddonException
@@ -83,7 +82,6 @@ public class AddonDescription
             authors = Collections.unmodifiableCollection(description.getCollection("Authors", Object::toString));
             requiredPlugins = Collections.unmodifiableCollection(description.getCollection("Required Plugins", Object::toString));
             requiredAddons = Collections.unmodifiableCollection(description.getCollection("Required Addons", Object::toString));
-            hookAddons = Collections.unmodifiableCollection(description.getCollection("Hook Addons", Object::toString));
         } catch (InvalidConfigurationException ex) {
             throw new InvalidAddonException("The addon '" + fileName + "' has a misconfigured description file.", ex);
         }
@@ -146,10 +144,5 @@ public class AddonDescription
     public @NotNull Collection<String> getRequiredAddons()
     {
         return requiredAddons;
-    }
-
-    public @NotNull Collection<String> getHookAddons()
-    {
-        return hookAddons;
     }
 }
