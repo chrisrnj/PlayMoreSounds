@@ -19,6 +19,7 @@
 
 package com.epicnicity322.playmoresounds.core.addons;
 
+import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.playmoresounds.core.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.core.addons.exceptions.InvalidAddonException;
 import com.epicnicity322.playmoresounds.core.util.LoadableHashSet;
@@ -27,9 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -45,6 +44,25 @@ public class AddonManager
     {
         this.corePMS = corePMS;
         this.serverPlugins = serverPlugins;
+    }
+
+    private static boolean hasRequiredAddons(Map<String, AddonDescription> addons, AddonDescription addon, LinkedHashSet<AddonDescription> sortedAddons)
+    {
+        if (addon.getRequiredAddons().isEmpty()) {
+            sortedAddons.add(addon);
+            return true;
+        } else if (addons.keySet().containsAll(addon.getRequiredAddons())) {
+            for (String dependency : addon.getRequiredAddons())
+                if (!hasRequiredAddons(addons, addons.get(dependency), sortedAddons))
+                    return false;
+
+            addons.remove(addon.getName());
+            sortedAddons.add(addon);
+            return true;
+        } else {
+            addons.remove(addon.getName());
+            return false;
+        }
     }
 
     /**
@@ -77,8 +95,8 @@ public class AddonManager
             jarPaths = fileStream.filter(file -> file.getFileName().toString().endsWith(".jar")).collect(Collectors.toSet());
         }
 
-        HashMap<Path, AddonDescription> descriptions = new HashMap<>();
-        HashSet<String> addonNames = new HashSet<>();
+        HashMap<AddonDescription, Path> addons = new HashMap<>();
+        HashMap<String, AddonDescription> addonNames = new HashMap<>();
 
         // Parsing and getting addon descriptions.
         for (Path jar : jarPaths) {
@@ -87,44 +105,56 @@ public class AddonManager
                 String name = description.getName();
 
                 // Checking if an addon with the same name was registered before.
-                if (addonNames.contains(name)) {
-                    corePMS.getCoreLogger().log("&eTwo addons with the name '" + name + "' were found, only registering the first one.");
+                if (addonNames.containsKey(name)) {
+                    corePMS.getCoreLogger().log("&eTwo addons with the name '" + name + "' were found, only registering the first one.", ConsoleLogger.Level.WARN);
                 } else {
                     String addon = name.toLowerCase().contains("addon") ? name : name + " addon";
 
                     if (description.getApiVersion().compareTo(PlayMoreSounds.version) > 0)
-                        corePMS.getCoreLogger().log("&c" + addon + " was made for PlayMoreSounds v" + description.getApiVersion() + ". You are currently on " + PlayMoreSounds.version + ".");
+                        corePMS.getCoreLogger().log("&c" + addon + " was made for PlayMoreSounds v" + description.getApiVersion() + ". You are currently on " + PlayMoreSounds.version + ".", ConsoleLogger.Level.WARN);
                     else {
                         if (serverPlugins.containsAll(description.getRequiredPlugins())) {
-                            descriptions.put(jar, description);
-                            addonNames.add(name);
+                            addons.put(description, jar);
+                            addonNames.put(name, description);
                         } else
-                            corePMS.getCoreLogger().log("&c" + addon + " depends on the plugin(s): " + description.getRequiredPlugins());
+                            corePMS.getCoreLogger().log("&c" + addon + " depends on the plugin(s): " + description.getRequiredPlugins(), ConsoleLogger.Level.WARN);
                     }
                 }
             } catch (InvalidAddonException e) {
-                corePMS.getCoreLogger().log("&c" + e.getMessage());
+                corePMS.getCoreLogger().log("&c" + e.getMessage(), ConsoleLogger.Level.WARN);
             } catch (Exception e) {
-                corePMS.getCoreLogger().log("&cException while registering the addon '" + jar.getFileName() + "&e': " + e.getMessage());
+                corePMS.getCoreLogger().log("&cException while registering the addon '" + jar.getFileName() + "&e': " + e.getMessage(), ConsoleLogger.Level.ERROR);
                 corePMS.getCoreErrorLogger().report(e, "Path: " + jar.toAbsolutePath() + "\nRegister as addon exception:");
             }
         }
 
-        // Instantiating addons main class.
-        descriptions.forEach((jar, description) -> {
+        LinkedHashSet<AddonDescription> sortedAddons = new LinkedHashSet<>();
+
+        // Removing the addons that are missing required dependencies.
+        addons.entrySet().removeIf(entry -> {
+            AddonDescription description = entry.getKey();
             String name = description.getName();
 
-            if (addonNames.containsAll(description.getRequiredAddons())) {
-                try {
-                    addonClassLoaders.add(new AddonClassLoader(jar, description));
-                } catch (InvalidAddonException e) {
-                    corePMS.getCoreLogger().log("&c" + e.getMessage());
-                } catch (Exception e) {
-                    corePMS.getCoreLogger().log("&cException while initializing the addon '" + name + "': " + e.getMessage());
-                    corePMS.getCoreErrorLogger().report(e, "Path: " + jar.toAbsolutePath() + "\nInstantiate main class exception:");
-                }
+            if (hasRequiredAddons(addonNames, description, sortedAddons)) {
+                return false;
             } else {
-                corePMS.getCoreLogger().log("&c" + (name.toLowerCase().contains("addon") ? name : name + " addon") + " depends on the other addon(s): " + description.getRequiredAddons());
+                corePMS.getCoreLogger().log("&c" + (name.toLowerCase().contains("addon") ? name : name + " addon") + " depends on the other addon(s): " + description.getRequiredAddons(), ConsoleLogger.Level.WARN);
+                return true;
+            }
+        });
+
+        // Instantiating addons main class.
+        sortedAddons.forEach(description -> {
+            String name = description.getName();
+            Path jar = addons.get(description);
+
+            try {
+                addonClassLoaders.add(new AddonClassLoader(jar, description));
+            } catch (InvalidAddonException e) {
+                corePMS.getCoreLogger().log("&c" + e.getMessage(), ConsoleLogger.Level.WARN);
+            } catch (Exception e) {
+                corePMS.getCoreLogger().log("&cException while initializing the addon '" + name + "': " + e.getMessage(), ConsoleLogger.Level.ERROR);
+                corePMS.getCoreErrorLogger().report(e, "Path: " + jar.toAbsolutePath() + "\nInstantiate main class exception:");
             }
         });
     }
@@ -174,7 +204,7 @@ public class AddonManager
             addon.loaded = true;
             AddonEventManager.callLoadUnloadEvent(addon, corePMS);
         } catch (Exception ex) {
-            corePMS.getCoreLogger().log("&cException while starting the addon '" + name + "': " + ex.getMessage());
+            corePMS.getCoreLogger().log("&cException while starting the addon '" + name + "': " + ex.getMessage(), ConsoleLogger.Level.WARN);
             corePMS.getCoreErrorLogger().report(ex, "Path: " + addon.getJar() + "\nStart addon exception:");
         }
     }
@@ -212,7 +242,7 @@ public class AddonManager
             addon.loaded = false;
             AddonEventManager.callLoadUnloadEvent(addon, corePMS);
         } catch (Exception ex) {
-            corePMS.getCoreLogger().log("&cException while stopping the addon '" + name + "': " + ex.getMessage());
+            corePMS.getCoreLogger().log("&cException while stopping the addon '" + name + "': " + ex.getMessage(), ConsoleLogger.Level.WARN);
             corePMS.getCoreErrorLogger().report(ex, "Path: " + addon.getJar() + "\nStop addon exception:");
         }
     }
