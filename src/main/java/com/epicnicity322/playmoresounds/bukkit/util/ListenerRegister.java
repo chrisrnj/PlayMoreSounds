@@ -22,6 +22,7 @@ package com.epicnicity322.playmoresounds.bukkit.util;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.listener.*;
 import com.epicnicity322.playmoresounds.bukkit.sound.Sound;
+import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -107,7 +108,7 @@ public final class ListenerRegister
             try {
                 listener.load();
 
-                if (halloween && listener.getRichSound() != null)
+                if (halloween && listener.getRichSound() != null && !listener.getName().equals("Change Held Item"))
                     for (Sound sound : listener.getRichSound().getChildSounds()) {
                         sound.setSound(scarySounds.get(random.nextInt(scarySounds.size() - 1)));
                         sound.setPitch(1);
