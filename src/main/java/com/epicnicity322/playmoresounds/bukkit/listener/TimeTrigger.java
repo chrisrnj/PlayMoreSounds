@@ -21,8 +21,8 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
-import com.epicnicity322.playmoresounds.bukkit.util.PMSHelper;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
+import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import com.epicnicity322.yamlhandler.YamlConfigurationLoader;
