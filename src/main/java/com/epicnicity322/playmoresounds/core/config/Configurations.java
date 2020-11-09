@@ -1106,6 +1106,8 @@ public enum Configurations
         config.addDefault("Resource Packs.Error", "&cSomething went wrong while requesting <player> to download the resource pack. Please try another URL.");
         config.addDefault("Resource Packs.Kick Message", "&cYou must be using the resource pack to play on this server.");
         config.addDefault("Resource Packs.Request Message", "&ePlease download the resource pack to continue.");
+        config.addDefault("Stop Sound.Success.All", "&7Stopped all sounds playing to &f<target>&7.");
+        config.addDefault("Stop Sound.Success.Default", "&7Stopped &f<sounds>&7 sounds playing to &f<target>&7.");
         config.addDefault("Toggle.Check.Disabled.Default", "&cYour sounds are disabled.");
         config.addDefault("Toggle.Check.Disabled.Player", "&cSounds of &f<target>&c are disabled.");
         config.addDefault("Toggle.Check.Enabled.Default", "&aYour sounds are enabled.");
@@ -1258,16 +1260,16 @@ public enum Configurations
         config.addDefault("General.Unknown Command", "&cComando desconocido. Use \"&7&n/<label> help&c\" para ver la lista de comandos disponibles para usted.");
         config.addDefault("General.World", "mundo");
         config.addDefault("General.You", "Tú");
-        config.addDefault("Help.Check", "&e/<label> check [alvo]\n&7 > Comprueba se sonidos están activados.");
+        config.addDefault("Help.Check", "&e/<label> check [objetivo]\n&7 > Comprueba se sonidos están activados.");
         config.addDefault("Help.Confirm", "&e/<label> confirm [id|page]\n&7 > Confirma algo.");
         config.addDefault("Help.Header", "Lista de comandos de PlayMoreSounds:");
         config.addDefault("Help.Help", "&e/<label> help [comando]\n&7 > Muestra la descripción de los comandos.");
         config.addDefault("Help.List", "&e/<label> list [página] [--gui]\n&7 > Muestra los sonidos disponibles en su versión.");
-        config.addDefault("Help.Play", "&e/<label> play <som> [alvo] [vol] [tom]\n&7 > Reproduce un sonido.");
+        config.addDefault("Help.Play", "&e/<label> play <sonido> [objetivo] [vol] [tom]\n&7 > Reproduce un sonido.");
         config.addDefault("Help.Region", "&e/<label> region <create|info|list|remove|rename|set|teleport|wand>\n&7 > Comando de regiones.");
         config.addDefault("Help.Reload", "&e/<label> reload\n&7 > Recargar configuraciones y eventos.");
-        config.addDefault("Help.Stop Sound", "&e/<label> stopsound [alvo] [sons]\n&7 > Detiene los sonidos que están reproduciendo.");
-        config.addDefault("Help.Toggle", "&e/<label> toggle [alvo] [on|off]\n&7 > Habilita o deshabilita la reproducción de sonidos.");
+        config.addDefault("Help.Stop Sound", "&e/<label> stopsound [objetivo] [sonidos]\n&7 > Detiene los sonidos que están reproduciendo.");
+        config.addDefault("Help.Toggle", "&e/<label> toggle [objetivo] [on|off]\n&7 > Habilita o deshabilita la reproducción de sonidos.");
         config.addDefault("Help.Update", "&e/<label> update [download] [--force]\n&7 > Comprueba y descarga actualizaciones.");
         config.addDefault("List.Error.Not Exists", "&c¡La página &7<page>&c no existe! Max: <totalpages>.");
         config.addDefault("List.Footer", "&f&l - &aVer más sonidos con \"&f/&n<label> list <page>&a\"");
@@ -1341,6 +1343,8 @@ public enum Configurations
         config.addDefault("Resource Packs.Error", "&cAlgo salió mal al preguntarle al jugador <player> que descargue el paquete de texturas. Por favor, intente con otra URL.");
         config.addDefault("Resource Packs.Kick Message", "&cDebes estar usando una textura para jugar en ese servidor.");
         config.addDefault("Resource Packs.Request Message", "&eDescargue la textura para continuar.");
+        config.addDefault("Stop Sound.Success.All", "&7Se han detenido todos los sonidos de &f<target>&7.");
+        config.addDefault("Stop Sound.Success.Default", "&7Se detuvieron los sonidos de &f<sounds>&7 para &f<target>&7.");
         config.addDefault("Toggle.Check.Disabled.Default", "&cTus sonidos están desactivados.");
         config.addDefault("Toggle.Check.Disabled.Player", "&cLos sonidos de &f<target>&c están desactivados.");
         config.addDefault("Toggle.Check.Enabled.Default", "&aTus sonidos están activados.");
@@ -1576,6 +1580,8 @@ public enum Configurations
         config.addDefault("Resource Packs.Error", "&cAlgo de errado ocorreu ao pedir o jogador <player> para baixar o pacote de texturas. Por favor tente outra URL.");
         config.addDefault("Resource Packs.Kick Message", "&cVocê deve estar usando uma textura para jogar nesse servidor.");
         config.addDefault("Resource Packs.Request Message", "&ePor favor baixe a textura para continuar.");
+        config.addDefault("Stop Sound.Success.All", "&7Todos sons tocando para &f<target>&7 foram parados.");
+        config.addDefault("Stop Sound.Success.Default", "&7Sons de &f<sounds>&7 tocando para &f<target>&7 foram parados.");
         config.addDefault("Toggle.Check.Disabled.Default", "&cSeus sons estão desativados.");
         config.addDefault("Toggle.Check.Disabled.Player", "&cOs sons de &f<target>&c estão desativados.");
         config.addDefault("Toggle.Check.Enabled.Default", "&aSeus sons estão ativados.");
@@ -1728,6 +1734,7 @@ public enum Configurations
         config.addDefault("General.Unknown Command", "&c未知指令，请使用 \"&7&n/<label> help&c\" 获得帮助");
         config.addDefault("General.World", "世界");
         config.addDefault("General.You", "你");
+        config.addDefault("Help.Check", "&e/<label> check [目标]\n&7 > 检查声音的开启/关闭状态");
         config.addDefault("Help.Confirm", "&e/<label> confirm [数|页]\n&7 > 确认");
         config.addDefault("Help.Header", "指令列表:");
         config.addDefault("Help.Help", "&e/<label> help [指令]\n&7 > 指令描述");
@@ -1735,6 +1742,7 @@ public enum Configurations
         config.addDefault("Help.Play", "&e/<label> play <音效> [目标] [音量] [音调]\n&7 > 播放音效");
         config.addDefault("Help.Region", "&e/<label> region <create|info|list|remove|rename|set|teleport|wand>\n&7 > 区域相关指令");
         config.addDefault("Help.Reload", "&e/<label> reload\n&7 > 重载插件");
+        config.addDefault("Help.Stop Sound", "&e/<label> stopsound [目标] [音效]\n&7 > 停止当前播放的声音");
         config.addDefault("Help.Toggle", "&e/<label> toggle [目标] [on|off]\n&7 > 启用/禁用音效");
         config.addDefault("Help.Update", "&e/<label> update [download] [--force]\n&7 > 点击下载更新");
         config.addDefault("List.Error.Not Exists", "&c页码 &7<page>&c 不存在，最大页码: <totalpages>.");
@@ -1809,6 +1817,12 @@ public enum Configurations
         config.addDefault("Resource Packs.Error", "&c请求 <player> 下载材质包时出现错误");
         config.addDefault("Resource Packs.Kick Message", "&c你必须下载材质包才能进服游戏");
         config.addDefault("Resource Packs.Request Message", "&e请下载材质包后继续");
+        config.addDefault("Stop Sound.Success.All", "&7停止所有正在播放到 &f<target>&7 的声音");
+        config.addDefault("Stop Sound.Success.Default", "&7停止从 &f<sounds>&7 到 &f<target>&7 播放声音");
+        config.addDefault("Toggle.Check.Disabled.Default", "&c该音效已禁用");
+        config.addDefault("Toggle.Check.Disabled.Player", "&c玩家 &f<player>&c 已禁用");
+        config.addDefault("Toggle.Check.Enabled.Default", "&a该音效已启用");
+        config.addDefault("Toggle.Check.Enabled.Player", "&a玩家 &f<player>&a 的音效已启用");
         config.addDefault("Toggle.Disabled.Default", "&c音效已关闭");
         config.addDefault("Toggle.Disabled.Player", "&c已将 &f<target>&c 的音效关闭!");
         config.addDefault("Toggle.Enabled.Default", "&a音效已打开!");
