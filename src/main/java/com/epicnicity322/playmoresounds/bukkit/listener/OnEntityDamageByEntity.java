@@ -59,10 +59,10 @@ public final class OnEntityDamageByEntity extends PMSListener
     {
         try {
             // Getting the criterion of the condition and removing spaces, so everything works as intended on matchesCriterion.
-            int hurtIndex = condition.indexOf("hurt");
+            int hitIndex = condition.indexOf("hit");
             int holdingIndex = condition.indexOf("holding");
-            String damagerCriterion = condition.substring(0, hurtIndex).replace(" ", "");
-            String victimCriterion = condition.substring(hurtIndex + 4, holdingIndex).replace(" ", "");
+            String damagerCriterion = condition.substring(0, hitIndex).replace(" ", "");
+            String victimCriterion = condition.substring(hitIndex + 4, holdingIndex).replace(" ", "");
             String itemCriterion = condition.substring(holdingIndex + 7).replace(" ", "");
 
             return matchesCriterion(damagerCriterion, damager.getType().toString()) &&
@@ -145,13 +145,13 @@ public final class OnEntityDamageByEntity extends PMSListener
         conditions.clear();
 
         Configuration sounds = Configurations.SOUNDS.getPluginConfig().getConfiguration();
-        Configuration hurtSounds = Configurations.HURT_SOUNDS.getPluginConfig().getConfiguration();
+        Configuration hitSounds = Configurations.HIT_SOUNDS.getPluginConfig().getConfiguration();
         ConfigurationSection defaultSection = sounds.getConfigurationSection(getName());
 
         boolean defaultEnabled = defaultSection != null && defaultSection.getBoolean("Enabled").orElse(false);
         boolean specificHurtEnabled = false;
 
-        for (Map.Entry<String, Object> condition : hurtSounds.getNodes().entrySet()) {
+        for (Map.Entry<String, Object> condition : hitSounds.getNodes().entrySet()) {
             if (condition.getValue() instanceof ConfigurationSection) {
                 ConfigurationSection conditionSection = (ConfigurationSection) condition.getValue();
 
