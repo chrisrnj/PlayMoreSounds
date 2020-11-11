@@ -58,6 +58,7 @@ public final class CommandLoader
 
             commands.add(new CheckSubCommand());
             commands.add(new ConfirmSubCommand());
+            commands.add(new DiscSubCommand());
             commands.add(new HelpSubCommand());
             commands.add(new ListSubCommand());
             commands.add(new PlaySubCommand());
