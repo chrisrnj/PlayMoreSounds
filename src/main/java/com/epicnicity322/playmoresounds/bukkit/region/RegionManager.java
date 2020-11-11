@@ -87,7 +87,7 @@ public final class RegionManager
             String name = wandSection.getString("Name").orElse("&6&l&nRegion Selection Tool");
             boolean glowing = wandSection.getBoolean("Glowing").orElse(true);
 
-            ItemStack item = new ItemStack(Material.valueOf(material));
+            ItemStack item = new ItemStack(Material.valueOf(material.toUpperCase()));
             ItemMeta meta = item.getItemMeta();
 
             meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
