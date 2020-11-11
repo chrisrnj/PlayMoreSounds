@@ -149,7 +149,7 @@ public final class OnRegionEnterLeave extends PMSListener
                                 || !RegionManager.getAllRegions().contains(region) || !player.isOnline() || !region.isInside(player.getLocation());
                     }));
 
-                    stopOnExit(player, loop);
+                    stopOnExit(player, region, loop);
 
                     if (loop.getBoolean("Prevent Other Sounds.Default Sound").orElse(false))
                         defaultSound = false;
@@ -168,7 +168,7 @@ public final class OnRegionEnterLeave extends PMSListener
                         if (!event.isCancelled() || !enterSound.isCancellable()) {
                             enterSound.play(player);
 
-                            stopOnExit(player, enter);
+                            stopOnExit(player, region, enter);
 
                             if (enter.getBoolean("Prevent Default Sound").orElse(false))
                                 defaultSound = false;
@@ -183,7 +183,7 @@ public final class OnRegionEnterLeave extends PMSListener
                 regionEnterSound.play(player);
 
                 if (regionEnterSound.isEnabled())
-                    stopOnExit(player, regionEnterSound.getSection());
+                    stopOnExit(player, region, regionEnterSound.getSection());
             }
     }
 
@@ -191,20 +191,6 @@ public final class OnRegionEnterLeave extends PMSListener
     public void onRegionLeave(RegionLeaveEvent event)
     {
         Player player = event.getPlayer();
-
-        soundsToStop.entrySet().removeIf(entry -> {
-            String key = entry.getKey();
-
-            if (key.startsWith(player.getUniqueId().toString())) {
-                long delay = Long.parseLong(key.substring(key.indexOf(";") + 1));
-
-                SoundManager.stopSounds(player, entry.getValue(), delay);
-                return true;
-            }
-
-            return false;
-        });
-
         SoundRegion region = event.getRegion();
         String key = region.getId() + ";" + player.getUniqueId();
 
@@ -212,6 +198,19 @@ public final class OnRegionEnterLeave extends PMSListener
             regionsInLoop.get(key).cancel();
             regionsInLoop.remove(key);
         }
+
+        soundsToStop.entrySet().removeIf(entry -> {
+            String stopKey = entry.getKey();
+
+            if (stopKey.startsWith(key)) {
+                long delay = Long.parseLong(stopKey.substring(stopKey.indexOf(";") + 1));
+
+                SoundManager.stopSounds(player, entry.getValue(), delay);
+                return true;
+            }
+
+            return false;
+        });
 
         boolean defaultSound = true;
 
@@ -232,15 +231,18 @@ public final class OnRegionEnterLeave extends PMSListener
 
         if (defaultSound && regionLeaveSound != null)
             if (!event.isCancelled() || !regionLeaveSound.isCancellable())
-                regionLeaveSound.play(event.getPlayer());
+                regionLeaveSound.play(player);
     }
 
-    private void stopOnExit(Player player, ConfigurationSection section)
+    private void stopOnExit(Player player, SoundRegion region, ConfigurationSection section)
     {
         if (section.getBoolean("Stop On Exit.Enabled").orElse(false)) {
-            String key = player.getUniqueId() + ";" + section.getNumber("Stop On Exit.Delay").orElse(0);
-            HashSet<String> sounds = soundsToStop.getOrDefault(key, new HashSet<>());
             ConfigurationSection soundsSection = section.getConfigurationSection("Sounds");
+            String key = region.getId() + ";" + player.getUniqueId() + ";" + section.getNumber("Stop On Exit.Delay").orElse(0);
+            HashSet<String> sounds = soundsToStop.get(key);
+
+            if (sounds == null)
+                sounds = new HashSet<>();
 
             if (soundsSection != null)
                 for (String sound : soundsSection.getNodes().keySet()) {
