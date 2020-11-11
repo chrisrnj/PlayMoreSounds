@@ -53,7 +53,7 @@ public final class StopSoundSubCommand extends Command implements Helpable
     @Override
     public @Nullable String[] getAliases()
     {
-        return new String[]{"stop"};
+        return new String[]{"stop", "stopsounds"};
     }
 
     @Override
@@ -77,6 +77,9 @@ public final class StopSoundSubCommand extends Command implements Helpable
                                 "[" + lang.get("General.Target") + "]" : "<" + lang.get("General.Target") + ">")),
                 "playmoresounds.stopsound.others");
         HashSet<String> toStop = null;
+
+        if (targets == null)
+            return;
 
         if (VersionUtils.hasStopSound() && args.length > 2) {
             toStop = new HashSet<>();
