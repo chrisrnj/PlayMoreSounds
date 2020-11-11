@@ -421,8 +421,60 @@ public enum Configurations
         config.addDefaultComment(" More information about sounds on sounds.yml");
         config.addDefault("Version", PlayMoreSounds.versionString);
     }, StaticFields.version3_2_0),
+    CUSTOM_DISCS(StaticFields.sounds.resolve("custom discs.yml"), config -> {
+        config.addDefaultComment(" Set a sound to play when a player clicks at a jukebox with a specific item.");
+        config.addDefaultComment("");
+        config.addDefaultComment(" Usage: ");
+        config.addDefaultComment("   You must be on version 1.14+!");
+        config.addDefaultComment("   Players must have the permission 'playmoresounds.disc.use'.");
+        config.addDefaultComment("   Get the disc with the command '/pms disc <id>'");
+        config.addDefaultComment("   Click on a jukebox with one of the discs set here to play the sound.");
+        config.addDefaultComment("   Once a disc starts playing it can not stop until it finishes.");
+        config.addDefaultComment("");
+        config.addDefaultComment(" To set a sound, just create a configuration section with an id and set the item name,");
+        config.addDefaultComment(" material and lore or just copy the sample below.");
+        config.addDefaultComment(" Item material list: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html");
+        config.addDefaultComment("");
+        config.addDefaultComment(" Sample:");
+        config.addDefaultComment(" (Take a note that this is a sample and the sounds and items may not be available on");
+        config.addDefaultComment(" your MC version.)");
+        config.addDefaultComment("");
+        config.addDefaultComment("PLING_DISC: # This is the ID of the custom disc. Here I named this disc PLING_DISC. Disc IDs can not have spaces.");
+        config.addDefaultComment("  Enabled: true");
+        config.addDefaultComment("  Item:");
+        config.addDefaultComment("    Material: GOLDEN_APPLE # The material of the custom disc item.");
+        config.addDefaultComment("    Name: '&2&lPling Disc' # The name of the custom disc item.");
+        config.addDefaultComment("    Lore: 'Different pitched pling sounds!' # The lore of the custom disc item. Use <line> to break a line.");
+        config.addDefaultComment("    Glowing: true # If this disc should glow.");
+        config.addDefaultComment("  Sounds: # The sounds to play when a player uses this disc.");
+        config.addDefaultComment("    '0':");
+        config.addDefaultComment("      Delay: 0");
+        config.addDefaultComment("      Options:");
+        config.addDefaultComment("        Radius: 20.0");
+        config.addDefaultComment("      Pitch: 1.0");
+        config.addDefaultComment("      Sound: BLOCK_NOTE_BLOCK_PLING");
+        config.addDefaultComment("      Volume: 10.0");
+        config.addDefaultComment("    '1':");
+        config.addDefaultComment("      Delay: 20");
+        config.addDefaultComment("      Options:");
+        config.addDefaultComment("        Radius: 20.0");
+        config.addDefaultComment("      Pitch: 2.0");
+        config.addDefaultComment("      Sound: BLOCK_NOTE_BLOCK_PLING");
+        config.addDefaultComment("      Volume: 10.0");
+        config.addDefaultComment("    '2':");
+        config.addDefaultComment("      Delay: 40");
+        config.addDefaultComment("      Options:");
+        config.addDefaultComment("        Radius: 20.0");
+        config.addDefaultComment("      Pitch: 0.0");
+        config.addDefaultComment("      Sound: BLOCK_NOTE_BLOCK_PLING");
+        config.addDefaultComment("      Volume: 10.0");
+        config.addDefaultComment("");
+        config.addDefaultComment(" More information about sounds on sounds.yml\n");
+        config.addDefault("Version", PlayMoreSounds.versionString);
+    }, StaticFields.version3_3_0),
     DEATH_TYPES(StaticFields.sounds.resolve("death types.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when a player die for a specific cause of death.");
+        config.addDefaultComment(" Warning >> This setting only works for 1.14+!");
         config.addDefaultComment("");
         config.addDefaultComment(" To set a sound, just create a configuration section with the name of the cause of");
         config.addDefaultComment(" death or just copy the sample below.");
@@ -492,32 +544,33 @@ public enum Configurations
         config.addDefaultComment(" More information about sounds on sounds.yml.\n");
         config.addDefault("Version", PlayMoreSounds.versionString);
     }, StaticFields.version3_2_0),
-    HURT_SOUNDS(StaticFields.sounds.resolve("hurt sounds.yml"), config -> {
+    HIT_SOUNDS(StaticFields.sounds.resolve("hit sounds.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when an entity hits another entity with a specific item on hand.");
         config.addDefaultComment("");
         config.addDefaultComment(" Bukkit entity names: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/entity/EntityType.html");
         config.addDefaultComment(" Bukkit item names: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html");
         config.addDefaultComment("");
         config.addDefaultComment(" You need to write when the sound will be played. To do that you need to respect the following pattern:");
-        config.addDefaultComment(" <damager> hurt <victim> holding <item>");
-        config.addDefaultComment(" The sound will be played when the damager hurt the victim with the item.");
+        config.addDefaultComment(" <damager> hit <victim> holding <item>");
+        config.addDefaultComment(" The sound will be played when the damager hit the victim with the item.");
         config.addDefaultComment("");
         config.addDefaultComment(" After you've chosen the entities and items and put them into the pattern, create a section with your");
         config.addDefaultComment("condition like the one below.");
         config.addDefaultComment("");
-        config.addDefaultComment("PLAYER hurt ZOMBIE holding IRON_SWORD: # This sound will play when a player hurts a zombie holding an iron sword.");
+        config.addDefaultComment("PLAYER hit ZOMBIE holding IRON_SWORD: # This sound will play when a player hits a zombie holding an iron sword.");
         config.addDefaultComment("  Enabled: true");
         config.addDefaultComment("  Cancellable: true");
         config.addDefaultComment("  Prevent Other Sounds:");
         config.addDefaultComment("    Default Sound: true # This will prevent the default sound set on sounds.yml from playing.");
-        config.addDefaultComment("    Other Conditions: true # If the hurt event matches more than one condition, this will make so this is the only condition that will play a sound.");
+        config.addDefaultComment("    Other Conditions: true # If the hit event matches more than one condition, this will make so this is the only condition that will play a sound.");
         config.addDefaultComment("  Sounds:");
-        config.addDefaultComment("    Delay: 10");
-        config.addDefaultComment("    Options:");
-        config.addDefaultComment("      Radius: 16.0");
-        config.addDefaultComment("    Pitch: 2.0");
-        config.addDefaultComment("    Sound: 'ENTITY_ZOMBIE_ATTACK_IRON_DOOR'");
-        config.addDefaultComment("    Volume: 1.0");
+        config.addDefaultComment("    '0':");
+        config.addDefaultComment("      Delay: 10");
+        config.addDefaultComment("      Options:");
+        config.addDefaultComment("        Radius: 16.0");
+        config.addDefaultComment("      Pitch: 2.0");
+        config.addDefaultComment("      Sound: 'ENTITY_ZOMBIE_ATTACK_IRON_DOOR'");
+        config.addDefaultComment("      Volume: 1.0");
         config.addDefaultComment("");
         config.addDefaultComment(" The pattern also supports criteria, like the ones found on chat sounds.yml.");
         config.addDefaultComment(" You have the following criteria: Any, Contains[], EndsWith[], Equals[], and StartsWith[].");
@@ -525,31 +578,31 @@ public enum Configurations
         config.addDefaultComment(" Examples:");
         config.addDefaultComment("");
         config.addDefaultComment("   If I want to play a sound when any kind of zombie hits any entity with any item, I would use the condition:");
-        config.addDefaultComment("   Contains[ZOMBIE] hurt Any holding Any");
+        config.addDefaultComment("   Contains[ZOMBIE] hit Any holding Any");
         config.addDefaultComment("");
         config.addDefaultComment("   If I want to play a sound when a player hits any entity with any kind of sword, I would use the condition:");
-        config.addDefaultComment("   PLAYER hurt Any holding EndsWith[SWORD]");
+        config.addDefaultComment("   PLAYER hit Any holding EndsWith[SWORD]");
         config.addDefaultComment("");
         config.addDefaultComment("   If I want to play a sound when a player hits any entity with any diamond item, I would use the condition:");
-        config.addDefaultComment("   PLAYER hurt Any holding StartsWith[DIAMOND]");
+        config.addDefaultComment("   PLAYER hit Any holding StartsWith[DIAMOND]");
         config.addDefaultComment("");
         config.addDefaultComment(" You can also use commas if you want to play the same sound for many criteria.");
         config.addDefaultComment("");
         config.addDefaultComment(" Examples:");
         config.addDefaultComment("");
         config.addDefaultComment("   If I want to play the same sound when a player OR a zombie hits any entity with any item, I would use the condition:");
-        config.addDefaultComment("   Equals[PLAYER,ZOMBIE] hurt Any holding Any");
+        config.addDefaultComment("   Equals[PLAYER,ZOMBIE] hit Any holding Any");
         config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play the same sound when any entity hurts any kind of cow (Mushroom or not) or any kind of pig (Zombie or not) with any item, I would use the condition:");
-        config.addDefaultComment("   Any hurt Contains[COW,PIG] holding Any");
+        config.addDefaultComment("   If I want to play the same sound when any entity hits any kind of cow (Mushroom or not) or any kind of pig (Zombie or not) with any item, I would use the condition:");
+        config.addDefaultComment("   Any hit Contains[COW,PIG] holding Any");
         config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play the same sound when a player hurts any entity with any kind of sword, shovel or pickaxe, I would use the condition:");
-        config.addDefaultComment("   PLAYER hurt Any EndsWith[SWORD,SHOVEL,PICKAXE]");
+        config.addDefaultComment("   If I want to play the same sound when a player hits any entity with any kind of sword, shovel or pickaxe, I would use the condition:");
+        config.addDefaultComment("   PLAYER hit Any EndsWith[SWORD,SHOVEL,PICKAXE]");
         config.addDefaultComment("");
         config.addDefaultComment(" Hope everything is clear, if you have any doubts of a condition that you wanna use but can't find how, contact me on discord:");
         config.addDefaultComment(" https://discord.gg/eAHPbc3\n");
         config.addDefault("Version", PlayMoreSounds.versionString);
-    }, StaticFields.version3_2_0),
+    }, StaticFields.version3_3_0),
     REGIONS(StaticFields.sounds.resolve("regions.yml"), config -> {
         config.addDefaultComment(" Set a sound to play when you enter, exit or stand on a specific region.");
         config.addDefaultComment("");
@@ -911,6 +964,8 @@ public enum Configurations
         config.addDefault("Description.Header", "&6&m------------&6[&9PlayMoreSounds v<version>&6]&m------------");
         config.addDefault("Description.Help", "&6Type \"&7&n/<label> help&6\" to see the list of commands.");
         config.addDefault("Description.No Permission", "&6You don't have permission to use any commands.");
+        config.addDefault("Disc.Error.Not Found", "&cA disc with the ID \"&7<id>&c\" was not found.");
+        config.addDefault("Disc.Success", "&7Giving the disc &f<id>&7 to &f<target>&7.");
         config.addDefault("Editor.GUI.Rich Sound.Default.Cancellable.Display Name", "&c&lCancellable");
         config.addDefault("Editor.GUI.Rich Sound.Default.Cancellable.Lore", "&d<value>");
         config.addDefault("Editor.GUI.Rich Sound.Default.Done.Display Name", "&2&lDone");
@@ -1020,6 +1075,7 @@ public enum Configurations
         config.addDefault("General.And", "and");
         config.addDefault("General.Description", "description");
         config.addDefault("General.Everyone", "Everyone");
+        config.addDefault("General.Id", "id");
         config.addDefault("General.Invalid Arguments", "&cIncorrect command syntax! Use \"&7/&n<label> <label2> <args>&c\".");
         config.addDefault("General.Name", "name");
         config.addDefault("General.No Permission", "&4You don't have permission to do this!");
@@ -1035,6 +1091,7 @@ public enum Configurations
         config.addDefault("General.You", "You");
         config.addDefault("Help.Check", "&e/<label> check [target]\n&7 > Checks if sounds are enabled.");
         config.addDefault("Help.Confirm", "&e/<label> confirm [id|page]\n&7 > Confirms something.");
+        config.addDefault("Help.Disc", "&e/<label> disc <id> [target]\n&7 > Gives a configured custom disc.");
         config.addDefault("Help.Header", "List of PlayMoreSounds commands:");
         config.addDefault("Help.Help", "&e/<label> help [command]\n&7 > Shows the description of commands.");
         config.addDefault("Help.List", "&e/<label> list [page] [--gui]\n&7 > Shows the sounds available on your version.");
@@ -1886,5 +1943,6 @@ public enum Configurations
         protected static final @NotNull Path lang = PlayMoreSounds.getFolder().resolve("Language");
         protected static final @NotNull Version version3_0_0 = new Version("3.0.0");
         protected static final @NotNull Version version3_2_0 = new Version("3.2.0");
+        protected static final @NotNull Version version3_3_0 = new Version("3.3.0");
     }
 }
