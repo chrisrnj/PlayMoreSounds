@@ -66,7 +66,7 @@ public class OnPlayerInteract implements Listener
         if (VersionUtils.hasPersistentData()) {
             Runnable customDiscUpdater = () -> {
                 if (customDiscNBT == null)
-                    customDiscNBT = new NamespacedKey(PlayMoreSounds.getInstance(), "pms_customdisc");
+                    customDiscNBT = new NamespacedKey(PlayMoreSounds.getInstance(), "customdisc");
 
                 customDiscs.clear();
                 customDiscsSounds.clear();
@@ -159,72 +159,70 @@ public class OnPlayerInteract implements Listener
     {
         // Checking if event is cancelled.
         if (event.useInteractedBlock() != Event.Result.DENY && event.useInteractedBlock() != Event.Result.DENY) {
-            Player player = event.getPlayer();
+            if (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.LEFT_CLICK_BLOCK) {
+                Player player = event.getPlayer();
 
-            // If theres a disc configured on Configurations#CUSTOM_DISCS then check for it.
-            // customDiscsSounds map is only populated if the version of bukkit is 1.14+, so it's ok to use PersistentDataContainer.
-            if (!customDiscsSounds.isEmpty()) {
-                Block clickedBlock = event.getClickedBlock();
+                // If theres a disc configured on Configurations#CUSTOM_DISCS then check for it.
+                // customDiscsSounds map is only populated if the version of bukkit is 1.14+, so it's ok to use PersistentDataContainer.
+                if (!customDiscsSounds.isEmpty()) {
+                    Block clickedBlock = event.getClickedBlock();
 
-                if (clickedBlock.getType() == Material.JUKEBOX) {
-                    Jukebox jukebox = (Jukebox) clickedBlock.getState();
-                    Location clickedLocation = clickedBlock.getLocation();
+                    if (clickedBlock.getType() == Material.JUKEBOX) {
+                        Jukebox jukebox = (Jukebox) clickedBlock.getState();
+                        Location clickedLocation = clickedBlock.getLocation();
 
-                    // Checking if jukebox is empty.
-                    if (jukebox.getPlaying() == Material.AIR) {
-                        PersistentDataContainer jukeboxContainer = jukebox.getPersistentDataContainer();
-                        // Getting the currently playing sound on the jukebox by their id, null if no custom disc sound is playing.
-                        ItemStack currentlyPlayingDisc = customDiscs.get(jukeboxContainer.get(customDiscNBT, PersistentDataType.STRING));
+                        // Checking if jukebox is empty.
+                        if (jukebox.getPlaying() == Material.AIR) {
+                            PersistentDataContainer jukeboxContainer = jukebox.getPersistentDataContainer();
+                            // Getting the currently playing sound on the jukebox by their id, null if no custom disc sound is playing.
+                            ItemStack currentlyPlayingDisc = customDiscs.get(jukeboxContainer.get(customDiscNBT, PersistentDataType.STRING));
 
-                        // If sound is playing then stop it, if its not playing then check if item in hand is a custom disc to play.
-                        if (currentlyPlayingDisc == null) {
-                            // Players must have this permission to play a custom disc.
-                            if (player.hasPermission("playmoresounds.disc.use")) {
-                                ItemStack itemInHand = event.getItem();
-                                RichSound customDisc = customDiscsSounds.get(itemInHand);
+                            // If sound is playing then stop it, if its not playing then check if item in hand is a custom disc to play.
+                            if (currentlyPlayingDisc == null) {
+                                // Players must have this permission to play a custom disc.
+                                if (player.hasPermission("playmoresounds.disc.use")) {
+                                    ItemStack itemInHand = event.getItem();
+                                    RichSound customDisc = customDiscsSounds.get(itemInHand);
 
-                                if (customDisc != null) {
-                                    event.setUseItemInHand(Event.Result.DENY);
-                                    event.setUseInteractedBlock(Event.Result.DENY);
+                                    if (customDisc != null) {
+                                        event.setUseItemInHand(Event.Result.DENY);
+                                        event.setUseInteractedBlock(Event.Result.DENY);
 
-                                    // Removing the disc from player inventory.
-                                    if (player.getGameMode() != GameMode.CREATIVE)
-                                        player.getInventory().removeItem(itemInHand);
+                                        // Removing the disc from player inventory.
+                                        if (player.getGameMode() != GameMode.CREATIVE)
+                                            player.getInventory().removeItem(itemInHand);
 
-                                    // Adding the id of the custom disc to the jukebox data and playing it.
-                                    jukeboxContainer.set(customDiscNBT, PersistentDataType.STRING,
-                                            itemInHand.getItemMeta().getPersistentDataContainer().get(customDiscNBT, PersistentDataType.STRING));
-                                    jukebox.update();
-                                    customDisc.play(player, clickedLocation);
+                                        // Adding the id of the custom disc to the jukebox data and playing it.
+                                        jukeboxContainer.set(customDiscNBT, PersistentDataType.STRING,
+                                                itemInHand.getItemMeta().getPersistentDataContainer().get(customDiscNBT, PersistentDataType.STRING));
+                                        jukebox.update();
+                                        customDisc.play(player, clickedLocation);
+                                    }
                                 }
+                            } else {
+                                event.setUseItemInHand(Event.Result.DENY);
+                                event.setUseInteractedBlock(Event.Result.DENY);
+
+                                HashSet<String> sounds = new HashSet<>();
+
+                                // Getting sounds to stop and stopping them.
+                                customDiscsSounds.get(currentlyPlayingDisc).getChildSounds().forEach(sound -> sounds.add(sound.getSound()));
+                                SoundManager.stopSounds(player, sounds, 0);
+
+                                // Removing the data of the custom disc and dropping it.
+                                jukeboxContainer.remove(customDiscNBT);
+                                jukebox.update();
+                                clickedLocation.getWorld().dropItem(clickedLocation.clone().add(0.0, 1.0, 0.0), currentlyPlayingDisc);
                             }
-                        } else {
-                            event.setUseItemInHand(Event.Result.DENY);
-                            event.setUseInteractedBlock(Event.Result.DENY);
-
-                            HashSet<String> sounds = new HashSet<>();
-
-                            // Getting sounds to stop and stopping them.
-                            customDiscsSounds.get(currentlyPlayingDisc).getChildSounds().forEach(sound -> sounds.add(sound.getSound()));
-                            SoundManager.stopSounds(player, sounds, 0);
-
-                            // Removing the data of the custom disc and dropping it.
-                            jukeboxContainer.remove(customDiscNBT);
-                            jukebox.update();
-                            clickedLocation.getWorld().dropItem(clickedLocation.clone().add(0.0, 1.0, 0.0), currentlyPlayingDisc);
                         }
                     }
                 }
-            }
 
-            if (player.hasPermission("playmoresounds.region.select.wand")) {
-                ItemStack item = event.getItem();
-                UUID uuid = player.getUniqueId();
+                if (player.hasPermission("playmoresounds.region.select.wand")) {
+                    ItemStack item = event.getItem();
+                    UUID uuid = player.getUniqueId();
 
-                if (item.isSimilar(RegionManager.getWand())) {
-                    Action action = event.getAction();
-
-                    if (action.toString().endsWith("BLOCK")) {
+                    if (item != null && item.isSimilar(RegionManager.getWand())) {
                         Location clicked = event.getClickedBlock().getLocation();
                         Location[] diagonals;
 
@@ -246,7 +244,7 @@ public class OnPlayerInteract implements Listener
 
                         int i = 0;
 
-                        if (action == Action.RIGHT_CLICK_BLOCK)
+                        if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
                             i = 1;
 
                         if (!Objects.equals(diagonals[i], clicked)) {
