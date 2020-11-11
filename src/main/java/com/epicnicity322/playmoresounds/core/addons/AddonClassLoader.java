@@ -36,8 +36,7 @@ public final class AddonClassLoader extends URLClassLoader
     private final @NotNull Path jar;
     private final @NotNull AddonDescription description;
 
-    protected AddonClassLoader(@NotNull Path jar, @NotNull AddonDescription description)
-            throws InvalidAddonException, MalformedURLException, IllegalAccessException, InstantiationException
+    protected AddonClassLoader(@NotNull Path jar, @NotNull AddonDescription description) throws InvalidAddonException, MalformedURLException
     {
         super(new URL[]{jar.toUri().toURL()}, PlayMoreSounds.class.getClassLoader());
 
@@ -54,6 +53,8 @@ public final class AddonClassLoader extends URLClassLoader
         } catch (ClassCastException ex) {
             throw new InvalidAddonException("The main class '" + description.getMain() + "' of the addon '" +
                     description.getName() + "' does not extend to PMSAddon.", ex);
+        } catch (Exception ex) {
+            throw new InvalidAddonException("An error has occurred while instantiating '" + description.getName() + "' addon.", ex);
         }
     }
 

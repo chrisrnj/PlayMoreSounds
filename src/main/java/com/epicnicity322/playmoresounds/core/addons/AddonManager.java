@@ -133,11 +133,17 @@ public class AddonManager
         addons.entrySet().removeIf(entry -> {
             AddonDescription description = entry.getKey();
             String name = description.getName();
+            String addon = name.toLowerCase().contains("addon") ? name : name + " addon";
 
-            if (hasRequiredAddons(addonNames, description, sortedAddons)) {
-                return false;
-            } else {
-                corePMS.getCoreLogger().log("&c" + (name.toLowerCase().contains("addon") ? name : name + " addon") + " depends on the other addon(s): " + description.getRequiredAddons(), ConsoleLogger.Level.WARN);
+            try {
+                if (hasRequiredAddons(addonNames, description, sortedAddons)) {
+                    return false;
+                } else {
+                    corePMS.getCoreLogger().log("&c" + addon + " depends on the other addon(s): " + description.getRequiredAddons(), ConsoleLogger.Level.WARN);
+                    return true;
+                }
+            } catch (StackOverflowError e) {
+                corePMS.getCoreLogger().log("&c" + addon + " has a dependency that depends on this addon and it could not be loaded. Dependencies: " + description.getRequiredAddons(), ConsoleLogger.Level.WARN);
                 return true;
             }
         });
@@ -152,8 +158,8 @@ public class AddonManager
             } catch (InvalidAddonException e) {
                 corePMS.getCoreLogger().log("&c" + e.getMessage(), ConsoleLogger.Level.WARN);
             } catch (Exception e) {
-                corePMS.getCoreLogger().log("&cException while initializing the addon '" + name + "': " + e.getMessage(), ConsoleLogger.Level.ERROR);
-                corePMS.getCoreErrorLogger().report(e, "Path: " + jar.toAbsolutePath() + "\nInstantiate main class exception:");
+                corePMS.getCoreLogger().log("&cException while initializing " + name + " addon. Please contact the addon author(s): " + description.getAuthors() + ". Error: " + e.getMessage(), ConsoleLogger.Level.ERROR);
+                corePMS.getCoreErrorLogger().report(e, "Addon Author(s): " + description.getAuthors() + "\nPath: " + jar.toAbsolutePath() + "\nInstantiate main class exception:");
             }
         });
     }

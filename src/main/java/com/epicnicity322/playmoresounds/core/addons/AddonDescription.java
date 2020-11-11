@@ -72,7 +72,7 @@ public class AddonDescription
                 try {
                     this.startTime = StartTime.valueOf(startTime.get());
                 } catch (IllegalArgumentException ex) {
-                    throw new InvalidAddonException("The addon '" + name + "' has an invalid start time.");
+                    throw new InvalidAddonException("The addon '" + name + "' has an invalid start time.", ex);
                 }
             else
                 this.startTime = StartTime.SERVER_LOAD_COMPLETE;
