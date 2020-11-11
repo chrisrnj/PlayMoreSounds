@@ -20,6 +20,7 @@ permissions:
     description: Player recommended permissions.
     default: true
     children:
+      playmoresounds.disc.use: true
       playmoresounds.help: true
       playmoresounds.toggle: true
       playmoresounds.toggle.check: true
