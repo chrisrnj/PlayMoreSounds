@@ -37,13 +37,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Stream;
 
 public final class RegionManager
 {
     protected static final @NotNull HashSet<SoundRegion> regions = new HashSet<>();
+    private static ItemStack wand;
 
     static {
         Runnable regionUpdater = () -> {
@@ -64,8 +64,36 @@ public final class RegionManager
             }
         };
 
+        Runnable wandUpdater = () -> {
+            String material = null;
+
+            try {
+                ConfigurationSection wandSection = Configurations.CONFIG.getPluginConfig().getConfiguration().getConfigurationSection("Sound Regions.Wand");
+
+                material = wandSection.getString("Material").orElse("FEATHER");
+
+                ItemStack item = new ItemStack(Material.valueOf(material.toUpperCase()));
+                ItemMeta meta = item.getItemMeta();
+
+                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&',
+                        wandSection.getString("Name").orElse("&6&l&nRegion Selection Tool")));
+
+                if (wandSection.getBoolean("Glowing").orElse(false))
+                    meta.addEnchant(Enchantment.DURABILITY, 1, false);
+
+                meta.addItemFlags(ItemFlag.values());
+                item.setItemMeta(meta);
+                wand = item;
+            } catch (IllegalArgumentException ex) {
+                PlayMoreSounds.getPMSLogger().log("&cCouldn't get region wand. \"" + material + "\" is not a valid material. Please verify your configuration.");
+                PlayMoreSounds.getErrorLogger().report(ex, "Invalid material:");
+            }
+        };
+
         regionUpdater.run();
         ReloadSubCommand.addOnReloadRunnable(regionUpdater);
+        ReloadSubCommand.addOnReloadRunnable(wandUpdater);
+        PlayMoreSounds.addOnEnableRunnable(wandUpdater);
     }
 
     private RegionManager()
@@ -79,34 +107,9 @@ public final class RegionManager
 
     public static @Nullable ItemStack getWand()
     {
-        ConfigurationSection wandSection = Configurations.CONFIG.getPluginConfig().getConfiguration().getConfigurationSection("Sound Regions.Wand");
-        String material = null;
-
-        try {
-            material = wandSection.getString("Material").orElse("FEATHER");
-            String name = wandSection.getString("Name").orElse("&6&l&nRegion Selection Tool");
-            boolean glowing = wandSection.getBoolean("Glowing").orElse(true);
-
-            ItemStack item = new ItemStack(Material.valueOf(material.toUpperCase()));
-            ItemMeta meta = item.getItemMeta();
-
-            meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
-
-            if (glowing)
-                meta.addEnchant(Enchantment.DURABILITY, 1, false);
-
-            meta.addItemFlags(ItemFlag.values());
-            item.setItemMeta(meta);
-
-            return item;
-        } catch (NoSuchElementException | NullPointerException ex) {
-            PlayMoreSounds.getPMSLogger().log("&cCouldn't get region wand. Configuration is missing region wand options.");
-            PlayMoreSounds.getErrorLogger().report(ex, "Couldn't get region wand:");
-        } catch (IllegalArgumentException ex) {
-            PlayMoreSounds.getPMSLogger().log("&cCouldn't get region wand. \"" + material + "\" is not a valid material. Please verify your configuration.");
-            PlayMoreSounds.getErrorLogger().report(ex, "Invalid material:");
-        }
-
-        return null;
+        if (wand == null)
+            return null;
+        else
+            return wand.clone();
     }
 }
