@@ -42,7 +42,7 @@ public abstract class PMSAddon
         ((AddonClassLoader) classLoader).init(this);
     }
 
-    protected void init(@NotNull AddonDescription description, @NotNull Path file)
+    final void init(@NotNull AddonDescription description, @NotNull Path file)
     {
         this.description = description;
         this.jar = file;
