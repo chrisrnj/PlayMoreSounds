@@ -80,15 +80,15 @@ public final class AddonClassLoader extends URLClassLoader
         }
 
         // Searching for clazz in other addons.
-        if (addons) {
+        if (addons)
             for (AddonClassLoader loader : AddonManager.addonClassLoaders)
-                try {
-                    clazz = loader.findClass(name, false);
-                    // This will only break if clazz was found.
-                    break;
-                } catch (ClassNotFoundException ignored) {
-                }
-        }
+                if (loader != this)
+                    try {
+                        clazz = loader.findClass(name, false);
+                        // This will only break if clazz was found.
+                        break;
+                    } catch (ClassNotFoundException ignored) {
+                    }
 
         if (clazz == null) {
             throw new ClassNotFoundException("The addon '" + addon.toString() + "' is missing the class " + name
