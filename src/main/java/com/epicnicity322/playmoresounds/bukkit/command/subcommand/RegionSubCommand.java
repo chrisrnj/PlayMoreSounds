@@ -349,7 +349,7 @@ public final class RegionSubCommand extends Command implements Helpable
             } else {
                 lang.send(sender, lang.get("General.Invalid Arguments")
                         .replace("<label>", label).replace("<label2>", args[0])
-                        .replace("<args>", "<" + lang.get("Region.Region") + ">"));
+                        .replace("<args>", args[1] + " <" + lang.get("Region.Region") + ">"));
                 return;
             }
         }
@@ -594,7 +594,7 @@ public final class RegionSubCommand extends Command implements Helpable
                 }
 
                 if (args.length < 5) {
-                    lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", args[1] + " description <" + lang.get("Region.Region") + "> <" + lang.get("General.Description") + ">"));
+                    lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", args[1] + " " + args[2] + " <" + lang.get("Region.Region") + "> <" + lang.get("General.Description") + ">"));
                     return;
                 }
 
