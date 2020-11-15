@@ -31,11 +31,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 public final class SoundManager
 {
     private static final @NotNull BukkitScheduler scheduler = Bukkit.getScheduler();
     private static final @NotNull HashSet<UUID> disabledSoundsPlayers = new HashSet<>();
+    private static final @NotNull Pattern invalidSoundCharacters = Pattern.compile("[^a-z0-9/._-]");
     private static @NotNull Set<String> soundList = new HashSet<>();
     private static @NotNull Set<SoundType> soundTypes = new HashSet<>();
     private static NamespacedKey soundState;
@@ -149,6 +151,9 @@ public final class SoundManager
 
         if (main == null)
             throw new IllegalStateException("PlayMoreSounds is not loaded.");
+
+        if (sounds != null)
+            sounds.removeIf(sound -> invalidSoundCharacters.matcher(sound).find());
 
         scheduler.runTaskLater(main, () -> {
             if (VersionUtils.hasStopSound())
