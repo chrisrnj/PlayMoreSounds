@@ -203,7 +203,7 @@ public final class OnRegionEnterLeave extends PMSListener
             String stopKey = entry.getKey();
 
             if (stopKey.startsWith(key)) {
-                long delay = Long.parseLong(stopKey.substring(stopKey.indexOf(";") + 1));
+                long delay = Long.parseLong(stopKey.substring(stopKey.lastIndexOf(";") + 1));
 
                 SoundManager.stopSounds(player, entry.getValue(), delay);
                 return true;
