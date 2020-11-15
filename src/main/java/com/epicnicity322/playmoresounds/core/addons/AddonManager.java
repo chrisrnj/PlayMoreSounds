@@ -28,15 +28,17 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 public class AddonManager
 {
-    protected static final @NotNull Set<AddonClassLoader> addonClassLoaders = ConcurrentHashMap.newKeySet();
-    private static volatile boolean registered = false;
+    static final @NotNull Set<AddonClassLoader> addonClassLoaders = ConcurrentHashMap.newKeySet();
+    private static final @NotNull AtomicBoolean registered = new AtomicBoolean(false);
     private final @NotNull PlayMoreSounds corePMS;
     private final @NotNull LoadableHashSet<String> serverPlugins;
 
@@ -46,25 +48,6 @@ public class AddonManager
         this.serverPlugins = serverPlugins;
     }
 
-    private static boolean hasRequiredAddons(Map<String, AddonDescription> addons, AddonDescription addon, LinkedHashSet<AddonDescription> sortedAddons)
-    {
-        if (addon.getRequiredAddons().isEmpty()) {
-            sortedAddons.add(addon);
-            return true;
-        } else if (addons.keySet().containsAll(addon.getRequiredAddons())) {
-            for (String dependency : addon.getRequiredAddons())
-                if (!hasRequiredAddons(addons, addons.get(dependency), sortedAddons))
-                    return false;
-
-            addons.remove(addon.getName());
-            sortedAddons.add(addon);
-            return true;
-        } else {
-            addons.remove(addon.getName());
-            return false;
-        }
-    }
-
     /**
      * Gets all proper addon jars from Addons folder and loads their classes on PMSAddon Runner thread. Addons can only be registered once.
      *
@@ -72,12 +55,10 @@ public class AddonManager
      * @throws UnsupportedOperationException If addons were already registered.
      * @throws IllegalStateException         If the server has not registered all plugins yet.
      */
-    public synchronized void registerAddons() throws IOException
+    public void registerAddons() throws IOException
     {
-        if (registered)
+        if (registered.getAndSet(true))
             throw new UnsupportedOperationException("Addons were already registered.");
-        else
-            registered = true;
 
         if (!serverPlugins.isLoaded())
             throw new IllegalStateException("Can not register addons if the server has not registered all plugins yet.");
@@ -87,78 +68,72 @@ public class AddonManager
         if (Files.notExists(addonsFolder))
             Files.createDirectories(addonsFolder);
 
-        // The jars in Addons folder
-        Set<Path> jarPaths;
-
-        try (Stream<Path> fileStream = Files.list(addonsFolder)) {
-            jarPaths = fileStream.filter(file -> file.getFileName().toString().endsWith(".jar")).collect(Collectors.toSet());
-        }
-
-        HashMap<AddonDescription, Path> addons = new HashMap<>();
-        HashMap<String, AddonDescription> addonNames = new HashMap<>();
-
-        // Parsing and getting addon descriptions.
-        for (Path jar : jarPaths) {
-            try {
-                AddonDescription description = new AddonDescription(jar);
-                String name = description.getName();
-
-                // Checking if an addon with the same name was registered before.
-                if (addonNames.containsKey(name)) {
-                    corePMS.getCoreLogger().log("&eTwo addons with the name '" + name + "' were found, only registering the first one.", ConsoleLogger.Level.WARN);
-                } else {
-                    String addon = name.toLowerCase().contains("addon") ? name : name + " addon";
-
-                    if (description.getApiVersion().compareTo(PlayMoreSounds.version) > 0)
-                        corePMS.getCoreLogger().log("&c" + addon + " was made for PlayMoreSounds v" + description.getApiVersion() + ". You are currently on " + PlayMoreSounds.version + ".", ConsoleLogger.Level.WARN);
-                    else {
-                        if (serverPlugins.containsAll(description.getRequiredPlugins())) {
-                            addons.put(description, jar);
-                            addonNames.put(name, description);
-                        } else
-                            corePMS.getCoreLogger().log("&c" + addon + " depends on the plugin(s): " + description.getRequiredPlugins(), ConsoleLogger.Level.WARN);
-                    }
-                }
-            } catch (InvalidAddonException e) {
-                corePMS.getCoreLogger().log("&c" + e.getMessage(), ConsoleLogger.Level.WARN);
-            } catch (Exception e) {
-                corePMS.getCoreLogger().log("&cException while registering the addon '" + jar.getFileName() + "&e': " + e.getMessage(), ConsoleLogger.Level.ERROR);
-                corePMS.getCoreErrorLogger().report(e, "Path: " + jar.toAbsolutePath() + "\nRegister as addon exception:");
-            }
-        }
-
-        LinkedHashSet<AddonDescription> sortedAddons = new LinkedHashSet<>();
-
-        // Removing the addons that are missing required dependencies.
-        addons.entrySet().removeIf(entry -> {
-            AddonDescription description = entry.getKey();
-            String name = description.getName();
-            String addon = name.toLowerCase().contains("addon") ? name : name + " addon";
-
-            try {
-                if (hasRequiredAddons(addonNames, description, sortedAddons)) {
-                    return false;
-                } else {
-                    corePMS.getCoreLogger().log("&c" + addon + " depends on the other addon(s): " + description.getRequiredAddons(), ConsoleLogger.Level.WARN);
-                    return true;
-                }
-            } catch (StackOverflowError e) {
-                corePMS.getCoreLogger().log("&c" + addon + " has a dependency that depends on this addon and it could not be loaded. Dependencies: " + description.getRequiredAddons(), ConsoleLogger.Level.WARN);
-                return true;
+        TreeMap<AddonDescription, Path> addons = new TreeMap<>((description, t1) -> {
+            if (description.getRequiredAddons().contains(t1.getName()) || description.getAddonHooks().contains(t1.getName())) {
+                return 1;
+            } else {
+                return -1;
             }
         });
 
+        HashSet<String> addonNames = new HashSet<>();
+
+        // Parsing and getting addon descriptions.
+        try (Stream<Path> fileStream = Files.list(addonsFolder)) {
+            fileStream.filter(file -> file.getFileName().toString().endsWith(".jar")).forEach(jar -> {
+                try {
+                    AddonDescription description = new AddonDescription(jar);
+                    String name = description.getName();
+
+                    // Checking if an addon with the same name was registered before.
+                    if (addonNames.contains(name)) {
+                        corePMS.getCoreLogger().log("&eTwo addons with the name '" + name + "' were found, only registering the first one.", ConsoleLogger.Level.WARN);
+                    } else {
+                        String addon = name.toLowerCase().contains("addon") ? name : name + " addon";
+
+                        // Checking if addon api-version is compatible.
+                        if (description.getApiVersion().compareTo(PlayMoreSounds.version) > 0) {
+                            corePMS.getCoreLogger().log("&c" + addon + " was made for PlayMoreSounds v" + description.getApiVersion() + ". You are currently on " + PlayMoreSounds.version + ".", ConsoleLogger.Level.WARN);
+                        } else {
+                            // Checking if server has the required plugins by this addon.
+                            if (serverPlugins.containsAll(description.getRequiredPlugins())) {
+                                addons.put(description, jar);
+                                addonNames.add(name);
+                            } else {
+                                corePMS.getCoreLogger().log("&c" + addon + " depends on the plugin(s): " + description.getRequiredPlugins(), ConsoleLogger.Level.WARN);
+                            }
+                        }
+                    }
+                } catch (InvalidAddonException e) {
+                    corePMS.getCoreLogger().log("&c" + e.getMessage(), ConsoleLogger.Level.WARN);
+                } catch (Exception e) {
+                    corePMS.getCoreLogger().log("&cException while registering the addon '" + jar.getFileName() + "&e': " + e.getMessage(), ConsoleLogger.Level.WARN);
+                    corePMS.getCoreErrorLogger().report(e, "Path: " + jar.toAbsolutePath() + "\nRegister as addon exception:");
+                }
+            });
+        }
+
+        // Removing addons that are missing dependencies.
+        addons.keySet().removeIf(description -> {
+            if (!addonNames.containsAll(description.getRequiredAddons())) {
+                corePMS.getCoreLogger().log("&c" + description.getName() + " depends on the other addon(s): " + description.getRequiredAddons(), ConsoleLogger.Level.WARN);
+                addonNames.remove(description.getName());
+                return true;
+            }
+
+            return false;
+        });
+
         // Instantiating addons main class.
-        sortedAddons.forEach(description -> {
+        addons.forEach((description, jar) -> {
             String name = description.getName();
-            Path jar = addons.get(description);
 
             try {
-                addonClassLoaders.add(new AddonClassLoader(jar, description));
+                addonClassLoaders.add(new AddonClassLoader(corePMS, jar, description));
             } catch (InvalidAddonException e) {
                 corePMS.getCoreLogger().log("&c" + e.getMessage(), ConsoleLogger.Level.WARN);
             } catch (Exception e) {
-                corePMS.getCoreLogger().log("&cException while initializing " + name + " addon. Please contact the addon author(s): " + description.getAuthors() + ". Error: " + e.getMessage(), ConsoleLogger.Level.ERROR);
+                corePMS.getCoreLogger().log("&cException while initializing " + name + " addon. Please contact the addon author(s): " + description.getAuthors(), ConsoleLogger.Level.WARN);
                 corePMS.getCoreErrorLogger().report(e, "Addon Author(s): " + description.getAuthors() + "\nPath: " + jar.toAbsolutePath() + "\nInstantiate main class exception:");
             }
         });
@@ -169,7 +144,7 @@ public class AddonManager
      *
      * @param startTime The start time to start the addons.
      */
-    public synchronized void startAddons(@NotNull StartTime startTime)
+    public void startAddons(@NotNull StartTime startTime)
     {
         if (!addonClassLoaders.isEmpty()) {
             HashSet<PMSAddon> toStart = new HashSet<>();
@@ -191,7 +166,7 @@ public class AddonManager
      *
      * @param addon The addon to start.
      */
-    public synchronized void startAddon(@NotNull PMSAddon addon)
+    public void startAddon(@NotNull PMSAddon addon)
     {
         if (!addon.started && !addon.stopped)
             callOnStart(addon);
@@ -201,12 +176,11 @@ public class AddonManager
     {
         String name = addon.getDescription().getName();
 
-        corePMS.getCoreLogger().log("&eStarting " + (name.toLowerCase().contains("addon") ? name + "." : name + " addon."));
-        addon.started = true;
+        corePMS.getCoreLogger().log("&eStarting " + name + " v" + addon.getDescription().getVersion() + (name.toLowerCase().contains("addon") ? "." : " addon."));
 
         try {
             addon.onStart();
-            addon.loaded = true;
+            addon.started = true;
             AddonEventManager.callLoadUnloadEvent(addon, corePMS);
         } catch (Exception ex) {
             corePMS.getCoreLogger().log("&cException while starting the addon '" + name + "': " + ex.getMessage(), ConsoleLogger.Level.WARN);
@@ -217,19 +191,21 @@ public class AddonManager
     /**
      * Stops the registered addons on PMSAddon Stopper thread.
      */
-    public synchronized void stopAddons()
+    public void stopAddons()
     {
-        new Thread(() -> {
-            for (PMSAddon addon : getAddons())
-                if (addon.started && !addon.stopped)
-                    callOnStop(addon);
-        }, "PMSAddon Stopper").start();
+        if (!addonClassLoaders.isEmpty()) {
+            new Thread(() -> {
+                for (PMSAddon addon : getAddons())
+                    if (addon.started && !addon.stopped)
+                        callOnStop(addon);
+            }, "PMSAddon Stopper").start();
+        }
     }
 
     /**
      * Stops the specified addon if it was not stopped yet on the main thread.
      */
-    public synchronized void stopAddon(@NotNull PMSAddon addon)
+    public void stopAddon(@NotNull PMSAddon addon)
     {
         if (addon.started && !addon.stopped)
             callOnStop(addon);
@@ -239,11 +215,11 @@ public class AddonManager
     {
         String name = addon.getDescription().getName();
 
-        corePMS.getCoreLogger().log("&eStopping " + (name.contains("addon") ? name + "." : name + " addon."));
-        addon.stopped = true;
+        corePMS.getCoreLogger().log("&eStopping " + name + " v" + addon.getDescription().getVersion() + (name.toLowerCase().contains("addon") ? "." : " addon."));
 
         try {
             addon.onStop();
+            addon.stopped = true;
             addon.loaded = false;
             AddonEventManager.callLoadUnloadEvent(addon, corePMS);
         } catch (Exception ex) {
@@ -253,9 +229,9 @@ public class AddonManager
     }
 
     /**
-     * @return A immutable set with all registered addons.
+     * @return An immutable set with all registered addons.
      */
-    public synchronized @NotNull HashSet<PMSAddon> getAddons()
+    public @NotNull HashSet<PMSAddon> getAddons()
     {
         HashSet<PMSAddon> addons = new HashSet<>();
 
