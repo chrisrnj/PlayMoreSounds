@@ -23,6 +23,7 @@ import com.epicnicity322.playmoresounds.core.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.core.addons.exceptions.InvalidAddonException;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -32,29 +33,33 @@ import java.util.HashMap;
 public final class AddonClassLoader extends URLClassLoader
 {
     private static final @NotNull HashMap<String, Class<?>> cacheClasses = new HashMap<>();
-    private final @NotNull PMSAddon addon;
+    private final @NotNull PlayMoreSounds corePMS;
     private final @NotNull Path jar;
     private final @NotNull AddonDescription description;
+    private final PMSAddon addon;
 
-    protected AddonClassLoader(@NotNull Path jar, @NotNull AddonDescription description) throws InvalidAddonException, MalformedURLException
+    protected AddonClassLoader(@NotNull PlayMoreSounds corePMS, @NotNull Path jar, @NotNull AddonDescription description) throws InvalidAddonException,
+            MalformedURLException, IllegalAccessException, InstantiationException
     {
         super(new URL[]{jar.toUri().toURL()}, PlayMoreSounds.class.getClassLoader());
 
+        this.corePMS = corePMS;
         this.jar = jar;
         this.description = description;
 
         try {
-            Class<?> main = Class.forName(description.getMain(), true, this);
-            Class<? extends PMSAddon> addonClass = main.asSubclass(PMSAddon.class);
+            Class<?> main = Class.forName(description.getMainClass(), true, this);
 
-            addon = addonClass.newInstance();
+            if (PMSAddon.class.isAssignableFrom(main)) {
+                Class<? extends PMSAddon> addonClass = main.asSubclass(PMSAddon.class);
+
+                addon = addonClass.newInstance();
+                addon.loaded = true;
+            } else {
+                throw new InvalidAddonException(description.getName() + " addon main class " + description.getMainClass() + " does not extend to PMSAddon.");
+            }
         } catch (ClassNotFoundException ex) {
-            throw new InvalidAddonException("Cannot find main class '" + description.getMain() + "' of the addon '" + description.getName() + "'.", ex);
-        } catch (ClassCastException ex) {
-            throw new InvalidAddonException("The main class '" + description.getMain() + "' of the addon '" +
-                    description.getName() + "' does not extend to PMSAddon.", ex);
-        } catch (Exception ex) {
-            throw new InvalidAddonException("An error has occurred while instantiating '" + description.getName() + "' addon.", ex);
+            throw new InvalidAddonException(description.getName() + " addon main class " + description.getMainClass() + " was not found.", ex);
         }
     }
 
@@ -85,19 +90,30 @@ public final class AddonClassLoader extends URLClassLoader
                 if (loader != this)
                     try {
                         clazz = loader.findClass(name, false);
+
+//                        // Sending warn message if the addon is not specified as a hook of this addon.
+//                        if (!description.getAddonHooks().contains(loader.getAddon().toString()))
+//                            corePMS.getCoreLogger().log(description.getName() + " loaded the class " + name + " from the addon '" + loader.getAddon().toString() + "' which is not a hook of this addon.", ConsoleLogger.Level.WARN);
+
                         // This will only break if clazz was found.
                         break;
                     } catch (ClassNotFoundException ignored) {
+                        // Continue searching on the other left addons.
                     }
 
         if (clazz == null) {
-            throw new ClassNotFoundException("The addon '" + addon.toString() + "' is missing the class " + name
-                    + " (Probably from a not specified dependency.). Please contact the addon author(s): " +
-                    addon.getDescription().getAuthors());
+            throw new ClassNotFoundException(description.getName() + " is missing the class " + name + " (Probably from a not specified dependency). Please contact the author(s): " + description.getAuthors());
         } else {
             cacheClasses.put(name, clazz);
             return clazz;
         }
+    }
+
+    @Override
+    public void close() throws IOException
+    {
+        cacheClasses.clear();
+        super.close();
     }
 
     @Override
@@ -107,7 +123,7 @@ public final class AddonClassLoader extends URLClassLoader
         super.finalize();
     }
 
-    protected synchronized void init(@NotNull PMSAddon addon)
+    synchronized void init(@NotNull PMSAddon addon)
     {
         if (this.addon != null)
             throw new UnsupportedOperationException("Addon is already initialized.");
