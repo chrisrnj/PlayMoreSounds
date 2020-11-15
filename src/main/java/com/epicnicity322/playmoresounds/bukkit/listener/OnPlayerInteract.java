@@ -79,22 +79,25 @@ public class OnPlayerInteract implements Listener
                         try {
                             String id = node.getKey();
                             ConfigurationSection disc = (ConfigurationSection) node.getValue();
-                            ItemStack discItem = new ItemStack(Material.valueOf(disc.getString("Item.Material").orElse(null).toUpperCase()));
-                            ItemMeta discMeta = discItem.getItemMeta();
 
-                            discMeta.setUnbreakable(true);
-                            discMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', disc.getString("Item.Name").orElse(null)));
-                            discMeta.setLore(Arrays.asList(disc.getString("Item.Lore").orElse(null).split("<line>")));
-                            discMeta.getPersistentDataContainer().set(customDiscNBT, PersistentDataType.STRING, id);
+                            if (disc.getBoolean("Enabled").orElse(false)) {
+                                ItemStack discItem = new ItemStack(Material.valueOf(disc.getString("Item.Material").orElse(null).toUpperCase()));
+                                ItemMeta discMeta = discItem.getItemMeta();
 
-                            if (disc.getBoolean("Item.Glowing").orElse(false))
-                                discMeta.addEnchant(Enchantment.DURABILITY, 1, false);
+                                discMeta.setUnbreakable(true);
+                                discMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', disc.getString("Item.Name").orElse(null)));
+                                discMeta.setLore(Arrays.asList(disc.getString("Item.Lore").orElse(null).split("<line>")));
+                                discMeta.getPersistentDataContainer().set(customDiscNBT, PersistentDataType.STRING, id);
 
-                            discMeta.addItemFlags(ItemFlag.values());
-                            discItem.setItemMeta(discMeta);
+                                if (disc.getBoolean("Item.Glowing").orElse(false))
+                                    discMeta.addEnchant(Enchantment.DURABILITY, 1, false);
 
-                            customDiscsSounds.put(discItem, new RichSound(disc));
-                            customDiscs.put(id, discItem);
+                                discMeta.addItemFlags(ItemFlag.values());
+                                discItem.setItemMeta(discMeta);
+
+                                customDiscsSounds.put(discItem, new RichSound(disc));
+                                customDiscs.put(id, discItem);
+                            }
                         } catch (Exception ignored) {
                             // Ignore if the custom disc is misconfigured.
                         }
