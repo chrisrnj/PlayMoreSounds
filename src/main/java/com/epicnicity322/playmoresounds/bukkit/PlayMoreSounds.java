@@ -70,6 +70,7 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
     private static @Nullable PlayMoreSounds instance;
     private static @NotNull ErrorLogger errorLogger;
     private static boolean success = true;
+    private static boolean enabled = false;
 
     static {
         // Creating data folder.
@@ -141,7 +142,10 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
      */
     public static void addOnEnableRunnable(@NotNull Runnable runnable)
     {
-        onEnableRunnables.add(runnable);
+        if (enabled)
+            runnable.run();
+        else
+            onEnableRunnables.add(runnable);
     }
 
     /**
@@ -151,10 +155,10 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
      */
     public static void addOnInstanceRunnable(@NotNull Runnable runnable)
     {
-        if (getInstance() != null)
+        if (getInstance() == null)
+            onInstanceRunnables.add(runnable);
+        else
             runnable.run();
-
-        onInstanceRunnables.add(runnable);
     }
 
     /**
@@ -334,6 +338,8 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
                             errorLogger.report(e, "PMSLoadingError (Unknown):");
                         }
                 }).start();
+
+            enabled = true;
         }
     }
 
