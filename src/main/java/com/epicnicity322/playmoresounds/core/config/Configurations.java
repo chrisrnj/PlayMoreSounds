@@ -1200,7 +1200,7 @@ public enum Configurations
         config.addDefault("Update.Error.Offline", "&cYou are offline or spigot.org is down.");
         config.addDefault("Update.Error.Timeout", "&cTook too long to establish a connection.");
         config.addDefault("Update.Not Available", "&eNo updates available.");
-    }, StaticFields.version3_2_0),
+    }, StaticFields.version3_3_0),
     LANGUAGE_ES_LA(StaticFields.lang.resolve("Language ES-LA.yml"), config -> {
         config.addDefaultComment("Idioma ES-LA");
         config.addDefaultComment("Traducido por Epicnicity");
@@ -1440,7 +1440,7 @@ public enum Configurations
         config.addDefault("Update.Error.Offline", "&cEstá desconectado o spigot.org está caído.");
         config.addDefault("Update.Error.Timeout", "&cTomó demasiado tiempo para establecer una conexión.");
         config.addDefault("Update.Not Available", "&eNo hay actualizaciones disponibles.");
-    }, StaticFields.version3_2_0),
+    }, StaticFields.version3_3_0),
     LANGUAGE_PT_BR(StaticFields.lang.resolve("Language PT-BR.yml"), config -> {
         config.addDefaultComment("Linguagem PT-BR");
         config.addDefaultComment("Traduzido por Epicnicity");
@@ -1680,7 +1680,7 @@ public enum Configurations
         config.addDefault("Update.Error.Offline", "&cVocê está offline ou spigot.org caiu.");
         config.addDefault("Update.Error.Timeout", "&cLevou tempo demais para estabelecer uma conexão.");
         config.addDefault("Update.Not Available", "&eNenhuma atualização disponível.");
-    }, StaticFields.version3_2_0),
+    }, StaticFields.version3_3_0),
     LANGUAGE_ZH_CN(StaticFields.lang.resolve("Language ZH-CN.yml"), config -> {
         config.addDefaultComment("语言ZH-CN");
         config.addDefaultComment("译者：秋风残叶");
@@ -1920,7 +1920,7 @@ public enum Configurations
         config.addDefault("Update.Error.Offline", "&c您当前未连接网络，或者您的防火墙拦截了联网请求，更新失败");
         config.addDefault("Update.Error.Timeout", "&c连接超时，请检查网络");
         config.addDefault("Update.Not Available", "&e没有可用更新");
-    }, StaticFields.version3_2_0);
+    }, StaticFields.version3_3_0);
 
     private static final @NotNull ConfigLoader configLoader = new ConfigLoader();
 
