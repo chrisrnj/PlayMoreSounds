@@ -24,11 +24,11 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.file.Path;
 import java.util.Objects;
 
-public abstract class PMSAddon
+public class PMSAddon
 {
-    protected volatile boolean started = false;
-    protected volatile boolean stopped = false;
-    protected volatile boolean loaded = false;
+    volatile boolean started = false;
+    volatile boolean stopped = false;
+    volatile boolean loaded = false;
     private AddonDescription description;
     private Path jar;
 
@@ -37,7 +37,7 @@ public abstract class PMSAddon
         ClassLoader classLoader = getClass().getClassLoader();
 
         if (!(classLoader instanceof AddonClassLoader))
-            throw new UnsupportedOperationException("PMSAddon requires an AddonClassLoader");
+            throw new UnsupportedOperationException(this.getClass().getName() + " can only be instantiated by " + AddonClassLoader.class.getName());
 
         ((AddonClassLoader) classLoader).init(this);
     }
@@ -48,18 +48,24 @@ public abstract class PMSAddon
         this.jar = file;
     }
 
-    public final AddonDescription getDescription()
+    /**
+     * @return The description file of this addon.
+     */
+    public final @NotNull AddonDescription getDescription()
     {
         return description;
     }
 
-    public final Path getJar()
+    /**
+     * @return The path to this addon jar.
+     */
+    public final @NotNull Path getJar()
     {
         return jar;
     }
 
     /**
-     * @return If this addon was already started once.
+     * @return If this addon has already started once.
      */
     public final boolean hasStarted()
     {
@@ -67,7 +73,7 @@ public abstract class PMSAddon
     }
 
     /**
-     * @return If this addon was already stopped once.
+     * @return If this addon has already stopped once.
      */
     public final boolean hasStopped()
     {
@@ -85,38 +91,44 @@ public abstract class PMSAddon
     /**
      * When your addon is started by PMS.
      *
-     * @throws IllegalStateException If this addon was already started.
+     * @throws IllegalStateException If this addon was already started before.
      */
     protected void onStart()
     {
         if (started)
-            throw new IllegalStateException(getDescription().getName() + " has already started.");
+            throw new IllegalStateException(toString() + " has already started.");
     }
 
     /**
      * When your addon is stopped by PMS.
      *
-     * @throws IllegalStateException If this addon was already stopped.
+     * @throws IllegalStateException If this addon was already stopped before.
      */
     protected void onStop()
     {
         if (stopped)
-            throw new IllegalStateException(getDescription().getName() + " was already stopped.");
+            throw new IllegalStateException(toString() + " has already stopped.");
     }
 
+    /**
+     * @return This addon name from {@link AddonDescription#getName()}.
+     */
     @Override
     public String toString()
     {
         return getDescription().getName();
     }
 
+    /**
+     * @return If the object is an addon and if has the same jar path as this.
+     */
     @Override
-    public boolean equals(Object o)
+    public boolean equals(Object otherAddon)
     {
-        if (this == o) return true;
-        if (!(o instanceof PMSAddon)) return false;
+        if (this == otherAddon) return true;
+        if (!(otherAddon instanceof PMSAddon)) return false;
 
-        PMSAddon pmsAddon = (PMSAddon) o;
+        PMSAddon pmsAddon = (PMSAddon) otherAddon;
 
         return getJar().equals(pmsAddon.getJar());
     }
