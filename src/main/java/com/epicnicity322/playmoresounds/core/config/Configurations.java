@@ -1207,10 +1207,12 @@ public enum Configurations
         config.addDefault("Version", PlayMoreSounds.versionString);
         config.addDefault("Confirm.Error.Nothing Pending", "&cNo hay nada pendiente de confirmar.");
         config.addDefault("Confirm.List.Confirmation", " &f<id> &7- <description>");
-        config.addDefault("Confirm.List.Header", "&8Lista de confirmaciones pendientes::");
+        config.addDefault("Confirm.List.Header", "&8Lista de confirmaciones pendientes:");
         config.addDefault("Description.Header", "&6&m------------&6[&9PlayMoreSounds v<version>&6]&m------------");
         config.addDefault("Description.Help", "&6Use \"&7&n/<label> help&6\" para ver la lista de comandos.");
         config.addDefault("Description.No Permission", "&6No tiene permiso para usar ningún comando.");
+        config.addDefault("Disc.Error.Not Found", "&cNo se encontró un disco con el ID \"&7<id>&c\".");
+        config.addDefault("Disc.Success", "&7Dando el disco &f<id>&7 a &f<target>&7.");
         config.addDefault("Editor.GUI.Rich Sound.Default.Cancellable.Display Name", "&c&lCancelable");
         config.addDefault("Editor.GUI.Rich Sound.Default.Cancellable.Lore", "&d<value>");
         config.addDefault("Editor.GUI.Rich Sound.Default.Done.Display Name", "&2&lHecho");
@@ -1335,6 +1337,7 @@ public enum Configurations
         config.addDefault("General.You", "Tú");
         config.addDefault("Help.Check", "&e/<label> check [objetivo]\n&7 > Comprueba se sonidos están activados.");
         config.addDefault("Help.Confirm", "&e/<label> confirm [id|page]\n&7 > Confirma algo.");
+        config.addDefault("Help.Disc", "&e/<label> disc <id> [objetivo]\n&7 > Da un disco personalizado configurado.");
         config.addDefault("Help.Header", "Lista de comandos de PlayMoreSounds:");
         config.addDefault("Help.Help", "&e/<label> help [comando]\n&7 > Muestra la descripción de los comandos.");
         config.addDefault("Help.List", "&e/<label> list [página] [--gui]\n&7 > Muestra los sonidos disponibles en su versión.");
@@ -1448,6 +1451,8 @@ public enum Configurations
         config.addDefault("Description.Header", "&6&m------------&6[&9PlayMoreSounds v<version>&6]&m------------");
         config.addDefault("Description.Help", "&6Digite \"&7&n/<label> help&6\" para ver a lista de comandos.");
         config.addDefault("Description.No Permission", "&6Você não tem permissão para usar nenhum comando.");
+        config.addDefault("Disc.Error.Not Found", "&cNão foi encontrado um disco com o ID \"&7<id>&c\".");
+        config.addDefault("Disc.Success", "&7Dando o disco &f<id>&7 a &f<target>&7.");
         config.addDefault("Editor.GUI.Rich Sound.Default.Cancellable.Display Name", "&c&lCancelável");
         config.addDefault("Editor.GUI.Rich Sound.Default.Cancellable.Lore", "&d<value>");
         config.addDefault("Editor.GUI.Rich Sound.Default.Done.Display Name", "&2&lPronto");
@@ -1572,6 +1577,7 @@ public enum Configurations
         config.addDefault("General.You", "Você");
         config.addDefault("Help.Check", "&e/<label> check [alvo]\n&7 > Checa se sons estão ativados.");
         config.addDefault("Help.Confirm", "&e/<label> confirm [id|page]\n&7 > Confirma algo");
+        config.addDefault("Help.Disc", "&e/<label> disc <id> [objetivo]\n&7 > Da um disco personalizado configurado.");
         config.addDefault("Help.Header", "Lista de comandos do PlayMoreSounds:");
         config.addDefault("Help.Help", "&e/<label> help [comando]\n&7 > Mostra a descrição de comandos");
         config.addDefault("Help.List", "&e/<label> list [página] [--gui]\n&7 > Mostra os sons disponíveis em sua versão.");
@@ -1685,6 +1691,8 @@ public enum Configurations
         config.addDefault("Description.Header", "&6&m------------&6[&9PlayMoreSounds v<version>&6]&m------------");
         config.addDefault("Description.Help", "&6请输入 \"&7&n/<label> help&6\" 查看指令列表");
         config.addDefault("Description.No Permission", "&6你没有权限");
+        config.addDefault("Disc.Error.Not Found", "&c找不到ID为 \"&7<id>&c\" 的光盘");
+        config.addDefault("Disc.Success", "&7将光盘 &f<id>&7 赋予 &f<target>");
         config.addDefault("Editor.GUI.Rich Sound.Default.Cancellable.Display Name", "&c&l取消");
         config.addDefault("Editor.GUI.Rich Sound.Default.Cancellable.Lore", "&d<value>");
         config.addDefault("Editor.GUI.Rich Sound.Default.Done.Display Name", "&2&l完成");
@@ -1809,6 +1817,7 @@ public enum Configurations
         config.addDefault("General.You", "你");
         config.addDefault("Help.Check", "&e/<label> check [目标]\n&7 > 检查声音的开启/关闭状态");
         config.addDefault("Help.Confirm", "&e/<label> confirm [数|页]\n&7 > 确认");
+        config.addDefault("Help.Disc", "&e/<label> disc <ID> [目标]\n&7 > 提供配置的自定义光盘");
         config.addDefault("Help.Header", "指令列表:");
         config.addDefault("Help.Help", "&e/<label> help [指令]\n&7 > 指令描述");
         config.addDefault("Help.List", "&e/<label> list [页] [--gui]\n&7 > 此版本允许的音效列表");
