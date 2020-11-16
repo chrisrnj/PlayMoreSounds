@@ -1910,7 +1910,7 @@ public enum Configurations
         config.addDefault("Inventory Click.Enabled", true);
         config.addDefault("Inventory Click.Sounds.0.Delay", 0L);
         config.addDefault("Inventory Click.Sounds.0.Options.Radius", 0D);
-        config.addDefault("Inventory Click.Sounds.0.Pitch", 1F);
+        config.addDefault("Inventory Click.Sounds.0.Pitch", 1.5F);
         config.addDefault("Inventory Click.Sounds.0.Sound", "UI_BUTTON_CLICK");
         config.addDefault("Inventory Click.Sounds.0.Volume", 0.4F);
         config.addDefaultComment(" When a player closes an inventory.");
