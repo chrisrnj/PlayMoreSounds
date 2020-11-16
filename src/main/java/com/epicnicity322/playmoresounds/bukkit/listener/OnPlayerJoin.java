@@ -27,6 +27,7 @@ import com.epicnicity322.playmoresounds.bukkit.region.events.RegionEnterEvent;
 import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
 import com.epicnicity322.playmoresounds.bukkit.util.UpdateManager;
+import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
@@ -36,14 +37,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerResourcePackStatusEvent;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
 
 public final class OnPlayerJoin implements Listener
 {
     private static final @NotNull MessageSender lang = PlayMoreSounds.getMessageSender();
     private static final @NotNull Logger logger = PlayMoreSounds.getPMSLogger();
+    private static final @NotNull BukkitScheduler scheduler = Bukkit.getScheduler();
     private final @NotNull PlayMoreSounds plugin;
 
     public OnPlayerJoin(@NotNull PlayMoreSounds plugin)
@@ -59,7 +60,7 @@ public final class OnPlayerJoin implements Listener
         Location location = player.getLocation();
 
         // Playing join sound
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        scheduler.runTaskLater(plugin, () -> {
             if (player.isOnline()) {
                 Configuration sounds = Configurations.SOUNDS.getPluginConfig().getConfiguration();
                 ConfigurationSection section;
@@ -93,43 +94,17 @@ public final class OnPlayerJoin implements Listener
         });
 
         // Setting the player's resource pack.
-        try {
-            if (config.getBoolean("Resource Packs.Request").orElse(false))
-                new BukkitRunnable()
-                {
-                    public void run()
-                    {
+        if (VersionUtils.supportsResourcePacks()) {
+            try {
+                if (config.getBoolean("Resource Packs.Request").orElse(false))
+                    scheduler.runTaskLater(plugin, () -> {
                         lang.send(player, lang.get("Resource Packs.Request Message"));
                         config.getString("Resource Packs.URL").ifPresent(player::setResourcePack);
-                    }
-                }.runTaskLater(PlayMoreSounds.getInstance(), 20);
-        } catch (Exception ex) {
-            logger.log(lang.get("Resource Packs.Error").replace("<player>", player.getName()));
-            ex.printStackTrace();
-        }
-    }
-
-    @EventHandler
-    public void onPlayerResourcePackStatus(PlayerResourcePackStatusEvent event)
-    {
-        Configuration config = Configurations.CONFIG.getPluginConfig().getConfiguration();
-        PlayerResourcePackStatusEvent.Status status = event.getStatus();
-
-        if (config.getBoolean("Resource Packs.Request").orElse(false) &&
-                config.getBoolean("Resource Packs.Force.Enabled").orElse(false) &&
-                status == PlayerResourcePackStatusEvent.Status.DECLINED ||
-                status == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD) {
-            if (!config.getBoolean("Resource Packs.Force.Even If Download Fail").orElse(false))
-                if (status == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD)
-                    return;
-
-            new BukkitRunnable()
-            {
-                public void run()
-                {
-                    event.getPlayer().kickPlayer(lang.getColored("Resource Packs.Kick Message"));
-                }
-            }.runTaskLater(PlayMoreSounds.getInstance(), 20);
+                    }, 20);
+            } catch (Exception ex) {
+                logger.log(lang.get("Resource Packs.Error").replace("<player>", player.getName()));
+                ex.printStackTrace();
+            }
         }
     }
 }

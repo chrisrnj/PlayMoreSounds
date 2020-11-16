@@ -53,6 +53,7 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Random;
 
 public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity322.playmoresounds.core.PlayMoreSounds
@@ -99,7 +100,6 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
         }
     }
 
-    private final @NotNull Path jar = getFile().toPath();
     private final @NotNull AddonManager addonManager;
 
     public PlayMoreSounds()
@@ -109,8 +109,11 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
 
         PluginDescriptionFile descriptionFile = getDescription();
 
-        errorLogger = new ErrorLogger(folder, descriptionFile.getName(), getVersion().getVersion(), descriptionFile.getAuthors(),
-                descriptionFile.getWebsite(), getLogger());
+        if (descriptionFile == null)
+            errorLogger = new ErrorLogger(folder, "PlayMoreSounds", getVersion().getVersion(), Collections.singleton("Epicnicity322"), "https://www.spigotmc.org/resources/37429/", getLogger());
+        else
+            errorLogger = new ErrorLogger(folder, descriptionFile.getName(), getVersion().getVersion(), descriptionFile.getAuthors(), descriptionFile.getWebsite(), getLogger());
+
         addonManager = new AddonManager(this, serverPlugins);
 
         if (!onInstanceRunnables.isEmpty())
@@ -197,10 +200,9 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
         return version;
     }
 
-    @Override
     public @NotNull Path getJar()
     {
-        return jar;
+        return Objects.requireNonNull(getFile()).toPath();
     }
 
     @Override
@@ -257,6 +259,9 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
 
             // Registering all listeners:
 
+            if (VersionUtils.supportsResourcePacks())
+                pluginManager.registerEvents(new OnPlayerResourcePackStatus(), this);
+
             // Registering region wand tool listener.
             pluginManager.registerEvents(new OnPlayerInteract(), this);
             // Registering region enter event caller.
@@ -310,10 +315,12 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
                         logger.log("&cHappy Christmas!");
                 }
 
-                MetricsLite metrics = new MetricsLite(this, 7985);
+                if (VersionUtils.supportsBStats()) {
+                    MetricsLite metrics = new MetricsLite(this, 7985);
 
-                if (metrics.isEnabled())
-                    logger.log("&ePlayMoreSounds is using bStats. If you don't want to send anonymous data, edit bStats configuration.");
+                    if (metrics.isEnabled())
+                        logger.log("&ePlayMoreSounds is using bStats. If you don't want to send anonymous data, edit bStats configuration.");
+                }
 
                 addonManager.startAddons(StartTime.END);
 

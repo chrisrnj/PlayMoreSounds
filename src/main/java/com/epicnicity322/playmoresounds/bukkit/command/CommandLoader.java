@@ -60,7 +60,14 @@ public final class CommandLoader
             commands.add(new ConfirmSubCommand());
             commands.add(new DiscSubCommand());
             commands.add(new HelpSubCommand());
-            commands.add(new ListSubCommand());
+
+            // List command requires the server to run spigot.
+            try {
+                Class.forName("net.md_5.bungee.api.chat.BaseComponent");
+                commands.add(new ListSubCommand());
+            } catch (ClassNotFoundException ignored) {
+            }
+
             commands.add(new PlaySubCommand());
             commands.add(new RegionSubCommand());
             commands.add(new ReloadSubCommand());

@@ -21,6 +21,7 @@ package com.epicnicity322.playmoresounds.bukkit.region;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.subcommand.ReloadSubCommand;
+import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.ChatColor;
@@ -81,7 +82,9 @@ public final class RegionManager
                 if (wandSection.getBoolean("Glowing").orElse(false))
                     meta.addEnchant(Enchantment.DURABILITY, 1, false);
 
-                meta.addItemFlags(ItemFlag.values());
+                if (VersionUtils.hasItemFlags())
+                    meta.addItemFlags(ItemFlag.values());
+
                 item.setItemMeta(meta);
                 wand = item;
             } catch (IllegalArgumentException ex) {

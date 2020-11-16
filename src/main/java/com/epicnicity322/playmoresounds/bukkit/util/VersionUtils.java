@@ -27,12 +27,15 @@ import org.jetbrains.annotations.NotNull;
 
 public final class VersionUtils
 {
-    private static final boolean hasPersistentData;
     private static final boolean hasStopSound;
     private static final boolean hasOffHand;
     private static final @NotNull Version bukkitVersion;
+    private static boolean hasPersistentData = false;
     private static boolean hasHoverContentApi = false;
     private static boolean paperMC = false;
+    private static boolean bStats = false;
+    private static boolean resourcePacks = false;
+    private static boolean hasItemFlags = false;
 
     static {
         String version = Bukkit.getBukkitVersion();
@@ -40,14 +43,17 @@ public final class VersionUtils
         // Removing release number.
         bukkitVersion = new Version(version.substring(0, version.indexOf("-")));
 
-        // Checking if bukkit version is 1.14 because persistent data was added in that version.
-        hasPersistentData = bukkitVersion.compareTo(new Version("1.14")) >= 0;
-
         // Checking if bukkit version is 1.10.2 because Player#stopSound was added in that version.
         hasStopSound = bukkitVersion.compareTo(new Version("1.10.2")) >= 0;
 
         // Checking if bukkit version is 1.9 because off hand was added in that version.
         hasOffHand = bukkitVersion.compareTo(new Version("1.9")) >= 0;
+
+        try {
+            Class.forName("org.bukkit.persistence.PersistentDataContainer");
+            hasPersistentData = true;
+        } catch (ClassNotFoundException ignored) {
+        }
 
         try {
             Class.forName("net.md_5.bungee.api.chat.hover.content.Content");
@@ -58,6 +64,24 @@ public final class VersionUtils
         try {
             Class.forName("com.destroystokyo.paper.PaperConfig");
             paperMC = true;
+        } catch (ClassNotFoundException ignored) {
+        }
+
+        try {
+            Class.forName("com.google.gson.JsonElement");
+            bStats = true;
+        } catch (ClassNotFoundException ignored) {
+        }
+
+        try {
+            Class.forName("org.bukkit.event.player.PlayerResourcePackStatusEvent");
+            resourcePacks = true;
+        } catch (ClassNotFoundException ignored) {
+        }
+
+        try {
+            Class.forName("org.bukkit.inventory.ItemFlag");
+            hasItemFlags = true;
         } catch (ClassNotFoundException ignored) {
         }
     }
@@ -74,6 +98,36 @@ public final class VersionUtils
     public static @NotNull Version getBukkitVersion()
     {
         return bukkitVersion;
+    }
+
+    /**
+     * Whether the version of bukkit running supports bStats.
+     *
+     * @return If bStats is supported.
+     */
+    public static boolean supportsBStats()
+    {
+        return bStats;
+    }
+
+    /**
+     * Whether the version of bukkit running supports resource pack asking feature.
+     *
+     * @return If Resource Packs feature is supported.
+     */
+    public static boolean supportsResourcePacks()
+    {
+        return resourcePacks;
+    }
+
+    /**
+     * Whether the version of bukkit running has {@link org.bukkit.inventory.ItemFlag} class.
+     *
+     * @return If {@link org.bukkit.inventory.ItemFlag} is present.
+     */
+    public static boolean hasItemFlags()
+    {
+        return hasItemFlags;
     }
 
     /**
