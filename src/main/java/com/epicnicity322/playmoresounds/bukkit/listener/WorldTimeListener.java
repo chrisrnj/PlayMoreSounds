@@ -35,21 +35,21 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Random;
 
-public final class TimeTrigger
+public final class WorldTimeListener
 {
     private static final @NotNull HashMap<World, BukkitTask> runningWorlds = new HashMap<>();
     private static final @NotNull Random random = new Random();
 
-    private TimeTrigger()
+    private WorldTimeListener()
     {
     }
 
     public static void load()
     {
-        Configuration worldTimes = Configurations.WORLD_TIMES.getPluginConfig().getConfiguration();
+        Configuration worldTimes = Configurations.WORLD_TIME_TRIGGERS.getPluginConfig().getConfiguration();
 
         if (PMSHelper.halloweenEvent())
-            worldTimes = getHalloweenWorldTimesConfig();
+            worldTimes = getHalloweenWorldTimeTriggersConfig();
 
         for (World world : Bukkit.getWorlds()) {
             if (runningWorlds.containsKey(world)) {
@@ -85,7 +85,7 @@ public final class TimeTrigger
         }
     }
 
-    private static Configuration getHalloweenWorldTimesConfig()
+    private static Configuration getHalloweenWorldTimeTriggersConfig()
     {
         Configuration worldTimes = new Configuration(new YamlConfigurationLoader());
 
