@@ -25,6 +25,7 @@ import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -91,12 +92,15 @@ public final class OnInventoryClick extends PMSListener
     public void onInventoryClick(InventoryClickEvent event)
     {
         HumanEntity entity = event.getWhoClicked();
-        ItemStack clickedItem = event.getCurrentItem();
+        ItemStack item = event.getCurrentItem();
 
-        if (clickedItem != null && entity instanceof Player) {
+        if (item != null && entity instanceof Player) {
+            if (item.getType() == Material.AIR && event.getCursor() != null)
+                item = event.getCursor();
+
             Player player = (Player) entity;
             RichSound sound = getRichSound();
-            String material = clickedItem.getType().name();
+            String material = item.getType().name();
 
             for (Map.Entry<String, RichSound> criterion : criteriaSounds.entrySet()) {
                 if (OnEntityDamageByEntity.matchesCriterion(criterion.getKey(), material)) {
