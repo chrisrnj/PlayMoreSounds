@@ -30,6 +30,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -90,19 +91,23 @@ public final class OnPlayerItemHeld extends PMSListener
     {
         RichSound sound = getRichSound();
         Player player = event.getPlayer();
-        String material = player.getInventory().getItemInMainHand().getType().name();
+        ItemStack item = player.getInventory().getItem(event.getNewSlot());
 
-        for (Map.Entry<String, RichSound> criterion : criteriaSounds.entrySet()) {
-            if (OnEntityDamageByEntity.matchesCriterion(criterion.getKey(), material)) {
-                RichSound criterionSound = criterion.getValue();
+        if (item != null) {
+            String material = item.getType().name();
 
-                if (!event.isCancelled() || !criterionSound.isCancellable()) {
-                    criterionSound.play(player);
+            for (Map.Entry<String, RichSound> criterion : criteriaSounds.entrySet()) {
+                if (OnEntityDamageByEntity.matchesCriterion(criterion.getKey(), material)) {
+                    RichSound criterionSound = criterion.getValue();
 
-                    if (criterionSound.getSection().getBoolean("Prevent Other Sounds.Default Sound").orElse(false))
-                        sound = null;
-                    if (criterionSound.getSection().getBoolean("Prevent Other Sounds.Other Criteria").orElse(false))
-                        break;
+                    if (!event.isCancelled() || !criterionSound.isCancellable()) {
+                        criterionSound.play(player);
+
+                        if (criterionSound.getSection().getBoolean("Prevent Other Sounds.Default Sound").orElse(false))
+                            sound = null;
+                        if (criterionSound.getSection().getBoolean("Prevent Other Sounds.Other Criteria").orElse(false))
+                            break;
+                    }
                 }
             }
         }
