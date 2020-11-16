@@ -21,18 +21,31 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.core.config.Configurations;
+import com.epicnicity322.yamlhandler.Configuration;
+import com.epicnicity322.yamlhandler.ConfigurationSection;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public final class OnInventoryClick extends PMSListener
 {
+    private final @NotNull PlayMoreSounds plugin;
+    private final @NotNull HashMap<String, RichSound> criteriaSounds = new HashMap<>();
+
     public OnInventoryClick(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
+        this.plugin = plugin;
     }
 
     @Override
@@ -41,16 +54,68 @@ public final class OnInventoryClick extends PMSListener
         return "Inventory Click";
     }
 
+    @Override
+    public void load()
+    {
+        Configuration itemsHeld = Configurations.ITEMS_CLICKED.getPluginConfig().getConfiguration();
+
+        for (Map.Entry<String, Object> node : itemsHeld.getNodes().entrySet()) {
+            if (node.getValue() instanceof ConfigurationSection) {
+                ConfigurationSection section = (ConfigurationSection) node.getValue();
+
+                if (section.getBoolean("Enabled").orElse(false) && section.contains("Sounds")) {
+                    criteriaSounds.put(node.getKey(), new RichSound(section));
+                }
+            }
+        }
+
+        boolean defaultEnabled = Configurations.SOUNDS.getPluginConfig().getConfiguration().getBoolean(getName() + ".Enabled").orElse(false);
+
+        if (!criteriaSounds.isEmpty() || defaultEnabled) {
+            if (defaultEnabled)
+                setRichSound(new RichSound(Configurations.SOUNDS.getPluginConfig().getConfiguration().getConfigurationSection(getName())));
+
+            if (!isLoaded()) {
+                Bukkit.getPluginManager().registerEvents(this, plugin);
+                setLoaded(true);
+            }
+        } else {
+            if (isLoaded()) {
+                HandlerList.unregisterAll(this);
+                setLoaded(false);
+            }
+        }
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onInventoryClick(InventoryClickEvent event)
     {
-        HumanEntity whoClicked = event.getWhoClicked();
+        HumanEntity entity = event.getWhoClicked();
+        ItemStack clickedItem = event.getCurrentItem();
 
-        if (whoClicked instanceof Player) {
+        if (clickedItem != null && entity instanceof Player) {
+            Player player = (Player) entity;
             RichSound sound = getRichSound();
+            String material = clickedItem.getType().name();
 
-            if (!event.isCancelled() || !sound.isCancellable())
-                sound.play((Player) whoClicked);
+            for (Map.Entry<String, RichSound> criterion : criteriaSounds.entrySet()) {
+                if (OnEntityDamageByEntity.matchesCriterion(criterion.getKey(), material)) {
+                    RichSound criterionSound = criterion.getValue();
+
+                    if (!event.isCancelled() || !criterionSound.isCancellable()) {
+                        criterionSound.play(player);
+
+                        if (criterionSound.getSection().getBoolean("Prevent Other Sounds.Default Sound").orElse(false))
+                            sound = null;
+                        if (criterionSound.getSection().getBoolean("Prevent Other Sounds.Other Criteria").orElse(false))
+                            break;
+                    }
+                }
+            }
+
+            if (sound != null)
+                if (!event.isCancelled() || !sound.isCancellable())
+                    sound.play(player);
         }
     }
 }
