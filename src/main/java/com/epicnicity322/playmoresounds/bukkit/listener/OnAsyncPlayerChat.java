@@ -80,7 +80,7 @@ public final class OnAsyncPlayerChat extends PMSListener
         filtersAndCriteria.clear();
 
         Configuration sounds = Configurations.SOUNDS.getPluginConfig().getConfiguration();
-        Configuration chatTriggers = Configurations.CHAT.getPluginConfig().getConfiguration();
+        Configuration chatTriggers = Configurations.CHAT_SOUNDS.getPluginConfig().getConfiguration();
         ConfigurationSection defaultSection = sounds.getConfigurationSection(getName());
 
         boolean defaultEnabled = defaultSection != null && defaultSection.getBoolean("Enabled").orElse(false);
