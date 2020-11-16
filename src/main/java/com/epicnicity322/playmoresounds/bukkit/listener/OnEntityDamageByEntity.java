@@ -75,7 +75,7 @@ public final class OnEntityDamageByEntity extends PMSListener
         return false;
     }
 
-    private static boolean matchesCriterion(String criterion, String value)
+    protected static boolean matchesCriterion(String criterion, String value)
     {
         criterion = criterion.toLowerCase();
         value = value.toLowerCase();
