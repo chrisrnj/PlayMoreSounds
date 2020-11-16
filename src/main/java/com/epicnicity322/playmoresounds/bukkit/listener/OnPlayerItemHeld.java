@@ -21,16 +21,29 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.core.config.Configurations;
+import com.epicnicity322.yamlhandler.Configuration;
+import com.epicnicity322.yamlhandler.ConfigurationSection;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public final class OnPlayerItemHeld extends PMSListener
 {
+    private final @NotNull PlayMoreSounds plugin;
+    private final @NotNull HashMap<String, RichSound> criteriaSounds = new HashMap<>();
+
     public OnPlayerItemHeld(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
+        this.plugin = plugin;
     }
 
     @Override
@@ -39,12 +52,63 @@ public final class OnPlayerItemHeld extends PMSListener
         return "Change Held Item";
     }
 
+    @Override
+    public void load()
+    {
+        Configuration itemsHeld = Configurations.ITEMS_HELD.getPluginConfig().getConfiguration();
+
+        for (Map.Entry<String, Object> node : itemsHeld.getNodes().entrySet()) {
+            if (node.getValue() instanceof ConfigurationSection) {
+                ConfigurationSection section = (ConfigurationSection) node.getValue();
+
+                if (section.getBoolean("Enabled").orElse(false) && section.contains("Sounds")) {
+                    criteriaSounds.put(node.getKey(), new RichSound(section));
+                }
+            }
+        }
+
+        boolean defaultEnabled = Configurations.SOUNDS.getPluginConfig().getConfiguration().getBoolean(getName() + ".Enabled").orElse(false);
+
+        if (!criteriaSounds.isEmpty() || defaultEnabled) {
+            if (defaultEnabled)
+                setRichSound(new RichSound(Configurations.SOUNDS.getPluginConfig().getConfiguration().getConfigurationSection(getName())));
+
+            if (!isLoaded()) {
+                Bukkit.getPluginManager().registerEvents(this, plugin);
+                setLoaded(true);
+            }
+        } else {
+            if (isLoaded()) {
+                HandlerList.unregisterAll(this);
+                setLoaded(false);
+            }
+        }
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerItemHeld(PlayerItemHeldEvent event)
     {
         RichSound sound = getRichSound();
+        Player player = event.getPlayer();
+        String material = player.getInventory().getItemInMainHand().getType().name();
 
-        if (!event.isCancelled() || !sound.isCancellable())
-            sound.play(event.getPlayer());
+        for (Map.Entry<String, RichSound> criterion : criteriaSounds.entrySet()) {
+            if (OnEntityDamageByEntity.matchesCriterion(criterion.getKey(), material)) {
+                RichSound criterionSound = criterion.getValue();
+
+                if (!event.isCancelled() || !criterionSound.isCancellable()) {
+                    criterionSound.play(player);
+
+                    if (criterionSound.getSection().getBoolean("Prevent Other Sounds.Default Sound").orElse(false))
+                        sound = null;
+                    if (criterionSound.getSection().getBoolean("Prevent Other Sounds.Other Criteria").orElse(false))
+                        break;
+                }
+            }
+        }
+
+        if (sound != null)
+            if (!event.isCancelled() || !sound.isCancellable())
+                sound.play(player);
     }
 }
