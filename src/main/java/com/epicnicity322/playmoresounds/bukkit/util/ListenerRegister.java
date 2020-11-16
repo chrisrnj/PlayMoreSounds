@@ -59,6 +59,12 @@ public final class ListenerRegister
             listeners.add(new OnPlayerToggleFlight(instance));
             listeners.add(new OnPlayerToggleSneak(instance));
             listeners.add(new OnRegionEnterLeave(instance));
+
+            // Jump events are only available on PaperMC.
+            if (VersionUtils.isPaperMC()) {
+                listeners.add(new OnPlayerJump(instance));
+                listeners.add(new OnEntityJump(instance));
+            }
         });
     }
 
