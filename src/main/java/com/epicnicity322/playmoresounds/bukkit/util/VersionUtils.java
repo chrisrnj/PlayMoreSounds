@@ -32,6 +32,7 @@ public final class VersionUtils
     private static final boolean hasOffHand;
     private static final @NotNull Version bukkitVersion;
     private static boolean hasHoverContentApi = false;
+    private static boolean paperMC = false;
 
     static {
         String version = Bukkit.getBukkitVersion();
@@ -51,6 +52,12 @@ public final class VersionUtils
         try {
             Class.forName("net.md_5.bungee.api.chat.hover.content.Content");
             hasHoverContentApi = true;
+        } catch (ClassNotFoundException ignored) {
+        }
+
+        try {
+            Class.forName("com.destroystokyo.paper.PaperConfig");
+            paperMC = true;
         } catch (ClassNotFoundException ignored) {
         }
     }
@@ -103,5 +110,13 @@ public final class VersionUtils
     public static boolean hasHoverContentApi()
     {
         return hasHoverContentApi;
+    }
+
+    /**
+     * Whether the server is running PaperMC.
+     */
+    public static boolean isPaperMC()
+    {
+        return paperMC;
     }
 }
