@@ -58,9 +58,7 @@ public final class OnInventoryClick extends PMSListener
     @Override
     public void load()
     {
-        Configuration itemsHeld = Configurations.ITEMS_CLICKED.getPluginConfig().getConfiguration();
-
-        for (Map.Entry<String, Object> node : itemsHeld.getNodes().entrySet()) {
+        for (Map.Entry<String, Object> node : Configurations.ITEMS_CLICKED.getPluginConfig().getConfiguration().getNodes().entrySet()) {
             if (node.getValue() instanceof ConfigurationSection) {
                 ConfigurationSection section = (ConfigurationSection) node.getValue();
 
@@ -70,11 +68,12 @@ public final class OnInventoryClick extends PMSListener
             }
         }
 
-        boolean defaultEnabled = Configurations.SOUNDS.getPluginConfig().getConfiguration().getBoolean(getName() + ".Enabled").orElse(false);
+        Configuration sounds = Configurations.SOUNDS.getPluginConfig().getConfiguration();
+        boolean defaultEnabled = sounds.getBoolean(getName() + ".Enabled").orElse(false);
 
         if (!criteriaSounds.isEmpty() || defaultEnabled) {
             if (defaultEnabled)
-                setRichSound(new RichSound(Configurations.SOUNDS.getPluginConfig().getConfiguration().getConfigurationSection(getName())));
+                setRichSound(new RichSound(sounds.getConfigurationSection(getName())));
 
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
