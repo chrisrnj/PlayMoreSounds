@@ -47,6 +47,7 @@ public final class ListenerRegister
             listeners.add(new OnFurnaceExtract(instance));
             listeners.add(new OnInventoryClick(instance));
             listeners.add(new OnInventoryClose(instance));
+            listeners.add(new OnPlayerAnimation(instance));
             listeners.add(new OnPlayerBedEnter(instance));
             listeners.add(new OnPlayerBedLeave(instance));
             listeners.add(new OnPlayerCommandPreprocess(instance));
