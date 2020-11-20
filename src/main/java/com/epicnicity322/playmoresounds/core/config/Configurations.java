@@ -774,6 +774,29 @@ public enum Configurations
         config.addDefaultComment(" https://discord.gg/eAHPbc3\n");
         config.addDefault("Version", PlayMoreSounds.versionString);
     }, StaticFields.version3_3_0),
+    NATURE_SOUND_REPLACER(StaticFields.sounds.resolve("nature sound replacer.yml"), config -> {
+        config.addDefaultComment(" Replace any sound played by nature or any event and plugin on your server.");
+        config.addDefaultComment("");
+        config.addDefaultComment("  When a sound here is played, PlayMoreSounds interrupts the sound packets from being");
+        config.addDefaultComment(" sent to the players and plays the sound set here instead. This way you can take");
+        config.addDefaultComment(" advantage of PlayMoreSounds features, like replace a nature sound with resource pack");
+        config.addDefaultComment(" sound, radius sound, delayed sound etc.");
+        config.addDefaultComment("");
+        config.addDefaultComment(" Sound Replacing feature requires ProtocolLib installed to work.");
+        config.addDefaultComment("");
+        config.addDefaultComment("  To replace a sound create a section with the sound name and set the replacing sound");
+        config.addDefaultComment(" on it, for example:");
+        config.addDefaultComment("");
+        config.addDefaultComment("ENTITY_ZOMBIE_HURT: # This is the sound to replace");
+        config.addDefaultComment("  Enabled: true");
+        config.addDefaultComment("  Sounds: # The sounds that will play instead.");
+        config.addDefaultComment("    '0':");
+        config.addDefaultComment("      # PlayMoreSounds has way more features to change how a sound is played. To check");
+        config.addDefaultComment("      #the sound playing format go to sounds.yml. The tutorial for all features is there.");
+        config.addDefaultComment("      Sound: ENTITY_SKELETON_HURT");
+        config.addDefaultComment("");
+        config.addDefault("Version", PlayMoreSounds.versionString);
+    }, StaticFields.version3_4_0),
     LANGUAGE_EN_US(StaticFields.lang.resolve("Language EN-US.yml"), config -> {
         config.addDefaultComment("Language EN-US");
         config.addDefault("Version", PlayMoreSounds.versionString);
