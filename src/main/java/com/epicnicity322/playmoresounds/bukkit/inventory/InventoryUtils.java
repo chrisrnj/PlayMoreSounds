@@ -29,8 +29,7 @@ public final class InventoryUtils
     private static @Nullable NamespacedKey button;
 
     static {
-        PlayMoreSounds.addOnInstanceRunnable(() -> button = new NamespacedKey(PlayMoreSounds.getInstance(),
-                "button"));
+        PlayMoreSounds.addOnInstanceRunnable(() -> button = new NamespacedKey(PlayMoreSounds.getInstance(), "button"));
     }
 
     private InventoryUtils()
