@@ -54,6 +54,7 @@ public class SoundRegion
 
     protected SoundRegion(@NotNull Path path)
     {
+        // TODO: Fix all this mess
         try {
             Configuration region = loader.load(path);
             String fileName = path.getFileName().toString();
@@ -65,7 +66,7 @@ public class SoundRegion
             setName(region.getString("Name").get());
             description = region.getString("Description").orElse(null);
 
-            World world = Bukkit.getWorld(UUID.fromString(region.getString("World").get()));
+            World world = Objects.requireNonNull(Bukkit.getWorld(UUID.fromString(region.getString("World").orElse(null))));
             ConfigurationSection diagonals = region.getConfigurationSection("Diagonals");
             ConfigurationSection first = diagonals.getConfigurationSection("First");
             ConfigurationSection second = diagonals.getConfigurationSection("Second");
