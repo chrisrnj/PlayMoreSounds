@@ -19,6 +19,7 @@
 
 package com.epicnicity322.playmoresounds.bukkit.util;
 
+import com.epicnicity322.epicpluginlib.bukkit.reflection.ReflectionUtil;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -31,6 +32,7 @@ public final class VersionUtils
     private static final boolean hasOffHand;
     private static final @NotNull Version bukkitVersion;
     private static boolean hasPersistentData = false;
+    private static boolean hasSoundEffects = false;
     private static boolean hasHoverContentApi = false;
     private static boolean paperMC = false;
     private static boolean bStats = false;
@@ -84,6 +86,12 @@ public final class VersionUtils
             hasItemFlags = true;
         } catch (ClassNotFoundException ignored) {
         }
+
+        try {
+            Class.forName("net.minecraft.server." + ReflectionUtil.getNmsVersion() + ".SoundEffect");
+            hasSoundEffects = true;
+        } catch (ClassNotFoundException ignored) {
+        }
     }
 
     private VersionUtils()
@@ -128,6 +136,16 @@ public final class VersionUtils
     public static boolean hasItemFlags()
     {
         return hasItemFlags;
+    }
+
+    /**
+     * Whether the version of net.minecraft.server running has SoundEffect class.
+     *
+     * @return If SoundEffect class is present.
+     */
+    public static boolean hasSoundEffects()
+    {
+        return hasSoundEffects;
     }
 
     /**

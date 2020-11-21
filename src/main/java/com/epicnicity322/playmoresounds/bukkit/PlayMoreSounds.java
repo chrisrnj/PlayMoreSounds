@@ -284,7 +284,15 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
 
             logger.log("&6-> &eCommands loaded.");
 
-            UpdateManager.loadUpdater();
+            if (VersionUtils.hasSoundEffects())
+                try {
+                    // Checking if ProtocolLib is present
+                    Class.forName("com.comphenix.protocol.events.PacketAdapter");
+                    new OnNamedSoundEffect(this);
+                    logger.log("&eProtocolLib was found and hooked.");
+                } catch (ClassNotFoundException ignored) {
+                }
+
         } catch (Exception e) {
             success = false;
             errorLogger.report(e, "PMSLoadingError (Unknown):");
@@ -294,6 +302,7 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
                 logger.log("&aPlayMoreSounds has been enabled");
                 logger.log("&a" + SoundManager.getSoundTypes().size() + " sounds available on " + VersionUtils.getBukkitVersion());
                 logger.log("&6============================================");
+                UpdateManager.loadUpdater();
 
                 LocalDateTime now = LocalDateTime.now();
 
@@ -326,6 +335,19 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
 
                 // Bukkit only runs a task once the server has fully loaded.
                 Bukkit.getScheduler().runTaskLater(this, () -> addonManager.startAddons(StartTime.SERVER_LOAD_COMPLETE), 1);
+
+                if (!onEnableRunnables.isEmpty())
+                    new Thread(() -> {
+                        for (Runnable runnable : onEnableRunnables)
+                            try {
+                                runnable.run();
+                            } catch (Exception e) {
+                                logger.log("&cAn unknown error occurred on PlayMoreSounds startup.");
+                                errorLogger.report(e, "PMSLoadingError (Unknown):");
+                            }
+                    }).start();
+
+                enabled = true;
             } else {
                 logger.log("&6============================================");
                 logger.log("&cSomething went wrong while loading PMS");
@@ -334,19 +356,6 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
                 getLogger().severe("Plugin disabled.");
                 Bukkit.getPluginManager().disablePlugin(this);
             }
-
-            if (!onEnableRunnables.isEmpty())
-                new Thread(() -> {
-                    for (Runnable runnable : onEnableRunnables)
-                        try {
-                            runnable.run();
-                        } catch (Exception e) {
-                            logger.log("&cAn unknown error occurred on PlayMoreSounds startup.");
-                            errorLogger.report(e, "PMSLoadingError (Unknown):");
-                        }
-                }).start();
-
-            enabled = true;
         }
     }
 
