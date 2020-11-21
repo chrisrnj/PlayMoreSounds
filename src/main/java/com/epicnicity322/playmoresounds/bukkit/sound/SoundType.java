@@ -1080,11 +1080,11 @@ public enum SoundType
         this.versionDependentNames = versionDependentNames;
 
         if (StaticFields.greaterThanMax)
-            this.versionDependentName = getSound(getMaxSupportedVersion()).orElse(null);
+            versionDependentName = getSound(getMaxSupportedVersion()).orElse(null);
         else if (StaticFields.lowerThanMin)
-            this.versionDependentName = getSound(getMinSupportedVersion()).orElse(null);
+            versionDependentName = getSound(getMinSupportedVersion()).orElse(null);
         else
-            this.versionDependentName = getSound(VersionUtils.getBukkitVersion()).orElse(null);
+            versionDependentName = getSound(VersionUtils.getBukkitVersion()).orElse(null);
     }
 
     /**
@@ -1139,7 +1139,7 @@ public enum SoundType
             Version soundMinVersion = new Version(versionDependentName.substring(0, hyphenIndex));
             Version soundMaxVersion = new Version(versionDependentName.substring(hyphenIndex + 1, spaceIndex));
 
-            if (version.compareTo(soundMinVersion) >= 0 && version.compareTo(soundMaxVersion) <= 0) {
+            if (version.compareTo(soundMinVersion) >= 0 && (version.getVersion().startsWith(soundMaxVersion.getVersion()) || version.compareTo(soundMaxVersion) <= 0)) {
                 sound = versionDependentName.substring(spaceIndex + 1);
                 break;
             }
