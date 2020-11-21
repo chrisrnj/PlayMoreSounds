@@ -774,7 +774,7 @@ public enum Configurations
         config.addDefaultComment(" https://discord.gg/eAHPbc3\n");
         config.addDefault("Version", PlayMoreSounds.versionString);
     }, StaticFields.version3_3_0),
-    NATURE_SOUND_REPLACER(StaticFields.sounds.resolve("nature sound replacer.yml"), config -> {
+    NATURE_SOUNDS_REPLACER(StaticFields.sounds.resolve("nature sounds replacer.yml"), config -> {
         config.addDefaultComment(" Replace any sound played by nature or any event and plugin on your server.");
         config.addDefaultComment("");
         config.addDefaultComment("  When a sound here is played, PlayMoreSounds interrupts the sound packets from being");
