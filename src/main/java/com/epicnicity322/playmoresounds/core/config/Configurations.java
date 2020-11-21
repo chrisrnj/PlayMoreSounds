@@ -782,7 +782,12 @@ public enum Configurations
         config.addDefaultComment(" advantage of PlayMoreSounds features, like replace a nature sound with resource pack");
         config.addDefaultComment(" sound, radius sound, delayed sound etc.");
         config.addDefaultComment("");
-        config.addDefaultComment(" Sound Replacing feature requires ProtocolLib installed to work.");
+        config.addDefaultComment(" Warnings:");
+        config.addDefaultComment(" >> ProtocolLib is required to work.");
+        config.addDefaultComment(" >> Server needs to be running on version 1.9+.");
+        config.addDefaultComment(" >> Sounds to replace are bukkit sounds, that means the name changes depending on the");
+        config.addDefaultComment(" version you are running, unlike PlayMoreSounds sounds that have the same name on all");
+        config.addDefaultComment(" versions.");
         config.addDefaultComment("");
         config.addDefaultComment("  To replace a sound create a section with the sound name and set the replacing sound");
         config.addDefaultComment(" on it, for example:");
