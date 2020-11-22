@@ -30,9 +30,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -53,7 +53,7 @@ public class RichSound implements Playable
         this.name = section.getPath();
         enabled = section.getBoolean("Enabled").orElse(false);
         cancellable = section.getBoolean("Cancellable").orElse(false);
-        childSounds = new LinkedHashSet<>();
+        childSounds = new ArrayList<>();
 
         ConfigurationSection sounds = section.getConfigurationSection("Sounds");
 
