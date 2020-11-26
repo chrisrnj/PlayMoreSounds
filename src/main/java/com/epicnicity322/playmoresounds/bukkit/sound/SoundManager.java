@@ -206,22 +206,35 @@ public final class SoundManager
         if (!locationToAdd.isEmpty()) {
             location = location.clone();
 
-            if (locationToAdd.containsKey(SoundOptions.Direction.FRONT_BACK)) {
-                double distance = locationToAdd.get(SoundOptions.Direction.FRONT_BACK);
-                double angle = Math.PI * 2 * location.getYaw() * -1 / 360;
+            Double leftRight = locationToAdd.get(SoundOptions.Direction.LEFT_RIGHT);
+            Double frontBack = locationToAdd.get(SoundOptions.Direction.FRONT_BACK);
+            Double upDown = locationToAdd.get(SoundOptions.Direction.UP_DOWN);
+            double sin = 0;
+            double cos = 0;
 
-                location.add(distance * Math.sin(angle), 0.0, distance * Math.cos(angle));
-            }
-
-            if (locationToAdd.containsKey(SoundOptions.Direction.LEFT_RIGHT)) {
-                double distance = locationToAdd.get(SoundOptions.Direction.LEFT_RIGHT);
+            if (leftRight != null) {
                 double angle = Math.PI * 2 * location.getYaw() / 360;
+                sin = Math.sin(angle);
+                cos = Math.cos(angle);
 
-                location.add(distance * Math.cos(angle), 0.0, distance * Math.sin(angle));
+                location.add(leftRight * cos, 0.0, leftRight * sin);
             }
 
-            if (locationToAdd.containsKey(SoundOptions.Direction.UP_DOWN))
-                location.add(0.0, locationToAdd.get(SoundOptions.Direction.UP_DOWN), 0.0);
+            if (frontBack != null) {
+                if (leftRight == null) {
+                    double angle = Math.PI * 2 * location.getYaw() / 360 * -1;
+                    sin = Math.sin(angle);
+                    cos = Math.cos(angle);
+                } else {
+                    sin = sin * -1;
+                    cos = cos * -1;
+                }
+
+                location.add(frontBack * sin, 0.0, frontBack * cos);
+            }
+
+            if (upDown != null)
+                location.add(0.0, upDown, 0.0);
         }
 
         return location;
