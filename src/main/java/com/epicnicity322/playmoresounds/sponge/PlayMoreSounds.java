@@ -72,6 +72,8 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
     private static final @NotNull Random random = new Random();
     private static @Nullable PlayMoreSounds instance;
     private static boolean success = true;
+    private static boolean enabled = false;
+    private static boolean disabled = false;
 
     static {
         if (EpicPluginLib.version.compareTo(new Version("1.6.1")) < 0) {
@@ -123,15 +125,16 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
         if (success)
             metricsFactory.make(8393);
 
-        new Thread(() -> {
-            for (Runnable runnable : onInstanceRunnables)
-                try {
-                    runnable.run();
-                } catch (Exception e) {
-                    logger.log("&cAn unknown error occurred on PlayMoreSounds initialization.");
-                    errorLogger.report(e, "PMSInitializationError (Unknown):");
-                }
-        }).start();
+        if (!onInstanceRunnables.isEmpty())
+            new Thread(() -> {
+                for (Runnable runnable : onInstanceRunnables)
+                    try {
+                        runnable.run();
+                    } catch (Exception e) {
+                        logger.log("&cAn unknown error occurred on PlayMoreSounds initialization.");
+                        errorLogger.report(e, "PMSInitializationError (Unknown):");
+                    }
+            }).start();
     }
 
     /**
@@ -149,7 +152,10 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
      */
     public static void addOnDisableRunnable(@NotNull Runnable runnable)
     {
-        onDisableRunnables.add(runnable);
+        if (disabled)
+            runnable.run();
+        else
+            onDisableRunnables.add(runnable);
     }
 
     /**
@@ -159,7 +165,10 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
      */
     public static void addOnEnableRunnable(@NotNull Runnable runnable)
     {
-        onEnableRunnables.add(runnable);
+        if (enabled)
+            runnable.run();
+        else
+            onEnableRunnables.add(runnable);
     }
 
     /**
@@ -170,10 +179,10 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
      */
     public static void addOnInstanceRunnable(@NotNull Runnable runnable)
     {
-        if (getInstance() != null)
+        if (getInstance() == null)
+            onInstanceRunnables.add(runnable);
+        else
             runnable.run();
-
-        onInstanceRunnables.add(runnable);
     }
 
     /**
@@ -259,30 +268,39 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
                 logger.log("&a 000 sounds available on " + gameVersion);
                 logger.log("&6============================================");
 
+                if (metricsConfigManager.getCollectionState(container) == Tristate.TRUE)
+                    logger.log("&ePlayMoreSounds is using bStats. If you don't want to send anonymous data, edit bStats configuration.");
+
                 LocalDateTime now = LocalDateTime.now();
 
                 if (now.getMonth() == Month.OCTOBER && now.getDayOfMonth() == 31) {
-                    boolean bool = random.nextBoolean();
-
-                    if (bool)
+                    if (random.nextBoolean())
                         logger.log("&6H&ea&6p&ep&6y&e H&6a&el&6l&eo&6w&ee&6e&en&6!");
                     else
                         logger.log("&6T&er&6i&ec&6k&e o&6r&e T&6r&ee&6a&et&6?");
                 }
 
                 if (PMSHelper.isChristmas()) {
-                    boolean bool = random.nextBoolean();
-
-                    if (bool)
+                    if (random.nextBoolean())
                         logger.log("&cMerry Christmas!");
                     else
                         logger.log("&cHappy Christmas!");
                 }
 
-                if (metricsConfigManager.getCollectionState(container) == Tristate.TRUE)
-                    logger.log("&ePlayMoreSounds is using bStats. If you don't want to send anonymous data, edit bStats configuration.");
-
                 addonManager.startAddons(StartTime.END);
+
+                if (!onEnableRunnables.isEmpty())
+                    new Thread(() -> {
+                        for (Runnable runnable : onEnableRunnables)
+                            try {
+                                runnable.run();
+                            } catch (Exception e) {
+                                logger.log("&cAn unknown error occurred on PlayMoreSounds startup.");
+                                errorLogger.report(e, "PMSLoadingError (Unknown):");
+                            }
+                    }).start();
+
+                enabled = true;
             } else {
                 logger.log("&6============================================", ConsoleLogger.Level.ERROR);
                 logger.log("&cSomething went wrong while loading PMS", ConsoleLogger.Level.ERROR);
@@ -290,16 +308,6 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
                 logger.log("&6============================================", ConsoleLogger.Level.ERROR);
                 logger.log("&4Error log generated on data folder.", ConsoleLogger.Level.WARN);
             }
-
-            new Thread(() -> {
-                for (Runnable runnable : onEnableRunnables)
-                    try {
-                        runnable.run();
-                    } catch (Exception e) {
-                        logger.log("&cAn unknown error occurred on PlayMoreSounds startup.");
-                        errorLogger.report(e, "PMSLoadingError (Unknown):");
-                    }
-            }).start();
         }
     }
 
@@ -314,14 +322,17 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
     {
         addonManager.stopAddons();
 
-        new Thread(() -> {
-            for (Runnable runnable : onDisableRunnables)
-                try {
-                    runnable.run();
-                } catch (Exception e) {
-                    logger.log("&cAn unknown error occurred on PlayMoreSounds shutdown.");
-                    errorLogger.report(e, "PMSUnloadingError (Unknown):");
-                }
-        }).start();
+        if (!onDisableRunnables.isEmpty())
+            new Thread(() -> {
+                for (Runnable runnable : onDisableRunnables)
+                    try {
+                        runnable.run();
+                    } catch (Exception e) {
+                        logger.log("&cAn unknown error occurred on PlayMoreSounds shutdown.");
+                        errorLogger.report(e, "PMSUnloadingError (Unknown):");
+                    }
+            }).start();
+
+        disabled = true;
     }
 }

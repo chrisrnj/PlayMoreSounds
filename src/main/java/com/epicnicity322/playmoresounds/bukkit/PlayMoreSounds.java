@@ -72,6 +72,7 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
     private static @NotNull ErrorLogger errorLogger;
     private static boolean success = true;
     private static boolean enabled = false;
+    private static boolean disabled = false;
 
     static {
         // Creating data folder.
@@ -135,7 +136,10 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
      */
     public static void addOnDisableRunnable(@NotNull Runnable runnable)
     {
-        onDisableRunnables.add(runnable);
+        if (disabled)
+            runnable.run();
+        else
+            onDisableRunnables.add(runnable);
     }
 
     /**
@@ -302,27 +306,6 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
                 logger.log("&aPlayMoreSounds has been enabled");
                 logger.log("&a" + SoundManager.getSoundTypes().size() + " sounds available on " + VersionUtils.getBukkitVersion());
                 logger.log("&6============================================");
-                UpdateManager.loadUpdater();
-
-                LocalDateTime now = LocalDateTime.now();
-
-                if (now.getMonth() == Month.OCTOBER && now.getDayOfMonth() == 31) {
-                    boolean bool = random.nextBoolean();
-
-                    if (bool)
-                        logger.log("&6H&ea&6p&ep&6y&e H&6a&el&6l&eo&6w&ee&6e&en&6!");
-                    else
-                        logger.log("&6T&er&6i&ec&6k&e o&6r&e T&6r&ee&6a&et&6?");
-                }
-
-                if (PMSHelper.isChristmas()) {
-                    boolean bool = random.nextBoolean();
-
-                    if (bool)
-                        logger.log("&cMerry Christmas!");
-                    else
-                        logger.log("&cHappy Christmas!");
-                }
 
                 if (VersionUtils.supportsBStats()) {
                     MetricsLite metrics = new MetricsLite(this, 7985);
@@ -330,6 +313,24 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
                     if (metrics.isEnabled())
                         logger.log("&ePlayMoreSounds is using bStats. If you don't want to send anonymous data, edit bStats configuration.");
                 }
+
+                LocalDateTime now = LocalDateTime.now();
+
+                if (now.getMonth() == Month.OCTOBER && now.getDayOfMonth() == 31) {
+                    if (random.nextBoolean())
+                        logger.log("&6H&ea&6p&ep&6y&e H&6a&el&6l&eo&6w&ee&6e&en&6!");
+                    else
+                        logger.log("&6T&er&6i&ec&6k&e o&6r&e T&6r&ee&6a&et&6?");
+                }
+
+                if (PMSHelper.isChristmas()) {
+                    if (random.nextBoolean())
+                        logger.log("&cMerry Christmas!");
+                    else
+                        logger.log("&cHappy Christmas!");
+                }
+
+                UpdateManager.loadUpdater();
 
                 addonManager.startAddons(StartTime.END);
 
@@ -374,5 +375,7 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
                         errorLogger.report(e, "PMSUnloadingError (Unknown):");
                     }
             }).start();
+
+        disabled = true;
     }
 }
