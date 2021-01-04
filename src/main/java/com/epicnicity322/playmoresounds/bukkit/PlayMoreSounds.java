@@ -80,6 +80,7 @@ public final class PlayMoreSounds extends JavaPlugin implements com.epicnicity32
             try {
                 Files.createDirectories(folder);
             } catch (IOException e) {
+                success = false;
                 e.printStackTrace();
             }
         }
