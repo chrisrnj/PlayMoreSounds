@@ -182,20 +182,25 @@ public final class SoundManager
      * @param location The source location.
      * @return A set of players inside this range.
      */
-    public static @NotNull HashSet<Player> getInRange(double radius, @NotNull Location location)
+    public static @NotNull Collection<Player> getInRange(double radius, @NotNull Location location)
     {
-        HashSet<Player> players = new HashSet<>();
+        if (radius < -1) {
+            return location.getWorld().getPlayers();
+        } else if (radius < 0) {
+            return new HashSet<>(Bukkit.getOnlinePlayers());
+        } else if (radius != 0) {
+            HashSet<Player> players = new HashSet<>();
 
-        if (radius < -1)
-            players.addAll(location.getWorld().getPlayers());
-        else if (radius < 0)
-            players.addAll(Bukkit.getOnlinePlayers());
-        else if (radius != 0)
-            for (Player world : location.getWorld().getPlayers())
-                if (location.distance(world.getLocation()) <= radius)
-                    players.add(world);
+            for (Player player : location.getWorld().getPlayers()) {
+                if (location.distanceSquared(player.getLocation()) <= radius) {
+                    players.add(player);
+                }
+            }
 
-        return players;
+            return players;
+        } else {
+            return new HashSet<>();
+        }
     }
 
     /**
