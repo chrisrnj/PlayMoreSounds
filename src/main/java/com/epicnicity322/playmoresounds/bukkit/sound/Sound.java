@@ -33,7 +33,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Objects;
 
 public class Sound implements Playable
@@ -191,7 +191,7 @@ public class Sound implements Playable
                 (options.getPermissionRequired() == null || (player == null || player.hasPermission(options.getPermissionRequired()))) &&
                 (player == null || (!player.hasPotionEffect(PotionEffectType.INVISIBILITY) || !player.hasPermission("playmoresounds.bypass.invisibility")))) {
             Location soundLocation = SoundManager.addRelativeLocation(preEvent.getLocation(), options.getRelativeLocation());
-            HashSet<Player> players = SoundManager.getInRange(options.getRadius(), preEvent.getLocation());
+            Collection<Player> players = SoundManager.getInRange(options.getRadius(), preEvent.getLocation());
 
             if (player != null)
                 players.add(player);
@@ -211,7 +211,7 @@ public class Sound implements Playable
         }
     }
 
-    private void play(@Nullable Player sourcePlayer, @NotNull HashSet<Player> players, @NotNull Location soundLocation,
+    private void play(@Nullable Player sourcePlayer, @NotNull Collection<Player> players, @NotNull Location soundLocation,
                       @NotNull Sound instance)
     {
         for (Player inRange : players) {
@@ -224,8 +224,7 @@ public class Sound implements Playable
                 if (options.getRadius() < 0)
                     fixedLocation = SoundManager.addRelativeLocation(inRange.getLocation(), options.getRelativeLocation());
 
-                PlaySoundEvent event = new PlaySoundEvent(instance, inRange, fixedLocation, players, sourcePlayer,
-                        soundLocation);
+                PlaySoundEvent event = new PlaySoundEvent(instance, inRange, fixedLocation, players, sourcePlayer, soundLocation);
 
                 Bukkit.getPluginManager().callEvent(event);
 

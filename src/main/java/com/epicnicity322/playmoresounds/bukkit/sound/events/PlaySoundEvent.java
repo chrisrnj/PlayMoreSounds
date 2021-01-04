@@ -29,7 +29,7 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
+import java.util.Collection;
 
 /**
  * This event is called for every player that hears a PlayMoreSounds sound. E.g., if a sound is played with -1 radius,
@@ -42,14 +42,14 @@ public class PlaySoundEvent extends Event implements Cancellable
     private static final HandlerList handlers = new HandlerList();
     private final @Nullable Player sourcePlayer;
     private final @NotNull Player player;
-    private final @NotNull HashSet<Player> otherListeners;
+    private final @NotNull Collection<Player> otherListeners;
     private final @NotNull Location sourceLocation;
     private final @NotNull Sound sound;
     private boolean cancelled;
     private @NotNull Location location;
 
     public PlaySoundEvent(@NotNull Sound sound, @NotNull Player player, @NotNull Location location,
-                          @NotNull HashSet<Player> otherListeners, @Nullable Player sourcePlayer,
+                          @NotNull Collection<Player> otherListeners, @Nullable Player sourcePlayer,
                           @NotNull Location sourceLocation)
     {
         this.sourcePlayer = sourcePlayer;
@@ -108,7 +108,7 @@ public class PlaySoundEvent extends Event implements Cancellable
      *
      * @return The players that are hearing this sound.
      */
-    public @NotNull HashSet<Player> getOtherListeners()
+    public @NotNull Collection<Player> getOtherListeners()
     {
         return otherListeners;
     }
