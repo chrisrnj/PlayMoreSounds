@@ -26,6 +26,7 @@ import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.epicpluginlib.core.logger.ErrorHandler;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.bukkit.listener.*;
+import com.epicnicity322.playmoresounds.bukkit.metrics.Metrics;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
 import com.epicnicity322.playmoresounds.bukkit.util.ListenerRegister;
 import com.epicnicity322.playmoresounds.bukkit.util.UpdateManager;
@@ -37,8 +38,6 @@ import com.epicnicity322.playmoresounds.core.addons.StartTime;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.util.LoadableHashSet;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
-import org.bstats.bukkit.Metrics;
-import org.bstats.charts.AdvancedPie;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -299,7 +298,7 @@ public final class PlayMoreSounds extends JavaPlugin
                 if (VersionUtils.supportsBStats()) {
                     Metrics metrics = new Metrics(this, 7985);
 
-                    metrics.addCustomChart(new AdvancedPie("running_addons", () -> {
+                    metrics.addCustomChart(new Metrics.AdvancedPie("running_addons", () -> {
                         HashSet<PMSAddon> addons = addonManager.getAddons();
                         HashMap<String, Integer> map = new HashMap<>(addons.size());
 
