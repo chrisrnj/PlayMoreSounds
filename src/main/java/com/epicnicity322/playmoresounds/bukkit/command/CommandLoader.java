@@ -1,60 +1,54 @@
 /*
- * Copyright (c) 2020 Christiano Rangel
+ * PlayMoreSounds - A bukkit plugin that manages and plays sounds.
+ * Copyright (C) 2021 Christiano Rangel
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package com.epicnicity322.playmoresounds.bukkit.command;
 
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandManager;
-import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.subcommand.*;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.Set;
 
 public final class CommandLoader
 {
-    private static final @NotNull MessageSender lang = PlayMoreSounds.getMessageSender();
     private static final @NotNull LinkedHashSet<Command> commands = new LinkedHashSet<>();
-    private static CommandRunnable unknownCommand = null;
-    private static CommandRunnable description = null;
 
     static {
-        PlayMoreSounds.addOnInstanceRunnable(() -> {
-            description = (label, sender, args) -> {
-                lang.send(sender, false, lang.get("Description.Header").replace("<version>",
-                        PlayMoreSounds.getVersion().getVersion()));
-                lang.send(sender, false, "&6Author: &7Epicnicity322");
-                lang.send(sender, false, "&6Description: &7" + PlayMoreSounds.getInstance().getDescription().getDescription());
+        PlayMoreSounds.addOnInstanceRunnable(plugin -> {
+            MessageSender lang = PlayMoreSounds.getLanguage();
 
-                if (sender.hasPermission("playmoresounds.help"))
-                    lang.send(sender, false, lang.get("Description.Help").replace("<label>", label));
-                else
-                    lang.send(sender, false, lang.get("Description.No Permission"));
-            };
+            CommandManager.registerCommand(Bukkit.getPluginCommand("playmoresounds"), commands,
+                    (label, sender, args) -> {
+                        lang.send(sender, false, lang.get("Description.Header").replace("<version>", PlayMoreSoundsVersion.version));
+                        lang.send(sender, false, "&6Author: &7Epicnicity322");
+                        lang.send(sender, false, "&6Description: &7" + plugin.getDescription().getDescription());
 
-            unknownCommand = (label, sender, args) ->
-                    lang.send(sender, lang.get("General.Unknown Command").replace("<label>", label));
+                        if (sender.hasPermission("playmoresounds.help"))
+                            lang.send(sender, false, lang.get("Description.Help").replace("<label>", label));
+                        else
+                            lang.send(sender, false, lang.get("Description.No Permission"));
+                    },
+                    (label, sender, args) -> lang.send(sender, lang.get("General.Unknown Command").replace("<label>", label)));
 
             commands.add(new CheckSubCommand());
             commands.add(new ConfirmSubCommand());
@@ -70,7 +64,7 @@ public final class CommandLoader
             }
 
             commands.add(new PlaySubCommand());
-            commands.add(new RegionSubCommand());
+            commands.add(new RegionSubCommand(plugin));
             commands.add(new ReloadSubCommand());
             commands.add(new StopSoundSubCommand());
             commands.add(new ToggleSubCommand());
@@ -83,9 +77,9 @@ public final class CommandLoader
     }
 
     /**
-     * Adds a command to the list of command to be loaded on {@link #loadCommands()}.
+     * Adds a sub command to PlayMoreSounds' main command.
      *
-     * @param command The command to add to be registered.
+     * @param command The command to add.
      */
     public static void addCommand(@NotNull Command command)
     {
@@ -93,29 +87,10 @@ public final class CommandLoader
     }
 
     /**
-     * Removes a command from the list of command to be loaded on {@link #loadCommands()}.
-     *
-     * @param command The command to remove.
+     * @return An immutable set of PlayMoreSounds' registered sub commands.
      */
-    public static void removeCommand(@NotNull Command command)
+    public static @NotNull LinkedHashSet<Command> getCommands()
     {
-        commands.remove(command);
-    }
-
-    /**
-     * @return A set with all the command that are being loaded on {@link #loadCommands()}.
-     */
-    public static @NotNull Set<Command> getCommands()
-    {
-        return Collections.unmodifiableSet(commands);
-    }
-
-    /**
-     * Registers all sub commands to PlayMoreSounds main command.
-     */
-    public static void loadCommands()
-    {
-        CommandManager.registerCommand(Bukkit.getPluginCommand("playmoresounds"), commands, description,
-                unknownCommand);
+        return new LinkedHashSet<>(commands);
     }
 }

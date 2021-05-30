@@ -1,20 +1,19 @@
 /*
- * Copyright (c) 2020 Christiano Rangel
+ * PlayMoreSounds - A bukkit plugin that manages and plays sounds.
+ * Copyright (C) 2021 Christiano Rangel
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
@@ -22,57 +21,19 @@ package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
+import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.listener.WorldTimeListener;
-import com.epicnicity322.playmoresounds.bukkit.util.ListenerRegister;
-import com.epicnicity322.playmoresounds.bukkit.util.UpdateManager;
-import com.epicnicity322.playmoresounds.core.config.Configurations;
-import org.bukkit.Bukkit;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.util.HashSet;
+import java.util.Collection;
 
 public final class ReloadSubCommand extends Command implements Helpable
 {
-    private static final @NotNull MessageSender lang = PlayMoreSounds.getMessageSender();
-    private static final @NotNull HashSet<Runnable> onReloadRunnables = new HashSet<>();
-
-    /**
-     * Reloads every configuration and events of PlayMoreSounds.
-     *
-     * @throws IOException If failed to save configurations.
-     */
-    public static void reload() throws IOException
-    {
-        Configurations.getConfigLoader().loadConfigurations();
-        ListenerRegister.loadListeners();
-        WorldTimeListener.load();
-        UpdateManager.check(Bukkit.getConsoleSender(), true);
-
-        if (!onReloadRunnables.isEmpty())
-            new Thread(() -> {
-                for (Runnable runnable : onReloadRunnables)
-                    try {
-                        runnable.run();
-                    } catch (Exception e) {
-                        PlayMoreSounds.getPMSLogger().log("&cAn unknown error occurred on PlayMoreSounds reload.");
-                        PlayMoreSounds.getErrorLogger().report(e, "PMSReloadingError (Unknown):");
-                    }
-            }).start();
-    }
-
-    /**
-     * Adds a runnable to run when PlayMoreSounds configurations are reloaded.
-     *
-     * @param runnable The runnable to run when configurations are reloaded.
-     */
-    public static void addOnReloadRunnable(@NotNull Runnable runnable)
-    {
-        onReloadRunnables.add(runnable);
-    }
+    private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
 
     @Override
     public @NotNull CommandRunnable onHelp()
@@ -107,12 +68,20 @@ public final class ReloadSubCommand extends Command implements Helpable
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        try {
-            reload();
-            lang.send(sender, true, lang.get("Reload.Success"));
-        } catch (Exception e) {
-            lang.send(sender, true, lang.get("Reload.Error"));
-            PlayMoreSounds.getErrorLogger().report(e, "Reload Config Exception:");
+        Collection<Exception> exceptions = PlayMoreSounds.reload().values();
+
+        if (exceptions.isEmpty()) {
+            lang.send(sender, lang.get("Reload.Success"));
+        } else {
+            lang.send(sender, lang.get("Reload.Error"));
+
+            if (!(sender instanceof ConsoleCommandSender)) {
+                PlayMoreSounds.getConsoleLogger().log(lang.get("Reload.Error"), ConsoleLogger.Level.ERROR);
+            }
+
+            for (Exception exception : exceptions) {
+                PlayMoreSoundsCore.getErrorHandler().report(exception, "Reload Config Exception:");
+            }
         }
     }
 }

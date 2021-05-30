@@ -1,26 +1,26 @@
 /*
- * Copyright (c) 2020 Christiano Rangel
+ * PlayMoreSounds - A bukkit plugin that manages and plays sounds.
+ * Copyright (C) 2021 Christiano Rangel
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package com.epicnicity322.playmoresounds.core.addons;
 
 import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
-import com.epicnicity322.playmoresounds.core.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
 import com.epicnicity322.playmoresounds.core.addons.exceptions.InvalidAddonException;
 import com.epicnicity322.playmoresounds.core.util.LoadableHashSet;
 import org.jetbrains.annotations.NotNull;
@@ -39,13 +39,13 @@ public class AddonManager
 {
     static final @NotNull Set<AddonClassLoader> addonClassLoaders = ConcurrentHashMap.newKeySet();
     private static final @NotNull AtomicBoolean registered = new AtomicBoolean(false);
-    private final @NotNull PlayMoreSounds corePMS;
     private final @NotNull LoadableHashSet<String> serverPlugins;
+    private final @NotNull ConsoleLogger<?> logger;
 
-    public AddonManager(@NotNull PlayMoreSounds corePMS, @NotNull LoadableHashSet<String> serverPlugins)
+    public AddonManager(@NotNull LoadableHashSet<String> serverPlugins, @NotNull ConsoleLogger<?> logger)
     {
-        this.corePMS = corePMS;
         this.serverPlugins = serverPlugins;
+        this.logger = logger;
     }
 
     /**
@@ -63,7 +63,7 @@ public class AddonManager
         if (!serverPlugins.isLoaded())
             throw new IllegalStateException("Can not register addons if the server has not registered all plugins yet.");
 
-        Path addonsFolder = corePMS.getCoreDataFolder().resolve("Addons");
+        Path addonsFolder = PlayMoreSoundsCore.getFolder().resolve("Addons");
 
         if (Files.notExists(addonsFolder))
             Files.createDirectories(addonsFolder);
@@ -87,28 +87,28 @@ public class AddonManager
 
                     // Checking if an addon with the same name was registered before.
                     if (addonNames.contains(name)) {
-                        corePMS.getCoreLogger().log("&eTwo addons with the name '" + name + "' were found, only registering the first one.", ConsoleLogger.Level.WARN);
+                        logger.log("&eTwo addons with the name '" + name + "' were found, only registering the first one.", ConsoleLogger.Level.WARN);
                     } else {
                         String addon = name.toLowerCase().contains("addon") ? name : name + " addon";
 
                         // Checking if addon api-version is compatible.
-                        if (description.getApiVersion().compareTo(PlayMoreSounds.version) > 0) {
-                            corePMS.getCoreLogger().log("&c" + addon + " was made for PlayMoreSounds v" + description.getApiVersion() + ". You are currently on " + PlayMoreSounds.version + ".", ConsoleLogger.Level.WARN);
+                        if (description.getApiVersion().compareTo(PlayMoreSoundsVersion.getVersion()) > 0) {
+                            logger.log("&c" + addon + " was made for PlayMoreSounds v" + description.getApiVersion() + ". You are currently on " + PlayMoreSoundsVersion.version + ".", ConsoleLogger.Level.WARN);
                         } else {
                             // Checking if server has the required plugins by this addon.
                             if (serverPlugins.containsAll(description.getRequiredPlugins())) {
                                 addons.put(description, jar);
                                 addonNames.add(name);
                             } else {
-                                corePMS.getCoreLogger().log("&c" + addon + " depends on the plugin(s): " + description.getRequiredPlugins(), ConsoleLogger.Level.WARN);
+                                logger.log("&c" + addon + " depends on the plugin(s): " + description.getRequiredPlugins(), ConsoleLogger.Level.WARN);
                             }
                         }
                     }
                 } catch (InvalidAddonException e) {
-                    corePMS.getCoreLogger().log("&c" + e.getMessage(), ConsoleLogger.Level.WARN);
+                    logger.log("&c" + e.getMessage(), ConsoleLogger.Level.WARN);
                 } catch (Exception e) {
-                    corePMS.getCoreLogger().log("&cException while registering the addon '" + jar.getFileName() + "&e': " + e.getMessage(), ConsoleLogger.Level.WARN);
-                    corePMS.getCoreErrorLogger().report(e, "Path: " + jar.toAbsolutePath() + "\nRegister as addon exception:");
+                    logger.log("&cException while registering the addon '" + jar.getFileName() + "&e': " + e.getMessage(), ConsoleLogger.Level.WARN);
+                    PlayMoreSoundsCore.getErrorHandler().report(e, "Path: " + jar.toAbsolutePath() + "\nRegister as addon exception:");
                 }
             });
         }
@@ -116,7 +116,7 @@ public class AddonManager
         // Removing addons that are missing dependencies.
         addons.keySet().removeIf(description -> {
             if (!addonNames.containsAll(description.getRequiredAddons())) {
-                corePMS.getCoreLogger().log("&c" + description.getName() + " depends on the other addon(s): " + description.getRequiredAddons(), ConsoleLogger.Level.WARN);
+                logger.log("&c" + description.getName() + " depends on the other addon(s): " + description.getRequiredAddons(), ConsoleLogger.Level.WARN);
                 addonNames.remove(description.getName());
                 return true;
             }
@@ -129,12 +129,12 @@ public class AddonManager
             String name = description.getName();
 
             try {
-                addonClassLoaders.add(new AddonClassLoader(corePMS, jar, description));
+                addonClassLoaders.add(new AddonClassLoader(jar, description));
             } catch (InvalidAddonException e) {
-                corePMS.getCoreLogger().log("&c" + e.getMessage(), ConsoleLogger.Level.WARN);
+                logger.log("&c" + e.getMessage(), ConsoleLogger.Level.WARN);
             } catch (Exception e) {
-                corePMS.getCoreLogger().log("&cException while initializing " + name + " addon. Please contact the addon author(s): " + description.getAuthors(), ConsoleLogger.Level.WARN);
-                corePMS.getCoreErrorLogger().report(e, "Addon Author(s): " + description.getAuthors() + "\nPath: " + jar.toAbsolutePath() + "\nInstantiate main class exception:");
+                logger.log("&cException while initializing " + name + " addon. Please contact the addon author(s): " + description.getAuthors(), ConsoleLogger.Level.WARN);
+                PlayMoreSoundsCore.getErrorHandler().report(e, "Addon Author(s): " + description.getAuthors() + "\nPath: " + jar.toAbsolutePath() + "\nInstantiate main class exception:");
             }
         });
     }
@@ -176,15 +176,15 @@ public class AddonManager
     {
         String name = addon.getDescription().getName();
 
-        corePMS.getCoreLogger().log("&eStarting " + name + " v" + addon.getDescription().getVersion() + (name.toLowerCase().contains("addon") ? "." : " addon."));
+        logger.log("&eStarting " + name + " v" + addon.getDescription().getVersion() + (name.toLowerCase().contains("addon") ? "." : " addon."));
 
         try {
             addon.onStart();
             addon.started = true;
-            AddonEventManager.callLoadUnloadEvent(addon, corePMS);
+            AddonEventManager.callLoadUnloadEvent(addon);
         } catch (Exception ex) {
-            corePMS.getCoreLogger().log("&cException while starting the addon '" + name + "': " + ex.getMessage(), ConsoleLogger.Level.WARN);
-            corePMS.getCoreErrorLogger().report(ex, "Path: " + addon.getJar() + "\nStart addon exception:");
+            logger.log("&cException while starting the addon '" + name + "': " + ex.getMessage(), ConsoleLogger.Level.WARN);
+            PlayMoreSoundsCore.getErrorHandler().report(ex, "Path: " + addon.getJar() + "\nStart addon exception:");
         }
     }
 
@@ -215,16 +215,16 @@ public class AddonManager
     {
         String name = addon.getDescription().getName();
 
-        corePMS.getCoreLogger().log("&eStopping " + name + " v" + addon.getDescription().getVersion() + (name.toLowerCase().contains("addon") ? "." : " addon."));
+        logger.log("&eStopping " + name + " v" + addon.getDescription().getVersion() + (name.toLowerCase().contains("addon") ? "." : " addon."));
 
         try {
             addon.onStop();
             addon.stopped = true;
             addon.loaded = false;
-            AddonEventManager.callLoadUnloadEvent(addon, corePMS);
+            AddonEventManager.callLoadUnloadEvent(addon);
         } catch (Exception ex) {
-            corePMS.getCoreLogger().log("&cException while stopping the addon '" + name + "': " + ex.getMessage(), ConsoleLogger.Level.WARN);
-            corePMS.getCoreErrorLogger().report(ex, "Path: " + addon.getJar() + "\nStop addon exception:");
+            logger.log("&cException while stopping the addon '" + name + "': " + ex.getMessage(), ConsoleLogger.Level.WARN);
+            PlayMoreSoundsCore.getErrorHandler().report(ex, "Path: " + addon.getJar() + "\nStop addon exception:");
         }
     }
 

@@ -1,53 +1,59 @@
 /*
- * Copyright (c) 2020 Christiano Rangel
+ * PlayMoreSounds - A bukkit plugin that manages and plays sounds.
+ * Copyright (C) 2021 Christiano Rangel
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package com.epicnicity322.playmoresounds.bukkit.util;
 
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.epicpluginlib.bukkit.logger.Logger;
-import com.epicnicity322.epicpluginlib.bukkit.updater.UpdateChecker;
-import com.epicnicity322.epicpluginlib.core.config.PluginConfig;
+import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
+import com.epicnicity322.epicpluginlib.core.tools.Downloader;
+import com.epicnicity322.epicpluginlib.core.tools.SpigotUpdateChecker;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class UpdateManager
 {
-    private static final @NotNull PluginConfig config = Configurations.CONFIG.getPluginConfig();
-    private static final @NotNull Logger logger = PlayMoreSounds.getPMSLogger();
+    private static final @NotNull ConfigurationHolder config = Configurations.CONFIG.getConfigurationHolder();
+    private static final @NotNull Logger logger = PlayMoreSounds.getConsoleLogger();
+    private static final @NotNull AtomicBoolean updateAvailable = new AtomicBoolean(false);
     private static boolean alreadyLoaded = false;
     private static volatile Version latestVersion = null;
-    private static volatile boolean updateAvailable = false;
 
     private UpdateManager()
     {
     }
 
+    /**
+     * @return If an update is available by last time it was checked.
+     */
     public static boolean isUpdateAvailable()
     {
-        return updateAvailable;
+        return updateAvailable.get();
     }
 
     public static void loadUpdater()
@@ -72,7 +78,7 @@ public final class UpdateManager
                 @Override
                 public void run()
                 {
-                    if (updateAvailable) {
+                    if (updateAvailable.get()) {
                         cancel();
                     } else {
                         // Getting YamlConfiguration again because YamlConfiguration field can change in PluginConfig
@@ -84,59 +90,60 @@ public final class UpdateManager
         }
     }
 
-    public static synchronized void check(@NotNull CommandSender sender, boolean log)
+    public static void check(@NotNull CommandSender sender, boolean log)
     {
-        PlayMoreSounds plugin = PlayMoreSounds.getInstance();
+        MessageSender lang = PlayMoreSounds.getLanguage();
 
-        if (plugin == null)
-            throw new IllegalStateException("PlayMoreSounds is not loaded.");
-
-        MessageSender lang = PlayMoreSounds.getMessageSender();
-
-        if (updateAvailable) {
-            if (log)
+        if (updateAvailable.get()) {
+            if (log) {
                 lang.send(sender, lang.get("Update.Available").replace("<version>", latestVersion.getVersion()).replace("<label>", "pms"));
-        } else {
-            if (log)
-                lang.send(sender, lang.get("Update.Check"));
+            }
 
-            new Thread(new UpdateChecker(37429, PlayMoreSounds.version)
-            {
-                @Override
-                public void onUpdateCheck(@NotNull CheckResult checkResult, @Nullable Version latestVersion)
-                {
-                    if (latestVersion != null)
-                        UpdateManager.latestVersion = latestVersion;
-
-                    if (checkResult == CheckResult.AVAILABLE) {
-                        updateAvailable = true;
-
-                        if (log)
-                            lang.send(sender, lang.get("Update.Available").replace("<version>", UpdateManager.latestVersion.getVersion()).replace("<label>", "pms"));
-
-                        Bukkit.getScheduler().runTaskTimer(plugin, () ->
-                                logger.log("&2PMS has a new update available. Please download using /pms update download."), 12000, 12000);
-                    } else if (log) {
-                        switch (checkResult) {
-                            case OFFLINE:
-                                lang.send(sender, lang.get("Update.Error.Offline"));
-                                break;
-
-                            case TIMEOUT:
-                                lang.send(sender, lang.get("Update.Error.Timeout"));
-                                break;
-
-                            case UNEXPECTED_ERROR:
-                                lang.send(sender, lang.get("Update.Error.Default"));
-                                break;
-
-                            default:
-                                lang.send(sender, lang.get("Update.Not Available"));
-                                break;
-                        }
-                    }
-                }
-            }, "Update Checker").start();
+            return;
         }
+
+        if (log) {
+            lang.send(sender, lang.get("Update.Check"));
+        }
+
+        SpigotUpdateChecker updateChecker = new SpigotUpdateChecker(37429, PlayMoreSoundsVersion.getVersion());
+
+        updateChecker.check((available, latest) -> {
+            if (available) {
+                updateAvailable.set(true);
+                latestVersion = latest;
+
+                if (log) {
+                    lang.send(sender, lang.get("Update.Available").replace("<version>", UpdateManager.latestVersion.getVersion()).replace("<label>", "pms"));
+                }
+
+                if (PlayMoreSounds.getInstance() != null) {
+                    Bukkit.getScheduler().runTaskTimer(PlayMoreSounds.getInstance(), () ->
+                            logger.log("&2PMS has a new update available. Please download using /pms update download."), 12000, 12000);
+                }
+            } else {
+                lang.send(sender, lang.get("Update.Not Available"));
+            }
+        }, (error, exception) -> {
+            if (log) {
+                switch (error) {
+                    case OFFLINE:
+                        lang.send(sender, lang.get("Update.Error.Offline"));
+                        break;
+
+                    case TIMEOUT:
+                        lang.send(sender, lang.get("Update.Error.Timeout"));
+                        break;
+
+                    case UNEXPECTED_ERROR:
+                        lang.send(sender, lang.get("Update.Error.Default"));
+                        break;
+                }
+            }
+
+            if (error == Downloader.Result.UNEXPECTED_ERROR) {
+                PlayMoreSoundsCore.getErrorHandler().report(exception, "Update Check Exception:");
+            }
+        });
     }
 }

@@ -1,20 +1,19 @@
 /*
- * Copyright (c) 2020 Christiano Rangel
+ * PlayMoreSounds - A bukkit plugin that manages and plays sounds.
+ * Copyright (C) 2021 Christiano Rangel
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package com.epicnicity322.playmoresounds.bukkit.listener;
@@ -72,8 +71,8 @@ public final class OnRegionEnterLeave extends PMSListener
     @Override
     public void load()
     {
-        Configuration sounds = Configurations.SOUNDS.getPluginConfig().getConfiguration();
-        Configuration regions = Configurations.REGIONS.getPluginConfig().getConfiguration();
+        Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+        Configuration regions = Configurations.REGIONS.getConfigurationHolder().getConfiguration();
         ConfigurationSection regionEnterSection = sounds.getConfigurationSection("Region Enter");
         ConfigurationSection regionLeaveSection = sounds.getConfigurationSection("Region Leave");
         ConfigurationSection defaultSection = ObjectUtils.getOrDefault(regionEnterSection, regionLeaveSection);
@@ -119,7 +118,7 @@ public final class OnRegionEnterLeave extends PMSListener
     public void onRegionEnter(RegionEnterEvent event)
     {
         Player player = event.getPlayer();
-        ConfigurationSection regions = Configurations.REGIONS.getPluginConfig().getConfiguration()
+        ConfigurationSection regions = Configurations.REGIONS.getConfigurationHolder().getConfiguration()
                 .getConfigurationSection("PlayMoreSounds");
         SoundRegion region = event.getRegion();
         boolean defaultSound = true;
@@ -143,7 +142,7 @@ public final class OnRegionEnterLeave extends PMSListener
                     long period = loop.getNumber("Period").orElse(0).longValue();
 
                     regionsInLoop.put(key, loopSound.playInLoop(player, player::getLocation, delay, period, () -> {
-                        Configuration updatedRegions = Configurations.REGIONS.getPluginConfig().getConfiguration();
+                        Configuration updatedRegions = Configurations.REGIONS.getConfigurationHolder().getConfiguration();
 
                         return !updatedRegions.getBoolean("PlayMoreSounds." + region.getName() + ".Loop.Enabled").orElse(false)
                                 || !RegionManager.getAllRegions().contains(region) || !player.isOnline() || !region.isInside(player.getLocation());
@@ -214,7 +213,7 @@ public final class OnRegionEnterLeave extends PMSListener
 
         boolean defaultSound = true;
 
-        ConfigurationSection leave = Configurations.REGIONS.getPluginConfig().getConfiguration().getConfigurationSection("PlayMoreSounds." + region.getName() + ".Leave");
+        ConfigurationSection leave = Configurations.REGIONS.getConfigurationHolder().getConfiguration().getConfigurationSection("PlayMoreSounds." + region.getName() + ".Leave");
 
         if (leave != null) {
             RichSound leaveSound = new RichSound(leave);

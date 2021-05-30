@@ -1,20 +1,19 @@
 /*
- * Copyright (c) 2020 Christiano Rangel
+ * PlayMoreSounds - A bukkit plugin that manages and plays sounds.
+ * Copyright (C) 2021 Christiano Rangel
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
@@ -22,7 +21,7 @@ package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
-import com.epicnicity322.epicpluginlib.core.config.PluginConfig;
+import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.inventory.ListInventory;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
@@ -46,9 +45,9 @@ import java.util.TreeSet;
 
 public final class ListSubCommand extends Command implements Helpable
 {
-    private static final @NotNull PluginConfig config = Configurations.CONFIG.getPluginConfig();
-    private static final @NotNull MessageSender lang = PlayMoreSounds.getMessageSender();
+    private static final @NotNull ConfigurationHolder config = Configurations.CONFIG.getConfigurationHolder();
     private static final @NotNull HashMap<Integer, HashMap<Long, ArrayList<String>>> soundPagesCache = new HashMap<>();
+    private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
 
     static {
         // Clear cache on disable.
@@ -84,8 +83,7 @@ public final class ListSubCommand extends Command implements Helpable
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        boolean gui = sender instanceof Player && sender.hasPermission("playmoresounds.list.gui")
-                && VersionUtils.hasPersistentData();
+        boolean gui = sender instanceof Player && sender.hasPermission("playmoresounds.list.gui") && VersionUtils.hasPersistentData();
         long page = 1;
         String invalidArgs = lang.get("General.Invalid Arguments").replace("<label>", label).replace(
                 "<label2>", args[0]).replace("<args>", "[" + lang.get("List.Page")

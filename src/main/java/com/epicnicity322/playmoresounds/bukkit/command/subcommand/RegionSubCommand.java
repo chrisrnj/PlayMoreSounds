@@ -1,20 +1,19 @@
 /*
- * Copyright (c) 2020 Christiano Rangel
+ * PlayMoreSounds - A bukkit plugin that manages and plays sounds.
+ * Copyright (C) 2021 Christiano Rangel
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
@@ -22,7 +21,7 @@ package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
-import com.epicnicity322.epicpluginlib.core.config.PluginConfig;
+import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
 import com.epicnicity322.epicpluginlib.core.util.StringUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandUtils;
@@ -30,6 +29,7 @@ import com.epicnicity322.playmoresounds.bukkit.listener.OnPlayerInteract;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import com.epicnicity322.yamlhandler.Configuration;
@@ -54,10 +54,16 @@ import java.util.stream.Collectors;
 
 public final class RegionSubCommand extends Command implements Helpable
 {
-    private static final @NotNull MessageSender lang = PlayMoreSounds.getMessageSender();
     private static final @NotNull Pattern allowedRegionNameChars = Pattern.compile("^[A-Za-z0-9_]+$");
-    private static final @NotNull PluginConfig config = Configurations.CONFIG.getPluginConfig();
+    private static final @NotNull ConfigurationHolder config = Configurations.CONFIG.getConfigurationHolder();
     private static final @NotNull AtomicInteger showingBorders = new AtomicInteger(0);
+    private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
+    private final @NotNull PlayMoreSounds plugin;
+
+    public RegionSubCommand(@NotNull PlayMoreSounds plugin)
+    {
+        this.plugin = plugin;
+    }
 
     @Override
     public @NotNull CommandRunnable onHelp()
@@ -211,7 +217,7 @@ public final class RegionSubCommand extends Command implements Helpable
         }
 
         String name;
-        Configuration config = Configurations.CONFIG.getPluginConfig().getConfiguration();
+        Configuration config = RegionSubCommand.config.getConfiguration();
 
         if (args.length > 2) {
             name = args[2];
@@ -268,9 +274,9 @@ public final class RegionSubCommand extends Command implements Helpable
             Location min = region.getMinDiagonal();
             Location max = region.getMaxDiagonal();
 
-            int xSize = max.getBlockX() - min.getBlockX();
-            int ySize = max.getBlockY() - min.getBlockY();
-            int zSize = max.getBlockZ() - min.getBlockZ();
+            long xSize = max.getBlockX() - min.getBlockX();
+            long ySize = max.getBlockY() - min.getBlockY();
+            long zSize = max.getBlockZ() - min.getBlockZ();
 
             long maxArea = config.getNumber("Sound Regions.Max Area").orElse(1000000).longValue();
 
@@ -316,7 +322,7 @@ public final class RegionSubCommand extends Command implements Helpable
             OnPlayerInteract.selectDiagonal(creator, null, false);
         } catch (IOException e) {
             lang.send(sender, lang.get("Region.Create.Error.Default").replace("<name>", name));
-            PlayMoreSounds.getErrorLogger().report(e, "Error while creating region \"" + name + "\":");
+            PlayMoreSoundsCore.getErrorHandler().report(e, "Error while creating region \"" + name + "\":");
         }
     }
 
@@ -377,12 +383,12 @@ public final class RegionSubCommand extends Command implements Helpable
 
                 showingBorders.incrementAndGet();
 
-                BukkitTask task = Bukkit.getScheduler().runTaskTimer(PlayMoreSounds.getInstance(), () -> {
+                BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
                     for (Location border : region.getBorder())
                         ((Player) sender).spawnParticle(Particle.NOTE, border, count, r, g, b);
                 }, 0, 5);
 
-                Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> {
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     task.cancel();
                     showingBorders.decrementAndGet();
                 }, config.getConfiguration().getNumber("Sound Regions.Border.Showing Time").orElse(100).longValue());
@@ -514,7 +520,7 @@ public final class RegionSubCommand extends Command implements Helpable
                 lang.send(sender, lang.get("Region.Remove.Success").replace("<region>", name));
             } catch (Exception ex) {
                 lang.send(sender, lang.get("Region.Remove.Error").replace("<region>", name));
-                PlayMoreSounds.getErrorLogger().report(ex, "Error while deleting region " + name);
+                PlayMoreSoundsCore.getErrorHandler().report(ex, "Error while deleting region " + name);
             }
         }, lang.get("Region.Remove.Description").replace("<region>", name));
     }
@@ -555,7 +561,7 @@ public final class RegionSubCommand extends Command implements Helpable
             return;
         }
 
-        Configuration config = Configurations.CONFIG.getPluginConfig().getConfiguration();
+        Configuration config = RegionSubCommand.config.getConfiguration();
         int maxCharacters = config.getNumber("Sound Regions.Max Name Characters").orElse(20).intValue();
 
         if (newName.length() > maxCharacters) {
@@ -570,7 +576,7 @@ public final class RegionSubCommand extends Command implements Helpable
             lang.send(sender, lang.get("Region.Rename.Success").replace("<region>", oldName).replace("<newName>", newName));
         } catch (Exception ex) {
             lang.send(sender, lang.get("Region.General.Error.Save").replace("<region>", region.getName()));
-            PlayMoreSounds.getErrorLogger().report(ex, region.getName() + " Region Save Error:");
+            PlayMoreSoundsCore.getErrorHandler().report(ex, region.getName() + " Region Save Error:");
         }
     }
 
@@ -625,7 +631,7 @@ public final class RegionSubCommand extends Command implements Helpable
                     lang.send(sender, lang.get("Region.Set.Description.Success").replace("<region>", region.getName()).replace("<description>", string));
                 } catch (Exception ex) {
                     lang.send(sender, lang.get("Region.General.Error.Save").replace("<region>", region.getName()));
-                    PlayMoreSounds.getErrorLogger().report(ex, region.getName() + " Region Save Error:");
+                    PlayMoreSoundsCore.getErrorHandler().report(ex, region.getName() + " Region Save Error:");
                 }
 
                 return;

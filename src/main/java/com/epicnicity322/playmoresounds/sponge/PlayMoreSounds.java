@@ -1,42 +1,40 @@
 /*
- * Copyright (c) 2020 Christiano Rangel
+ * PlayMoreSounds - A bukkit plugin that manages and plays sounds.
+ * Copyright (C) 2021 Christiano Rangel
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package com.epicnicity322.playmoresounds.sponge;
 
 import com.epicnicity322.epicpluginlib.core.EpicPluginLib;
 import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
-import com.epicnicity322.epicpluginlib.core.logger.ErrorLogger;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.epicpluginlib.sponge.logger.Logger;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
 import com.epicnicity322.playmoresounds.core.addons.AddonManager;
 import com.epicnicity322.playmoresounds.core.addons.StartTime;
 import com.epicnicity322.playmoresounds.core.util.LoadableHashSet;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import com.epicnicity322.playmoresounds.sponge.listeners.OnClientConnection;
 import com.google.inject.Inject;
-import org.bstats.sponge.MetricsLite2;
+import org.bstats.sponge.Metrics;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
@@ -49,34 +47,29 @@ import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.metric.MetricsConfigManager;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Random;
 
 @Plugin(id = "playmoresounds",
         name = "PlayMoreSounds",
-        version = com.epicnicity322.playmoresounds.core.PlayMoreSounds.versionString,
+        version = PlayMoreSoundsVersion.version,
         description = "Plays sounds at player events.",
         dependencies = @Dependency(id = "epicpluginlib"))
-public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.core.PlayMoreSounds
+public final class PlayMoreSounds
 {
     private static final @NotNull HashSet<Runnable> onDisableRunnables = new HashSet<>();
     private static final @NotNull HashSet<Runnable> onEnableRunnables = new HashSet<>();
-    private static final @NotNull HashSet<Runnable> onInstanceRunnables = new HashSet<>();
     private static final @NotNull LoadableHashSet<String> serverPlugins = new LoadableHashSet<>();
     private static final @NotNull Random random = new Random();
-    private static @Nullable PlayMoreSounds instance;
     private static boolean success = true;
     private static boolean enabled = false;
     private static boolean disabled = false;
 
     static {
-        if (EpicPluginLib.version.compareTo(new Version("1.6.1")) < 0) {
+        if (EpicPluginLib.version.compareTo(new Version("2.0")) < 0) {
             success = false;
 
             addOnEnableRunnable(() -> {
@@ -93,9 +86,7 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
 
     private final @NotNull String gameVersion;
     private final @NotNull Logger logger;
-    private final @NotNull ErrorLogger errorLogger;
     private final @NotNull AddonManager addonManager;
-    private final @NotNull Path privateConfigDir;
     @Inject
     private PluginContainer container;
     @Inject
@@ -104,45 +95,15 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
     private MetricsConfigManager metricsConfigManager;
 
     @Inject
-    public PlayMoreSounds(Game game,
-                          @ConfigDir(sharedRoot = false) @NotNull Path privateConfigDir,
-                          org.slf4j.Logger lf4jLogger,
-                          MetricsLite2.Factory metricsFactory) throws IOException
+    public PlayMoreSounds(Game game, org.slf4j.Logger lf4jLogger, Metrics.Factory metricsFactory)
     {
-        instance = this;
         logger = new Logger(PMSHelper.isChristmas() ? "&f[&4PlayMoreSounds&f] " : "&6[&9PlayMoreSounds&6] ", lf4jLogger);
         gameVersion = game.getPlatform().getContainer(Platform.Component.GAME).getVersion().orElse("0");
-        addonManager = new AddonManager(this, serverPlugins);
-        this.privateConfigDir = privateConfigDir;
-
-        if (Files.notExists(privateConfigDir))
-            Files.createDirectories(privateConfigDir);
-
-        errorLogger = new ErrorLogger(privateConfigDir, "PlayMoreSounds", getVersion().getVersion(),
-                Collections.singleton("Epicnicity322"), "https://www.spigotmc.org/resources/37429/");
+        addonManager = new AddonManager(serverPlugins, logger);
 
         // success can be false if EpicPluginLib version is not supported.
         if (success)
             metricsFactory.make(8393);
-
-        if (!onInstanceRunnables.isEmpty())
-            new Thread(() -> {
-                for (Runnable runnable : onInstanceRunnables)
-                    try {
-                        runnable.run();
-                    } catch (Exception e) {
-                        logger.log("&cAn unknown error occurred on PlayMoreSounds initialization.");
-                        errorLogger.report(e, "PMSInitializationError (Unknown):");
-                    }
-            }).start();
-    }
-
-    /**
-     * @return An instance of this class, null if it wasn't instantiated by sponge yet.
-     */
-    public static @Nullable PlayMoreSounds getInstance()
-    {
-        return instance;
     }
 
     /**
@@ -171,58 +132,6 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
             onEnableRunnables.add(runnable);
     }
 
-    /**
-     * Adds a runnable to run when PlayMoreSounds is instantiated by sponge. If PlayMoreSounds was already instantiated,
-     * the runnable is automatically ran.
-     *
-     * @param runnable The runnable to run when PlayMoreSounds is instantiated.
-     */
-    public static void addOnInstanceRunnable(@NotNull Runnable runnable)
-    {
-        if (getInstance() == null)
-            onInstanceRunnables.add(runnable);
-        else
-            runnable.run();
-    }
-
-    /**
-     * Gets the running version of PlayMoreSounds.
-     */
-    public static @NotNull Version getVersion()
-    {
-        return version;
-    }
-
-    @Override
-    public @NotNull Path getJar()
-    {
-        return container.getSource().orElseThrow(NullPointerException::new);
-    }
-
-    @Override
-    public @NotNull Path getCoreDataFolder()
-    {
-        return privateConfigDir;
-    }
-
-    @Override
-    public @NotNull ErrorLogger getCoreErrorLogger()
-    {
-        return errorLogger;
-    }
-
-    @Override
-    public @NotNull ConsoleLogger<?> getCoreLogger()
-    {
-        return logger;
-    }
-
-    @Override
-    public @NotNull AddonManager getAddonManager()
-    {
-        return addonManager;
-    }
-
     @Listener
     public void onGameInitialization(@SuppressWarnings("unused") GameInitializationEvent event)
     {
@@ -241,7 +150,7 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
                 // Only thrown if addons were registered before.
             } catch (IOException ex) {
                 logger.log("&cFailed to register addons.");
-                errorLogger.report(ex, "Addon registration error:");
+                PlayMoreSoundsCore.getErrorHandler().report(ex, "Addon registration error:");
             }
 
             addonManager.startAddons(StartTime.BEFORE_CONFIGURATIONS);
@@ -259,7 +168,7 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
             logger.log("&6-> &eCommands not loaded.");
         } catch (Exception e) {
             success = false;
-            errorLogger.report(e, "PMSLoadingError (Unknown):");
+            PlayMoreSoundsCore.getErrorHandler().report(e, "PMSLoadingError (Unknown):");
         } finally {
             if (success) {
                 logger.log("&6============================================");
@@ -269,7 +178,7 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
                 logger.log("&6============================================");
 
                 if (metricsConfigManager.getCollectionState(container) == Tristate.TRUE)
-                    logger.log("&ePlayMoreSounds is using bStats. If you don't want to send anonymous data, edit bStats configuration.");
+                    logger.log("&ePlayMoreSounds is using bStats as metrics collector.");
 
                 LocalDateTime now = LocalDateTime.now();
 
@@ -296,7 +205,7 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
                                 runnable.run();
                             } catch (Exception e) {
                                 logger.log("&cAn unknown error occurred on PlayMoreSounds startup.");
-                                errorLogger.report(e, "PMSLoadingError (Unknown):");
+                                PlayMoreSoundsCore.getErrorHandler().report(e, "PMS Loading Error (Unknown):");
                             }
                     }).start();
 
@@ -329,7 +238,7 @@ public final class PlayMoreSounds implements com.epicnicity322.playmoresounds.co
                         runnable.run();
                     } catch (Exception e) {
                         logger.log("&cAn unknown error occurred on PlayMoreSounds shutdown.");
-                        errorLogger.report(e, "PMSUnloadingError (Unknown):");
+                        PlayMoreSoundsCore.getErrorHandler().report(e, "PMS Unloading Error (Unknown):");
                     }
             }).start();
 

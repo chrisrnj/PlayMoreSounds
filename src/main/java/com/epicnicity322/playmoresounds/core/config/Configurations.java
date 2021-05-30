@@ -1,2183 +1,896 @@
 /*
- * Copyright (c) 2020 Christiano Rangel
+ * PlayMoreSounds - A bukkit plugin that manages and plays sounds.
+ * Copyright (C) 2021 Christiano Rangel
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package com.epicnicity322.playmoresounds.core.config;
 
-import com.epicnicity322.epicpluginlib.core.config.ConfigLoader;
-import com.epicnicity322.epicpluginlib.core.config.PluginConfig;
+import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
+import com.epicnicity322.epicpluginlib.core.config.ConfigurationLoader;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
-import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.function.Consumer;
 
 public enum Configurations
 {
-    BIOMES(StaticFields.sounds.resolve("biomes.yml"), config -> {
-        config.addDefaultComment(" Set a sound to play when you enter, leave or stand on a specific biome.");
-        config.addDefaultComment("");
-        config.addDefaultComment(" To set a sound, just create a configuration section with the name of the biome or");
-        config.addDefaultComment(" just copy the sample below.");
-        config.addDefaultComment(" Biome list: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/Biome.html");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Sample:");
-        config.addDefaultComment(" (Take a note that this is a sample and the sounds and biomes may not be available");
-        config.addDefaultComment(" on your MC version.)");
-        config.addDefaultComment("");
-        config.addDefaultComment("world: # The world name, replace 'world' with the name of your world.");
-        config.addDefaultComment("  PLAINS: # The biome name.");
-        config.addDefaultComment("    Enter: # When a player enters this biome.");
-        config.addDefaultComment("      Cancellable: true");
-        config.addDefaultComment("      Enabled: true");
-        config.addDefaultComment("      Stop On Exit:");
-        config.addDefaultComment("        Enabled: true # If enabled, the sound will be stopped when the player leaves the biome.");
-        config.addDefaultComment("        Delay: 20 # The time to wait before stopping the sound.");
-        config.addDefaultComment("      Sounds:");
-        config.addDefaultComment("        '0':");
-        config.addDefaultComment("          Delay: 0");
-        config.addDefaultComment("          Options:");
-        config.addDefaultComment("            Radius: 0.0");
-        config.addDefaultComment("          Pitch: 1.0");
-        config.addDefaultComment("          Sound: BLOCK_NOTE_BLOCK_PLING");
-        config.addDefaultComment("          Volume: 10.0");
-        config.addDefaultComment("    Leave: # When a player exits this biome.");
-        config.addDefaultComment("      Cancellable: true");
-        config.addDefaultComment("      Enabled: true");
-        config.addDefaultComment("      Sounds:");
-        config.addDefaultComment("        '0':");
-        config.addDefaultComment("          Delay: 0");
-        config.addDefaultComment("          Options:");
-        config.addDefaultComment("            Radius: 0.0");
-        config.addDefaultComment("          Pitch: 1.0");
-        config.addDefaultComment("          Sound: BLOCK_NOTE_BLOCK_BASS");
-        config.addDefaultComment("          Volume: 10.0");
-        config.addDefaultComment("    Loop: # When a player enters the biome, a loop will be triggered and play.");
-        config.addDefaultComment("      Cancellable: true");
-        config.addDefaultComment("      Delay: 0 # Time in ticks to wait to start the loop once triggered.");
-        config.addDefaultComment("      Enabled: true");
-        config.addDefaultComment("      Period: 100 # Time in ticks to wait before playing these sounds again.");
-        config.addDefaultComment("      Stop On Exit:");
-        config.addDefaultComment("        Enabled: true");
-        config.addDefaultComment("        Delay: 20");
-        config.addDefaultComment("      Prevent Enter Sound: true # Makes so Enter sound is not played when Loop is enabled.");
-        config.addDefaultComment("      Sounds:");
-        config.addDefaultComment("        '0':");
-        config.addDefaultComment("          Delay: 0");
-        config.addDefaultComment("          Options:");
-        config.addDefaultComment("            Radius: 0.0");
-        config.addDefaultComment("          Pitch: 1.0");
-        config.addDefaultComment("          Sound: BLOCK_NOTE_BLOCK_BASS");
-        config.addDefaultComment("          Volume: 10.0");
-        config.addDefaultComment("");
-        config.addDefaultComment(" This is a small sample. You can add more biomes, worlds and more options");
-        config.addDefaultComment(" to the sound options.");
-        config.addDefaultComment(" More information about sounds on sounds.yml.\n");
-        config.addDefault("Version", PlayMoreSounds.versionString);
-    }, StaticFields.version3_2_0),
-    CHAT_SOUNDS(StaticFields.sounds.resolve("chat sounds.yml"), config -> {
-        config.addDefaultComment(" Set a sound to play when a player type a sentence in chat.");
-        config.addDefaultComment("");
-        config.addDefaultComment("  There are five filters to choose:");
-        config.addDefaultComment("");
-        config.addDefaultComment("  -> Contains:");
-        config.addDefaultComment("  Use this section to play a sound to every message that contains the word you specify.");
-        config.addDefaultComment("  Sample:");
-        config.addDefaultComment("");
-        config.addDefaultComment("Contains:");
-        config.addDefaultComment("  hello:");
-        config.addDefaultComment("    Cancellable: true");
-        config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Prevent Other Sounds:");
-        config.addDefaultComment("      Default Sound: true # This will prevent the default sound set on sounds.yml from playing.");
-        config.addDefaultComment("      Other Filters: true # If the message match other filters, this will make so this is the only filter that will play a sound.");
-        config.addDefaultComment("");
-        config.addDefaultComment("  -> Contains SubString:");
-        config.addDefaultComment("  Use this section to play a sound to every message that contains the following string you specify.");
-        config.addDefaultComment("  This is different than Contains because Contains check for words, this checks for any part of the message.");
-        config.addDefaultComment("  Sample:");
-        config.addDefaultComment("");
-        config.addDefaultComment("Contains SubString:");
-        config.addDefaultComment("  pling:");
-        config.addDefaultComment("    Cancellable: true");
-        config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Prevent Other Sounds:");
-        config.addDefaultComment("      Default Sound: true # This will prevent the default sound set on sounds.yml from playing.");
-        config.addDefaultComment("      Other Filters: true # If the command match other filters, this will make so this is the only filter that will play a sound.");
-        config.addDefaultComment("");
-        config.addDefaultComment("  -> Ends With:");
-        config.addDefaultComment("  Self explanatory. If a message ends with the sentence specified, the sound will play.");
-        config.addDefaultComment("  Sample:");
-        config.addDefaultComment("");
-        config.addDefaultComment("Ends With:");
-        config.addDefaultComment("  something:");
-        config.addDefaultComment("    Cancellable: true");
-        config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Prevent Other Sounds:");
-        config.addDefaultComment("      Default Sound: true");
-        config.addDefaultComment("      Other Filters: true");
-        config.addDefaultComment("    Sounds:");
-        config.addDefaultComment("      '0':");
-        config.addDefaultComment("        Delay: 0");
-        config.addDefaultComment("        Options:");
-        config.addDefaultComment("          Radius: 0.0");
-        config.addDefaultComment("        Pitch: 1.0");
-        config.addDefaultComment("        Sound: 'ENTITY_CREEPER_PRIMED'");
-        config.addDefaultComment("        Volume: 10.0");
-        config.addDefaultComment("");
-        config.addDefaultComment("  -> Equals Exactly:");
-        config.addDefaultComment("  When a message equals exactly like the specified here. (Case sensitive)");
-        config.addDefaultComment("  Sample:");
-        config.addDefaultComment("");
-        config.addDefaultComment("Equals Exactly:");
-        config.addDefaultComment("  play BLOCK_PORTAL_TRAVEL sound:");
-        config.addDefaultComment("    Cancellable: true");
-        config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Prevent Other Sounds:");
-        config.addDefaultComment("      Default Sound: true");
-        config.addDefaultComment("      Other Filters: true");
-        config.addDefaultComment("    Sounds:");
-        config.addDefaultComment("      '0':");
-        config.addDefaultComment("        Delay: 1");
-        config.addDefaultComment("        Options:");
-        config.addDefaultComment("          Radius: 0.0");
-        config.addDefaultComment("        Pitch: 2.0");
-        config.addDefaultComment("        Sound: 'BLOCK_PORTAL_TRAVEL'");
-        config.addDefaultComment("        Volume: 0.4");
-        config.addDefaultComment("");
-        config.addDefaultComment("  -> Equals Ignore Case:");
-        config.addDefaultComment("  When a message is equals to the specified but, it doesn't matter if it's on lower case or");
-        config.addDefaultComment(" upper case.");
-        config.addDefaultComment("  If a player accidentally toggled upper case on it's keyboard and typed SOMETHING and you want");
-        config.addDefaultComment(" to set a sound for the message \"something\", put it in this section so the sound will be played");
-        config.addDefaultComment(" even if its on upper case.");
-        config.addDefaultComment("  Sample:");
-        config.addDefaultComment("");
-        config.addDefaultComment("Equals Ignore Case:");
-        config.addDefaultComment("  something:");
-        config.addDefaultComment("    Cancellable: false");
-        config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Prevent Other Sounds:");
-        config.addDefaultComment("      Default Sound: true");
-        config.addDefaultComment("      Other Filters: true");
-        config.addDefaultComment("    Sounds:");
-        config.addDefaultComment("      '1':");
-        config.addDefaultComment("        Delay: 0");
-        config.addDefaultComment("        Options:");
-        config.addDefaultComment("          Radius: 0.0");
-        config.addDefaultComment("        Pitch: 2.0");
-        config.addDefaultComment("        Sound: 'BLOCK_PORTAL_TRAVEL'");
-        config.addDefaultComment("        Volume: 0.4");
-        config.addDefaultComment("");
-        config.addDefaultComment("  -> Starts With:");
-        config.addDefaultComment("  Plays a sound when a message starts with the sentence you specify.");
-        config.addDefaultComment("  Sample:");
-        config.addDefaultComment("");
-        config.addDefaultComment("Starts With:");
-        config.addDefaultComment("  hello:");
-        config.addDefaultComment("    Cancellable: true");
-        config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Prevent Other Sounds:");
-        config.addDefaultComment("      Default Sound: true");
-        config.addDefaultComment("      Other Filters: true");
-        config.addDefaultComment("    Sounds:");
-        config.addDefaultComment("      '1':");
-        config.addDefaultComment("        Delay: 0");
-        config.addDefaultComment("        Options:");
-        config.addDefaultComment("          Radius: 0.0");
-        config.addDefaultComment("        Pitch: 2.0");
-        config.addDefaultComment("        Sound: 'BLOCK_PORTAL_TRAVEL'");
-        config.addDefaultComment("        Volume: 0.4");
-        config.addDefaultComment("");
-        config.addDefaultComment(" More information about sounds on sounds.yml");
-        config.addDefault("Version", PlayMoreSounds.versionString);
-    }, StaticFields.version3_2_0),
-    COMMANDS(StaticFields.sounds.resolve("commands.yml"), config -> {
-        config.addDefaultComment(" Set a sound to play when a player type a specific command.");
-        config.addDefaultComment("");
-        config.addDefaultComment("  There are five filters to choose:");
-        config.addDefaultComment("");
-        config.addDefaultComment("  -> Contains:");
-        config.addDefaultComment("  Use this section to play a sound to every command that contains the word you specify.");
-        config.addDefaultComment("  Sample:");
-        config.addDefaultComment("");
-        config.addDefaultComment("Contains:");
-        config.addDefaultComment("  play:");
-        config.addDefaultComment("    Cancellable: true");
-        config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Prevent Other Sounds:");
-        config.addDefaultComment("      Default Sound: true # This will prevent the default sound set on sounds.yml from playing.");
-        config.addDefaultComment("      Other Filters: true # If the command match other filters, this will make so this is the only filter that will play a sound.");
-        config.addDefaultComment("");
-        config.addDefaultComment("  -> Contains SubString:");
-        config.addDefaultComment("  Use this section to play a sound to every command that contains the following string you specify.");
-        config.addDefaultComment("  This is different than Contains because Contains check for words, this checks for any part of the command.");
-        config.addDefaultComment("  Sample:");
-        config.addDefaultComment("");
-        config.addDefaultComment("Contains SubString:");
-        config.addDefaultComment("  set:");
-        config.addDefaultComment("    Cancellable: true");
-        config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Prevent Other Sounds:");
-        config.addDefaultComment("      Default Sound: true # This will prevent the default sound set on sounds.yml from playing.");
-        config.addDefaultComment("      Other Filters: true # If the command match other filters, this will make so this is the only filter that will play a sound.");
-        config.addDefaultComment("");
-        config.addDefaultComment("  -> Ends With:");
-        config.addDefaultComment("  Self explanatory. If a command ends with the sentence specified, the sound will play.");
-        config.addDefaultComment("  Sample:");
-        config.addDefaultComment("");
-        config.addDefaultComment("Ends With:");
-        config.addDefaultComment("  -force:");
-        config.addDefaultComment("    Cancellable: true");
-        config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Prevent Other Sounds:");
-        config.addDefaultComment("      Default Sound: true");
-        config.addDefaultComment("      Other Filters: true");
-        config.addDefaultComment("    Sounds:");
-        config.addDefaultComment("      '0':");
-        config.addDefaultComment("        Delay: 0");
-        config.addDefaultComment("        Options:");
-        config.addDefaultComment("          Radius: 0.0");
-        config.addDefaultComment("        Pitch: 1.0");
-        config.addDefaultComment("        Sound: 'ENTITY_CREEPER_PRIMED'");
-        config.addDefaultComment("        Volume: 10.0");
-        config.addDefaultComment("");
-        config.addDefaultComment("  -> Equals Exactly:");
-        config.addDefaultComment("  When a command equals exactly like the specified here. (Case sensitive)");
-        config.addDefaultComment("  Sample:");
-        config.addDefaultComment("");
-        config.addDefaultComment("Equals Exactly:");
-        config.addDefaultComment("  /warp MALL:");
-        config.addDefaultComment("    Cancellable: true");
-        config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Prevent Other Sounds:");
-        config.addDefaultComment("      Default Sound: true");
-        config.addDefaultComment("      Other Filters: true");
-        config.addDefaultComment("    Sounds:");
-        config.addDefaultComment("      '0':");
-        config.addDefaultComment("        Delay: 1");
-        config.addDefaultComment("        Options:");
-        config.addDefaultComment("          Radius: 0.0");
-        config.addDefaultComment("        Pitch: 2.0");
-        config.addDefaultComment("        Sound: 'BLOCK_PORTAL_TRAVEL'");
-        config.addDefaultComment("        Volume: 0.4");
-        config.addDefaultComment("");
-        config.addDefaultComment("  -> Equals Ignore Case:");
-        config.addDefaultComment("  When a command is equals to the specified but, it doesn't matter if it's on lower case or");
-        config.addDefaultComment(" upper case.");
-        config.addDefaultComment("  If a player accidentally toggled upper case on it's keyboard and typed /SPAWN and you want");
-        config.addDefaultComment(" to set a sound for the command \"/spawn\", put him in this section so the sound will be played");
-        config.addDefaultComment(" even if is on upper case.");
-        config.addDefaultComment("  Sample:");
-        config.addDefaultComment("");
-        config.addDefaultComment("Equals Ignore Case:");
-        config.addDefaultComment("  /spawn:");
-        config.addDefaultComment("    Cancellable: false");
-        config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Prevent Other Sounds:");
-        config.addDefaultComment("      Default Sound: true");
-        config.addDefaultComment("      Other Filters: true");
-        config.addDefaultComment("    Sounds:");
-        config.addDefaultComment("      '1':");
-        config.addDefaultComment("        Delay: 0");
-        config.addDefaultComment("        Options:");
-        config.addDefaultComment("          Radius: 0.0");
-        config.addDefaultComment("        Pitch: 2.0");
-        config.addDefaultComment("        Sound: 'BLOCK_PORTAL_TRAVEL'");
-        config.addDefaultComment("        Volume: 0.4");
-        config.addDefaultComment("");
-        config.addDefaultComment("  -> Starts With:");
-        config.addDefaultComment("  This is the most used of them all. Plays a sound when a command starts with the sentence");
-        config.addDefaultComment(" you specify.");
-        config.addDefaultComment("  Sample:");
-        config.addDefaultComment("");
-        config.addDefaultComment("Starts With:");
-        config.addDefaultComment("  /teleport:");
-        config.addDefaultComment("    Cancellable: true");
-        config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Prevent Other Sounds:");
-        config.addDefaultComment("      Default Sound: true");
-        config.addDefaultComment("      Other Filters: true");
-        config.addDefaultComment("    Sounds:");
-        config.addDefaultComment("      '1':");
-        config.addDefaultComment("        Delay: 0");
-        config.addDefaultComment("        Options:");
-        config.addDefaultComment("          Radius: 0.0");
-        config.addDefaultComment("        Pitch: 2.0");
-        config.addDefaultComment("        Sound: 'BLOCK_PORTAL_TRAVEL'");
-        config.addDefaultComment("        Volume: 0.4");
-        config.addDefaultComment("");
-        config.addDefaultComment(" More information about sounds on sounds.yml");
-        config.addDefaultComment(" The following sounds are here just to prevent the default sound on sounds.yml from playing.\n");
-        config.addDefault("Version", PlayMoreSounds.versionString);
-        config.addDefault("Starts With./tp.Cancellable", false);
-        config.addDefault("Starts With./tp.Enabled", true);
-        config.addDefault("Starts With./tp.Prevent Other Sounds.Default Sound", true);
-        config.addDefault("Starts With./tp.Prevent Other Sounds.Other Filters", true);
-        config.addDefault("Starts With./warp.Cancellable", false);
-        config.addDefault("Starts With./warp.Enabled", true);
-        config.addDefault("Starts With./warp.Prevent Other Sounds.Default Sound", true);
-        config.addDefault("Starts With./warp.Prevent Other Sounds.Other Filters", true);
-        config.addDefault("Starts With./spawn.Cancellable", false);
-        config.addDefault("Starts With./spawn.Enabled", true);
-        config.addDefault("Starts With./spawn.Prevent Other Sounds.Default Sound", true);
-        config.addDefault("Starts With./spawn.Prevent Other Sounds.Other Filters", true);
-        config.addDefault("Starts With./gamemode.Cancellable", false);
-        config.addDefault("Starts With./gamemode.Enabled", true);
-        config.addDefault("Starts With./gamemode.Prevent Other Sounds.Default Sound", true);
-        config.addDefault("Starts With./gamemode.Prevent Other Sounds.Other Filters", true);
-        config.addDefault("Contains SubString.play.Cancellable", false);
-        config.addDefault("Contains SubString.play.Enabled", true);
-        config.addDefault("Contains SubString.play.Prevent Other Sounds.Default Sound", true);
-        config.addDefault("Contains SubString.play.Prevent Other Sounds.Other Filters", true);
-    }, StaticFields.version3_2_0),
-    CONFIG(PlayMoreSounds.getFolder().resolve("config.yml"), config -> {
-        config.addDefaultComment("################################");
-        config.addDefaultComment("#  PlayMoreSounds Configuration");
-        config.addDefaultComment("#  v" + PlayMoreSounds.versionString);
-        config.addDefaultComment("################################\n");
-        config.addDefault("Version", PlayMoreSounds.versionString);
-        config.addDefaultComment(" Should the sounds of players that disabled them be enabled on login?");
-        config.addDefault("Enable Sounds On Login", false);
-        config.addDefaultComment(" A simple halloween event, disable if you find it annoying.");
-        config.addDefault("Halloween Event", true);
-        config.addDefault("Inventories.Finder.Back Item.Material", "PAPER");
-        config.addDefault("Inventories.Finder.Back Item.Glowing", false);
-        config.addDefault("Inventories.Finder.File Item.Material", "GLASS");
-        config.addDefault("Inventories.Finder.File Item.Glowing", false);
-        config.addDefault("Inventories.Finder.Folder Item.Material", "YELLOW_STAINED_GLASS");
-        config.addDefault("Inventories.Finder.Folder Item.Glowing", false);
-        config.addDefault("Inventories.Finder.Next Page Item.Material", "SPECTRAL_ARROW");
-        config.addDefault("Inventories.Finder.Next Page Item.Glowing", true);
-        config.addDefault("Inventories.Finder.Previous Page Item.Material", "SPECTRAL_ARROW");
-        config.addDefault("Inventories.Finder.Previous Page Item.Glowing", true);
-        config.addDefault("Inventories.Finder.Sound Item.Material", "NOTE_BLOCK");
-        config.addDefault("Inventories.Finder.Sound Item.Glowing", false);
-        config.addDefault("Inventories.List.Next Page Item.Material", "SPECTRAL_ARROW");
-        config.addDefault("Inventories.List.Next Page Item.Glowing", false);
-        config.addDefault("Inventories.List.Stop Sound Item.Material", "BARRIER");
-        config.addDefault("Inventories.List.Stop Sound Item.Glowing", true);
-        config.addDefault("Inventories.List.Previous Page Item.Material", "SPECTRAL_ARROW");
-        config.addDefault("Inventories.List.Previous Page Item.Glowing", false);
-        config.addDefault("Inventories.List.Sound Item.Material", Arrays.asList("MUSIC_DISC_13",
-                "MUSIC_DISC_CAT", "MUSIC_DISC_CHIRP", "MUSIC_DISC_BLOCKS", "MUSIC_DISC_FAR", "MUSIC_DISC_MALL",
-                "MUSIC_DISC_MELLOHI", "MUSIC_DISC_STAL", "MUSIC_DISC_STRAD", "MUSIC_DISC_WARD", "MUSIC_DISC_WAIT"));
-        config.addDefault("Inventories.List.Sound Item.Glowing", false);
-        config.addDefault("Inventories.List.Rows Per Page", 4);
-        config.addDefaultComment("Available languages: EN_US, ES_LA, PT_BR, ZH_CN");
-        config.addDefault("Language Locale", "EN_US");
-        config.addDefaultComment("Resource Packs:");
-        config.addDefaultComment("  # Request player to download a resource pack on join.");
-        config.addDefaultComment("  Request: false");
-        config.addDefaultComment("  # The URL of the resource pack. Must be a direct link.");
-        config.addDefaultComment("  URL: ''");
-        config.addDefaultComment("  # If a player denies the download, this player will be kicked immediately.");
-        config.addDefaultComment("  Force:");
-        config.addDefaultComment("    Enabled: false");
-        config.addDefaultComment("    # Should the player be kicked even if the download of the resource pack is accepted but fails?");
-        config.addDefaultComment("    Even If Download Fail: false\n");
-        config.addDefault("Resource Packs.Request", false);
-        config.addDefault("Resource Packs.URL", "");
-        config.addDefault("Resource Packs.Force.Enabled", false);
-        config.addDefault("Resource Packs.Force.Even If Download Fail", false);
-        config.addDefaultComment(" Sound Regions configuration:");
-        config.addDefault("Sound Regions.Border.Max Showing Borders", 30);
-        config.addDefault("Sound Regions.Border.Showing Time", 100);
-        config.addDefault("Sound Regions.Max Area", 1000000L);
-        config.addDefault("Sound Regions.Max Name Characters", 20);
-        config.addDefault("Sound Regions.Max Regions", 5);
-        config.addDefault("Sound Regions.Wand.Name", "&6&l&nRegion Selection Tool");
-        config.addDefault("Sound Regions.Wand.Glowing", true);
-        config.addDefault("Sound Regions.Wand.Material", "FEATHER");
-        config.addDefault("Commands.List.Default.Alternate Color", "&8");
-        config.addDefault("Commands.List.Default.Color", "&e");
-        config.addDefault("Commands.List.Default.Separator", "&f, ");
-        config.addDefault("Commands.List.Default.Max Per Page", 10);
-        config.addDefaultComment(" Update scheduler");
-        config.addDefault("Updater.Enabled", true);
-        config.addDefault("Updater.Log", false);
-        config.addDefault("Updater.Period", 144000L);
-        config.addDefaultComment(" The worlds that will not play any sounds.");
-        config.addDefaultComment("World Black List:");
-        config.addDefaultComment("- 'sample'");
-        config.addDefaultComment("- 'sample2'\n");
-        config.addDefault("World Black List", new ArrayList<>());
-    }, StaticFields.version3_2_0),
-    CUSTOM_DISCS(StaticFields.sounds.resolve("custom discs.yml"), config -> {
-        config.addDefaultComment(" Set a sound to play when a player clicks at a jukebox with a specific item.");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Warnings: ");
-        config.addDefaultComment("   >> You must be on version 1.14+!");
-        config.addDefaultComment("   >> Players must have the permission 'playmoresounds.disc.use'.");
-        config.addDefaultComment("   >> Delayed sounds will not stop when the disc is removed.");
-        config.addDefaultComment("   >> For performance reasons, the sound will only play if you have only 1 disc in your hand.");
-        config.addDefaultComment("   >> When the disc is removed the sound will only stop for the player who removed it,");
-        config.addDefaultComment("   meaning if the sound has a radius the sound will not be stopped to the players in");
-        config.addDefaultComment("   the radius.");
-        config.addDefaultComment("");
-        config.addDefaultComment(" To set a sound, just create a configuration section with an id and set the item name,");
-        config.addDefaultComment(" material and lore or just copy the sample.");
-        config.addDefaultComment(" Item material list: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Usage In-Game: ");
-        config.addDefaultComment("   Get the disc with the command '/pms disc <id>'");
-        config.addDefaultComment("   Click on a jukebox with one of the discs that you set here to play the sound.");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Sample:");
-        config.addDefaultComment(" (Take a note that this is a sample and the sounds and items may not be available on");
-        config.addDefaultComment(" your MC version.)");
-        config.addDefaultComment("");
-        config.addDefaultComment("PLING_DISC: # This is the ID of the custom disc. Here I named this disc PLING_DISC. Disc IDs can not have spaces.");
-        config.addDefaultComment("  Enabled: true");
-        config.addDefaultComment("  Item:");
-        config.addDefaultComment("    Material: GOLDEN_APPLE # The material of the custom disc item.");
-        config.addDefaultComment("    Name: '&2&lPling Disc' # The name of the custom disc item.");
-        config.addDefaultComment("    Lore: 'Different pitched pling sounds!' # The lore of the custom disc item. Use <line> to break a line.");
-        config.addDefaultComment("    Glowing: true # If this disc should glow.");
-        config.addDefaultComment("  Sounds: # The sounds to play when a player uses this disc.");
-        config.addDefaultComment("    '0':");
-        config.addDefaultComment("      Delay: 0");
-        config.addDefaultComment("      Options:");
-        config.addDefaultComment("        Radius: 20.0");
-        config.addDefaultComment("      Pitch: 1.0");
-        config.addDefaultComment("      Sound: BLOCK_NOTE_BLOCK_PLING");
-        config.addDefaultComment("      Volume: 10.0");
-        config.addDefaultComment("    '1':");
-        config.addDefaultComment("      Delay: 20");
-        config.addDefaultComment("      Options:");
-        config.addDefaultComment("        Radius: 20.0");
-        config.addDefaultComment("      Pitch: 2.0");
-        config.addDefaultComment("      Sound: BLOCK_NOTE_BLOCK_PLING");
-        config.addDefaultComment("      Volume: 10.0");
-        config.addDefaultComment("    '2':");
-        config.addDefaultComment("      Delay: 40");
-        config.addDefaultComment("      Options:");
-        config.addDefaultComment("        Radius: 20.0");
-        config.addDefaultComment("      Pitch: 0.0");
-        config.addDefaultComment("      Sound: BLOCK_NOTE_BLOCK_PLING");
-        config.addDefaultComment("      Volume: 10.0");
-        config.addDefaultComment("");
-        config.addDefaultComment(" More information about sounds on sounds.yml\n");
-        config.addDefault("Version", PlayMoreSounds.versionString);
-    }, StaticFields.version3_3_0),
-    DEATH_TYPES(StaticFields.sounds.resolve("death types.yml"), config -> {
-        config.addDefaultComment(" Set a sound to play when a player die for a specific cause of death.");
-        config.addDefaultComment(" Warning >> This setting only works for 1.14+!");
-        config.addDefaultComment("");
-        config.addDefaultComment(" To set a sound, just create a configuration section with the name of the cause of");
-        config.addDefaultComment(" death or just copy the sample below.");
-        config.addDefaultComment(" Causes of death: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Sample:");
-        config.addDefaultComment(" (Take a note that this is a sample and the sounds and causes of death may not be");
-        config.addDefaultComment(" available on your MC version.)");
-        config.addDefaultComment("");
-        config.addDefaultComment("MAGIC:");
-        config.addDefaultComment("  Enabled: true");
-        config.addDefaultComment("  #This should stop the sound set in sounds.yml");
-        config.addDefaultComment("  Prevent Default Sound: true # This will prevent the default sound set on sounds.yml from playing.");
-        config.addDefaultComment("  Sounds:");
-        config.addDefaultComment("    #This should play for players who has a specific vip perm.");
-        config.addDefaultComment("    '0':");
-        config.addDefaultComment("      Delay: 0");
-        config.addDefaultComment("      Options:");
-        config.addDefaultComment("        Permission Required: 'vip.customdeathsound.magic'");
-        config.addDefaultComment("        Radius: 5.5");
-        config.addDefaultComment("        Relative Location:");
-        config.addDefaultComment("          BACK: 2.0");
-        config.addDefaultComment("          UP: 1.0");
-        config.addDefaultComment("      Pitch: 1.0");
-        config.addDefaultComment("      Sound: ENTITY_WITHER_DEATH");
-        config.addDefaultComment("      Volume: 1.0");
-        config.addDefaultComment("    #Since this event should stop the regular death sound for whoever dies by magic,");
-        config.addDefaultComment("    #another sound need to be set so players that aren't vip can hear the regular.");
-        config.addDefaultComment("    '0':");
-        config.addDefaultComment("      Delay: 0");
-        config.addDefaultComment("      Options:");
-        config.addDefaultComment("        Permission Required: 'player.everyplayerexceptvipshavethispermission'");
-        config.addDefaultComment("        Radius: 0.0");
-        config.addDefaultComment("      Pitch: 1.0");
-        config.addDefaultComment("      Sound: ENTITY_WITHER_SPAWN");
-        config.addDefaultComment("      Volume: 1.0");
-        config.addDefaultComment("");
-        config.addDefaultComment(" More information about sounds on sounds.yml\n");
-        config.addDefault("Version", PlayMoreSounds.versionString);
-    }, StaticFields.version3_2_0),
-    GAME_MODES(StaticFields.sounds.resolve("game modes.yml"), config -> {
-        config.addDefaultComment(" Set a sound to play when you change your gamemode.");
-        config.addDefaultComment("");
-        config.addDefaultComment(" To set a sound, just create a configuration section with the name of the game mode");
-        config.addDefaultComment(" or just copy the sample below.");
-        config.addDefaultComment(" Game mode list: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/GameMode.html");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Sample:");
-        config.addDefaultComment(" (Take a note that this is a sample and the sounds and game modes may not be available");
-        config.addDefaultComment(" on your MC version.)");
-        config.addDefaultComment("");
-        config.addDefaultComment("CREATIVE: # The gamemode that you changed to.");
-        config.addDefaultComment("  Cancellable: true");
-        config.addDefaultComment("  Enabled: true");
-        config.addDefaultComment("  Prevent Default Sound: true # This will prevent the default sound set on sounds.yml from playing.");
-        config.addDefaultComment("  Sounds:");
-        config.addDefaultComment("    '0':");
-        config.addDefaultComment("      Delay: 0");
-        config.addDefaultComment("      Options:");
-        config.addDefaultComment("        Radius: 0");
-        config.addDefaultComment("      Pitch: 1");
-        config.addDefaultComment("      Sound: BLOCK_NOTE_BLOCK_PLING");
-        config.addDefaultComment("      Volume: 10");
-        config.addDefaultComment("");
-        config.addDefaultComment(" This is a small sample. You can add more gamemodes and more options");
-        config.addDefaultComment(" to the sound options.");
-        config.addDefaultComment(" More information about sounds on sounds.yml.\n");
-        config.addDefault("Version", PlayMoreSounds.versionString);
-    }, StaticFields.version3_2_0),
-    HIT_SOUNDS(StaticFields.sounds.resolve("hit sounds.yml"), config -> {
-        config.addDefaultComment(" Set a sound to play when an entity hits another entity with a specific item on hand.");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Bukkit entity names: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/entity/EntityType.html");
-        config.addDefaultComment(" Bukkit item names: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html");
-        config.addDefaultComment("");
-        config.addDefaultComment(" You need to write when the sound will be played. To do that you need to respect the following pattern:");
-        config.addDefaultComment(" <damager> hit <victim> holding <item>");
-        config.addDefaultComment(" The sound will be played when the damager hit the victim with the item.");
-        config.addDefaultComment("");
-        config.addDefaultComment(" After you've chosen the entities and items and put them into the pattern, create a section with your");
-        config.addDefaultComment("condition like the one below.");
-        config.addDefaultComment("");
-        config.addDefaultComment("PLAYER hit ZOMBIE holding IRON_SWORD: # This sound will play when a player hits a zombie holding an iron sword.");
-        config.addDefaultComment("  Enabled: true");
-        config.addDefaultComment("  Cancellable: true");
-        config.addDefaultComment("  Prevent Other Sounds:");
-        config.addDefaultComment("    Default Sound: true # This will prevent the default sound set on sounds.yml from playing.");
-        config.addDefaultComment("    Other Conditions: true # If the hit event matches more than one condition, this will make so this is the only condition that will play a sound.");
-        config.addDefaultComment("  Sounds:");
-        config.addDefaultComment("    '0':");
-        config.addDefaultComment("      Delay: 10");
-        config.addDefaultComment("      Options:");
-        config.addDefaultComment("        Radius: 16.0");
-        config.addDefaultComment("      Pitch: 2.0");
-        config.addDefaultComment("      Sound: 'ENTITY_ZOMBIE_ATTACK_IRON_DOOR'");
-        config.addDefaultComment("      Volume: 1.0");
-        config.addDefaultComment("");
-        config.addDefaultComment(" The pattern also supports criteria, like the ones found on commands.yml, chat sounds.yml, item clicked.yml, items held.yml and items swung.yml.");
-        config.addDefaultComment(" You have the following criteria: Any, Contains[], EndsWith[], Equals[], and StartsWith[].");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Examples:");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play a sound when any kind of zombie hits any entity with any item, I would use the condition:");
-        config.addDefaultComment("   Contains[ZOMBIE] hit Any holding Any");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play a sound when a player hits any entity with any kind of sword, I would use the condition:");
-        config.addDefaultComment("   PLAYER hit Any holding EndsWith[SWORD]");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play a sound when a player hits any entity with any diamond item, I would use the condition:");
-        config.addDefaultComment("   PLAYER hit Any holding StartsWith[DIAMOND]");
-        config.addDefaultComment("");
-        config.addDefaultComment(" You can also use commas if you want to play the same sound for many criteria.");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Examples:");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play the same sound when a player OR a zombie hits any entity with any item, I would use the condition:");
-        config.addDefaultComment("   Equals[PLAYER,ZOMBIE] hit Any holding Any");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play the same sound when any entity hits any kind of cow (Mushroom or not) or any kind of pig (Zombie or not) with any item, I would use the condition:");
-        config.addDefaultComment("   Any hit Contains[COW,PIG] holding Any");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play the same sound when a player hits any entity with any kind of sword, shovel or pickaxe, I would use the condition:");
-        config.addDefaultComment("   PLAYER hit Any EndsWith[SWORD,SHOVEL,PICKAXE]");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Hope everything is clear, if you have any doubts of a condition that you wanna use but can't find how, contact me on discord:");
-        config.addDefaultComment(" https://discord.gg/eAHPbc3\n");
-        config.addDefault("Version", PlayMoreSounds.versionString);
-    }, StaticFields.version3_3_0),
-    ITEMS_CLICKED(StaticFields.sounds.resolve("items clicked.yml"), config -> {
-        config.addDefaultComment(" Set a sound to play when a player clicks on a specific item in an inventory.");
-        config.addDefaultComment("");
-        config.addDefaultComment(" To set a sound create a section with the name of the item.");
-        config.addDefaultComment(" Bukkit item names: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html");
-        config.addDefaultComment("");
-        config.addDefaultComment("IRON_SWORD: # This sound will play when a player clicks on an iron sword.");
-        config.addDefaultComment("  Enabled: true");
-        config.addDefaultComment("  Cancellable: true");
-        config.addDefaultComment("  Prevent Other Sounds:");
-        config.addDefaultComment("    Default Sound: true # This will prevent the default Inventory Click sound set on sounds.yml from playing.");
-        config.addDefaultComment("    Other Criteria: true # If the click event matches more than one criteria, this will prevent the others from playing.");
-        config.addDefaultComment("  Sounds:");
-        config.addDefaultComment("    '0':");
-        config.addDefaultComment("      Delay: 0");
-        config.addDefaultComment("      Options:");
-        config.addDefaultComment("        Radius: 0.0");
-        config.addDefaultComment("      Pitch: 2.0");
-        config.addDefaultComment("      Sound: 'ENTITY_ZOMBIE_ATTACK_IRON_DOOR'");
-        config.addDefaultComment("      Volume: 1.0");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Items support criteria, like the ones found on commands.yml, chat sounds.yml, hit sounds.yml, items held.yml and items swung.yml.");
-        config.addDefaultComment(" You have the following criteria: Contains[], EndsWith[], Equals[], and StartsWith[].");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Examples:");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play a sound for any kind of coral:");
-        config.addDefaultComment("   Contains[CORAL]");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play a sound for any kind of sword:");
-        config.addDefaultComment("   EndsWith[SWORD]");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play a sound for any diamond item:");
-        config.addDefaultComment("   StartsWith[DIAMOND]");
-        config.addDefaultComment("");
-        config.addDefaultComment(" You can also use commas if you want to play the same sound for many criteria.");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Examples:");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play the same sound wools and carpets:");
-        config.addDefaultComment("   Contains[WOOL,CARPET]");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play the same sound for glass and glass panes:");
-        config.addDefaultComment("   EndsWith[GLASS,GLASS_PANE]");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play the same sound for furnaces and blast furnaces:");
-        config.addDefaultComment("   Equals[FURNACE,BLAST_FURNACE]");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play the same sound for iron and diamond items:");
-        config.addDefaultComment("   StartsWith[IRON,DIAMOND]");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Hope everything is clear, if you have any doubts of a criteria that you wanna use but can't find how, contact me on discord:");
-        config.addDefaultComment(" https://discord.gg/eAHPbc3\n");
-        config.addDefault("Version", PlayMoreSounds.versionString);
-    }, StaticFields.version3_3_0),
-    ITEMS_HELD(StaticFields.sounds.resolve("items held.yml"), config -> {
-        config.addDefaultComment(" Set a sound to play when a player holds a specific item in their hand.");
-        config.addDefaultComment("");
-        config.addDefaultComment(" To set a sound create a section with the name of the item.");
-        config.addDefaultComment(" Bukkit item names: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html");
-        config.addDefaultComment("");
-        config.addDefaultComment("IRON_SWORD: # This sound will play when a player holds an iron sword.");
-        config.addDefaultComment("  Enabled: true");
-        config.addDefaultComment("  Cancellable: true");
-        config.addDefaultComment("  Prevent Other Sounds:");
-        config.addDefaultComment("    Default Sound: true # This will prevent the default Change Held Item sound set on sounds.yml from playing.");
-        config.addDefaultComment("    Other Criteria: true # If the item held event matches more than one criteria, this will prevent the others from playing.");
-        config.addDefaultComment("  Sounds:");
-        config.addDefaultComment("    '0':");
-        config.addDefaultComment("      Delay: 0");
-        config.addDefaultComment("      Options:");
-        config.addDefaultComment("        Radius: 0.0");
-        config.addDefaultComment("      Pitch: 2.0");
-        config.addDefaultComment("      Sound: 'ENTITY_ZOMBIE_ATTACK_IRON_DOOR'");
-        config.addDefaultComment("      Volume: 1.0");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Items support criteria, like the ones found on commands.yml, chat sounds.yml, hit sounds.yml, items clicked.yml and items swung.yml.");
-        config.addDefaultComment(" You have the following criteria: Contains[], EndsWith[], Equals[], and StartsWith[].");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Examples:");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play a sound for any kind of coral:");
-        config.addDefaultComment("   Contains[DIAMOND]");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play a sound for any kind of sword:");
-        config.addDefaultComment("   EndsWith[SWORD]");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play a sound for any diamond item:");
-        config.addDefaultComment("   StartsWith[DIAMOND]");
-        config.addDefaultComment("");
-        config.addDefaultComment(" You can also use commas if you want to play the same sound for many criteria.");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Examples:");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play the same sound wools and carpets:");
-        config.addDefaultComment("   Contains[WOOL,CARPET]");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play the same sound for glass and glass panes:");
-        config.addDefaultComment("   EndsWith[GLASS,GLASS_PANE]");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play the same sound for furnaces and blast furnaces:");
-        config.addDefaultComment("   Equals[FURNACE,BLAST_FURNACE]");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play the same sound for iron and diamond items:");
-        config.addDefaultComment("   StartsWith[IRON,DIAMOND]");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Hope everything is clear, if you have any doubts of a criteria that you wanna use but can't find how, contact me on discord:");
-        config.addDefaultComment(" https://discord.gg/eAHPbc3\n");
-        config.addDefault("Version", PlayMoreSounds.versionString);
-    }, StaticFields.version3_3_0),
-    ITEMS_SWUNG(StaticFields.sounds.resolve("items swung.yml"), config -> {
-        config.addDefaultComment(" Set a sound to play when a player swings a specific item with their hand.");
-        config.addDefaultComment("");
-        config.addDefaultComment(" To set a sound create a section with the name of the item.");
-        config.addDefaultComment(" Bukkit item names: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html");
-        config.addDefaultComment("");
-        config.addDefaultComment("IRON_SWORD: # This sound will play when a player swings an iron sword.");
-        config.addDefaultComment("  Enabled: true");
-        config.addDefaultComment("  Cancellable: true");
-        config.addDefaultComment("  Prevent Other Sounds:");
-        config.addDefaultComment("    Default Sound: true # This will prevent the default Player Swing sound set on sounds.yml from playing.");
-        config.addDefaultComment("    Other Criteria: true # If the hand swing event matches more than one criteria, this will prevent the others from playing.");
-        config.addDefaultComment("  Sounds:");
-        config.addDefaultComment("    '0':");
-        config.addDefaultComment("      Delay: 0");
-        config.addDefaultComment("      Options:");
-        config.addDefaultComment("        Radius: 0.0");
-        config.addDefaultComment("      Pitch: 2.0");
-        config.addDefaultComment("      Sound: 'ENTITY_ZOMBIE_ATTACK_IRON_DOOR'");
-        config.addDefaultComment("      Volume: 1.0");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Items support criteria, like the ones found on commands.yml, chat sounds.yml, hit sounds.yml, items clicked.yml and items held.yml.");
-        config.addDefaultComment(" You have the following criteria: Contains[], EndsWith[], Equals[], and StartsWith[].");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Examples:");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play a sound for any kind of coral:");
-        config.addDefaultComment("   Contains[DIAMOND]");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play a sound for any kind of sword:");
-        config.addDefaultComment("   EndsWith[SWORD]");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play a sound for any diamond item:");
-        config.addDefaultComment("   StartsWith[DIAMOND]");
-        config.addDefaultComment("");
-        config.addDefaultComment(" You can also use commas if you want to play the same sound for many criteria.");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Examples:");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play the same sound wools and carpets:");
-        config.addDefaultComment("   Contains[WOOL,CARPET]");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play the same sound for glass and glass panes:");
-        config.addDefaultComment("   EndsWith[GLASS,GLASS_PANE]");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play the same sound for furnaces and blast furnaces:");
-        config.addDefaultComment("   Equals[FURNACE,BLAST_FURNACE]");
-        config.addDefaultComment("");
-        config.addDefaultComment("   If I want to play the same sound for iron and diamond items:");
-        config.addDefaultComment("   StartsWith[IRON,DIAMOND]");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Hope everything is clear, if you have any doubts of a criteria that you wanna use but can't find how, contact me on discord:");
-        config.addDefaultComment(" https://discord.gg/eAHPbc3\n");
-        config.addDefault("Version", PlayMoreSounds.versionString);
-    }, StaticFields.version3_3_0),
-    LANGUAGE_EN_US(StaticFields.lang.resolve("Language EN-US.yml"), config -> {
-        config.addDefaultComment("Language EN-US");
-        config.addDefault("Version", PlayMoreSounds.versionString);
-        config.addDefault("Child Sound.Delay.Display Name", "&9&lDelay");
-        config.addDefault("Child Sound.Delay.Lore", " <delay>");
-        config.addDefault("Child Sound.Delay.Prompt Title", "&9Delay of this sound");
-        config.addDefault("Child Sound.Ignores Disabled.Display Name", "&8&lIgnores Disabled");
-        config.addDefault("Child Sound.Ignores Disabled.Lore", " &d<ignoresdisabled>");
-        config.addDefault("Child Sound.Permission Required.Display Name", "&f&lPermission Required");
-        config.addDefault("Child Sound.Permission Required.Lore", " <permissionrequired>");
-        config.addDefault("Child Sound.Permission To Listen.Display Name", "&f&lPermission To Listen");
-        config.addDefault("Child Sound.Permission To Listen.Lore", " <permissiontolisten>");
-        config.addDefault("Child Sound.Pitch.Display Name", "&a&lPitch");
-        config.addDefault("Child Sound.Pitch.Lore", " <pitch>");
-        config.addDefault("Child Sound.Radius.Display Name", "&4&lRadius: &c&l<radius>");
-        config.addDefault("Child Sound.Radius.Lore", " The range in blocks this<line> sound will be heard.");
-        config.addDefault("Child Sound.Relative Location.Display Name", "&3&lRelative Location");
-        config.addDefault("Child Sound.Relative Location.Lore", " The location the sound will<line> be played taking the player<line> as the source.<line> <line> &dUp:    &5<up><line> &dDown:  &5<down><line> &dFront: &5<front><line> &dBack:  &5<back><line> &dRight: &5<right><line> &dLeft:  &5<left><line> <line> Click to change.");
-        config.addDefault("Child Sound.Sound.Display Name", "&6&lSound");
-        config.addDefault("Child Sound.Sound.Lore", " <sound>");
-        config.addDefault("Child Sound.Title", "&6Sound: &e<id>");
-        config.addDefault("Child Sound.Volume.Display Name", "&2&lVolume");
-        config.addDefault("Child Sound.Volume.Lore", " <volume>");
-        config.addDefault("Child Sound.Cancel.Display Name", "&4&lCancel");
-        config.addDefault("Child Sound.Cancel.Lore", " Discard everything and go<line> back to &7<parent>&5&o.");
-        config.addDefault("Child Sound.Done.Display Name", "&2&lDone");
-        config.addDefault("Child Sound.Done.Lore", " Add this sound to &7<parent>&5&o.");
-        config.addDefault("Confirm.Error.Nothing Pending", "&cThere is nothing pending to confirm.");
-        config.addDefault("Confirm.List.Confirmation", " &f<id> &7- <description>");
-        config.addDefault("Confirm.List.Header", "&8List of pending confirmations:");
-        config.addDefault("Description.Header", "&6&m------------&6[&9PlayMoreSounds v<version>&6]&m------------");
-        config.addDefault("Description.Help", "&6Type \"&7&n/<label> help&6\" to see the list of commands.");
-        config.addDefault("Description.No Permission", "&6You don't have permission to use any commands.");
-        config.addDefault("Disc.Error.Not Found", "&cA disc with the ID \"&7<id>&c\" was not found.");
-        config.addDefault("Disc.Success", "&7Giving the disc &f<id>&7 to &f<target>&7.");
-        config.addDefault("Finder.Back.Display Name", "&d&lGo back");
-        config.addDefault("Finder.Back.Lore", " Click to go back to &7<path>&5&o.");
-        config.addDefault("Finder.Error", "&cSomething went wrong while executing this operation on finder.");
-        config.addDefault("Finder.File.Display Name", "&f&l<name>");
-        config.addDefault("Finder.File.Lore", " Click to edit or add sounds<line> to &7<name>&5&o.");
-        config.addDefault("Finder.Folder.Display Name", "&e&l<name>");
-        config.addDefault("Finder.Folder.Lore", " Click to enter &7<name>&5&o folder.");
-        config.addDefault("Finder.Next Page.Display Name", "&7&lNext page");
-        config.addDefault("Finder.Next Page.Lore", " Click to go to the next page.");
-        config.addDefault("Finder.Previous Page.Display Name", "&7&lPrevious page");
-        config.addDefault("Finder.Previous Page.Lore", " Click to go to the previous page.");
-        config.addDefault("Finder.Sound.Display Name", "&b&l<name>");
-        config.addDefault("Finder.Sound.Lore", " Click to edit the sound &7<name>&5&o.");
-        config.addDefault("Finder.Title.Folder", "&6&n<path>&e folder &8[&7<page>&8/&7<totalPages>&8]");
-        config.addDefault("Finder.Title.Sound", "&1&n<path>&9 sounds &8[&7<page>&8/&7<totalPages>&8]");
-        config.addDefault("General.And", "and");
-        config.addDefault("General.Description", "description");
-        config.addDefault("General.Everyone", "Everyone");
-        config.addDefault("General.Id", "id");
-        config.addDefault("General.Invalid Arguments", "&cIncorrect command syntax! Use \"&7/&n<label> <label2> <args>&c\".");
-        config.addDefault("General.Name", "name");
-        config.addDefault("General.No Permission", "&4You don't have permission to do this!");
-        config.addDefault("General.Nobody Online", "&cThere are no online players on the server.");
-        config.addDefault("General.Not A Number", "&cThe value \"&7<number>&c\" is not a valid number!");
-        config.addDefault("General.Not A Player", "&cYou must be a player to do this.");
-        config.addDefault("General.Player Not Found", "&cThe player \"&7<player>&c\" was not found.");
-        config.addDefault("General.Player", "player");
-        config.addDefault("General.Prefix", "&6[&9PlayMoreSounds&6] ");
-        config.addDefault("General.Target", "target");
-        config.addDefault("General.Unknown Command", "&cUnknown command. Use \"&7&n/<label> help&c\" to see the list of commands available to you.");
-        config.addDefault("General.World", "world");
-        config.addDefault("General.You", "You");
-        config.addDefault("Help.Check", "&e/<label> check [target]\n&7 > Checks if sounds are enabled.");
-        config.addDefault("Help.Confirm", "&e/<label> confirm [id|page]\n&7 > Confirms something.");
-        config.addDefault("Help.Disc", "&e/<label> disc <id> [target]\n&7 > Gives a configured custom disc.");
-        config.addDefault("Help.Header", "List of PlayMoreSounds commands:");
-        config.addDefault("Help.Help", "&e/<label> help [command]\n&7 > Shows the description of commands.");
-        config.addDefault("Help.List", "&e/<label> list [page] [--gui]\n&7 > Shows the sounds available on your version.");
-        config.addDefault("Help.Play", "&e/<label> play <sound> [target] [vol] [pitch]\n&7 > Plays a sound.");
-        config.addDefault("Help.Region", "&e/<label> region <create|info|list|remove|rename|set|teleport|wand>\n&7 > Regions command.");
-        config.addDefault("Help.Reload", "&e/<label> reload\n&7 > Reloads configurations and events.");
-        config.addDefault("Help.Stop Sound", "&e/<label> stopsound [target] [sounds]\n&7 > Stops sounds from playing.");
-        config.addDefault("Help.Toggle", "&e/<label> toggle [target] [on|off]\n&7 > Enables or disables sounds from playing.");
-        config.addDefault("Help.Update", "&e/<label> update [download] [--force]\n&7 > Checks and downloads updates.");
-        config.addDefault("List.Error.Not Exists", "&cThe page &7<page>&c doesn't exist! Max: <totalpages>.");
-        config.addDefault("List.Footer", "&f&l - &aView more sounds with \"&f/&n<label> list <page>&a\"");
-        config.addDefault("List.GUI.Error.Not Supported", "&cSound list GUI only works for version 1.14+");
-        config.addDefault("List.GUI.Next Page.Display Name", "&7&lNext page");
-        config.addDefault("List.GUI.Next Page.Lore", " Click to go to the next page.");
-        config.addDefault("List.GUI.Previous Page.Display Name", "&7&lPrevious page");
-        config.addDefault("List.GUI.Previous Page.Lore", " Click to go to the previous page.");
-        config.addDefault("List.GUI.Sound.Display Name", "&d&n<sound>");
-        config.addDefault("List.GUI.Sound.Lore", " Click to play this sound.");
-        config.addDefault("List.GUI.Stop Sound.Display Name", "&6&lStop Sounds");
-        config.addDefault("List.GUI.Stop Sound.Lore", " Stop all currently playing sounds.");
-        config.addDefault("List.GUI.Title", "&8List of sounds, page &c<page>&8 of &c<totalpages>&8");
-        config.addDefault("List.Header", "&aList of available sounds [Page <page> of <totalpages>]:");
-        config.addDefault("List.Page", "page");
-        config.addDefault("List.Sound Tooltip", "&5Click me to play the sound &d<sound>");
-        config.addDefault("Play.Error.Not A Sound", "&cThe section \"&7<section>&c\" in the file &7<file>&c is not a valid sound!");
-        config.addDefault("Play.Error.Unauthorized", "&cYou can't go in that folder!");
-        config.addDefault("Play.Pitch", "pitch");
-        config.addDefault("Play.Sound", "sound");
-        config.addDefault("Play.Success.Config", "&7Playing the sound &f<sound>&7 of the file &f<file>&7 to &f<player>&7.");
-        config.addDefault("Play.Success.Default", "&7Playing the sound &f<sound>&7 with volume &f<volume>&7 and pitch &f<pitch>&7 to &f<player>&7.");
-        config.addDefault("Play.Volume", "volume");
-        config.addDefault("Region.Create.Default Description", "A sound playing region.");
-        config.addDefault("Region.Create.Error.Already Exists", "&cThis name was already taken, chose another.");
-        config.addDefault("Region.Create.Error.Default", "&cSomething went wrong while creating the region \"&7<name>&c\".");
-        config.addDefault("Region.Create.Error.Different Worlds", "&cYour selections are in different worlds!");
-        config.addDefault("Region.Create.Error.Max Area", "&cThe selected area exceeds the maximum of <max> blocks.");
-        config.addDefault("Region.Create.Error.Max Regions", "&cYou cannot create more than <max> regions.");
-        config.addDefault("Region.Create.Error.Not Selected", "&cYou did not select positions, type &7&n/<label> <label2> wand&c to get the region selection tool.");
-        config.addDefault("Region.Create.Success", "&aThe region &7<name>&a was created successfully.");
-        config.addDefault("Region.General.Error.Illegal Characters", "&cRegion names can only have alpha-numeric characters.");
-        config.addDefault("Region.General.Error.Max Name Characters", "&cRegion names cannot be longer than <max> characters.");
-        config.addDefault("Region.General.Error.Not Found.Name", "&cNo region with that name was found. Type &7/<label> <label2> list&c to see the list of regions.");
-        config.addDefault("Region.General.Error.Not Found.UUID", "&cNo region with that uuid was found. Type &7/<label> <label2> list&c to see the list of regions.");
-        config.addDefault("Region.General.Error.Save", "&cSomething went wrong while saving <name> region.");
-        config.addDefault("Region.Info.Creation Date", "&7Creation Date:&f <date>");
-        config.addDefault("Region.Info.Description", "&7Description:&f <description>");
-        config.addDefault("Region.Info.Error.No Regions", "&7There are no regions on this location.");
-        config.addDefault("Region.Info.Header", "&8Information of the region &f<name>&8:");
-        config.addDefault("Region.Info.Id", "&7UUID:&f <uuid>");
-        config.addDefault("Region.Info.Owner", "&7Owner:&f <owner>");
-        config.addDefault("Region.Info.World", "&7World:&f <world>");
-        config.addDefault("Region.List.Error.No Regions", "&c<targets> have no regions.");
-        config.addDefault("Region.List.Error.Not Exists", "&cThe page &7<page>&c doesn't exist! Max: <totalPages>.");
-        config.addDefault("Region.List.Footer", "&8Type &7/<label> <label2> <label3> <label4> <next>&8 to see more regions.");
-        config.addDefault("Region.List.Header.Default", "&8Your regions [Page <page> of <totalPages>]:");
-        config.addDefault("Region.List.Header.Player", "&8Regions of <targets> [Page <page> of <totalPages>]:");
-        config.addDefault("Region.List.Region", "&7- <uuid>: &f<name>");
-        config.addDefault("Region.Region", "region");
-        config.addDefault("Region.Remove.Confirm", "&aType &7/<label> confirm&a to confirm the removal of the region &7<region>&a.");
-        config.addDefault("Region.Remove.Description", "Delete the region <region>");
-        config.addDefault("Region.Remove.Success", "&aThe region &7<region>&a was deleted successfully.");
-        config.addDefault("Region.Rename.Error.Already Exists", "&cThe new name was already taken, chose another.");
-        config.addDefault("Region.Rename.Error.Same", "&cThe new name is not different than the previous.");
-        config.addDefault("Region.Rename.New Name", "new name");
-        config.addDefault("Region.Rename.Success", "&aThe region <region> was renamed to &7<newName>&a.");
-        config.addDefault("Region.Select.Error.Overlap", "&cAn already existing region is on that location!");
-        config.addDefault("Region.Set.Description.Error.Max Characters", "&cRegion descriptions cannot be longer than 100 characters.");
-        config.addDefault("Region.Set.Description.Success", "&aDescription of <region> region was set to &7<description>&a.");
-        config.addDefault("Region.Set.Select.Error.Not A World", "&cThe value &7<value>&c is not a valid world.");
-        config.addDefault("Region.Set.Select.Position.First", "&6First position selected! World: &e<w>&6, X: &e<x>&6, Y: &e<y>&6, Z: &e<z>&6.");
-        config.addDefault("Region.Set.Select.Position.Second", "&6Second position selected! World: &e<w>&6, X: &e<x>&6, Y: &e<y>&6, Z: &e<z>&6.");
-        config.addDefault("Region.Teleport.Success", "&aYou were teleported to region <region>.");
-        config.addDefault("Region.Wand.Error.Config", "&cYou are missing settings on your configuration. Wand could not be given.");
-        config.addDefault("Region.Wand.Success", "&6Selection tool: Left-click selects first position and Right-click selects second position.");
-        config.addDefault("Relative Location Setter.Sound Source", "&2&nSound Source");
-        config.addDefault("Relative Location Setter.Where To Play", "&4&nWhere To Play");
-        config.addDefault("Reload.Error", "&cSomething went wrong while reloading config. PMS must be shut down immediately.");
-        config.addDefault("Reload.Success", "&7Configuration reloaded.");
-        config.addDefault("Resource Packs.Error", "&cSomething went wrong while requesting <player> to download the resource pack. Please try another URL.");
-        config.addDefault("Resource Packs.Kick Message", "&cYou must be using the resource pack to play on this server.");
-        config.addDefault("Resource Packs.Request Message", "&ePlease download the resource pack to continue.");
-        config.addDefault("Rich Sound.Default.Cancellable.Display Name", "&c&lCancellable");
-        config.addDefault("Rich Sound.Default.Cancellable.Lore", "&d<value>");
-        config.addDefault("Rich Sound.Default.Done.Display Name", "&2&lDone");
-        config.addDefault("Rich Sound.Default.Done.Lore", " Click to save changes.");
-        config.addDefault("Rich Sound.Default.Loop Period.Display Name", "&f&l<period>");
-        config.addDefault("Rich Sound.Default.Loop Period.Lore", " This sound will play every<line> <period> ticks.");
-        config.addDefault("Rich Sound.Default.Loop Start Delay.Display Name", "&f&l<delay>");
-        config.addDefault("Rich Sound.Default.Loop Start Delay.Lore", " This sound will wait <delay> ticks<line> before start looping.");
-        config.addDefault("Rich Sound.Default.Name.Display Name", "&8&lName: &7&l<name>");
-        config.addDefault("Rich Sound.Default.Name.Lore", " Click to set the name<line> of this sound.");
-        config.addDefault("Rich Sound.Default.Sound.Display Name", "&3&l<id>");
-        config.addDefault("Rich Sound.Default.Sound.Lore", "Click to edit this sound.");
-        config.addDefault("Rich Sound.Default.Title", "&6Editing &e<name>&6 sound");
-        config.addDefault("Rich Sound.General.Add New Sound.Display Name", "&e&lAdd new sound");
-        config.addDefault("Rich Sound.General.Add New Sound.Lore", " Click to add a new sound.");
-        config.addDefault("Rich Sound.General.Cancel.Display Name", "&4&lCancel");
-        config.addDefault("Rich Sound.General.Cancel.Lore", " Discard everything.");
-        config.addDefault("Rich Sound.General.Disabled.Display Name", "&4&lDisabled");
-        config.addDefault("Rich Sound.General.Disabled.Lore", " This sound is disabled.<line> Click to enable.");
-        config.addDefault("Rich Sound.General.Enabled.Display Name", "&2&lEnabled");
-        config.addDefault("Rich Sound.General.Enabled.Lore", " This sound is enabled.<line> Click to disable.");
-        config.addDefault("Rich Sound.General.Next Page.Display Name", "&7&lNext Page");
-        config.addDefault("Rich Sound.General.Next Page.Lore", " Click to see more sounds.");
-        config.addDefault("Rich Sound.General.Previous Page.Display Name", "&7&lPrevious Page");
-        config.addDefault("Rich Sound.General.Previous Page.Lore", " Click to go to the previous page.");
-        config.addDefault("Rich Sound.General.Separator.Display Name", "&b&lSounds");
-        config.addDefault("Rich Sound.New.Cancellable.Display Name", "&c&lCancellable");
-        config.addDefault("Rich Sound.New.Cancellable.Lore", " Should this sound be<line> cancellable by other plugins?");
-        config.addDefault("Rich Sound.New.Done.Display Name", "&2&lDone");
-        config.addDefault("Rich Sound.New.Done.Lore", " Click to cache this sound.");
-        config.addDefault("Rich Sound.New.Loop Period.Display Name", "&f&lLoop Period");
-        config.addDefault("Rich Sound.New.Loop Period.Lore", " Click to set the time<line> this sound should wait<line> before playing again.");
-        config.addDefault("Rich Sound.New.Loop Start Delay.Display Name", "&f&lLoop Start Delay");
-        config.addDefault("Rich Sound.New.Loop Start Delay.Lore", " Click to set up the<line> delay to start the loop.");
-        config.addDefault("Rich Sound.New.Name.Display Name", "&7&lSection");
-        config.addDefault("Rich Sound.New.Name.Lore", " Click to set the section<line> of this sound.");
-        config.addDefault("Rich Sound.New.Title", "&6New sound");
-        config.addDefault("Stop Sound.Success.All", "&7Stopped all sounds playing to &f<target>&7.");
-        config.addDefault("Stop Sound.Success.Default", "&7Stopped &f<sounds>&7 sounds playing to &f<target>&7.");
-        config.addDefault("Toggle.Check.Disabled.Default", "&cYour sounds are disabled.");
-        config.addDefault("Toggle.Check.Disabled.Player", "&cSounds of &f<target>&c are disabled.");
-        config.addDefault("Toggle.Check.Enabled.Default", "&aYour sounds are enabled.");
-        config.addDefault("Toggle.Check.Enabled.Player", "&aSounds of &f<target>&a are enabled.");
-        config.addDefault("Toggle.Disabled.Default", "&cYour sounds were toggled to off!");
-        config.addDefault("Toggle.Disabled.Player", "&cToggled the sounds of &f<target>&c to off!");
-        config.addDefault("Toggle.Enabled.Default", "&aYour sounds were toggled to on!");
-        config.addDefault("Toggle.Enabled.Player", "&aToggled the sounds of &f<target>&a to on!");
-        config.addDefault("Update.Available", "&2PlayMoreSounds v<version> is available. Type &7/<label> update download&2 to download it.");
-        config.addDefault("Update.Check", "&eChecking for updates...");
-        config.addDefault("Update.Download.Default", "&eDownloading update...");
-        config.addDefault("Update.Download.Error", "&7An update was already downloaded.");
-        config.addDefault("Update.Download.Latest", "&eDownloading latest version...");
-        config.addDefault("Update.Download.Lower", "&7Warning: the downloaded version is lower than the current running version.");
-        config.addDefault("Update.Download.Success", "&7PlayMoreSounds v<version> was downloaded successfully.");
-        config.addDefault("Update.Error.Default", "&cSomething went wrong while using updater.");
-        config.addDefault("Update.Error.Offline", "&cYou are offline or spigot.org is down.");
-        config.addDefault("Update.Error.Timeout", "&cTook too long to establish a connection.");
-        config.addDefault("Update.Not Available", "&eNo updates available.");
-    }, StaticFields.version3_4_0),
-    LANGUAGE_ES_LA(StaticFields.lang.resolve("Language ES-LA.yml"), config -> {
-        config.addDefaultComment("Idioma ES-LA");
-        config.addDefaultComment("Traducido por Epicnicity");
-        config.addDefault("Version", PlayMoreSounds.versionString);
-        config.addDefault("Child Sound.Default.Delay.Display Name", "&9&lDelay");
-        config.addDefault("Child Sound.Default.Delay.Lore", " <delay>");
-        config.addDefault("Child Sound.Default.Done.Display Name", "&2&lHecho");
-        config.addDefault("Child Sound.Default.Done.Lore", " Haga clic para guardar los cambios.");
-        config.addDefault("Child Sound.Default.Id.Display Name", "&8&lId: &7&l<id>");
-        config.addDefault("Child Sound.Default.Id.Lore", " Haga clic para cambiar el id.");
-        config.addDefault("Child Sound.Default.Ignores Toggle.Display Name", "&8&lIgnorar Toggle");
-        config.addDefault("Child Sound.Default.Ignores Toggle.Lore", " &d<value>");
-        config.addDefault("Child Sound.Default.Permission Required.Display Name", "&f&lPermiso Requerido");
-        config.addDefault("Child Sound.Default.Permission Required.Lore", " <permissionrequired>");
-        config.addDefault("Child Sound.Default.Permission To Listen.Display Name", "&f&lPermiso Para Escuchar");
-        config.addDefault("Child Sound.Default.Permission To Listen.Lore", " <permissiontolisten>");
-        config.addDefault("Child Sound.Default.Pitch.Display Name", "&a&lTono");
-        config.addDefault("Child Sound.Default.Pitch.Lore", " <pitch>");
-        config.addDefault("Child Sound.Default.Radius.Display Name", "&4&lRadio: &c&l<radius>");
-        config.addDefault("Child Sound.Default.Radius.Lore", " El radio de bloques que<line> escuchará este sonido.");
-        config.addDefault("Child Sound.Default.Relative Location.Display Name", "&3&lLocalización Relativa");
-        config.addDefault("Child Sound.Default.Relative Location.Lore", " La localización donde se<line> reproducirá el sonido utilizando<line> el jugador como fuente.<line> <line> &dArriba:    &5<up><line> &dAbajo:  &5<down><line> &dAdelante: &5<front><line> &dAtrás:  &5<back><line> &dDerecha: &5<right><line> &dIzquierda:  &5<left><line> <line> Haga clic para cambiar.");
-        config.addDefault("Child Sound.Default.Sound.Display Name", "&6&lSonido");
-        config.addDefault("Child Sound.Default.Sound.Lore", " <sound>");
-        config.addDefault("Child Sound.Default.Title", "&6Sonido: &e<id>");
-        config.addDefault("Child Sound.Default.Volume.Display Name", "&2&lVolumen");
-        config.addDefault("Child Sound.Default.Volume.Lore", " <volume>");
-        config.addDefault("Child Sound.General.Cancel.Display Name", "&4&lCancelar");
-        config.addDefault("Child Sound.General.Cancel.Lore Back", " Descarta todo y vuelve<line> a &7<parent>&5&o.");
-        config.addDefault("Child Sound.General.Cancel.Lore", " Descarta todo.");
-        config.addDefault("Child Sound.General.Eye Location.Display Name", "&e&lUbicación Del Ojo");
-        config.addDefault("Child Sound.General.Eye Location.Lore", " Este sonido se reproducirá<line> en la ubicación del &fojo&5&o del<line> jugador.<line> <line> Haga clic para cambiar.");
-        config.addDefault("Child Sound.General.Feet Location.Display Name", "&e&lUbicación Del Pie");
-        config.addDefault("Child Sound.General.Feet Location.Lore", " Este sonido se reproducirá<line> en la ubicación del &fpie&5&o del<line> jugador.<line> <line> Haga clic para cambiar.");
-        config.addDefault("Child Sound.New.Delay.Display Name", "&9&lDelay");
-        config.addDefault("Child Sound.New.Delay.Lore", " Tiempo de espera antes de<line> reproducir ese sonido.");
-        config.addDefault("Child Sound.New.Done.Display Name", "&2&lHecho");
-        config.addDefault("Child Sound.New.Done.Lore Back", " Agregue este sonido a &7<parent>&5&o.");
-        config.addDefault("Child Sound.New.Done.Lore", " Añade sonido.");
-        config.addDefault("Child Sound.New.Id.Display Name", "&7&lId del sonido");
-        config.addDefault("Child Sound.New.Id.Lore", " El id de ese sonido.");
-        config.addDefault("Child Sound.New.Ignores Toggle.Display Name", "&8&lIgnorar Toggle");
-        config.addDefault("Child Sound.New.Ignores Toggle.Lore", " Si este sonido debe reproducirse<line> incluso si el jugador ha<line> desactivado sus sonidos.");
-        config.addDefault("Child Sound.New.Permission Required.Display Name", "&f&lPermiso Requerido");
-        config.addDefault("Child Sound.New.Permission Required.Lore", " Solo aquellos que tengan este<line> permiso reproducirán este sonido.");
-        config.addDefault("Child Sound.New.Permission To Listen.Display Name", "&f&lPermiso Para Escuchar");
-        config.addDefault("Child Sound.New.Permission To Listen.Lore", " Solo aquellos que tengan este<line> permiso escucharán este sonido.");
-        config.addDefault("Child Sound.New.Pitch.Display Name", "&a&lTono");
-        config.addDefault("Child Sound.New.Pitch.Lore", " El tono de ese sonido.");
-        config.addDefault("Child Sound.New.Radius.Display Name", "&4&lRadio");
-        config.addDefault("Child Sound.New.Radius.Lore", " Para quién debe sonar este sonido:<line> <line> &60  »&e Tú<line> &6-1 »&e Jugadores en línea<line> &6-2 »&e Jugadores del mundo<line> &61+ »&e Jugadores en este radio de bloque.");
-        config.addDefault("Child Sound.New.Relative Location.Display Name", "&3&lLocalización Relativa");
-        config.addDefault("Child Sound.New.Relative Location.Lore", " La localización donde se<line> reproducirá el sonido utilizando<line> el jugador como fuente.<line> <line> Haga clic para definir.");
-        config.addDefault("Child Sound.New.Sound.Display Name", "&6&lSonido");
-        config.addDefault("Child Sound.New.Sound.Lore", " El sonido a reproducir. Puede ser<line> un sonido de paquete de recursos.");
-        config.addDefault("Child Sound.New.Title", "&6Nuevo sonido");
-        config.addDefault("Child Sound.New.Volume.Display Name", "&2&lVolumen");
-        config.addDefault("Child Sound.New.Volume.Lore", " El volumen de ese sonido.");
-        config.addDefault("Confirm.Error.Nothing Pending", "&cNo hay nada pendiente de confirmar.");
-        config.addDefault("Confirm.List.Confirmation", " &f<id> &7- <description>");
-        config.addDefault("Confirm.List.Header", "&8Lista de confirmaciones pendientes:");
-        config.addDefault("Description.Header", "&6&m------------&6[&9PlayMoreSounds v<version>&6]&m------------");
-        config.addDefault("Description.Help", "&6Use \"&7&n/<label> help&6\" para ver la lista de comandos.");
-        config.addDefault("Description.No Permission", "&6No tiene permiso para usar ningún comando.");
-        config.addDefault("Disc.Error.Not Found", "&cNo se encontró un disco con el ID \"&7<id>&c\".");
-        config.addDefault("Disc.Success", "&7Dando el disco &f<id>&7 a &f<target>&7.");
-        config.addDefault("Finder.Back.Display Name", "&d&lVolver");
-        config.addDefault("Finder.Back.Lore", " Haga clic para volver a &7<path>&5&o.");
-        config.addDefault("Finder.Error", "&cAlgo salió mal al realizar esta operación en Explorer.");
-        config.addDefault("Finder.File.Display Name", "&f&l<name>");
-        config.addDefault("Finder.File.Lore", " Haga clic para editar o agregar<line> sonidos a &7<name>&5&o.");
-        config.addDefault("Finder.Folder.Display Name", "&e&l<name>");
-        config.addDefault("Finder.Folder.Lore", " Haga clic para ingresar a la carpeta &7<name>&5&o.");
-        config.addDefault("Finder.Next Page.Display Name", "&7&lPágina siguiente");
-        config.addDefault("Finder.Next Page.Lore", " Haga clic para ir a la página siguiente.");
-        config.addDefault("Finder.Previous Page.Display Name", "&7&lPágina anterior");
-        config.addDefault("Finder.Previous Page.Lore", " Haga clic para volver a la página anterior.");
-        config.addDefault("Finder.Sound.Display Name", "&b&l<name>");
-        config.addDefault("Finder.Sound.Lore", " Haga clic para editar el sonido &7<name>&5&o.");
-        config.addDefault("Finder.Title.Folder", "&eCarpeta &6&n<path> &8[&7<page>&8/&7<totalPages>&8]");
-        config.addDefault("Finder.Title.Sound", "&9Sonidos de &1&n<path> &8[&7<page>&8/&7<totalPages>&8]");
-        config.addDefault("General.And", "y");
-        config.addDefault("General.Description", "descripción");
-        config.addDefault("General.Everyone", "Todos");
-        config.addDefault("General.Invalid Arguments", "&c¡Sintaxis de comando incorrecta! Use \"&7/&n<label> <label2> <args>&c\".");
-        config.addDefault("General.Name", "nombre");
-        config.addDefault("General.No Permission", "&4¡No tienes permiso para hacer esto!");
-        config.addDefault("General.Nobody Online", "&cNo hay jugadores en línea en el servidor.");
-        config.addDefault("General.Not A Number", "&c¡El valor \"&7<number>&c\" no es un número válido!");
-        config.addDefault("General.Not A Player", "&cDebes ser un jugador para hacer esto.");
-        config.addDefault("General.Player Not Found", "&cEl jugador \"&7<player>&c\" no fue encontrado.");
-        config.addDefault("General.Player", "jugador");
-        config.addDefault("General.Prefix", "&6[&9PlayMoreSounds&6] ");
-        config.addDefault("General.Target", "objetivo");
-        config.addDefault("General.Unknown Command", "&cComando desconocido. Use \"&7&n/<label> help&c\" para ver la lista de comandos disponibles para usted.");
-        config.addDefault("General.World", "mundo");
-        config.addDefault("General.You", "Tú");
-        config.addDefault("Help.Check", "&e/<label> check [objetivo]\n&7 > Comprueba se sonidos están activados.");
-        config.addDefault("Help.Confirm", "&e/<label> confirm [id|page]\n&7 > Confirma algo.");
-        config.addDefault("Help.Disc", "&e/<label> disc <id> [objetivo]\n&7 > Da un disco personalizado configurado.");
-        config.addDefault("Help.Header", "Lista de comandos de PlayMoreSounds:");
-        config.addDefault("Help.Help", "&e/<label> help [comando]\n&7 > Muestra la descripción de los comandos.");
-        config.addDefault("Help.List", "&e/<label> list [página] [--gui]\n&7 > Muestra los sonidos disponibles en su versión.");
-        config.addDefault("Help.Play", "&e/<label> play <sonido> [objetivo] [vol] [tom]\n&7 > Reproduce un sonido.");
-        config.addDefault("Help.Region", "&e/<label> region <create|info|list|remove|rename|set|teleport|wand>\n&7 > Comando de regiones.");
-        config.addDefault("Help.Reload", "&e/<label> reload\n&7 > Recargar configuraciones y eventos.");
-        config.addDefault("Help.Stop Sound", "&e/<label> stopsound [objetivo] [sonidos]\n&7 > Detiene los sonidos que están reproduciendo.");
-        config.addDefault("Help.Toggle", "&e/<label> toggle [objetivo] [on|off]\n&7 > Habilita o deshabilita la reproducción de sonidos.");
-        config.addDefault("Help.Update", "&e/<label> update [download] [--force]\n&7 > Comprueba y descarga actualizaciones.");
-        config.addDefault("List.Error.Not Exists", "&c¡La página &7<page>&c no existe! Max: <totalpages>.");
-        config.addDefault("List.Footer", "&f&l - &aVer más sonidos con \"&f/&n<label> list <page>&a\"");
-        config.addDefault("List.GUI.Error.Not Supported", "&cLa GUI de la lista de sonidos solo funciona en la versión 1.14+");
-        config.addDefault("List.GUI.Next Page.Display Name", "&7&lPágina siguiente");
-        config.addDefault("List.GUI.Next Page.Lore", " Haga clic para ir a la página siguiente.");
-        config.addDefault("List.GUI.Previous Page.Display Name", "&7&lPágina anterior");
-        config.addDefault("List.GUI.Previous Page.Lore", " Haga clic para volver a la página anterior.");
-        config.addDefault("List.GUI.Sound.Display Name", "&d&n<sound>");
-        config.addDefault("List.GUI.Sound.Lore", " Haga clic para reproducir ese sonido.");
-        config.addDefault("List.GUI.Stop Sound.Display Name", "&6&lDetener Sonidos");
-        config.addDefault("List.GUI.Stop Sound.Lore", " Detiene todos los sonidos que se<line> están reproduciendo actualmente.");
-        config.addDefault("List.GUI.Title", "&8Lista de sonidos, página &c<page>&8 de &c<totalpages>&8");
-        config.addDefault("List.Header", "&aLista de sonidos disponibles [Página <page> de <totalpages>]:");
-        config.addDefault("List.Page", "página");
-        config.addDefault("List.Sound Tooltip", "&5Haz clic en mí para reproducir<line> el sonido &d<sound>");
-        config.addDefault("Play.Error.Not A Sound", "&c¡La sección \"&7<section>&c\" en el archivo &7<file>&c no es un sonido valido!");
-        config.addDefault("Play.Error.Unauthorized", "&c¡No puedes ingresar a esa carpeta!");
-        config.addDefault("Play.Pitch", "tono");
-        config.addDefault("Play.Sound", "sonido");
-        config.addDefault("Play.Success.Config", "&7Tocando el sonido &f<sound>&7 del archivo &f<file>&7 a &f<player>&7.");
-        config.addDefault("Play.Success.Default", "&7Tocando el sonido &f<sound>&7 con volumen &f<volume>&7 y tono &f<pitch>&7 a &f<player>&7.");
-        config.addDefault("Play.Volume", "volumen");
-        config.addDefault("Region.Create.Default Description", "Una región de reproducción de sonido.");
-        config.addDefault("Region.Create.Error.Already Exists", "&cEste nombre ya se ha utilizado, elija otro.");
-        config.addDefault("Region.Create.Error.Default", "&cAlgo salió mal al crear la región \"&7<name>&c\".");
-        config.addDefault("Region.Create.Error.Different Worlds", "&c¡Tus selecciones están en mundos diferentes!");
-        config.addDefault("Region.Create.Error.Max Area", "&cEl área seleccionada excede el máximo de <max> bloques.");
-        config.addDefault("Region.Create.Error.Max Regions", "&cNo puede crear más de <max> regiones.");
-        config.addDefault("Region.Create.Error.Not Selected", "&cNo ha seleccionado ninguna posición, use &7&n/<label> <label2> wand&c para obtener la herramienta de selección.");
-        config.addDefault("Region.Create.Success", "&aLa región &7<name>&a se creó con éxito.");
-        config.addDefault("Region.General.Error.Illegal Characters", "&cLos nombres de región solo pueden tener caracteres alfanuméricos.");
-        config.addDefault("Region.General.Error.Max Name Characters", "&cLos nombres de región no pueden tener más de <max> caracteres.");
-        config.addDefault("Region.General.Error.Not Found.Name", "&cNo se encontró ninguna región con ese nombre. Use &7/<label> <label2> list&c para ver la lista de regiones.");
-        config.addDefault("Region.General.Error.Not Found.UUID", "&cNo se encontró ninguna región con este UUID. Use &7/<label> <label2> list&c para ver la lista de regiones.");
-        config.addDefault("Region.General.Error.Save", "&cAlgo salió mal al guardar la región <name>.");
-        config.addDefault("Region.Info.Creation Date", "&7Fecha de creación:&f <date>");
-        config.addDefault("Region.Info.Description", "&7Descripción:&f <description>");
-        config.addDefault("Region.Info.Error.No Regions", "&7No hay regiones en esa ubicación.");
-        config.addDefault("Region.Info.Header", "&8Información de la región &f<name>&8:");
-        config.addDefault("Region.Info.Id", "&7UUID:&f <uuid>");
-        config.addDefault("Region.Info.Owner", "&7Propietario:&f <owner>");
-        config.addDefault("Region.Info.World", "&7Mundo:&f <world>");
-        config.addDefault("Region.List.Error.No Regions", "&c<targets> no tiene regiones.");
-        config.addDefault("Region.List.Error.Not Exists", "&c¡La página &7<page>&c no existe! Max: <totalPages>.");
-        config.addDefault("Region.List.Footer", "&8Use &7/<label> <label2> <label3> <label4> <next>&8 para ver más regiones.");
-        config.addDefault("Region.List.Header.Default", "&8Sus regiones [Página <page> de <totalPages>]:");
-        config.addDefault("Region.List.Header.Player", "&8Regiones de <targets> [Página <page> de <totalPages>]:");
-        config.addDefault("Region.List.Region", "&7- <uuid>: &f<name>");
-        config.addDefault("Region.Region", "región");
-        config.addDefault("Region.Remove.Confirm", "&aUse &7/<label> confirm&a para confirmar la eliminación de la región &7<region>&a.");
-        config.addDefault("Region.Remove.Description", "Eliminar la región <region>");
-        config.addDefault("Region.Remove.Success", "&aLa región &7<region>&a ha sido eliminado exitosamente.");
-        config.addDefault("Region.Rename.Error.Already Exists", "&cEl nuevo nombre ya se ha utilizado, elija otro.");
-        config.addDefault("Region.Rename.Error.Same", "&cEl nuevo nombre no es diferente del anterior.");
-        config.addDefault("Region.Rename.New Name", "nuevo nombre");
-        config.addDefault("Region.Rename.Success", "&aLa región <region> ha sido renombrado a &7<newName>&a.");
-        config.addDefault("Region.Select.Error.Overlap", "&c¡Una región ya existente está en esa ubicación!");
-        config.addDefault("Region.Set.Description.Error.Max Characters", "&cLas descripciones de región no pueden tener más de 100 caracteres.");
-        config.addDefault("Region.Set.Description.Success", "&aDescripción de la región <region> se estableció en &7<description>&a.");
-        config.addDefault("Region.Set.Select.Error.Not A World", "&cEl valor &7<value>&c no es un mundo válido.");
-        config.addDefault("Region.Set.Select.Position.First", "&6¡Primera posición seleccionada! Mundo: &e<w>&6, X: &e<x>&6, Y: &e<y>&6, Z: &e<z>&6.");
-        config.addDefault("Region.Set.Select.Position.Second", "&6¡Segunda posición seleccionada! Mundo: &e<w>&6, X: &e<x>&6, Y: &e<y>&6, Z: &e<z>&6.");
-        config.addDefault("Region.Teleport.Success", "&aHas sido teletransportado a la región <region>.");
-        config.addDefault("Region.Wand.Error.Config", "&cLe faltan configuraciones en su configuración. No se pudo crear la herramienta de selección.");
-        config.addDefault("Region.Wand.Success", "&6Herramienta de selección: Clic-izquierdo selecciona la primera posición y clic-derecho selecciona la segunda posición.");
-        config.addDefault("Relative Location Setter.Sound Source", "&2&nFuente de sonido");
-        config.addDefault("Relative Location Setter.Where To Play", "&4&nDonde tocar");
-        config.addDefault("Reload.Error", "&cAlgo salió mal al recargar la configuración. El PMS debe desactivarse de inmediato.");
-        config.addDefault("Reload.Success", "&7Configuración recargada.");
-        config.addDefault("Resource Packs.Error", "&cAlgo salió mal al preguntarle al jugador <player> que descargue el paquete de texturas. Por favor, intente con otra URL.");
-        config.addDefault("Resource Packs.Kick Message", "&cDebes estar usando una textura para jugar en ese servidor.");
-        config.addDefault("Resource Packs.Request Message", "&eDescargue la textura para continuar.");
-        config.addDefault("Rich Sound.Default.Cancellable.Display Name", "&c&lCancelable");
-        config.addDefault("Rich Sound.Default.Cancellable.Lore", "&d<value>");
-        config.addDefault("Rich Sound.Default.Done.Display Name", "&2&lHecho");
-        config.addDefault("Rich Sound.Default.Done.Lore", " Haga clic para guardar los cambios.");
-        config.addDefault("Rich Sound.Default.Loop Period.Display Name", "&f&l<period>");
-        config.addDefault("Rich Sound.Default.Loop Period.Lore", " Este sonido se reproducirá<line> cada <period> ticks.");
-        config.addDefault("Rich Sound.Default.Loop Start Delay.Display Name", "&f&l<delay>");
-        config.addDefault("Rich Sound.Default.Loop Start Delay.Lore", " Ese sonido esperará <delay> ticks<line> antes de comenzar a reproducirse<line> en un bucle.");
-        config.addDefault("Rich Sound.Default.Name.Display Name", "&8&lNombre: &7&l<name>");
-        config.addDefault("Rich Sound.Default.Name.Lore", " Haga clic para definir el<line> nombre de este sonido.");
-        config.addDefault("Rich Sound.Default.Sound.Display Name", "&3&l<id>");
-        config.addDefault("Rich Sound.Default.Sound.Lore", "Haga clic para editar este sonido.");
-        config.addDefault("Rich Sound.Default.Title", "&6Editando sonido &e<name>");
-        config.addDefault("Rich Sound.General.Add New Sound.Display Name", "&e&lAñadir nuevo sonido");
-        config.addDefault("Rich Sound.General.Add New Sound.Lore", " Haga clic para agregar un nuevo sonido.");
-        config.addDefault("Rich Sound.General.Cancel.Display Name", "&4&lCancelar");
-        config.addDefault("Rich Sound.General.Cancel.Lore", " Descarta todo.");
-        config.addDefault("Rich Sound.General.Disabled.Display Name", "&4&lDeshabilitado");
-        config.addDefault("Rich Sound.General.Disabled.Lore", " Este sonido está deshabilitado.<line> Haga clic para activar.");
-        config.addDefault("Rich Sound.General.Enabled.Display Name", "&2&lActivado");
-        config.addDefault("Rich Sound.General.Enabled.Lore", " Este sonido está activado.<line> Haga clic para deshabilitar.");
-        config.addDefault("Rich Sound.General.Next Page.Display Name", "&7&lPágina siguiente");
-        config.addDefault("Rich Sound.General.Next Page.Lore", " Haga clic para ver más sonidos.");
-        config.addDefault("Rich Sound.General.Previous Page.Display Name", "&7&lPágina anterior.");
-        config.addDefault("Rich Sound.General.Previous Page.Lore", " Haga clic para volver a la página anterior.");
-        config.addDefault("Rich Sound.General.Separator.Display Name", "&b&lSonidos");
-        config.addDefault("Rich Sound.New.Cancellable.Display Name", "&c&lCancelable");
-        config.addDefault("Rich Sound.New.Cancellable.Lore", " ¿Debería este sonido ser<line> cancelable por otros plugins?");
-        config.addDefault("Rich Sound.New.Done.Display Name", "&2&lHecho");
-        config.addDefault("Rich Sound.New.Done.Lore", " Haga clic para guardar este sonido.");
-        config.addDefault("Rich Sound.New.Loop Period.Display Name", "&f&lPeríodo de bucle");
-        config.addDefault("Rich Sound.New.Loop Period.Lore", " Haga clic para establecer cuánto<line> tiempo debe esperar este sonido<line> antes de volver a reproducirlo.");
-        config.addDefault("Rich Sound.New.Loop Start Delay.Display Name", "&f&lTiempo para iniciar bucle");
-        config.addDefault("Rich Sound.New.Loop Start Delay.Lore", " Haga clic para establecer el<line> tiempo de espera antes de comenzar<line> el ciclo.");
-        config.addDefault("Rich Sound.New.Name.Display Name", "&7&lSección");
-        config.addDefault("Rich Sound.New.Name.Lore", " Haga clic para definir la sección de ese sonido.");
-        config.addDefault("Rich Sound.New.Title", "&6Crear nuevo sonido.");
-        config.addDefault("Stop Sound.Success.All", "&7Se han detenido todos los sonidos de &f<target>&7.");
-        config.addDefault("Stop Sound.Success.Default", "&7Se detuvieron los sonidos de &f<sounds>&7 para &f<target>&7.");
-        config.addDefault("Toggle.Check.Disabled.Default", "&cTus sonidos están desactivados.");
-        config.addDefault("Toggle.Check.Disabled.Player", "&cLos sonidos de &f<target>&c están desactivados.");
-        config.addDefault("Toggle.Check.Enabled.Default", "&aTus sonidos están activados.");
-        config.addDefault("Toggle.Check.Enabled.Player", "&aLos sonidos de &f<target>&c están activados.");
-        config.addDefault("Toggle.Disabled.Default", "&c¡Tus sonidos han sido desactivados!");
-        config.addDefault("Toggle.Disabled.Player", "&c¡Los sonidos de &f<target>&c han sido desactivados!");
-        config.addDefault("Toggle.Enabled.Default", "&a¡Tus sonidos han sido activados!");
-        config.addDefault("Toggle.Enabled.Player", "&a¡Los sonidos de &f<target>&a han sido desactivados!");
-        config.addDefault("Update.Available", "&2PlayMoreSounds v<version> está disponible. Use &7/<label> update download&2 para descargar.");
-        config.addDefault("Update.Check", "&eBuscando actualizaciones...");
-        config.addDefault("Update.Download.Default", "&eDescargando actualización...");
-        config.addDefault("Update.Download.Error", "&7Ya se ha descargado una actualización.");
-        config.addDefault("Update.Download.Latest", "&eDescargando la última versión...");
-        config.addDefault("Update.Download.Lower", "&7Advertencia: La versión descargada es inferior a la versión actual en ejecución.");
-        config.addDefault("Update.Download.Success", "&7PlayMoreSounds v<version> ha sido descargado con éxito.");
-        config.addDefault("Update.Error.Default", "&cAlgo salió mal al usar el actualizador.");
-        config.addDefault("Update.Error.Offline", "&cEstá desconectado o spigot.org está caído.");
-        config.addDefault("Update.Error.Timeout", "&cTomó demasiado tiempo para establecer una conexión.");
-        config.addDefault("Update.Not Available", "&eNo hay actualizaciones disponibles.");
-    }, StaticFields.version3_4_0),
-    LANGUAGE_PT_BR(StaticFields.lang.resolve("Language PT-BR.yml"), config -> {
-        config.addDefaultComment("Linguagem PT-BR");
-        config.addDefaultComment("Traduzido por Epicnicity");
-        config.addDefault("Version", PlayMoreSounds.versionString);
-        config.addDefault("Child Sound.Default.Delay.Display Name", "&9&lDelay");
-        config.addDefault("Child Sound.Default.Delay.Lore", " <delay>");
-        config.addDefault("Child Sound.Default.Done.Display Name", "&2&lPronto");
-        config.addDefault("Child Sound.Default.Done.Lore", " Clique para salvar mudanças.");
-        config.addDefault("Child Sound.Default.Id.Display Name", "&8&lId: &7&l<id>");
-        config.addDefault("Child Sound.Default.Id.Lore", " Clique para mudar o id.");
-        config.addDefault("Child Sound.Default.Ignores Toggle.Display Name", "&8&lIgnorar Toggle");
-        config.addDefault("Child Sound.Default.Ignores Toggle.Lore", " &d<value>");
-        config.addDefault("Child Sound.Default.Permission Required.Display Name", "&f&lPermissão Necessária");
-        config.addDefault("Child Sound.Default.Permission Required.Lore", " <permissionrequired>");
-        config.addDefault("Child Sound.Default.Permission To Listen.Display Name", "&f&lPermissão Para Ouvir");
-        config.addDefault("Child Sound.Default.Permission To Listen.Lore", " <permissiontolisten>");
-        config.addDefault("Child Sound.Default.Pitch.Display Name", "&a&lTom");
-        config.addDefault("Child Sound.Default.Pitch.Lore", " <pitch>");
-        config.addDefault("Child Sound.Default.Radius.Display Name", "&4&lRaio: &c&l<radius>");
-        config.addDefault("Child Sound.Default.Radius.Lore", " O raio de blocos que este<line> som será escutado.");
-        config.addDefault("Child Sound.Default.Relative Location.Display Name", "&3&lLocalização Relativa");
-        config.addDefault("Child Sound.Default.Relative Location.Lore", " A localização que o som<line> tocará levando o jogador<line> como origem.<line> <line> &dCima:    &5<up><line> &dBaixo:  &5<down><line> &dFrente: &5<front><line> &dTrás:  &5<back><line> &dDireita: &5<right><line> &dEsquerda:  &5<left><line> <line> Clique para mudar.");
-        config.addDefault("Child Sound.Default.Sound.Display Name", "&6&lSom");
-        config.addDefault("Child Sound.Default.Sound.Lore", " <sound>");
-        config.addDefault("Child Sound.Default.Title", "&6Som: &e<id>");
-        config.addDefault("Child Sound.Default.Volume.Display Name", "&2&lVolume");
-        config.addDefault("Child Sound.Default.Volume.Lore", " <volume>");
-        config.addDefault("Child Sound.General.Cancel.Display Name", "&4&lCancelar");
-        config.addDefault("Child Sound.General.Cancel.Lore Back", " Descartar tudo e voltar<line> para &7<parent>&5&o.");
-        config.addDefault("Child Sound.General.Cancel.Lore", " Descartar tudo.");
-        config.addDefault("Child Sound.General.Eye Location.Display Name", "&e&lLocal Do Olho");
-        config.addDefault("Child Sound.General.Eye Location.Lore", " Este som tocará no local<line> do &folho&5&o do jogador.<line> <line> Clique para mudar.");
-        config.addDefault("Child Sound.General.Feet Location.Display Name", "&e&lLocal Do Pé");
-        config.addDefault("Child Sound.General.Feet Location.Lore", " Este som tocará no local<line> do &fpé&5&o do jogador.<line> <line> Clique para mudar.");
-        config.addDefault("Child Sound.New.Delay.Display Name", "&9&lDelay");
-        config.addDefault("Child Sound.New.Delay.Lore", " Tempo parar esperar antes<line> de tocar este som.");
-        config.addDefault("Child Sound.New.Done.Display Name", "&2&lPronto");
-        config.addDefault("Child Sound.New.Done.Lore Back", " Adicionar este som a &7<parent>&5&o.");
-        config.addDefault("Child Sound.New.Done.Lore", " Adicionar som.");
-        config.addDefault("Child Sound.New.Id.Display Name", "&7&lId do som");
-        config.addDefault("Child Sound.New.Id.Lore", " O id deste som.");
-        config.addDefault("Child Sound.New.Ignores Toggle.Display Name", "&8&lIgnorar Toggle");
-        config.addDefault("Child Sound.New.Ignores Toggle.Lore", " Se este som deverá tocar<line> mesmo se o jogador desativar<line> seus sons.");
-        config.addDefault("Child Sound.New.Permission Required.Display Name", "&f&lPermissão Necessária");
-        config.addDefault("Child Sound.New.Permission Required.Lore", " Somente quem tem essa<line> permissão vai tocar este som.");
-        config.addDefault("Child Sound.New.Permission To Listen.Display Name", "&f&lPermissão Para Ouvir");
-        config.addDefault("Child Sound.New.Permission To Listen.Lore", " Somente quem tem essa<line> permissão vai ouvir este som.");
-        config.addDefault("Child Sound.New.Pitch.Display Name", "&a&lTom");
-        config.addDefault("Child Sound.New.Pitch.Lore", " O tom deste som.");
-        config.addDefault("Child Sound.New.Radius.Display Name", "&4&lRaio");
-        config.addDefault("Child Sound.New.Radius.Lore", " Para quem este som deverá tocar:<line> <line> &60  »&e Você<line> &6-1 »&e Jogadores online<line> &6-2 »&e Jogadores do mundo<line> &61+ »&e Jogadores neste raio de blocos");
-        config.addDefault("Child Sound.New.Relative Location.Display Name", "&3&lLocalização Relativa");
-        config.addDefault("Child Sound.New.Relative Location.Lore", " A localização que o som<line> tocará levando o jogador<line> como origem.<line> <line> Clique para definir.");
-        config.addDefault("Child Sound.New.Sound.Display Name", "&6&lSom");
-        config.addDefault("Child Sound.New.Sound.Lore", " O som a ser tocado. Pode ser<line> um som de pacote de recursos.");
-        config.addDefault("Child Sound.New.Title", "&6Novo som filho");
-        config.addDefault("Child Sound.New.Volume.Display Name", "&2&lVolume");
-        config.addDefault("Child Sound.New.Volume.Lore", " O volume deste som.");
-        config.addDefault("Confirm.Error.Nothing Pending", "&cNão há nada pendente para confirmar.");
-        config.addDefault("Confirm.List.Confirmation", " &f<id> &7- <description>");
-        config.addDefault("Confirm.List.Header", "&8Lista de confirmações pendentes:");
-        config.addDefault("Description.Header", "&6&m------------&6[&9PlayMoreSounds v<version>&6]&m------------");
-        config.addDefault("Description.Help", "&6Digite \"&7&n/<label> help&6\" para ver a lista de comandos.");
-        config.addDefault("Description.No Permission", "&6Você não tem permissão para usar nenhum comando.");
-        config.addDefault("Disc.Error.Not Found", "&cNão foi encontrado um disco com o ID \"&7<id>&c\".");
-        config.addDefault("Disc.Success", "&7Dando o disco &f<id>&7 a &f<target>&7.");
-        config.addDefault("Finder.Back.Display Name", "&d&lVoltar");
-        config.addDefault("Finder.Back.Lore", " Clique para voltar a &7<path>&5&o.");
-        config.addDefault("Finder.Error", "&cAlgo de errado ocorreu ao executar esta operação no Explorador.");
-        config.addDefault("Finder.File.Display Name", "&f&l<name>");
-        config.addDefault("Finder.File.Lore", " Clique para editar ou adicionar<line> sons a &7<name>&5&o.");
-        config.addDefault("Finder.Folder.Display Name", "&e&l<name>");
-        config.addDefault("Finder.Folder.Lore", " Clique para entrar na pasta &7<name>&5&o.");
-        config.addDefault("Finder.Next Page.Display Name", "&7&lPróxima página");
-        config.addDefault("Finder.Next Page.Lore", " Clique para ir à próxima página.");
-        config.addDefault("Finder.Previous Page.Display Name", "&7&lPágina anterior");
-        config.addDefault("Finder.Previous Page.Lore", " Clique para voltar à página anterior.");
-        config.addDefault("Finder.Sound.Display Name", "&b&l<name>");
-        config.addDefault("Finder.Sound.Lore", " Clique para editar o som &7<name>&5&o.");
-        config.addDefault("Finder.Title.Folder", "&ePasta &6&n<path> &8[&7<page>&8/&7<totalPages>&8]");
-        config.addDefault("Finder.Title.Sound", "&9Sons de &1&n<path> &8[&7<page>&8/&7<totalPages>&8]");
-        config.addDefault("General.And", "e");
-        config.addDefault("General.Description", "descrição");
-        config.addDefault("General.Everyone", "Todos");
-        config.addDefault("General.Invalid Arguments", "&cSintaxe de comando incorreta! Use \"&7/&n<label> <label2> <args>&c\".");
-        config.addDefault("General.Name", "nome");
-        config.addDefault("General.No Permission", "&4Você não tem permissão para fazer isso!");
-        config.addDefault("General.Nobody Online", "&cNão há jogadores online no servidor.");
-        config.addDefault("General.Not A Number", "&cO valor \"&7<number>&c\" não é um número válido!");
-        config.addDefault("General.Not A Player", "&cVocê deve ser um jogador para fazer isso.");
-        config.addDefault("General.Player Not Found", "&cO jogador \"&7<player>&c\" não foi encontrado.");
-        config.addDefault("General.Player", "jogador");
-        config.addDefault("General.Prefix", "&6[&9PlayMoreSounds&6] ");
-        config.addDefault("General.Target", "alvo");
-        config.addDefault("General.Unknown Command", "&cComando desconhecido. Use \"&7&n/<label> help&c\" para ver a lista de comandos disponíveis para você.");
-        config.addDefault("General.World", "mundo");
-        config.addDefault("General.You", "Você");
-        config.addDefault("Help.Check", "&e/<label> check [alvo]\n&7 > Checa se sons estão ativados.");
-        config.addDefault("Help.Confirm", "&e/<label> confirm [id|page]\n&7 > Confirma algo");
-        config.addDefault("Help.Disc", "&e/<label> disc <id> [objetivo]\n&7 > Da um disco personalizado configurado.");
-        config.addDefault("Help.Header", "Lista de comandos do PlayMoreSounds:");
-        config.addDefault("Help.Help", "&e/<label> help [comando]\n&7 > Mostra a descrição de comandos");
-        config.addDefault("Help.List", "&e/<label> list [página] [--gui]\n&7 > Mostra os sons disponíveis em sua versão.");
-        config.addDefault("Help.Play", "&e/<label> play <som> [alvo] [vol] [tom]\n&7 > Toca um som.");
-        config.addDefault("Help.Region", "&e/<label> region <create|info|list|remove|rename|set|teleport|wand>\n&7 > Comando de região.");
-        config.addDefault("Help.Reload", "&e/<label> reload\n&7 > Recarrega configurações e eventos.");
-        config.addDefault("Help.Stop Sound", "&e/<label> stopsound [alvo] [sons]\n&7 > Para os sons que estão tocando.");
-        config.addDefault("Help.Toggle", "&e/<label> toggle [alvo] [on|off]\n&7 > Ativa ou desativa a reprodução de sons.");
-        config.addDefault("Help.Update", "&e/<label> update [download] [--force]\n&7 > Verifica e baixa atualizações.");
-        config.addDefault("List.Error.Not Exists", "&cA página &7<page>&c não existe! Max: <totalpages>.");
-        config.addDefault("List.Footer", "&f&l - &aVeja mais sons com \"&f/&n<label> list <page>&a\"");
-        config.addDefault("List.GUI.Error.Not Supported", "&cA GUI de lista de sons só funciona na versão 1.14+");
-        config.addDefault("List.GUI.Next Page.Display Name", "&7&lPróxima página");
-        config.addDefault("List.GUI.Next Page.Lore", " Clique para ir à próxima página.");
-        config.addDefault("List.GUI.Previous Page.Display Name", "&7&lPágina anterior");
-        config.addDefault("List.GUI.Previous Page.Lore", " Clique para voltar à página anterior.");
-        config.addDefault("List.GUI.Sound.Display Name", "&d&n<sound>");
-        config.addDefault("List.GUI.Sound.Lore", " Clique para tocar esse som.");
-        config.addDefault("List.GUI.Stop Sound.Display Name", "&6&lParar Sons");
-        config.addDefault("List.GUI.Stop Sound.Lore", " Parar todos sons tocando no momento.");
-        config.addDefault("List.GUI.Title", "&8Lista de sons, página &c<page>&8 de &c<totalpages>&8");
-        config.addDefault("List.Header", "&aLista de sons disponíveis [Página <page> de <totalpages>]:");
-        config.addDefault("List.Page", "página");
-        config.addDefault("List.Sound Tooltip", "&5Clique em mim para tocar o som &d<sound>");
-        config.addDefault("Play.Error.Not A Sound", "&cA seção \"&7<section>&c\" no arquivo &7<file>&c não é um som válido!");
-        config.addDefault("Play.Error.Unauthorized", "&cVocê não pode entrar nessa pasta!");
-        config.addDefault("Play.Pitch", "tom");
-        config.addDefault("Play.Sound", "som");
-        config.addDefault("Play.Success.Config", "&7Tocando o som &f<sound>&7 do arquivo &f<file>&7 para &f<player>&7.");
-        config.addDefault("Play.Success.Default", "&7Tocando o som &f<sound>&7 com volume &f<volume>&7 e tom &f<pitch>&7 para &f<player>&7.");
-        config.addDefault("Play.Volume", "volume");
-        config.addDefault("Region.Create.Default Description", "Uma região de reprodução de som.");
-        config.addDefault("Region.Create.Error.Already Exists", "&cEste nome já foi usado, escolha outro.");
-        config.addDefault("Region.Create.Error.Default", "&cAlgo de errado ocorreu ao criar a região \"&7<name>&c\".");
-        config.addDefault("Region.Create.Error.Different Worlds", "&cSuas seleções estão em mundos diferentes!");
-        config.addDefault("Region.Create.Error.Max Area", "&cA área selecionada excede o máximo de <max> blocos.");
-        config.addDefault("Region.Create.Error.Max Regions", "&cVocê não pode criar mais de <max> regiões.");
-        config.addDefault("Region.Create.Error.Not Selected", "&cVocê não selecionou nenhuma posição, digite &7&n/<label> <label2> wand&c para pegar a ferramenta de seleção.");
-        config.addDefault("Region.Create.Success", "&aA região &7<name>&a foi criada com sucesso.");
-        config.addDefault("Region.General.Error.Illegal Characters", "&cNomes de regiões só podem ter caracteres alfa-numéricos.");
-        config.addDefault("Region.General.Error.Max Name Characters", "&cNomes de regiões não podem ser maior que <max> caracteres.");
-        config.addDefault("Region.General.Error.Not Found.Name", "&cNenhuma região com esse nome foi encontrada. Digite &7/<label> <label2> list&c para ver a lista de regiões.");
-        config.addDefault("Region.General.Error.Not Found.UUID", "&cNenhuma região com essa uuid foi encontrada. Digite &7/<label> <label2> list&c para ver a lista de regiões.");
-        config.addDefault("Region.General.Error.Save", "&cAlgo de errado ocorreu ao salvar a região <name>.");
-        config.addDefault("Region.Info.Creation Date", "&7Data de Criação:&f <date>");
-        config.addDefault("Region.Info.Description", "&7Descrição:&f <description>");
-        config.addDefault("Region.Info.Error.No Regions", "&7Não há regiões nessa localização.");
-        config.addDefault("Region.Info.Header", "&8Informações da região &f<name>&8:");
-        config.addDefault("Region.Info.Id", "&7UUID:&f <uuid>");
-        config.addDefault("Region.Info.Owner", "&7Dono:&f <owner>");
-        config.addDefault("Region.Info.World", "&7Mundo:&f <world>");
-        config.addDefault("Region.List.Error.No Regions", "&c<targets> não possui regiões.");
-        config.addDefault("Region.List.Error.Not Exists", "&cA página &7<page>&c não existe! Max: <totalPages>.");
-        config.addDefault("Region.List.Footer", "&8Digite &7/<label> <label2> <label3> <label4> <next>&8 para ver mais regiões.");
-        config.addDefault("Region.List.Header.Default", "&8Suas regiões [Página <page> de <totalPages>]:");
-        config.addDefault("Region.List.Header.Player", "&8Regiões de <targets> [Página <page> de <totalPages>]:");
-        config.addDefault("Region.List.Region", "&7- <uuid>: &f<name>");
-        config.addDefault("Region.Region", "região");
-        config.addDefault("Region.Remove.Confirm", "&aDigite &7/<label> confirm&a para confirmar a remoção da região &7<region>&a.");
-        config.addDefault("Region.Remove.Description", "Deletar a região <region>");
-        config.addDefault("Region.Remove.Success", "&aA região &7<region>&a foi deletada com sucesso.");
-        config.addDefault("Region.Rename.Error.Already Exists", "&cO novo nome já foi usado, escolha outro.");
-        config.addDefault("Region.Rename.Error.Same", "&cO novo nome não é diferente do anterior.");
-        config.addDefault("Region.Rename.New Name", "novo nome");
-        config.addDefault("Region.Rename.Success", "&aA região <region> foi renomeada para &7<newName>&a.");
-        config.addDefault("Region.Select.Error.Overlap", "&cUma região já existente está nesse local!");
-        config.addDefault("Region.Set.Description.Error.Max Characters", "&cDescrições de regiões não podem ser maior que 100 caracteres.");
-        config.addDefault("Region.Set.Description.Success", "&aDescrição da região <region> foi definida para &7<description>&a.");
-        config.addDefault("Region.Set.Select.Error.Not A World", "&cO valor &7<value>&c não é um mundo válido.");
-        config.addDefault("Region.Set.Select.Position.First", "&6Primeira posição selecionada! Mundo: &e<w>&6, X: &e<x>&6, Y: &e<y>&6, Z: &e<z>&6.");
-        config.addDefault("Region.Set.Select.Position.Second", "&6Segunda posição selecionada! Mundo: &e<w>&6, X: &e<x>&6, Y: &e<y>&6, Z: &e<z>&6.");
-        config.addDefault("Region.Teleport.Success", "&aVocê foi teleportado para a região <region>.");
-        config.addDefault("Region.Wand.Error.Config", "&cFaltam configurações na sua configuração. Ferramenta de seleção não pode ser dada.");
-        config.addDefault("Region.Wand.Success", "&6Ferramenta de seleção: Clique-esquerdo seleciona primeira posição e Clique-direito seleciona segunda posição.");
-        config.addDefault("Relative Location Setter.Sound Source", "&2&nOrigem do som");
-        config.addDefault("Relative Location Setter.Where To Play", "&4&nOnde tocar");
-        config.addDefault("Reload.Error", "&cAlgo de errado ocorreu ao recarregar as configurações. O PMS deve ser desligado imediatamente.");
-        config.addDefault("Reload.Success", "&7Configuração recarregada.");
-        config.addDefault("Resource Packs.Error", "&cAlgo de errado ocorreu ao pedir o jogador <player> para baixar o pacote de texturas. Por favor tente outra URL.");
-        config.addDefault("Resource Packs.Kick Message", "&cVocê deve estar usando uma textura para jogar nesse servidor.");
-        config.addDefault("Resource Packs.Request Message", "&ePor favor baixe a textura para continuar.");
-        config.addDefault("Rich Sound.Default.Cancellable.Display Name", "&c&lCancelável");
-        config.addDefault("Rich Sound.Default.Cancellable.Lore", "&d<value>");
-        config.addDefault("Rich Sound.Default.Done.Display Name", "&2&lPronto");
-        config.addDefault("Rich Sound.Default.Done.Lore", " Clique para salvar as mudanças.");
-        config.addDefault("Rich Sound.Default.Loop Period.Display Name", "&f&l<period>");
-        config.addDefault("Rich Sound.Default.Loop Period.Lore", " Esse som vai tocar a cada<line> <period> ticks.");
-        config.addDefault("Rich Sound.Default.Loop Start Delay.Display Name", "&f&l<delay>");
-        config.addDefault("Rich Sound.Default.Loop Start Delay.Lore", " Esse som vai esperar <delay> ticks<line> antes de começar a tocar em loop.");
-        config.addDefault("Rich Sound.Default.Name.Display Name", "&8&lNome: &7&l<name>");
-        config.addDefault("Rich Sound.Default.Name.Lore", " Clique para definir o nome<line> deste som.");
-        config.addDefault("Rich Sound.Default.Sound.Display Name", "&3&l<id>");
-        config.addDefault("Rich Sound.Default.Sound.Lore", "Clique para editar este som.");
-        config.addDefault("Rich Sound.Default.Title", "&6Editando som &e<name>");
-        config.addDefault("Rich Sound.General.Add New Sound.Display Name", "&e&lAdicionar novo som");
-        config.addDefault("Rich Sound.General.Add New Sound.Lore", " Clique para adicionar um novo som.");
-        config.addDefault("Rich Sound.General.Cancel.Display Name", "&4&lCancelar");
-        config.addDefault("Rich Sound.General.Cancel.Lore", " Descartar tudo.");
-        config.addDefault("Rich Sound.General.Disabled.Display Name", "&4&lDesativado");
-        config.addDefault("Rich Sound.General.Disabled.Lore", " Este som está desativado.<line> Clique para ativar.");
-        config.addDefault("Rich Sound.General.Enabled.Display Name", "&2&lEnabled");
-        config.addDefault("Rich Sound.General.Enabled.Lore", " Este som está ativado.<line> Clique para desativar.");
-        config.addDefault("Rich Sound.General.Next Page.Display Name", "&7&lPróxima página");
-        config.addDefault("Rich Sound.General.Next Page.Lore", " Clique para ver mais sons.");
-        config.addDefault("Rich Sound.General.Previous Page.Display Name", "&7&lPágina anterior");
-        config.addDefault("Rich Sound.General.Previous Page.Lore", " Clique para voltar à página anterior.");
-        config.addDefault("Rich Sound.General.Separator.Display Name", "&b&lSons");
-        config.addDefault("Rich Sound.New.Cancellable.Display Name", "&c&lCancelável");
-        config.addDefault("Rich Sound.New.Cancellable.Lore", " Este som deveria ser<line> cancelável por outros plugins?");
-        config.addDefault("Rich Sound.New.Done.Display Name", "&2&lPronto");
-        config.addDefault("Rich Sound.New.Done.Lore", " Clique para salvar este som.");
-        config.addDefault("Rich Sound.New.Loop Period.Display Name", "&f&lPeríodo de loop");
-        config.addDefault("Rich Sound.New.Loop Period.Lore", " Clique para definir o tempo<line> que este som deverá esperar<line> antes de tocar novamente.");
-        config.addDefault("Rich Sound.New.Loop Start Delay.Display Name", "&f&lTempo para começar loop");
-        config.addDefault("Rich Sound.New.Loop Start Delay.Lore", " Clique para definir o tempo<line> para esperar antes de começar<line> o loop.");
-        config.addDefault("Rich Sound.New.Name.Display Name", "&7&lSeção");
-        config.addDefault("Rich Sound.New.Name.Lore", " Clique para definir a seção<line> deste som.");
-        config.addDefault("Rich Sound.New.Title", "&6Criar um novo som.");
-        config.addDefault("Stop Sound.Success.All", "&7Todos sons tocando para &f<target>&7 foram parados.");
-        config.addDefault("Stop Sound.Success.Default", "&7Sons de &f<sounds>&7 tocando para &f<target>&7 foram parados.");
-        config.addDefault("Toggle.Check.Disabled.Default", "&cSeus sons estão desativados.");
-        config.addDefault("Toggle.Check.Disabled.Player", "&cOs sons de &f<target>&c estão desativados.");
-        config.addDefault("Toggle.Check.Enabled.Default", "&aSeus sons estão ativados.");
-        config.addDefault("Toggle.Check.Enabled.Player", "&aOs sons de &f<target>&c estão ativados.");
-        config.addDefault("Toggle.Disabled.Default", "&cSeus sons foram desativados!");
-        config.addDefault("Toggle.Disabled.Player", "&cOs sons de &f<target>&c foram desativados!");
-        config.addDefault("Toggle.Enabled.Default", "&aSeus sons foram ativados!");
-        config.addDefault("Toggle.Enabled.Player", "&aOs sons de &f<target>&a foram ativados!");
-        config.addDefault("Update.Available", "&2PlayMoreSounds v<version> está disponível. Digite &7/<label> update download&2 para baixar.");
-        config.addDefault("Update.Check", "&eProcurando por atualizações...");
-        config.addDefault("Update.Download.Default", "&eBaixando atualização...");
-        config.addDefault("Update.Download.Error", "&7Uma atualização já foi baixada.");
-        config.addDefault("Update.Download.Latest", "&eBaixando última versão...");
-        config.addDefault("Update.Download.Lower", "&7Aviso: A versão baixada é menor que a atual em execução.");
-        config.addDefault("Update.Download.Success", "&7PlayMoreSounds v<version> foi baixado com sucesso.");
-        config.addDefault("Update.Error.Default", "&cAlgo de errado ocorreu ao usar o atualizador.");
-        config.addDefault("Update.Error.Offline", "&cVocê está offline ou spigot.org caiu.");
-        config.addDefault("Update.Error.Timeout", "&cLevou tempo demais para estabelecer uma conexão.");
-        config.addDefault("Update.Not Available", "&eNenhuma atualização disponível.");
-    }, StaticFields.version3_4_0),
-    LANGUAGE_ZH_CN(StaticFields.lang.resolve("Language ZH-CN.yml"), config -> {
-        config.addDefaultComment("语言ZH-CN");
-        config.addDefaultComment("译者：秋风残叶");
-        config.addDefault("Version", PlayMoreSounds.versionString);
-        config.addDefault("Child Sound.Default.Delay.Display Name", "&9&l延迟");
-        config.addDefault("Child Sound.Default.Delay.Lore", " <delay>");
-        config.addDefault("Child Sound.Default.Done.Display Name", "&2&l完成");
-        config.addDefault("Child Sound.Default.Done.Lore", " 点击保存");
-        config.addDefault("Child Sound.Default.Id.Display Name", "&8&lId: &7&l<id>");
-        config.addDefault("Child Sound.Default.Id.Lore", " 点击更改 id.");
-        config.addDefault("Child Sound.Default.Ignores Toggle.Display Name", "&8&l无视音效切换");
-        config.addDefault("Child Sound.Default.Ignores Toggle.Lore", " &d<value>");
-        config.addDefault("Child Sound.Default.Permission Required.Display Name", "&f&l需要权限");
-        config.addDefault("Child Sound.Default.Permission Required.Lore", " <permissionrequired>");
-        config.addDefault("Child Sound.Default.Permission To Listen.Display Name", "&f&l听到音效的权限");
-        config.addDefault("Child Sound.Default.Permission To Listen.Lore", " <permissiontolisten>");
-        config.addDefault("Child Sound.Default.Pitch.Display Name", "&a&l音调");
-        config.addDefault("Child Sound.Default.Pitch.Lore", " <pitch>");
-        config.addDefault("Child Sound.Default.Radius.Display Name", "&4&l可听半径: &c&l<radius>");
-        config.addDefault("Child Sound.Default.Radius.Lore", " 此音效可在多少半径<line> 范围内被听到");
-        config.addDefault("Child Sound.Default.Relative Location.Display Name", "&3&l播放位置");
-        config.addDefault("Child Sound.Default.Relative Location.Lore", " 音效将会在玩家哪个方位播放<line> <line> <line> &d上:    &5<up><line> &d下:  &5<down><line> &d前: &5<front><line> &d后:  &5<back><line> &d右: &5<right><line> &d左:  &5<left><line> <line> 点击更改");
-        config.addDefault("Child Sound.Default.Sound.Display Name", "&6&l音效");
-        config.addDefault("Child Sound.Default.Sound.Lore", " <sound>");
-        config.addDefault("Child Sound.Default.Title", "&6音效: &e<id>");
-        config.addDefault("Child Sound.Default.Volume.Display Name", "&2&l音量");
-        config.addDefault("Child Sound.Default.Volume.Lore", " <volume>");
-        config.addDefault("Child Sound.General.Cancel.Display Name", "&4&l取消");
-        config.addDefault("Child Sound.General.Cancel.Lore Back", " 取消<line> 并返回至 &7<parent>&5&o.");
-        config.addDefault("Child Sound.General.Cancel.Lore", " 点击取消");
-        config.addDefault("Child Sound.General.Eye Location.Display Name", "&e&l目视之处播放");
-        config.addDefault("Child Sound.General.Eye Location.Lore", " 音效将在玩家目视之处播放<line> <line> 点击修改");
-        config.addDefault("Child Sound.General.Feet Location.Display Name", "&e&l脚站之处播放");
-        config.addDefault("Child Sound.General.Feet Location.Lore", " 音效将在玩家脚站之处播放<line> <line> 点击修改");
-        config.addDefault("Child Sound.New.Delay.Display Name", "&9&l延迟");
-        config.addDefault("Child Sound.New.Delay.Lore", " 音效延迟<line> 播放的时间");
-        config.addDefault("Child Sound.New.Done.Display Name", "&2&l完成");
-        config.addDefault("Child Sound.New.Done.Lore Back", " 将音效添加至 &7<parent>&5&o.");
-        config.addDefault("Child Sound.New.Done.Lore", " 添加音效");
-        config.addDefault("Child Sound.New.Id.Display Name", "&7&l音效 Id");
-        config.addDefault("Child Sound.New.Id.Lore", " 音效的ID");
-        config.addDefault("Child Sound.New.Ignores Toggle.Display Name", "&8&l无视音效切换");
-        config.addDefault("Child Sound.New.Ignores Toggle.Lore", " 即便玩家已经禁用此音效<line> 是否音效继续播放<line>");
-        config.addDefault("Child Sound.New.Permission Required.Display Name", "&f&l需要权限");
-        config.addDefault("Child Sound.New.Permission Required.Lore", " 只有拥有权限的玩家<line> 才能触发这个音效");
-        config.addDefault("Child Sound.New.Permission To Listen.Display Name", "&f&l听到音效的权限");
-        config.addDefault("Child Sound.New.Permission To Listen.Lore", " 只有拥有权限的玩家<line> 才能听到这个音效");
-        config.addDefault("Child Sound.New.Pitch.Display Name", "&a&l音调");
-        config.addDefault("Child Sound.New.Pitch.Lore", " 音效的音调");
-        config.addDefault("Child Sound.New.Radius.Display Name", "&4&l半径");
-        config.addDefault("Child Sound.New.Radius.Lore", " 音效能被听到的半径:<line> <line> &60  »&e 玩家自己<line> &6-1 »&e 全服玩家<line> &6-2 »&e 本世界玩家<line> &61+ »&e 此半径内全部玩家");
-        config.addDefault("Child Sound.New.Relative Location.Display Name", "&3&l音效方位");
-        config.addDefault("Child Sound.New.Relative Location.Lore", " 音效会在玩家的<line> 哪个方位响起");
-        config.addDefault("Child Sound.New.Sound.Display Name", "&6&l音效");
-        config.addDefault("Child Sound.New.Sound.Lore", " 音效的名称<line> 可以设置为材质包音效");
-        config.addDefault("Child Sound.New.Title", "&6子音效");
-        config.addDefault("Child Sound.New.Volume.Display Name", "&2&l音量");
-        config.addDefault("Child Sound.New.Volume.Lore", " 音效的音量");
-        config.addDefault("Confirm.Error.Nothing Pending", "&c无待确认项目");
-        config.addDefault("Confirm.List.Confirmation", " &f<id> &7- <description>");
-        config.addDefault("Confirm.List.Header", "&8待确认列表:");
-        config.addDefault("Description.Header", "&6&m------------&6[&9PlayMoreSounds v<version>&6]&m------------");
-        config.addDefault("Description.Help", "&6请输入 \"&7&n/<label> help&6\" 查看指令列表");
-        config.addDefault("Description.No Permission", "&6你没有权限");
-        config.addDefault("Disc.Error.Not Found", "&c找不到ID为 \"&7<id>&c\" 的光盘");
-        config.addDefault("Disc.Success", "&7将光盘 &f<id>&7 赋予 &f<target>");
-        config.addDefault("Finder.Back.Display Name", "&d&l返回");
-        config.addDefault("Finder.Back.Lore", " 点击返回至 &7<path>&5&o.");
-        config.addDefault("Finder.Error", "&c出现未知错误");
-        config.addDefault("Finder.File.Display Name", "&f&l<name>");
-        config.addDefault("Finder.File.Lore", " 点击编辑或添加音效至<line> &7<name>&5&o.");
-        config.addDefault("Finder.Folder.Display Name", "&e&l<name>");
-        config.addDefault("Finder.Folder.Lore", " 点击进入 &7<name>&5&o 文件夹");
-        config.addDefault("Finder.Next Page.Display Name", "&7&l下一页");
-        config.addDefault("Finder.Next Page.Lore", " 下一页");
-        config.addDefault("Finder.Previous Page.Display Name", "&7&l上一页");
-        config.addDefault("Finder.Previous Page.Lore", " 上一页");
-        config.addDefault("Finder.Sound.Display Name", "&b&l<name>");
-        config.addDefault("Finder.Sound.Lore", " 点击编辑音效 &7<name>&5&o.");
-        config.addDefault("Finder.Title.Folder", "&6&n<path>&e 文件夹 &8[&7<page>&8/&7<totalPages>&8]");
-        config.addDefault("Finder.Title.Sound", "&1&n<path>&9 音效 &8[&7<page>&8/&7<totalPages>&8]");
-        config.addDefault("General.And", "和");
-        config.addDefault("General.Description", "描述");
-        config.addDefault("General.Everyone", "所有人");
-        config.addDefault("General.Invalid Arguments", "&c错误的指令参数! 请输入 \"&7/&n<label> <label2> <args>&c\".");
-        config.addDefault("General.Name", "名称");
-        config.addDefault("General.No Permission", "&4你没有权限");
-        config.addDefault("General.Nobody Online", "&c没有在线玩家");
-        config.addDefault("General.Not A Number", "&c输入值 \"&7<number>&c\" 不是一个合法数字");
-        config.addDefault("General.Not A Player", "&c只有玩家可以这么做");
-        config.addDefault("General.Player Not Found", "&c玩家 \"&7<player>&c\" 未找到");
-        config.addDefault("General.Player", "玩家");
-        config.addDefault("General.Prefix", "&6[&9PlayMoreSounds&6] ");
-        config.addDefault("General.Target", "目标");
-        config.addDefault("General.Unknown Command", "&c未知指令，请使用 \"&7&n/<label> help&c\" 获得帮助");
-        config.addDefault("General.World", "世界");
-        config.addDefault("General.You", "你");
-        config.addDefault("Help.Check", "&e/<label> check [目标]\n&7 > 检查声音的开启/关闭状态");
-        config.addDefault("Help.Confirm", "&e/<label> confirm [数|页]\n&7 > 确认");
-        config.addDefault("Help.Disc", "&e/<label> disc <ID> [目标]\n&7 > 提供配置的自定义光盘");
-        config.addDefault("Help.Header", "指令列表:");
-        config.addDefault("Help.Help", "&e/<label> help [指令]\n&7 > 指令描述");
-        config.addDefault("Help.List", "&e/<label> list [页] [--gui]\n&7 > 此版本允许的音效列表");
-        config.addDefault("Help.Play", "&e/<label> play <音效> [目标] [音量] [音调]\n&7 > 播放音效");
-        config.addDefault("Help.Region", "&e/<label> region <create|info|list|remove|rename|set|teleport|wand>\n&7 > 区域相关指令");
-        config.addDefault("Help.Reload", "&e/<label> reload\n&7 > 重载插件");
-        config.addDefault("Help.Stop Sound", "&e/<label> stopsound [目标] [音效]\n&7 > 停止当前播放的声音");
-        config.addDefault("Help.Toggle", "&e/<label> toggle [目标] [on|off]\n&7 > 启用/禁用音效");
-        config.addDefault("Help.Update", "&e/<label> update [download] [--force]\n&7 > 点击下载更新");
-        config.addDefault("List.Error.Not Exists", "&c页码 &7<page>&c 不存在，最大页码: <totalpages>.");
-        config.addDefault("List.Footer", "&f&l - &a查看更多音效请使用 \"&f/&n<label> list <page>&a\"");
-        config.addDefault("List.GUI.Error.Not Supported", "&c声音列表菜单只在MC 1.14+ 可用");
-        config.addDefault("List.GUI.Next Page.Display Name", "&7&l下一页");
-        config.addDefault("List.GUI.Next Page.Lore", " 点击翻页");
-        config.addDefault("List.GUI.Previous Page.Display Name", "&7&l上一页");
-        config.addDefault("List.GUI.Previous Page.Lore", " 点击翻页");
-        config.addDefault("List.GUI.Sound.Display Name", "&d&n<sound>");
-        config.addDefault("List.GUI.Sound.Lore", " 点击播放");
-        config.addDefault("List.GUI.Stop Sound.Display Name", "&6&l停止音效");
-        config.addDefault("List.GUI.Stop Sound.Lore", " 停止当前播放");
-        config.addDefault("List.GUI.Title", "&8音效列表 页 &c<page>&8 / &c<totalpages>&8");
-        config.addDefault("List.Header", "&a所有可用音效列表 [页 <page> / <totalpages>]:");
-        config.addDefault("List.Page", "页");
-        config.addDefault("List.Sound Tooltip", "&5点击播放 &d<sound>");
-        config.addDefault("Play.Error.Not A Sound", "&c文件 &7<file>&c &c里的设置项 \"&7<section>&c\" 不是一个合法音效名称");
-        config.addDefault("Play.Error.Unauthorized", "&c无法打开此文件夹");
-        config.addDefault("Play.Pitch", "音调");
-        config.addDefault("Play.Sound", "音效");
-        config.addDefault("Play.Success.Config", "&7播放音效： &f<sound>&7 来自文件： &f<file>&7 对应玩家： &f<player>&7.");
-        config.addDefault("Play.Success.Default", "&7播放音效： &f<sound>&7 音量： &f<volume>&7 音调： &f<pitch>&7 对应玩家： &f<player>&7.");
-        config.addDefault("Play.Volume", "音量");
-        config.addDefault("Region.Create.Default Description", "声音播放区域");
-        config.addDefault("Region.Create.Error.Already Exists", "&c此名称已被占用");
-        config.addDefault("Region.Create.Error.Default", "&c创建区域 \"&7<name>&c\" 时失败.");
-        config.addDefault("Region.Create.Error.Different Worlds", "&c选区不在同一个世界内");
-        config.addDefault("Region.Create.Error.Max Area", "&c选区过大，边长不得超过 <max> 方块");
-        config.addDefault("Region.Create.Error.Max Regions", "&c无法创建超过 <max> 个区域");
-        config.addDefault("Region.Create.Error.Not Selected", "&c您尚未选择坐标！请输入 &7&n/<label> <label2> wand&c 来获得区域选择工具！");
-        config.addDefault("Region.Create.Success", "&a区域 &7<name>&a 已创建");
-        config.addDefault("Region.General.Error.Illegal Characters", "&c区域名称只支持英文+数字组合.");
-        config.addDefault("Region.General.Error.Max Name Characters", "&c区域名称不得超过 <max> 个字符");
-        config.addDefault("Region.General.Error.Not Found.Name", "&c区域未找到，请使用 &7/<label> <label2> list&c 查询区域列表");
-        config.addDefault("Region.General.Error.Not Found.UUID", "&c区域uuid未找到，请使用 &7/<label> <label2> list&c 查询区域列表");
-        config.addDefault("Region.General.Error.Save", "&c保存区域 <name> 时出现错误，请联系管理员");
-        config.addDefault("Region.Info.Creation Date", "&7创建日期:&f <date>");
-        config.addDefault("Region.Info.Description", "&7描述:&f <description>");
-        config.addDefault("Region.Info.Error.No Regions", "&7这里没有音效区域");
-        config.addDefault("Region.Info.Header", "&8区域信息 &f<name>&8:");
-        config.addDefault("Region.Info.Id", "&7UUID:&f <uuid>");
-        config.addDefault("Region.Info.Owner", "&7创建者:&f <owner>");
-        config.addDefault("Region.Info.World", "&7世界:&f <world>");
-        config.addDefault("Region.List.Error.No Regions", "&c<targets> 没有区域");
-        config.addDefault("Region.List.Error.Not Exists", "&c页码 &7<page>&c 不存在，最大页码: <totalPages>.");
-        config.addDefault("Region.List.Footer", "&8请输入 &7/<label> <label2> <label3> <label4> <next>&8 查看其它区域");
-        config.addDefault("Region.List.Header.Default", "&8你的区域 [页 <page> / <totalPages>]:");
-        config.addDefault("Region.List.Header.Player", "&8<targets>的区域 [页 <page> / <totalPages>]:");
-        config.addDefault("Region.List.Region", "&7- <uuid>: &f<name>");
-        config.addDefault("Region.Region", "区域");
-        config.addDefault("Region.Remove.Confirm", "&a请输入 &7/<label> confirm&a 确认删除区域 &7<region>&a.");
-        config.addDefault("Region.Remove.Description", "删除区域 <region>");
-        config.addDefault("Region.Remove.Success", "&a区域 &7<region>&a 已删除");
-        config.addDefault("Region.Rename.Error.Already Exists", "&c该名字已被占用");
-        config.addDefault("Region.Rename.Error.Same", "&c新名字需要与原名字不同");
-        config.addDefault("Region.Rename.New Name", "新名字");
-        config.addDefault("Region.Rename.Success", "&a区域 <region> 已更名为 &7<newName>&a.");
-        config.addDefault("Region.Select.Error.Overlap", "&c选区内已经有区域了！请检查选区！");
-        config.addDefault("Region.Set.Description.Error.Max Characters", "&c区域描述不可以超过 100 字符");
-        config.addDefault("Region.Set.Description.Success", "&a区域 <region> 的描述已设置为 &7<description>&a.");
-        config.addDefault("Region.Set.Select.Error.Not A World", "&c输入参数 &7<value>&c 不是一个合法世界名");
-        config.addDefault("Region.Set.Select.Position.First", "&6第一个点已选择! 世界: &e<w>&6, X: &e<x>&6, Y: &e<y>&6, Z: &e<z>&6.");
-        config.addDefault("Region.Set.Select.Position.Second", "&6第二个点已选择! 世界: &e<w>&6, X: &e<x>&6, Y: &e<y>&6, Z: &e<z>&6.");
-        config.addDefault("Region.Teleport.Success", "&a已传送至区域 <region>.");
-        config.addDefault("Region.Wand.Error.Config", "&c配置文件没有设定完成，无法获得区域选择工具，请检查配置文件");
-        config.addDefault("Region.Wand.Success", "&6区域选择工具: 左键点击选择第一个点，右键选择第二个点");
-        config.addDefault("Relative Location Setter.Sound Source", "&2&n声音来源");
-        config.addDefault("Relative Location Setter.Where To Play", "&4&n声音来源");
-        config.addDefault("Reload.Error", "&c加载配置时出现错误，更多音效插件已强制关闭，请检查配置");
-        config.addDefault("Reload.Success", "&a插件已重载 汉化 by 秋风残叶");
-        config.addDefault("Resource Packs.Error", "&c请求 <player> 下载材质包时出现错误");
-        config.addDefault("Resource Packs.Kick Message", "&c你必须下载材质包才能进服游戏");
-        config.addDefault("Resource Packs.Request Message", "&e请下载材质包后继续");
-        config.addDefault("Rich Sound.Default.Cancellable.Display Name", "&c&l取消");
-        config.addDefault("Rich Sound.Default.Cancellable.Lore", "&d<value>");
-        config.addDefault("Rich Sound.Default.Done.Display Name", "&2&l完成");
-        config.addDefault("Rich Sound.Default.Done.Lore", " 点击保存");
-        config.addDefault("Rich Sound.Default.Loop Period.Display Name", "&f&l<period>");
-        config.addDefault("Rich Sound.Default.Loop Period.Lore", " 每<line> <period> ticks此音效会播放");
-        config.addDefault("Rich Sound.Default.Loop Start Delay.Display Name", "&f&l<delay>");
-        config.addDefault("Rich Sound.Default.Loop Start Delay.Lore", " 此音效将延迟 <delay> ticks<line> 后开始循环播放");
-        config.addDefault("Rich Sound.Default.Name.Display Name", "&8&l名称: &7&l<name>");
-        config.addDefault("Rich Sound.Default.Name.Lore", " 点击设置<line> 音效名称");
-        config.addDefault("Rich Sound.Default.Sound.Display Name", "&3&l<id>");
-        config.addDefault("Rich Sound.Default.Sound.Lore", "点击编辑音效");
-        config.addDefault("Rich Sound.Default.Title", "&6编辑 &e<name>&6 音效");
-        config.addDefault("Rich Sound.General.Add New Sound.Display Name", "&e&l添加新音效");
-        config.addDefault("Rich Sound.General.Add New Sound.Lore", " 点击添加新音效");
-        config.addDefault("Rich Sound.General.Cancel.Display Name", "&4&l取消");
-        config.addDefault("Rich Sound.General.Cancel.Lore", " 取消");
-        config.addDefault("Rich Sound.General.Disabled.Display Name", "&4&l禁用");
-        config.addDefault("Rich Sound.General.Disabled.Lore", " 音效已禁用.<line> 点击启用");
-        config.addDefault("Rich Sound.General.Enabled.Display Name", "&2&l启用");
-        config.addDefault("Rich Sound.General.Enabled.Lore", " 音效已启用.<line> 点击禁用");
-        config.addDefault("Rich Sound.General.Next Page.Display Name", "&7&l下一页");
-        config.addDefault("Rich Sound.General.Next Page.Lore", " 点击查看更多音效");
-        config.addDefault("Rich Sound.General.Previous Page.Display Name", "&7&l上一页");
-        config.addDefault("Rich Sound.General.Previous Page.Lore", " 点击回到上一页");
-        config.addDefault("Rich Sound.General.Separator.Display Name", "&b&l音效");
-        config.addDefault("Rich Sound.New.Cancellable.Display Name", "&c&l可取消");
-        config.addDefault("Rich Sound.New.Cancellable.Lore", " 此音效是否可以<line> 被其它插件所取消？");
-        config.addDefault("Rich Sound.New.Done.Display Name", "&2&l完成");
-        config.addDefault("Rich Sound.New.Done.Lore", " 点击缓存音效");
-        config.addDefault("Rich Sound.New.Loop Period.Display Name", "&f&l循环播放");
-        config.addDefault("Rich Sound.New.Loop Period.Lore", " 点击设置音效<line> 循环播放的间隔");
-        config.addDefault("Rich Sound.New.Loop Start Delay.Display Name", "&f&l循环开始延迟");
-        config.addDefault("Rich Sound.New.Loop Start Delay.Lore", " 点击设置音效<line> 延迟多久开始循环播放");
-        config.addDefault("Rich Sound.New.Name.Display Name", "&7&l名称");
-        config.addDefault("Rich Sound.New.Name.Lore", " 点击设置<line> 音效的名称");
-        config.addDefault("Rich Sound.New.Title", "&6创建新音效");
-        config.addDefault("Stop Sound.Success.All", "&7停止所有正在播放到 &f<target>&7 的声音");
-        config.addDefault("Stop Sound.Success.Default", "&7停止从 &f<sounds>&7 到 &f<target>&7 播放声音");
-        config.addDefault("Toggle.Check.Disabled.Default", "&c该音效已禁用");
-        config.addDefault("Toggle.Check.Disabled.Player", "&c玩家 &f<player>&c 已禁用");
-        config.addDefault("Toggle.Check.Enabled.Default", "&a该音效已启用");
-        config.addDefault("Toggle.Check.Enabled.Player", "&a玩家 &f<player>&a 的音效已启用");
-        config.addDefault("Toggle.Disabled.Default", "&c音效已关闭");
-        config.addDefault("Toggle.Disabled.Player", "&c已将 &f<target>&c 的音效关闭!");
-        config.addDefault("Toggle.Enabled.Default", "&a音效已打开!");
-        config.addDefault("Toggle.Enabled.Player", "&a已将 &f<target>&a 的音效打开!");
-        config.addDefault("Update.Available", "&2PlayMoreSounds v<version> 新版本已可用，建议输入 &7/<label> update download&2 来下载新版本");
-        config.addDefault("Update.Check", "&e检查更新...");
-        config.addDefault("Update.Download.Default", "&e下载更新中...");
-        config.addDefault("Update.Download.Error", "&7更新已经下载完成了");
-        config.addDefault("Update.Download.Latest", "&e下载最新更新...");
-        config.addDefault("Update.Download.Lower", "&7警告: 即将下载的版本低于当前已安装版本");
-        config.addDefault("Update.Download.Success", "&7PlayMoreSounds v<version> 已成功下载，请重启服务器并安装");
-        config.addDefault("Update.Error.Default", "&c更新失败，请检查网络");
-        config.addDefault("Update.Error.Offline", "&c您当前未连接网络，或者您的防火墙拦截了联网请求，更新失败");
-        config.addDefault("Update.Error.Timeout", "&c连接超时，请检查网络");
-        config.addDefault("Update.Not Available", "&e没有可用更新");
-    }, StaticFields.version3_4_0),
-    NATURE_SOUNDS_REPLACER(StaticFields.sounds.resolve("nature sounds replacer.yml"), config -> {
-        config.addDefaultComment(" Replace any sound played by nature on your server.");
-        config.addDefaultComment("");
-        config.addDefaultComment("  When a sound here is played, PlayMoreSounds interrupts the sound packets from being");
-        config.addDefaultComment(" sent to the players and plays the sound set here instead. This way you can take");
-        config.addDefaultComment(" advantage of PlayMoreSounds features, like replace a nature sound with resource pack");
-        config.addDefaultComment(" sound, radius sound, delayed sound etc.");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Warnings:");
-        config.addDefaultComment(" >> ProtocolLib is required to work.");
-        config.addDefaultComment(" >> Server needs to be running on version 1.9+.");
-        config.addDefaultComment(" >> Sounds to replace are bukkit sounds, that means the name changes depending on the");
-        config.addDefaultComment(" version you are running, unlike PlayMoreSounds sounds that have the same name on all");
-        config.addDefaultComment(" versions.");
-        config.addDefaultComment("");
-        config.addDefaultComment("  To replace a sound create a section with the sound name and set the replacing sound");
-        config.addDefaultComment(" on it, for example:");
-        config.addDefaultComment("");
-        config.addDefaultComment("ENTITY_ZOMBIE_HURT: # This is the sound to replace");
-        config.addDefaultComment("  Enabled: true");
-        config.addDefaultComment("  Sounds: # The sounds that will play instead.");
-        config.addDefaultComment("    '0':");
-        config.addDefaultComment("      Delay: 0");
-        config.addDefaultComment("      Options:");
-        config.addDefaultComment("        Ignores Disabled: true");
-        config.addDefaultComment("        Permission To Listen: 'listen.zombiehurt'");
-        config.addDefaultComment("        Radius: 15.2");
-        config.addDefaultComment("        Relative Location:");
-        config.addDefaultComment("          FRONT_BACK: 0.0");
-        config.addDefaultComment("          RIGHT_LEFT: 0.0");
-        config.addDefaultComment("          UP_DOWN: 0.0");
-        config.addDefaultComment("      Pitch: 1.0");
-        config.addDefaultComment("      Sound: ENTITY_SKELETON_HURT");
-        config.addDefaultComment("      Volume: 10.0");
-        config.addDefaultComment("");
-        config.addDefault("Version", PlayMoreSounds.versionString);
-    }, StaticFields.version3_4_0),
-    REGIONS(StaticFields.sounds.resolve("regions.yml"), config -> {
-        config.addDefaultComment(" Set a sound to play when you enter, exit or stand on a specific region.");
-        config.addDefaultComment("");
-        config.addDefaultComment(" Sample:");
-        config.addDefaultComment(" (Take a note that this is a sample and the sounds may not be available");
-        config.addDefaultComment(" on your MC version.)");
-        config.addDefaultComment("");
-        config.addDefaultComment("PlayMoreSounds: # The region plugin.");
-        config.addDefaultComment("  Spawn: # The region name, replace 'Spawn' with the name of your region.");
-        config.addDefaultComment("    Enter: # When a player enters this region.");
-        config.addDefaultComment("      Cancellable: true");
-        config.addDefaultComment("      Enabled: true");
-        config.addDefaultComment("      Stop On Exit:");
-        config.addDefaultComment("        Enabled: true # If enabled, the sound will be stopped when the player leaves the region.");
-        config.addDefaultComment("        Delay: 20 # The time to wait before stopping the sound.");
-        config.addDefaultComment("      Prevent Default Sound: true # If enabled, Region Enter sound in sounds.yml won't be played.");
-        config.addDefaultComment("      Sounds:");
-        config.addDefaultComment("        '0':");
-        config.addDefaultComment("          Delay: 0");
-        config.addDefaultComment("          Options:");
-        config.addDefaultComment("            Radius: 0");
-        config.addDefaultComment("          Pitch: 1");
-        config.addDefaultComment("          Sound: BLOCK_NOTE_BLOCK_PLING");
-        config.addDefaultComment("          Volume: 10");
-        config.addDefaultComment("    Leave: # When a player exits this region.");
-        config.addDefaultComment("      Cancellable: true");
-        config.addDefaultComment("      Enabled: true");
-        config.addDefaultComment("      Prevent Default Sound: true # If enabled, Region Leave sound in sounds.yml won't be played.");
-        config.addDefaultComment("      Sounds:");
-        config.addDefaultComment("        '0':");
-        config.addDefaultComment("          Delay: 0");
-        config.addDefaultComment("          Options:");
-        config.addDefaultComment("            Radius: 0");
-        config.addDefaultComment("          Pitch: 1");
-        config.addDefaultComment("          Sound: BLOCK_NOTE_BLOCK_BASS");
-        config.addDefaultComment("          Volume: 10");
-        config.addDefaultComment("    Loop: # When a player enters the region, a loop will be triggered and play.");
-        config.addDefaultComment("      Cancellable: true");
-        config.addDefaultComment("      Delay: 0 # Time in ticks to wait to start the loop once the player enters the region.");
-        config.addDefaultComment("      Enabled: true");
-        config.addDefaultComment("      Period: 100 # Time in tick the loop will wait until playing the sound again.");
-        config.addDefaultComment("      # If you have a long song playing, when the player leaves this region, the song");
-        config.addDefaultComment("      #will be stopped instead of playing until the end. This setting applies to sounds only,");
-        config.addDefaultComment("      #the loop function is stopped automatically.");
-        config.addDefaultComment("      Stop On Exit:");
-        config.addDefaultComment("        Delay: 10");
-        config.addDefaultComment("        Enabled: true");
-        config.addDefaultComment("      Prevent Other Sounds:");
-        config.addDefaultComment("        Enter Sound: true # If enabled, Enter sound in regions.yml won't be played.");
-        config.addDefaultComment("        Default Sound: true # If enabled, Region Enter sound in sounds.yml won't be played.");
-        config.addDefaultComment("      Sounds:");
-        config.addDefaultComment("        '0':");
-        config.addDefaultComment("          Delay: 0");
-        config.addDefaultComment("          Options:");
-        config.addDefaultComment("            Radius: 0");
-        config.addDefaultComment("          Pitch: 1");
-        config.addDefaultComment("          Sound: BLOCK_NOTE_BLOCK_BASS");
-        config.addDefaultComment("          Volume: 10");
-        config.addDefaultComment("");
-        config.addDefaultComment(" You can only play sounds in PMS native regions. To play to other plugins, search for compatibility");
-        config.addDefaultComment("addons on https://www.spigotmc.org/resources/37429/");
-        config.addDefaultComment("");
-        config.addDefaultComment(" More information about sounds on sounds.yml.\n");
-        config.addDefault("Version", PlayMoreSounds.versionString);
-    }, StaticFields.version3_2_0),
-    SOUNDS(PlayMoreSounds.getFolder().resolve("sounds.yml"), config -> {
-        config.addDefaultComment(" Set a sound to play when a player triggers an event.");
-        config.addDefaultComment("");
-        config.addDefaultComment(" To set a sound to be played when a player triggers an event, create a section with");
-        config.addDefaultComment("the name of the event and add the sounds.");
-        config.addDefaultComment("");
-        config.addDefaultComment(" -> Sound sample:");
-        config.addDefaultComment("");
-        config.addDefaultComment("Teleport: # The event that when triggered, a sound will be played.");
-        config.addDefaultComment("  # Cancellable stops the sound from playing when another plugin cancels the event.");
-        config.addDefaultComment("  #This boolean helps events to be compatible with other plugins.");
-        config.addDefaultComment("  Cancellable: true");
-        config.addDefaultComment("  # If a sound should be played or not. In sounds.yml case, this boolean tells whether");
-        config.addDefaultComment("  #the event should be registered or not, so it saves performance if you don't use it.");
-        config.addDefaultComment("  Enabled: true");
-        config.addDefaultComment("  # This is the sound list. Each sound must have their section so PlayMoreSounds can");
-        config.addDefaultComment("  #distinguish them. Here I set to 0, but the important thing is that their names are");
-        config.addDefaultComment("  #not repeated.");
-        config.addDefaultComment("  Sounds:");
-        config.addDefaultComment("    '0':");
-        config.addDefaultComment("      # This is the time in ticks the sound will wait before playing. By default most");
-        config.addDefaultComment("      #sounds have it 0, so the sound plays immediately.");
-        config.addDefaultComment("      Delay: 0");
-        config.addDefaultComment("      # Sounds can have multiple options, all of them are optional.");
-        config.addDefaultComment("      Options:");
-        config.addDefaultComment("        # Even if a player has toggled their sounds disabled with \"/pms toggle\", the");
-        config.addDefaultComment("        #sound will be played.");
-        config.addDefaultComment("        Ignores Disabled: true");
-        config.addDefaultComment("        # The sound will be listened only by who has this permission. If the player");
-        config.addDefaultComment("        #has permission to play the sound but not listen, the sound will be played, but");
-        config.addDefaultComment("        #not heard by this player.");
-        config.addDefaultComment("        Permission To Listen: 'pms.listen.playerteleport'");
-        config.addDefaultComment("        # The sound will be played only if the player has this permission.");
-        config.addDefaultComment("        Permission Required: 'pms.reproduce.playerteleport'");
-        config.addDefaultComment("        # A radius of blocks that the sound will be heard.");
-        config.addDefaultComment("        # Set to 0 to be heard only by the player who triggered this event.");
-        config.addDefaultComment("        # Set to -1 to be heard by every player online in the server.");
-        config.addDefaultComment("        # Set to -2 to be heard by every player in the world where the sound was played.");
-        config.addDefaultComment("        Radius: 15.2");
-        config.addDefaultComment("        # Add blocks to the player's front, back, right, left, up or down. This will");
-        config.addDefaultComment("        #respect if the player is looking east, west, south or north, so if you add");
-        config.addDefaultComment("        #blocks to the right, the sound will be played to the player's right ear no");
-        config.addDefaultComment("        #matter which direction they are looking.");
-        config.addDefaultComment("        # To add the blocks use a negative or positive double, as NEGATIVE_POSITIVE.");
-        config.addDefaultComment("        Relative Location:");
-        config.addDefaultComment("          FRONT_BACK: 1.3");
-        config.addDefaultComment("          RIGHT_LEFT: -0.8");
-        config.addDefaultComment("          UP_DOWN: 0.13");
-        config.addDefaultComment("      # Set how pitchy the sound will be. Values greater than 2 don't have");
-        config.addDefaultComment("      #any difference.");
-        config.addDefaultComment("      Pitch: 1.0");
-        config.addDefaultComment("      # Here you can add a Sound Type or a sound modifier (check below).");
-        config.addDefaultComment("      # Check Sound Type names on https://www.spigotmc.org/resources/37429/");
-        config.addDefaultComment("      # Sound Types are not the same thing as bukkit sounds and sounds can be");
-        config.addDefaultComment("      #available or not depending on your version.");
-        config.addDefaultComment("      Sound: 'BLOCK_NOTE_BLOCK_PLING'");
-        config.addDefaultComment("      # Minecraft volume is the distance the sound can be heard. For the");
-        config.addDefaultComment("      #player who played, volume has only effect when the value is lower than 1.");
-        config.addDefaultComment("      #For near players, volume 1 = 15 blocks.");
-        config.addDefaultComment("      # Volumes may or may not be available depending on your sound modifier.");
-        config.addDefaultComment("      Volume: 0.7");
-        config.addDefaultComment("");
-        config.addDefaultComment(" -> Resource pack sound sample:");
-        config.addDefaultComment("");
-        config.addDefaultComment(" To play a resource pack sound, simply add the custom sound name into the \"Sound:\"");
-        config.addDefaultComment("setting.");
-        config.addDefaultComment("");
-        config.addDefaultComment("Teleport:");
-        config.addDefaultComment("  Enabled: true");
-        config.addDefaultComment("  Sounds:");
-        config.addDefaultComment("    '0':");
-        config.addDefaultComment("      Delay: 0");
-        config.addDefaultComment("      Options:");
-        config.addDefaultComment("        Radius: 0.0");
-        config.addDefaultComment("      Pitch: 1.0");
-        config.addDefaultComment("      Sound: 'customsoundname'");
-        config.addDefaultComment("      Volume: 10\n");
-        config.addDefault("Version", PlayMoreSounds.versionString);
-        config.addDefaultComment(" When a player lies in bed.");
-        config.addDefaultComment(" This sound is cancellable.");
-        config.addDefault("Bed Enter.Cancellable", true);
-        config.addDefault("Bed Enter.Enabled", true);
-        config.addDefault("Bed Enter.Sounds.0.Delay", 0L);
-        config.addDefault("Bed Enter.Sounds.0.Options.Radius", 15D);
-        config.addDefault("Bed Enter.Sounds.0.Pitch", 0.65F);
-        config.addDefault("Bed Enter.Sounds.0.Sound", "ENTITY_VILLAGER_AMBIENT");
-        config.addDefault("Bed Enter.Sounds.0.Volume", 0.5F);
-        config.addDefaultComment(" When a player gets out of bed.");
-        config.addDefaultComment(" This sound is disabled by default. To enable it, copy the options from the sound");
-        config.addDefaultComment("above and set 'Enabled' to true.");
-        config.addDefaultComment(" This sound is not cancellable.");
-        config.addDefault("Bed Leave.Enabled", false);
-        config.addDefaultComment(" When a player changes the item slot of the hotbar.");
-        config.addDefaultComment(" This sound is cancellable.");
-        config.addDefault("Change Held Item.Cancellable", false);
-        config.addDefault("Change Held Item.Enabled", true);
-        config.addDefault("Change Held Item.Sounds.0.Delay", 0L);
-        config.addDefault("Change Held Item.Sounds.0.Options.Radius", 0D);
-        config.addDefault("Change Held Item.Sounds.0.Pitch", 2F);
-        config.addDefault("Change Held Item.Sounds.0.Sound", "BLOCK_NOTE_BLOCK_HAT");
-        config.addDefault("Change Held Item.Sounds.0.Volume", 10F);
-        config.addDefaultComment(" When a player changes their level of experience.");
-        config.addDefaultComment(" This sound is disabled by default. To enable it, copy the options from the sound");
-        config.addDefaultComment("above and set 'Enabled' to true.");
-        config.addDefaultComment(" This sound is not cancellable.");
-        config.addDefault("Change Level.Enabled", false);
-        config.addDefaultComment(" When a player crafts an item.");
-        config.addDefaultComment(" This sound is disabled by default. To enable it, copy the options from another sound");
-        config.addDefaultComment("and set 'Enabled' to true.");
-        config.addDefaultComment(" This sound is cancellable.");
-        config.addDefault("Craft Item.Enabled", false);
-        config.addDefault("Craft Item.Cancellable", true);
-        config.addDefaultComment(" When a player drops an item.");
-        config.addDefaultComment(" This sound is cancellable.");
-        config.addDefault("Drop Item.Cancellable", false);
-        config.addDefault("Drop Item.Enabled", true);
-        config.addDefault("Drop Item.Sounds.0.Delay", 0L);
-        config.addDefault("Drop Item.Sounds.0.Options.Radius", 15D);
-        config.addDefault("Drop Item.Sounds.0.Pitch", 1F);
-        config.addDefault("Drop Item.Sounds.0.Sound", "ENTITY_EGG_THROW");
-        config.addDefault("Drop Item.Sounds.0.Volume", 0.5F);
-        config.addDefaultComment(" When an entity is hit by another entity.");
-        config.addDefaultComment(" This sound is cancellable.");
-        config.addDefault("Entity Hit.Cancellable", true);
-        config.addDefault("Entity Hit.Enabled", true);
-        config.addDefault("Entity Hit.Sounds.0.Delay", 0L);
-        config.addDefault("Entity Hit.Sounds.0.Options.Radius", 15D);
-        config.addDefault("Entity Hit.Sounds.0.Pitch", 2F);
-        config.addDefault("Entity Hit.Sounds.0.Sound", "ENTITY_GENERIC_HURT");
-        config.addDefault("Entity Hit.Sounds.0.Volume", 10F);
-        config.addDefaultComment(" When any entity jumps.");
-        config.addDefaultComment(" This sound only plays if you are running PaperMC.");
-        config.addDefaultComment(" This sound is disabled by default. To enable it, copy the options from the sound");
-        config.addDefaultComment("above and set 'Enabled' to true.");
-        config.addDefaultComment(" This sound is cancellable.");
-        config.addDefault("Entity Jump.Enabled", false);
-        config.addDefault("Entity Jump.Cancellable", true);
-        config.addDefaultComment(" When a player joins the server for the first time.");
-        config.addDefaultComment(" This sound is not cancellable.");
-        config.addDefault("First Join.Enabled", true);
-        config.addDefault("First Join.Sounds.0.Delay", 0L);
-        config.addDefault("First Join.Sounds.0.Options.Radius", -1D);
-        config.addDefault("First Join.Sounds.0.Pitch", 2F);
-        config.addDefault("First Join.Sounds.0.Sound", "BLOCK_NOTE_BLOCK_PLING");
-        config.addDefault("First Join.Sounds.0.Volume", 10F);
-        config.addDefaultComment(" When a player extracts something from a furnace.");
-        config.addDefaultComment(" This sound is not cancellable.");
-        config.addDefault("Furnace Extract.Enabled", true);
-        config.addDefault("Furnace Extract.Sounds.0.Delay", 0L);
-        config.addDefault("Furnace Extract.Sounds.0.Options.Radius", 15D);
-        config.addDefault("Furnace Extract.Sounds.0.Pitch", 1.3F);
-        config.addDefault("Furnace Extract.Sounds.0.Sound", "ENTITY_GENERIC_EXTINGUISH_FIRE");
-        config.addDefault("Furnace Extract.Sounds.0.Volume", 0.5F);
-        config.addDefaultComment(" When a player changes their game mode.");
-        config.addDefaultComment(" This sound is cancellable.");
-        config.addDefault("Game Mode Change.Cancellable", true);
-        config.addDefault("Game Mode Change.Enabled", true);
-        config.addDefault("Game Mode Change.Sounds.0.Delay", 0L);
-        config.addDefault("Game Mode Change.Sounds.0.Options.Radius", 0D);
-        config.addDefault("Game Mode Change.Sounds.0.Pitch", 1F);
-        config.addDefault("Game Mode Change.Sounds.0.Sound", "BLOCK_ANVIL_LAND");
-        config.addDefault("Game Mode Change.Sounds.0.Volume", 10F);
-        config.addDefaultComment(" When a player clicks on an inventory.");
-        config.addDefaultComment(" This sound is cancellable.");
-        config.addDefault("Inventory Click.Cancellable", true);
-        config.addDefault("Inventory Click.Enabled", true);
-        config.addDefault("Inventory Click.Sounds.0.Delay", 0L);
-        config.addDefault("Inventory Click.Sounds.0.Options.Radius", 0D);
-        config.addDefault("Inventory Click.Sounds.0.Pitch", 1.5F);
-        config.addDefault("Inventory Click.Sounds.0.Sound", "UI_BUTTON_CLICK");
-        config.addDefault("Inventory Click.Sounds.0.Volume", 0.4F);
-        config.addDefaultComment(" When a player closes an inventory.");
-        config.addDefaultComment(" This sound is not cancellable.");
-        config.addDefault("Inventory Close.Enabled", true);
-        config.addDefault("Inventory Close.Sounds.0.Delay", 0L);
-        config.addDefault("Inventory Close.Sounds.0.Options.Radius", 0D);
-        config.addDefault("Inventory Close.Sounds.0.Pitch", 2F);
-        config.addDefault("Inventory Close.Sounds.0.Sound", "UI_TOAST_OUT");
-        config.addDefault("Inventory Close.Sounds.0.Volume", 10F);
-        config.addDefaultComment(" When a player joins the server.");
-        config.addDefaultComment(" This sound is not cancellable.");
-        config.addDefault("Join Server.Enabled", true);
-        config.addDefault("Join Server.Sounds.0.Delay", 0L);
-        config.addDefault("Join Server.Sounds.0.Options.Radius", -1D);
-        config.addDefault("Join Server.Sounds.0.Pitch", 1F);
-        config.addDefault("Join Server.Sounds.0.Sound", "BLOCK_NOTE_BLOCK_PLING");
-        config.addDefault("Join Server.Sounds.0.Volume", 10F);
-        config.addDefaultComment(" When a player leaves the server.");
-        config.addDefaultComment(" This sound is not cancellable.");
-        config.addDefault("Leave Server.Enabled", true);
-        config.addDefault("Leave Server.Sounds.0.Delay", 0L);
-        config.addDefault("Leave Server.Sounds.0.Options.Radius", -1D);
-        config.addDefault("Leave Server.Sounds.0.Pitch", 1F);
-        config.addDefault("Leave Server.Sounds.0.Sound", "BLOCK_NOTE_BLOCK_BASS");
-        config.addDefault("Leave Server.Sounds.0.Volume", 10F);
-        config.addDefaultComment(" When a player bans another player from the server.");
-        config.addDefaultComment(" This sound is not cancellable.");
-        config.addDefault("Player Ban.Enabled", true);
-        config.addDefault("Player Ban.Sounds.0.Delay", 0L);
-        config.addDefault("Player Ban.Sounds.0.Options.Radius", -1D);
-        config.addDefault("Player Ban.Sounds.0.Pitch", 1.3F);
-        config.addDefault("Player Ban.Sounds.0.Sound", "ENTITY_ENDER_DRAGON_DEATH");
-        config.addDefault("Player Ban.Sounds.0.Volume", 10F);
-        config.addDefaultComment(" When a player sends a message on chat.");
-        config.addDefaultComment(" This sound is cancellable.");
-        config.addDefault("Player Chat.Cancellable", true);
-        config.addDefault("Player Chat.Enabled", true);
-        config.addDefault("Player Chat.Sounds.0.Delay", 0L);
-        config.addDefault("Player Chat.Sounds.0.Options.Radius", -1D);
-        config.addDefault("Player Chat.Sounds.0.Pitch", 1F);
-        config.addDefault("Player Chat.Sounds.0.Sound", "ENTITY_ITEM_PICKUP");
-        config.addDefault("Player Chat.Sounds.0.Volume", 10F);
-        config.addDefaultComment(" When a player dies.");
-        config.addDefaultComment(" This sound is not cancellable.");
-        config.addDefault("Player Death.Enabled", true);
-        config.addDefault("Player Death.Sounds.0.Delay", 0L);
-        config.addDefault("Player Death.Sounds.0.Options.Radius", 0D);
-        config.addDefault("Player Death.Sounds.0.Pitch", 1F);
-        config.addDefault("Player Death.Sounds.0.Sound", "ENTITY_WITHER_SPAWN");
-        config.addDefault("Player Death.Sounds.0.Volume", 10F);
-        config.addDefaultComment(" When a player is kicked from the server.");
-        config.addDefaultComment(" This sound is not cancellable.");
-        config.addDefault("Player Kicked.Enabled", true);
-        config.addDefault("Player Kicked.Sounds.0.Delay", 0L);
-        config.addDefault("Player Kicked.Sounds.0.Options.Radius", -1D);
-        config.addDefault("Player Kicked.Sounds.0.Pitch", 1.3F);
-        config.addDefault("Player Kicked.Sounds.0.Sound", "ENTITY_ENDER_DRAGON_HURT");
-        config.addDefault("Player Kicked.Sounds.0.Volume", 10F);
-        config.addDefaultComment(" When a player jumps.");
-        config.addDefaultComment(" This sound only plays if you are running PaperMC.");
-        config.addDefaultComment(" This sound is disabled by default. To enable it, copy the options from the sound");
-        config.addDefaultComment("above and set 'Enabled' to true.");
-        config.addDefaultComment(" This sound is cancellable.");
-        config.addDefault("Player Jump.Enabled", false);
-        config.addDefault("Player Jump.Cancellable", true);
-        config.addDefaultComment(" When a player swings their hand.");
-        config.addDefaultComment(" This sound is disabled by default. To enable it, copy the options from anptjer sound");
-        config.addDefaultComment("and set 'Enabled' to true.");
-        config.addDefaultComment(" This sound is cancellable.");
-        config.addDefault("Player Swing.Enabled", false);
-        config.addDefault("Player Swing.Cancellable", true);
-        config.addDefaultComment(" When a player enters a PlayMoreSounds region.");
-        config.addDefaultComment(" This sound can also be played when entering another plugin's region. To do that you");
-        config.addDefaultComment("need to install addons.");
-        config.addDefaultComment(" This sound is disabled by default. To enable it, copy the options from another sound");
-        config.addDefaultComment("and set 'Enabled' to true.");
-        config.addDefaultComment(" This sound is cancellable.");
-        config.addDefaultComment(" The sound played by entering this region can also be stopped on exit. To do that,");
-        config.addDefaultComment("add the following options:");
-        config.addDefaultComment("");
-        config.addDefaultComment("  Stop On Exit:");
-        config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Delay: 20 # The time in ticks to wait before stopping the sound");
-        config.addDefault("Region Enter.Enabled", false);
-        config.addDefault("Region Enter.Cancellable", true);
-        config.addDefaultComment(" When a player leaves a PlayMoreSounds region.");
-        config.addDefaultComment(" This sound can also be played when leaving another plugin's region. To do that you");
-        config.addDefaultComment("need to install addons.");
-        config.addDefaultComment(" This sound is disabled by default. To enable it, copy the options from another sound");
-        config.addDefaultComment("and set 'Enabled' to true.");
-        config.addDefaultComment(" This sound is cancellable.");
-        config.addDefault("Region Leave.Enabled", false);
-        config.addDefault("Region Leave.Cancellable", true);
-        config.addDefaultComment(" When a player sends a command.");
-        config.addDefaultComment(" This sound is cancellable.");
-        config.addDefault("Send Command.Cancellable", true);
-        config.addDefault("Send Command.Enabled", true);
-        config.addDefault("Send Command.Sounds.0.Delay", 0L);
-        config.addDefault("Send Command.Sounds.0.Options.Radius", 0D);
-        config.addDefault("Send Command.Sounds.0.Pitch", 2F);
-        config.addDefault("Send Command.Sounds.0.Sound", "ENTITY_ITEM_PICKUP");
-        config.addDefault("Send Command.Sounds.0.Volume", 10F);
-        config.addDefaultComment(" When a player starts flying.");
-        config.addDefaultComment(" This sound is cancellable.");
-        config.addDefault("Start Flying.Cancellable", true);
-        config.addDefault("Start Flying.Enabled", true);
-        config.addDefault("Start Flying.Sounds.0.Delay", 0L);
-        config.addDefault("Start Flying.Sounds.0.Options.Radius", 12D);
-        config.addDefault("Start Flying.Sounds.0.Options.Relative Location.UP_DOWN", 2D);
-        config.addDefault("Start Flying.Sounds.0.Pitch", 1F);
-        config.addDefault("Start Flying.Sounds.0.Sound", "BLOCK_PISTON_EXTEND");
-        config.addDefault("Start Flying.Sounds.0.Volume", 0.5F);
-        config.addDefaultComment(" When a player stops flying.");
-        config.addDefaultComment(" This sound is cancellable.");
-        config.addDefault("Stop Flying.Cancellable", true);
-        config.addDefault("Stop Flying.Enabled", true);
-        config.addDefault("Stop Flying.Sounds.0.Delay", 0L);
-        config.addDefault("Stop Flying.Sounds.0.Options.Radius", 12D);
-        config.addDefault("Stop Flying.Sounds.0.Options.Relative Location.UP_DOWN", -1D);
-        config.addDefault("Stop Flying.Sounds.0.Pitch", 1F);
-        config.addDefault("Stop Flying.Sounds.0.Sound", "BLOCK_PISTON_CONTRACT");
-        config.addDefault("Stop Flying.Sounds.0.Volume", 0.5F);
-        config.addDefaultComment(" When a player teleports using a command.");
-        config.addDefaultComment(" This sound is cancellable.");
-        config.addDefault("Teleport.Cancellable", true);
-        config.addDefault("Teleport.Enabled", true);
-        config.addDefault("Teleport.Sounds.0.Delay", 0L);
-        config.addDefault("Teleport.Sounds.0.Options.Radius", 15D);
-        config.addDefault("Teleport.Sounds.0.Pitch", 1F);
-        config.addDefault("Teleport.Sounds.0.Sound", "ENTITY_ENDERMAN_TELEPORT");
-        config.addDefault("Teleport.Sounds.0.Volume", 1F);
-        config.addDefaultComment(" When a player crouches.");
-        config.addDefaultComment(" This sound is disabled by default. To enable it, copy the options from the sound");
-        config.addDefaultComment("above and set 'Enabled' to true.");
-        config.addDefaultComment(" This sound is not cancellable.");
-        config.addDefault("Toggle Sneak.Enabled", false);
-        config.addDefault("Toggle Sneak.Cancellable", true);
-        config.addDefaultComment(" When a player gets out of bed and is morning.");
-        config.addDefaultComment(" This sound is not cancellable.");
-        config.addDefault("Wake Up.Enabled", true);
-        config.addDefault("Wake Up.Sounds.0.Delay", 0L);
-        config.addDefault("Wake Up.Sounds.0.Options.Radius", 0D);
-        config.addDefault("Wake Up.Sounds.0.Pitch", 1F);
-        config.addDefault("Wake Up.Sounds.0.Sound", "ENTITY_CHICKEN_HURT");
-        config.addDefault("Wake Up.Sounds.0.Volume", 0.4F);
-    }, StaticFields.version3_3_0),
-    WORLD_TIME_TRIGGERS(StaticFields.sounds.resolve("world time triggers.yml"), config -> {
-        config.addDefaultComment(" Set a sound to play when a world reaches a specific time of the day.");
-        config.addDefaultComment("");
-        config.addDefaultComment("world: # The name of the world that you want to track time.");
-        config.addDefaultComment("  '13000': # The time that you want to play a sound.");
-        config.addDefaultComment("    Enabled: true");
-        config.addDefaultComment("    Sounds:");
-        config.addDefaultComment("      '0':");
-        config.addDefaultComment("        Delay: 0");
-        config.addDefaultComment("        Options:");
-        config.addDefaultComment("          Radius: -2.0 # The radius is counted by the world's spawn location. Set to -2 so everyone in the world can hear it.");
-        config.addDefaultComment("        Pitch: 1.0");
-        config.addDefaultComment("        Sound: 'AMBIENT_CAVE'");
-        config.addDefaultComment("        Volume: 10.0");
-        config.addDefaultComment("");
-        config.addDefaultComment(" More information about sounds on sounds.yml\n");
-        config.addDefault("Version", PlayMoreSounds.versionString);
-    }, StaticFields.version3_0_0);
+    //100 chars per line for organization
+    BIOMES(StaticFields.sounds.resolve("biomes.yml"), "# Set a sound to play when you enter, leave or stand on a specific biome.\n" +
+            "#\n" +
+            "# To set a sound, just create a configuration section with the name of the biome or just copy the\n" +
+            "# sample below.\n" +
+            "# Biome list: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/Biome.html\n" +
+            "#\n" +
+            "# Sample:\n" +
+            "# (Take a note that this is a sample and the sounds and biomes may not be available on your MC\n" +
+            "# version.)\n" +
+            "#\n" +
+            "#world: # The world name, replace 'world' with the name of the world you want to play the sound.\n" +
+            "#  PLAINS: # The biome name.\n" +
+            "#    Enter: # When a player enters this biome.\n" +
+            "#      Cancellable: true\n" +
+            "#      Enabled: true\n" +
+            "#      Stop On Exit:\n" +
+            "#        Enabled: true # If enabled, the sound will be stopped when the player leaves the biome.\n" +
+            "#        Delay: 20 # The time to wait before stopping the sound.\n" +
+            "#      Sounds:\n" +
+            "#        '1':\n" +
+            "#          Delay: 0\n" +
+            "#          Options:\n" +
+            "#            Ignores Disabled: false\n" +
+            "#            Permission Required: ''\n" +
+            "#            Permission To Listen: ''\n" +
+            "#            Radius: 0.0\n" +
+            "#            Relative Location:\n" +
+            "#              FRONT_BACK: 0.0\n" +
+            "#              LEFT_RIGHT: 0.0\n" +
+            "#              UP_DOWN: 0.0\n" +
+            "#          Pitch: 1.0\n" +
+            "#          Sound: BLOCK_NOTE_BLOCK_PLING\n" +
+            "#          Volume: 10.0\n" +
+            "#\n" +
+            "#    Leave: # When a player exits this biome.\n" +
+            "#      Cancellable: true\n" +
+            "#      Enabled: true\n" +
+            "#      Sounds:\n" +
+            "#        '1':\n" +
+            "#          Delay: 0\n" +
+            "#          Options:\n" +
+            "#            Ignores Disabled: false\n" +
+            "#            Permission Required: ''\n" +
+            "#            Permission To Listen: ''\n" +
+            "#            Radius: 0.0\n" +
+            "#            Relative Location:\n" +
+            "#              FRONT_BACK: 0.0\n" +
+            "#              LEFT_RIGHT: 0.0\n" +
+            "#              UP_DOWN: 0.0\n" +
+            "#          Pitch: 1.0\n" +
+            "#          Sound: BLOCK_NOTE_BLOCK_BASS\n" +
+            "#          Volume: 10.0\n" +
+            "#\n" +
+            "#    Loop: # When a player enters the biome, a loop will be triggered and play.\n" +
+            "#      Cancellable: true\n" +
+            "#      Delay: 0 # Time in ticks to wait to start the loop once triggered.\n" +
+            "#      Enabled: true\n" +
+            "#      Period: 100 # Time in ticks to wait before playing these sounds again.\n" +
+            "#      Stop On Exit:\n" +
+            "#        Enabled: true\n" +
+            "#        Delay: 20\n" +
+            "#      Prevent Enter Sound: true # Makes so Enter sound is not played when Loop is enabled.\n" +
+            "#      Sounds:\n" +
+            "#        '1':\n" +
+            "#          Delay: 0\n" +
+            "#          Options:\n" +
+            "#            Ignores Disabled: false\n" +
+            "#            Permission Required: ''\n" +
+            "#            Permission To Listen: ''\n" +
+            "#            Radius: 0.0\n" +
+            "#            Relative Location:\n" +
+            "#              FRONT_BACK: 0.0\n" +
+            "#              LEFT_RIGHT: 0.0\n" +
+            "#              UP_DOWN: 0.0\n" +
+            "#          Pitch: 1.0\n" +
+            "#          Sound: BLOCK_NOTE_BLOCK_BASS\n" +
+            "#          Volume: 10.0\n" +
+            "#\n" +
+            "# This is a small sample. You can add more biomes, worlds and more options to the sound options.\n" +
+            "# More information about sounds on sounds.yml.\n" +
+            "\n" +
+            "Version: '" + PlayMoreSoundsVersion.getVersion() + "'", StaticFields.version3_2_0),
+    CHAT_SOUNDS(StaticFields.sounds.resolve("chat sounds.yml"), "# Set a sound to play when a player type a sentence in chat.\n" +
+            "#\n" +
+            "#  There are five filters to choose:\n" +
+            "#\n" +
+            "#  -> Contains:\n" +
+            "#  Use this section to play a sound to every message that contains the word you specify.\n" +
+            "#  Sample:\n" +
+            "#\n" +
+            "#Contains:\n" +
+            "#  hello:\n" +
+            "#    Cancellable: true\n" +
+            "#    Enabled: true\n" +
+            "#    Prevent Other Sounds:\n" +
+            "#      Default Sound: true # This will prevent the default sound set on sounds.yml from playing.\n" +
+            "#      Other Filters: true # If the message match other filters, this will make so this is the only filter that will play a sound.\n" +
+            "#\n" +
+            "#  -> Contains SubString:\n" +
+            "#  Use this section to play a sound to every message that contains the following string you specify.\n" +
+            "#  This is different than Contains because Contains check for words, this checks for any part of the message.\n" +
+            "#  Sample:\n" +
+            "#\n" +
+            "#Contains SubString:\n" +
+            "#  pling:\n" +
+            "#    Cancellable: true\n" +
+            "#    Enabled: true\n" +
+            "#    Prevent Other Sounds:\n" +
+            "#      Default Sound: true # This will prevent the default sound set on sounds.yml from playing.\n" +
+            "#      Other Filters: true # If the command match other filters, this will make so this is the only filter that will play a sound.\n" +
+            "#\n" +
+            "#  -> Ends With:\n" +
+            "#  Self explanatory. If a message ends with the sentence specified, the sound will play.\n" +
+            "#  Sample:\n" +
+            "#\n" +
+            "#Ends With:\n" +
+            "#  something:\n" +
+            "#    Cancellable: true\n" +
+            "#    Enabled: true\n" +
+            "#    Prevent Other Sounds:\n" +
+            "#      Default Sound: true\n" +
+            "#      Other Filters: true\n" +
+            "#    Sounds:\n" +
+            "#      '0':\n" +
+            "#        Delay: 0\n" +
+            "#        Options:\n" +
+            "#          Radius: 0.0\n" +
+            "#        Pitch: 1.0\n" +
+            "#        Sound: 'ENTITY_CREEPER_PRIMED'\n" +
+            "#        Volume: 10.0\n" +
+            "#\n" +
+            "#  -> Equals Exactly:\n" +
+            "#  When a message equals exactly like the specified here. (Case sensitive)\n" +
+            "#  Sample:\n" +
+            "#\n" +
+            "#Equals Exactly:\n" +
+            "#  play BLOCK_PORTAL_TRAVEL sound:\n" +
+            "#    Cancellable: true\n" +
+            "#    Enabled: true\n" +
+            "#    Prevent Other Sounds:\n" +
+            "#      Default Sound: true\n" +
+            "#      Other Filters: true\n" +
+            "#    Sounds:\n" +
+            "#      '0':\n" +
+            "#        Delay: 1\n" +
+            "#        Options:\n" +
+            "#          Radius: 0.0\n" +
+            "#        Pitch: 2.0\n" +
+            "#        Sound: 'BLOCK_PORTAL_TRAVEL'\n" +
+            "#        Volume: 0.4\n" +
+            "#\n" +
+            "#  -> Equals Ignore Case:\n" +
+            "#  When a message is equals to the specified but, it doesn't matter if it's on lower case or\n" +
+            "# upper case.\n" +
+            "#  If a player accidentally toggled upper case on it's keyboard and typed SOMETHING and you want\n" +
+            "# to set a sound for the message \"something\", put it in this section so the sound will be played\n" +
+            "# even if its on upper case.\n" +
+            "#  Sample:\n" +
+            "#\n" +
+            "#Equals Ignore Case:\n" +
+            "#  something:\n" +
+            "#    Cancellable: false\n" +
+            "#    Enabled: true\n" +
+            "#    Prevent Other Sounds:\n" +
+            "#      Default Sound: true\n" +
+            "#      Other Filters: true\n" +
+            "#    Sounds:\n" +
+            "#      '1':\n" +
+            "#        Delay: 0\n" +
+            "#        Options:\n" +
+            "#          Radius: 0.0\n" +
+            "#        Pitch: 2.0\n" +
+            "#        Sound: 'BLOCK_PORTAL_TRAVEL'\n" +
+            "#        Volume: 0.4\n" +
+            "#\n" +
+            "#  -> Starts With:\n" +
+            "#  Plays a sound when a message starts with the sentence you specify.\n" +
+            "#  Sample:\n" +
+            "#\n" +
+            "#Starts With:\n" +
+            "#  hello:\n" +
+            "#    Cancellable: true\n" +
+            "#    Enabled: true\n" +
+            "#    Prevent Other Sounds:\n" +
+            "#      Default Sound: true\n" +
+            "#      Other Filters: true\n" +
+            "#    Sounds:\n" +
+            "#      '1':\n" +
+            "#        Delay: 0\n" +
+            "#        Options:\n" +
+            "#          Radius: 0.0\n" +
+            "#        Pitch: 2.0\n" +
+            "#        Sound: 'BLOCK_PORTAL_TRAVEL'\n" +
+            "#        Volume: 0.4\n" +
+            "#\n" +
+            "# More information about sounds on sounds.yml\n" +
+            "\n" +
+            "Version: '" + PlayMoreSoundsVersion.getVersion() + "'", StaticFields.version3_2_0),
+    COMMANDS(StaticFields.sounds.resolve("commands.yml"), "# Set a sound to play when a player type a specific command.\n" +
+            "#\n" +
+            "#  There are five filters to choose:\n" +
+            "#\n" +
+            "#  -> Contains:\n" +
+            "#  Use this section to play a sound to every command that contains the word you specify.\n" +
+            "#  Sample:\n" +
+            "#\n" +
+            "#Contains:\n" +
+            "#  play:\n" +
+            "#    Cancellable: true\n" +
+            "#    Enabled: true\n" +
+            "#    Prevent Other Sounds:\n" +
+            "#      Default Sound: true # This will prevent the default sound set on sounds.yml from playing.\n" +
+            "#      Other Filters: true # If the command match other filters, this will make so this is the only filter that will play a sound.\n" +
+            "#\n" +
+            "#  -> Contains SubString:\n" +
+            "#  Use this section to play a sound to every command that contains the following string you specify.\n" +
+            "#  This is different than Contains because Contains check for words, this checks for any part of the command.\n" +
+            "#  Sample:\n" +
+            "#\n" +
+            "#Contains SubString:\n" +
+            "#  set:\n" +
+            "#    Cancellable: true\n" +
+            "#    Enabled: true\n" +
+            "#    Prevent Other Sounds:\n" +
+            "#      Default Sound: true # This will prevent the default sound set on sounds.yml from playing.\n" +
+            "#      Other Filters: true # If the command match other filters, this will make so this is the only filter that will play a sound.\n" +
+            "#\n" +
+            "#  -> Ends With:\n" +
+            "#  Self explanatory. If a command ends with the sentence specified, the sound will play.\n" +
+            "#  Sample:\n" +
+            "#\n" +
+            "#Ends With:\n" +
+            "#  -force:\n" +
+            "#    Cancellable: true\n" +
+            "#    Enabled: true\n" +
+            "#    Prevent Other Sounds:\n" +
+            "#      Default Sound: true\n" +
+            "#      Other Filters: true\n" +
+            "#    Sounds:\n" +
+            "#      '0':\n" +
+            "#        Delay: 0\n" +
+            "#        Options:\n" +
+            "#          Radius: 0.0\n" +
+            "#        Pitch: 1.0\n" +
+            "#        Sound: 'ENTITY_CREEPER_PRIMED'\n" +
+            "#        Volume: 10.0\n" +
+            "#\n" +
+            "#  -> Equals Exactly:\n" +
+            "#  When a command equals exactly like the specified here. (Case sensitive)\n" +
+            "#  Sample:\n" +
+            "#\n" +
+            "#Equals Exactly:\n" +
+            "#  /warp MALL:\n" +
+            "#    Cancellable: true\n" +
+            "#    Enabled: true\n" +
+            "#    Prevent Other Sounds:\n" +
+            "#      Default Sound: true\n" +
+            "#      Other Filters: true\n" +
+            "#    Sounds:\n" +
+            "#      '0':\n" +
+            "#        Delay: 1\n" +
+            "#        Options:\n" +
+            "#          Radius: 0.0\n" +
+            "#        Pitch: 2.0\n" +
+            "#        Sound: 'BLOCK_PORTAL_TRAVEL'\n" +
+            "#        Volume: 0.4\n" +
+            "#\n" +
+            "#  -> Equals Ignore Case:\n" +
+            "#  When a command is equals to the specified but, it doesn't matter if it's on lower case or\n" +
+            "# upper case.\n" +
+            "#  If a player accidentally toggled upper case on it's keyboard and typed /SPAWN and you want\n" +
+            "# to set a sound for the command \"/spawn\", put him in this section so the sound will be played\n" +
+            "# even if is on upper case.\n" +
+            "#  Sample:\n" +
+            "#\n" +
+            "#Equals Ignore Case:\n" +
+            "#  /spawn:\n" +
+            "#    Cancellable: false\n" +
+            "#    Enabled: true\n" +
+            "#    Prevent Other Sounds:\n" +
+            "#      Default Sound: true\n" +
+            "#      Other Filters: true\n" +
+            "#    Sounds:\n" +
+            "#      '1':\n" +
+            "#        Delay: 0\n" +
+            "#        Options:\n" +
+            "#          Radius: 0.0\n" +
+            "#        Pitch: 2.0\n" +
+            "#        Sound: 'BLOCK_PORTAL_TRAVEL'\n" +
+            "#        Volume: 0.4\n" +
+            "#\n" +
+            "#  -> Starts With:\n" +
+            "#  This is the most used of them all. Plays a sound when a command starts with the sentence\n" +
+            "# you specify.\n" +
+            "#  Sample:\n" +
+            "#\n" +
+            "#Starts With:\n" +
+            "#  /teleport:\n" +
+            "#    Cancellable: true\n" +
+            "#    Enabled: true\n" +
+            "#    Prevent Other Sounds:\n" +
+            "#      Default Sound: true\n" +
+            "#      Other Filters: true\n" +
+            "#    Sounds:\n" +
+            "#      '1':\n" +
+            "#        Delay: 0\n" +
+            "#        Options:\n" +
+            "#          Radius: 0.0\n" +
+            "#        Pitch: 2.0\n" +
+            "#        Sound: 'BLOCK_PORTAL_TRAVEL'\n" +
+            "#        Volume: 0.4\n" +
+            "#\n" +
+            "# More information about sounds on sounds.yml\n" +
+            "# The following sounds are here just to prevent the default sound on sounds.yml from playing.\n" +
+            "\n" +
+            "Version: '" + PlayMoreSoundsVersion.getVersion() + "'\n" +
+            "\n" +
+            "Starts With:\n" +
+            "  /tp:\n" +
+            "    Cancellable: false\n" +
+            "    Enabled: true\n" +
+            "    Prevent Other Sounds:\n" +
+            "      Default Sound: true\n" +
+            "      Other Filters: true\n" +
+            "  /warp:\n" +
+            "    Cancellable: false\n" +
+            "    Enabled: true\n" +
+            "    Prevent Other Sounds:\n" +
+            "      Default Sound: true\n" +
+            "      Other Filters: true\n" +
+            "  /spawn:\n" +
+            "    Cancellable: false\n" +
+            "    Enabled: true\n" +
+            "    Prevent Other Sounds:\n" +
+            "      Default Sound: true\n" +
+            "      Other Filters: true\n" +
+            "  /gamemode:\n" +
+            "    Cancellable: false\n" +
+            "    Enabled: true\n" +
+            "    Prevent Other Sounds:\n" +
+            "      Default Sound: true\n" +
+            "      Other Filters: true\n" +
+            "\n" +
+            "Contains SubString:\n" +
+            "  play:\n" +
+            "    Cancellable: false\n" +
+            "    Enabled: true\n" +
+            "    Prevent Other Sounds:\n" +
+            "      Default Sound: true\n" +
+            "      Other Filters: true", StaticFields.version3_2_0),
+    CONFIG(PlayMoreSoundsCore.getFolder().resolve("config.yml"),
+            //TODO: Redo config.yml
+            "", StaticFields.version3_2_0),
+    CUSTOM_DISCS(StaticFields.sounds.resolve("custom discs.yml"), "# Set a sound to play when a player clicks at a jukebox with a specific item.\n" +
+            "#\n" +
+            "# Warnings: \n" +
+            "#   >> You must be on version 1.14+!\n" +
+            "#   >> Players must have the permission 'playmoresounds.disc.use'.\n" +
+            "#   >> Delayed sounds will not stop when the disc is removed.\n" +
+            "#   >> For performance reasons, the sound will only play if you have only 1 disc in your hand.\n" +
+            "#   >> When the disc is removed the sound will only stop for the player who removed it,\n" +
+            "#   meaning if the sound has a radius the sound will not be stopped to the players in\n" +
+            "#   the radius.\n" +
+            "#\n" +
+            "# To set a sound, just create a configuration section with an id and set the item name,\n" +
+            "# material and lore or just copy the sample.\n" +
+            "# Item material list: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html\n" +
+            "#\n" +
+            "# Usage In-Game: \n" +
+            "#   Get the disc with the command '/pms disc <id>'\n" +
+            "#   Click on a jukebox with one of the discs that you set here to play the sound.\n" +
+            "#\n" +
+            "# Sample:\n" +
+            "# (Take a note that this is a sample and the sounds and items may not be available on\n" +
+            "# your MC version.)\n" +
+            "#\n" +
+            "#PLING_DISC: # This is the ID of the custom disc. Here I named this disc PLING_DISC. Disc IDs can not have spaces.\n" +
+            "#  Enabled: true\n" +
+            "#  Item:\n" +
+            "#    Material: GOLDEN_APPLE # The material of the custom disc item.\n" +
+            "#    Name: '&2&lPling Disc' # The name of the custom disc item.\n" +
+            "#    Lore: 'Different pitched pling sounds!' # The lore of the custom disc item. Use <line> to break a line.\n" +
+            "#    Glowing: true # If this disc should glow.\n" +
+            "#  Sounds: # The sounds to play when a player uses this disc.\n" +
+            "#    '0':\n" +
+            "#      Delay: 0\n" +
+            "#      Options:\n" +
+            "#        Radius: 20.0\n" +
+            "#      Pitch: 1.0\n" +
+            "#      Sound: BLOCK_NOTE_BLOCK_PLING\n" +
+            "#      Volume: 10.0\n" +
+            "#    '1':\n" +
+            "#      Delay: 20\n" +
+            "#      Options:\n" +
+            "#        Radius: 20.0\n" +
+            "#      Pitch: 2.0\n" +
+            "#      Sound: BLOCK_NOTE_BLOCK_PLING\n" +
+            "#      Volume: 10.0\n" +
+            "#    '2':\n" +
+            "#      Delay: 40\n" +
+            "#      Options:\n" +
+            "#        Radius: 20.0\n" +
+            "#      Pitch: 0.0\n" +
+            "#      Sound: BLOCK_NOTE_BLOCK_PLING\n" +
+            "#      Volume: 10.0\n" +
+            "#\n" +
+            "# More information about sounds on sounds.yml\n" +
+            "\n" +
+            "Version: '" + PlayMoreSoundsVersion.getVersion() + "'", StaticFields.version3_3_0),
+    DEATH_TYPES(StaticFields.sounds.resolve("death types.yml"), "# Set a sound to play when a player die for a specific cause of death.\n" +
+            "# Warning >> This setting only works for 1.14+!\n" +
+            "#\n" +
+            "# To set a sound, just create a configuration section with the name of the cause of\n" +
+            "# death or just copy the sample below.\n" +
+            "# Causes of death: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html\n" +
+            "#\n" +
+            "# Sample:\n" +
+            "# (Take a note that this is a sample and the sounds and causes of death may not be\n" +
+            "# available on your MC version.)\n" +
+            "#\n" +
+            "#MAGIC:\n" +
+            "#  Enabled: true\n" +
+            "#  #This should stop the sound set in sounds.yml\n" +
+            "#  Prevent Default Sound: true # This will prevent the default sound set on sounds.yml from playing.\n" +
+            "#  Sounds:\n" +
+            "#    #This should play for players who has a specific vip perm.\n" +
+            "#    '0':\n" +
+            "#      Delay: 0\n" +
+            "#      Options:\n" +
+            "#        Permission Required: 'vip.customdeathsound.magic'\n" +
+            "#        Radius: 5.5\n" +
+            "#        Relative Location:\n" +
+            "#          BACK: 2.0\n" +
+            "#          UP: 1.0\n" +
+            "#      Pitch: 1.0\n" +
+            "#      Sound: ENTITY_WITHER_DEATH\n" +
+            "#      Volume: 1.0\n" +
+            "#    #Since this event should stop the regular death sound for whoever dies by magic,\n" +
+            "#    #another sound need to be set so players that aren't vip can hear the regular.\n" +
+            "#    '0':\n" +
+            "#      Delay: 0\n" +
+            "#      Options:\n" +
+            "#        Permission Required: 'player.everyplayerexceptvipshavethispermission'\n" +
+            "#        Radius: 0.0\n" +
+            "#      Pitch: 1.0\n" +
+            "#      Sound: ENTITY_WITHER_SPAWN\n" +
+            "#      Volume: 1.0\n" +
+            "#\n" +
+            "# More information about sounds on sounds.yml\n" +
+            "\n" +
+            "Version: '" + PlayMoreSoundsVersion.getVersion() + "'", StaticFields.version3_2_0),
+    GAME_MODES(StaticFields.sounds.resolve("game modes.yml"), "# Set a sound to play when you change your gamemode.\n" +
+            "#\n" +
+            "# To set a sound, just create a configuration section with the name of the game mode\n" +
+            "# or just copy the sample below.\n" +
+            "# Game mode list: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/GameMode.html\n" +
+            "#\n" +
+            "# Sample:\n" +
+            "# (Take a note that this is a sample and the sounds and game modes may not be available\n" +
+            "# on your MC version.)\n" +
+            "#\n" +
+            "#CREATIVE: # The gamemode that you changed to.\n" +
+            "#  Cancellable: true\n" +
+            "#  Enabled: true\n" +
+            "#  Prevent Default Sound: true # This will prevent the default sound set on sounds.yml from playing.\n" +
+            "#  Sounds:\n" +
+            "#    '0':\n" +
+            "#      Delay: 0\n" +
+            "#      Options:\n" +
+            "#        Radius: 0\n" +
+            "#      Pitch: 1\n" +
+            "#      Sound: BLOCK_NOTE_BLOCK_PLING\n" +
+            "#      Volume: 10\n" +
+            "#\n" +
+            "# This is a small sample. You can add more gamemodes and more options\n" +
+            "# to the sound options.\n" +
+            "# More information about sounds on sounds.yml.\n" +
+            "\n" +
+            "Version: '" + PlayMoreSoundsVersion.getVersion() + "'", StaticFields.version3_2_0),
+    HIT_SOUNDS(StaticFields.sounds.resolve("hit sounds.yml"), "# Set a sound to play when an entity hits another entity with a specific item on hand.\n" +
+            "#\n" +
+            "# Bukkit entity names: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/entity/EntityType.html\n" +
+            "# Bukkit item names: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html\n" +
+            "#\n" +
+            "# You need to write when the sound will be played. To do that you need to respect the following pattern:\n" +
+            "# <damager> hit <victim> holding <item>\n" +
+            "# The sound will be played when the damager hit the victim with the item.\n" +
+            "#\n" +
+            "# After you've chosen the entities and items and put them into the pattern, create a section with your\n" +
+            "#condition like the one below.\n" +
+            "#\n" +
+            "#PLAYER hit ZOMBIE holding IRON_SWORD: # This sound will play when a player hits a zombie holding an iron sword.\n" +
+            "#  Enabled: true\n" +
+            "#  Cancellable: true\n" +
+            "#  Prevent Other Sounds:\n" +
+            "#    Default Sound: true # This will prevent the default sound set on sounds.yml from playing.\n" +
+            "#    Other Conditions: true # If the hit event matches more than one condition, this will make so this is the only condition that will play a sound.\n" +
+            "#  Sounds:\n" +
+            "#    '0':\n" +
+            "#      Delay: 10\n" +
+            "#      Options:\n" +
+            "#        Radius: 16.0\n" +
+            "#      Pitch: 2.0\n" +
+            "#      Sound: 'ENTITY_ZOMBIE_ATTACK_IRON_DOOR'\n" +
+            "#      Volume: 1.0\n" +
+            "#\n" +
+            "# The pattern also supports criteria, like the ones found on commands.yml, chat sounds.yml, item clicked.yml, items held.yml and items swung.yml.\n" +
+            "# You have the following criteria: Any, Contains[], EndsWith[], Equals[], and StartsWith[].\n" +
+            "#\n" +
+            "# Examples:\n" +
+            "#\n" +
+            "#   If I want to play a sound when any kind of zombie hits any entity with any item, I would use the condition:\n" +
+            "#   Contains[ZOMBIE] hit Any holding Any\n" +
+            "#\n" +
+            "#   If I want to play a sound when a player hits any entity with any kind of sword, I would use the condition:\n" +
+            "#   PLAYER hit Any holding EndsWith[SWORD]\n" +
+            "#\n" +
+            "#   If I want to play a sound when a player hits any entity with any diamond item, I would use the condition:\n" +
+            "#   PLAYER hit Any holding StartsWith[DIAMOND]\n" +
+            "#\n" +
+            "# You can also use commas if you want to play the same sound for many criteria.\n" +
+            "#\n" +
+            "# Examples:\n" +
+            "#\n" +
+            "#   If I want to play the same sound when a player OR a zombie hits any entity with any item, I would use the condition:\n" +
+            "#   Equals[PLAYER,ZOMBIE] hit Any holding Any\n" +
+            "#\n" +
+            "#   If I want to play the same sound when any entity hits any kind of cow (Mushroom or not) or any kind of pig (Zombie or not) with any item, I would use the condition:\n" +
+            "#   Any hit Contains[COW,PIG] holding Any\n" +
+            "#\n" +
+            "#   If I want to play the same sound when a player hits any entity with any kind of sword, shovel or pickaxe, I would use the condition:\n" +
+            "#   PLAYER hit Any EndsWith[SWORD,SHOVEL,PICKAXE]\n" +
+            "#\n" +
+            "# Hope everything is clear, if you have any doubts of a condition that you wanna use but can't find how, contact me on discord:\n" +
+            "# https://discord.gg/eAHPbc3\n" +
+            "\n" +
+            "Version: '" + PlayMoreSoundsVersion.getVersion() + "'", StaticFields.version3_3_0),
+    ITEMS_CLICKED(StaticFields.sounds.resolve("items clicked.yml"), "# Set a sound to play when a player clicks on a specific item in an inventory.\n" +
+            "#\n" +
+            "# To set a sound create a section with the name of the item.\n" +
+            "# Bukkit item names: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html\n" +
+            "#\n" +
+            "#IRON_SWORD: # This sound will play when a player clicks on an iron sword.\n" +
+            "#  Enabled: true\n" +
+            "#  Cancellable: true\n" +
+            "#  Prevent Other Sounds:\n" +
+            "#    Default Sound: true # This will prevent the default Inventory Click sound set on sounds.yml from playing.\n" +
+            "#    Other Criteria: true # If the click event matches more than one criteria, this will prevent the others from playing.\n" +
+            "#  Sounds:\n" +
+            "#    '0':\n" +
+            "#      Delay: 0\n" +
+            "#      Options:\n" +
+            "#        Radius: 0.0\n" +
+            "#      Pitch: 2.0\n" +
+            "#      Sound: 'ENTITY_ZOMBIE_ATTACK_IRON_DOOR'\n" +
+            "#      Volume: 1.0\n" +
+            "#\n" +
+            "# Items support criteria, like the ones found on commands.yml, chat sounds.yml, hit sounds.yml, items held.yml and items swung.yml.\n" +
+            "# You have the following criteria: Contains[], EndsWith[], Equals[], and StartsWith[].\n" +
+            "#\n" +
+            "# Examples:\n" +
+            "#\n" +
+            "#   If I want to play a sound for any kind of coral:\n" +
+            "#   Contains[CORAL]\n" +
+            "#\n" +
+            "#   If I want to play a sound for any kind of sword:\n" +
+            "#   EndsWith[SWORD]\n" +
+            "#\n" +
+            "#   If I want to play a sound for any diamond item:\n" +
+            "#   StartsWith[DIAMOND]\n" +
+            "#\n" +
+            "# You can also use commas if you want to play the same sound for many criteria.\n" +
+            "#\n" +
+            "# Examples:\n" +
+            "#\n" +
+            "#   If I want to play the same sound wools and carpets:\n" +
+            "#   Contains[WOOL,CARPET]\n" +
+            "#\n" +
+            "#   If I want to play the same sound for glass and glass panes:\n" +
+            "#   EndsWith[GLASS,GLASS_PANE]\n" +
+            "#\n" +
+            "#   If I want to play the same sound for furnaces and blast furnaces:\n" +
+            "#   Equals[FURNACE,BLAST_FURNACE]\n" +
+            "#\n" +
+            "#   If I want to play the same sound for iron and diamond items:\n" +
+            "#   StartsWith[IRON,DIAMOND]\n" +
+            "#\n" +
+            "# Hope everything is clear, if you have any doubts of a criteria that you wanna use but can't find how, contact me on discord:\n" +
+            "# https://discord.gg/eAHPbc3\n" +
+            "\n" +
+            "Version: '" + PlayMoreSoundsVersion.getVersion() + "'", StaticFields.version3_3_0),
+    ITEMS_HELD(StaticFields.sounds.resolve("items held.yml"), "# Set a sound to play when a player holds a specific item in their hand.\n" +
+            "#\n" +
+            "# To set a sound create a section with the name of the item.\n" +
+            "# Bukkit item names: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html\n" +
+            "#\n" +
+            "#IRON_SWORD: # This sound will play when a player holds an iron sword.\n" +
+            "#  Enabled: true\n" +
+            "#  Cancellable: true\n" +
+            "#  Prevent Other Sounds:\n" +
+            "#    Default Sound: true # This will prevent the default Change Held Item sound set on sounds.yml from playing.\n" +
+            "#    Other Criteria: true # If the item held event matches more than one criteria, this will prevent the others from playing.\n" +
+            "#  Sounds:\n" +
+            "#    '0':\n" +
+            "#      Delay: 0\n" +
+            "#      Options:\n" +
+            "#        Radius: 0.0\n" +
+            "#      Pitch: 2.0\n" +
+            "#      Sound: 'ENTITY_ZOMBIE_ATTACK_IRON_DOOR'\n" +
+            "#      Volume: 1.0\n" +
+            "#\n" +
+            "# Items support criteria, like the ones found on commands.yml, chat sounds.yml, hit sounds.yml, items clicked.yml and items swung.yml.\n" +
+            "# You have the following criteria: Contains[], EndsWith[], Equals[], and StartsWith[].\n" +
+            "#\n" +
+            "# Examples:\n" +
+            "#\n" +
+            "#   If I want to play a sound for any kind of coral:\n" +
+            "#   Contains[DIAMOND]\n" +
+            "#\n" +
+            "#   If I want to play a sound for any kind of sword:\n" +
+            "#   EndsWith[SWORD]\n" +
+            "#\n" +
+            "#   If I want to play a sound for any diamond item:\n" +
+            "#   StartsWith[DIAMOND]\n" +
+            "#\n" +
+            "# You can also use commas if you want to play the same sound for many criteria.\n" +
+            "#\n" +
+            "# Examples:\n" +
+            "#\n" +
+            "#   If I want to play the same sound wools and carpets:\n" +
+            "#   Contains[WOOL,CARPET]\n" +
+            "#\n" +
+            "#   If I want to play the same sound for glass and glass panes:\n" +
+            "#   EndsWith[GLASS,GLASS_PANE]\n" +
+            "#\n" +
+            "#   If I want to play the same sound for furnaces and blast furnaces:\n" +
+            "#   Equals[FURNACE,BLAST_FURNACE]\n" +
+            "#\n" +
+            "#   If I want to play the same sound for iron and diamond items:\n" +
+            "#   StartsWith[IRON,DIAMOND]\n" +
+            "#\n" +
+            "# Hope everything is clear, if you have any doubts of a criteria that you wanna use but can't find how, contact me on discord:\n" +
+            "# https://discord.gg/eAHPbc3\n" +
+            "\n" +
+            "Version: '" + PlayMoreSoundsVersion.getVersion() + "'", StaticFields.version3_3_0),
+    ITEMS_SWUNG(StaticFields.sounds.resolve("items swung.yml"), "# Set a sound to play when a player swings a specific item with their hand.\n" +
+            "#\n" +
+            "# To set a sound create a section with the name of the item.\n" +
+            "# Bukkit item names: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html\n" +
+            "#\n" +
+            "#IRON_SWORD: # This sound will play when a player swings an iron sword.\n" +
+            "#  Enabled: true\n" +
+            "#  Cancellable: true\n" +
+            "#  Prevent Other Sounds:\n" +
+            "#    Default Sound: true # This will prevent the default Player Swing sound set on sounds.yml from playing.\n" +
+            "#    Other Criteria: true # If the hand swing event matches more than one criteria, this will prevent the others from playing.\n" +
+            "#  Sounds:\n" +
+            "#    '0':\n" +
+            "#      Delay: 0\n" +
+            "#      Options:\n" +
+            "#        Radius: 0.0\n" +
+            "#      Pitch: 2.0\n" +
+            "#      Sound: 'ENTITY_ZOMBIE_ATTACK_IRON_DOOR'\n" +
+            "#      Volume: 1.0\n" +
+            "#\n" +
+            "# Items support criteria, like the ones found on commands.yml, chat sounds.yml, hit sounds.yml, items clicked.yml and items held.yml.\n" +
+            "# You have the following criteria: Contains[], EndsWith[], Equals[], and StartsWith[].\n" +
+            "#\n" +
+            "# Examples:\n" +
+            "#\n" +
+            "#   If I want to play a sound for any kind of coral:\n" +
+            "#   Contains[DIAMOND]\n" +
+            "#\n" +
+            "#   If I want to play a sound for any kind of sword:\n" +
+            "#   EndsWith[SWORD]\n" +
+            "#\n" +
+            "#   If I want to play a sound for any diamond item:\n" +
+            "#   StartsWith[DIAMOND]\n" +
+            "#\n" +
+            "# You can also use commas if you want to play the same sound for many criteria.\n" +
+            "#\n" +
+            "# Examples:\n" +
+            "#\n" +
+            "#   If I want to play the same sound wools and carpets:\n" +
+            "#   Contains[WOOL,CARPET]\n" +
+            "#\n" +
+            "#   If I want to play the same sound for glass and glass panes:\n" +
+            "#   EndsWith[GLASS,GLASS_PANE]\n" +
+            "#\n" +
+            "#   If I want to play the same sound for furnaces and blast furnaces:\n" +
+            "#   Equals[FURNACE,BLAST_FURNACE]\n" +
+            "#\n" +
+            "#   If I want to play the same sound for iron and diamond items:\n" +
+            "#   StartsWith[IRON,DIAMOND]\n" +
+            "#\n" +
+            "# Hope everything is clear, if you have any doubts of a criteria that you wanna use but can't find how, contact me on discord:\n" +
+            "# https://discord.gg/eAHPbc3\n" +
+            "\n" +
+            "Version: '" + PlayMoreSoundsVersion.getVersion() + "'", StaticFields.version3_3_0),
+    //TODO: Redo Languages
+    LANGUAGE_EN_US(StaticFields.lang.resolve("Language EN-US.yml"), "", StaticFields.version4_0_0),
+    LANGUAGE_ES_LA(StaticFields.lang.resolve("Language ES-LA.yml"), "", StaticFields.version4_0_0),
+    LANGUAGE_PT_BR(StaticFields.lang.resolve("Language PT-BR.yml"), "", StaticFields.version4_0_0),
+    LANGUAGE_ZH_CN(StaticFields.lang.resolve("Language ZH-CN.yml"), "", StaticFields.version4_0_0),
+    NATURE_SOUNDS_REPLACER(StaticFields.sounds.resolve("nature sounds replacer.yml"), "# Replace any sound played by nature on your server.\n" +
+            "#\n" +
+            "#  When a sound here is played, PlayMoreSounds interrupts the sound packets from being\n" +
+            "# sent to the players and plays the sound set here instead. This way you can take\n" +
+            "# advantage of PlayMoreSounds features, like replace a nature sound with resource pack\n" +
+            "# sound, radius sound, delayed sound etc.\n" +
+            "#\n" +
+            "# Warnings:\n" +
+            "# >> ProtocolLib is required to work.\n" +
+            "# >> Server needs to be running on version 1.9+.\n" +
+            "# >> Sounds to replace are bukkit sounds, that means the name changes depending on the\n" +
+            "# version you are running, unlike PlayMoreSounds sounds that have the same name on all\n" +
+            "# versions.\n" +
+            "#\n" +
+            "#  To replace a sound create a section with the sound name and set the replacing sound\n" +
+            "# on it, for example:\n" +
+            "#\n" +
+            "#ENTITY_ZOMBIE_HURT: # This is the sound to replace\n" +
+            "#  Enabled: true\n" +
+            "#  Sounds: # The sounds that will play instead.\n" +
+            "#    '0':\n" +
+            "#      Delay: 0\n" +
+            "#      Options:\n" +
+            "#        Ignores Disabled: true\n" +
+            "#        Permission To Listen: 'listen.zombiehurt'\n" +
+            "#        Radius: 15.2\n" +
+            "#        Relative Location:\n" +
+            "#          FRONT_BACK: 0.0\n" +
+            "#          RIGHT_LEFT: 0.0\n" +
+            "#          UP_DOWN: 0.0\n" +
+            "#      Pitch: 1.0\n" +
+            "#      Sound: ENTITY_SKELETON_HURT\n" +
+            "#      Volume: 10.0\n" +
+            "#\n" +
+            "# More information about sounds on sounds.yml.\n" +
+            "\n" +
+            "Version: '" + PlayMoreSoundsVersion.getVersion() + "'", StaticFields.version4_0_0),
+    REGIONS(StaticFields.sounds.resolve("regions.yml"), "# Set a sound to play when you enter, exit or stand on a specific region.\n" +
+            "#\n" +
+            "# Sample:\n" +
+            "# (Take a note that this is a sample and the sounds may not be available\n" +
+            "# on your MC version.)\n" +
+            "#\n" +
+            "#PlayMoreSounds: # The region plugin.\n" +
+            "#  Spawn: # The region name, replace 'Spawn' with the name of your region.\n" +
+            "#    Enter: # When a player enters this region.\n" +
+            "#      Cancellable: true\n" +
+            "#      Enabled: true\n" +
+            "#      Stop On Exit:\n" +
+            "#        Enabled: true # If enabled, the sound will be stopped when the player leaves the region.\n" +
+            "#        Delay: 20 # The time to wait before stopping the sound.\n" +
+            "#      Prevent Default Sound: true # If enabled, Region Enter sound in sounds.yml won't be played.\n" +
+            "#      Sounds:\n" +
+            "#        '0':\n" +
+            "#          Delay: 0\n" +
+            "#          Options:\n" +
+            "#            Radius: 0\n" +
+            "#          Pitch: 1\n" +
+            "#          Sound: BLOCK_NOTE_BLOCK_PLING\n" +
+            "#          Volume: 10\n" +
+            "#    Leave: # When a player exits this region.\n" +
+            "#      Cancellable: true\n" +
+            "#      Enabled: true\n" +
+            "#      Prevent Default Sound: true # If enabled, Region Leave sound in sounds.yml won't be played.\n" +
+            "#      Sounds:\n" +
+            "#        '0':\n" +
+            "#          Delay: 0\n" +
+            "#          Options:\n" +
+            "#            Radius: 0\n" +
+            "#          Pitch: 1\n" +
+            "#          Sound: BLOCK_NOTE_BLOCK_BASS\n" +
+            "#          Volume: 10\n" +
+            "#    Loop: # When a player enters the region, a loop will be triggered and play.\n" +
+            "#      Cancellable: true\n" +
+            "#      Delay: 0 # Time in ticks to wait to start the loop once the player enters the region.\n" +
+            "#      Enabled: true\n" +
+            "#      Period: 100 # Time in tick the loop will wait until playing the sound again.\n" +
+            "#      # If you have a long song playing, when the player leaves this region, the song\n" +
+            "#      #will be stopped instead of playing until the end. This setting applies to sounds only,\n" +
+            "#      #the loop function is stopped automatically.\n" +
+            "#      Stop On Exit:\n" +
+            "#        Delay: 10\n" +
+            "#        Enabled: true\n" +
+            "#      Prevent Other Sounds:\n" +
+            "#        Enter Sound: true # If enabled, Enter sound in regions.yml won't be played.\n" +
+            "#        Default Sound: true # If enabled, Region Enter sound in sounds.yml won't be played.\n" +
+            "#      Sounds:\n" +
+            "#        '0':\n" +
+            "#          Delay: 0\n" +
+            "#          Options:\n" +
+            "#            Radius: 0\n" +
+            "#          Pitch: 1\n" +
+            "#          Sound: BLOCK_NOTE_BLOCK_BASS\n" +
+            "#          Volume: 10\n" +
+            "#\n" +
+            "# You can only play sounds in PMS native regions. To play to other plugins, search for compatibility\n" +
+            "#addons on https://www.spigotmc.org/resources/37429/\n" +
+            "#\n" +
+            "# More information about sounds on sounds.yml.\n" +
+            "\n" +
+            "Version: '" + PlayMoreSoundsVersion.getVersion() + "'", StaticFields.version3_2_0),
+    SOUNDS(PlayMoreSoundsCore.getFolder().resolve("sounds.yml"),
+            //TODO: Redo sounds.yml
+            "", StaticFields.version3_3_0),
+    WORLD_TIME_TRIGGERS(StaticFields.sounds.resolve("world time triggers.yml"), "# Set a sound to play when a world reaches a specific time of the day.\n" +
+            "#\n" +
+            "#world: # The name of the world that you want to track time.\n" +
+            "#  '13000': # The time that you want to play a sound.\n" +
+            "#    Enabled: true\n" +
+            "#    Sounds:\n" +
+            "#      '0':\n" +
+            "#        Delay: 0\n" +
+            "#        Options:\n" +
+            "#          Radius: -2.0 # The radius is counted by the world's spawn location. Set to -2 so everyone in the world can hear it.\n" +
+            "#        Pitch: 1.0\n" +
+            "#        Sound: 'AMBIENT_CAVE'\n" +
+            "#        Volume: 10.0\n" +
+            "#\n" +
+            "# More information about sounds on sounds.yml\n" +
+            "\n" +
+            "Version: '" + PlayMoreSoundsVersion.getVersion() + "'", StaticFields.version3_0_0);
 
-    private static final @NotNull ConfigLoader configLoader = new ConfigLoader();
+    private static final @NotNull ConfigurationLoader configurationLoader = new ConfigurationLoader();
 
     static {
-        for (Configurations configuration : Configurations.values())
-            configLoader.registerConfiguration(configuration.getPluginConfig(), configuration.minVersion, PlayMoreSounds.version);
+        for (Configurations configuration : Configurations.values()) {
+            configurationLoader.registerConfiguration(configuration.configurationHolder, configuration.minVersion, PlayMoreSoundsVersion.getVersion());
+        }
     }
 
-    private final @NotNull PluginConfig pluginConfig;
+    private final @NotNull ConfigurationHolder configurationHolder;
     private final @NotNull Version minVersion;
 
-    Configurations(@NotNull Path path, @NotNull Consumer<PluginConfig> defaults, @NotNull Version minVersion)
+    Configurations(@NotNull Path path, @NotNull String contents, @NotNull Version minVersion)
     {
-        PluginConfig pluginConfig = new PluginConfig(path);
-
-        defaults.accept(pluginConfig);
-        this.pluginConfig = pluginConfig;
+        this.configurationHolder = new ConfigurationHolder(path, contents);
         this.minVersion = minVersion;
     }
 
-    public static @NotNull ConfigLoader getConfigLoader()
+    public static @NotNull ConfigurationLoader getConfigurationLoader()
     {
-        return configLoader;
+        return configurationLoader;
     }
 
-    public @NotNull PluginConfig getPluginConfig()
+    public @NotNull ConfigurationHolder getConfigurationHolder()
     {
-        return pluginConfig;
+        return configurationHolder;
     }
 
     private static class StaticFields
     {
-        //TODO: Get main folder without relying on platform dependent classes.
-        protected static final @NotNull Path sounds = PlayMoreSounds.getFolder().resolve("Sounds");
-        protected static final @NotNull Path lang = PlayMoreSounds.getFolder().resolve("Language");
+        protected static final @NotNull Path sounds = PlayMoreSoundsCore.getFolder().resolve("Sounds");
+        protected static final @NotNull Path lang = PlayMoreSoundsCore.getFolder().resolve("Language");
+        // These versions are used to set the configurations' minimum versions.
         protected static final @NotNull Version version3_0_0 = new Version("3.0.0");
         protected static final @NotNull Version version3_2_0 = new Version("3.2.0");
         protected static final @NotNull Version version3_3_0 = new Version("3.3.0");
-        protected static final @NotNull Version version3_4_0 = new Version("3.4.0");
+        protected static final @NotNull Version version4_0_0 = new Version("4.0.0");
     }
 }

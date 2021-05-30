@@ -1,20 +1,19 @@
 /*
- * Copyright (c) 2020 Christiano Rangel
+ * PlayMoreSounds - A bukkit plugin that manages and plays sounds.
+ * Copyright (C) 2021 Christiano Rangel
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package com.epicnicity322.playmoresounds.bukkit.sound;
@@ -72,12 +71,10 @@ public final class SoundManager
     {
         if (VersionUtils.hasPersistentData()) {
             if (soundState == null) {
-                PlayMoreSounds plugin = PlayMoreSounds.getInstance();
-
-                if (plugin == null)
+                if (PlayMoreSounds.getInstance() == null)
                     throw new IllegalStateException("PlayMoreSounds must be loaded to use this method.");
 
-                soundState = new NamespacedKey(plugin, "sound_state");
+                soundState = new NamespacedKey(PlayMoreSounds.getInstance(), "sound_state");
             }
 
             player.getPersistentDataContainer().set(soundState, PersistentDataType.INTEGER, state ? 1 : 0);
@@ -147,6 +144,7 @@ public final class SoundManager
      */
     public static void stopSounds(@NotNull Player player, @Nullable HashSet<String> sounds, long delay)
     {
+        //TODO: Fix namespaced sounds not stopping
         PlayMoreSounds main = PlayMoreSounds.getInstance();
 
         if (main == null)
@@ -175,18 +173,26 @@ public final class SoundManager
     }
 
     /**
-     * Gets all players in radius range, if radius = -1, returns all players on the server, if radius = -2 returns all
-     * players on the world.
+     * Gets all players inside a radius range.
+     * <p>
+     * Radius < -1 - All players in the world.
+     * <p>
+     * Radius < 0  - All players in the server.
+     * <p>
+     * Radius > 0  - All players in this range of blocks.
+     * <p>
+     * Radius = 0  - Empty.
      *
-     * @param radius   The range of blocks the players are in.
-     * @param location The source location.
-     * @return A set of players inside this range.
+     * @param radius   The range of blocks to get the players.
+     * @param location The location to calculate the radius.
+     * @return An immutable collection of players in this range.
      */
     public static @NotNull Collection<Player> getInRange(double radius, @NotNull Location location)
     {
         if (radius < -1) {
             return location.getWorld().getPlayers();
         } else if (radius < 0) {
+            // Creating new HashSet because Bukkit#getOnlinePlayers is not immutable.
             return new HashSet<>(Bukkit.getOnlinePlayers());
         } else if (radius != 0) {
             HashSet<Player> players = new HashSet<>();

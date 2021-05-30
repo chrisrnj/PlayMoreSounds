@@ -1,27 +1,26 @@
 /*
- * Copyright (c) 2020 Christiano Rangel
+ * PlayMoreSounds - A bukkit plugin that manages and plays sounds.
+ * Copyright (C) 2021 Christiano Rangel
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package com.epicnicity322.playmoresounds.bukkit.region;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.command.subcommand.ReloadSubCommand;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.ChatColor;
@@ -49,7 +48,7 @@ public final class RegionManager
     static {
         Runnable regionUpdater = () -> {
             regions.clear();
-            Path regionsFolder = PlayMoreSounds.getFolder().resolve("Data").resolve("Regions");
+            Path regionsFolder = PlayMoreSoundsCore.getFolder().resolve("Data").resolve("Regions");
 
             if (Files.exists(regionsFolder)) {
                 try (Stream<Path> regionFiles = Files.list(regionsFolder)) {
@@ -69,7 +68,7 @@ public final class RegionManager
             String material = null;
 
             try {
-                ConfigurationSection wandSection = Configurations.CONFIG.getPluginConfig().getConfiguration().getConfigurationSection("Sound Regions.Wand");
+                ConfigurationSection wandSection = Configurations.CONFIG.getConfigurationHolder().getConfiguration().getConfigurationSection("Sound Regions.Wand");
 
                 material = wandSection.getString("Material").orElse("FEATHER");
 
@@ -88,14 +87,14 @@ public final class RegionManager
                 item.setItemMeta(meta);
                 wand = item;
             } catch (IllegalArgumentException ex) {
-                PlayMoreSounds.getPMSLogger().log("&cCouldn't get region wand. \"" + material + "\" is not a valid material. Please verify your configuration.");
-                PlayMoreSounds.getErrorLogger().report(ex, "Invalid material:");
+                PlayMoreSounds.getConsoleLogger().log("&cCouldn't get region wand. \"" + material + "\" is not a valid material. Please verify your configuration.");
+                PlayMoreSoundsCore.getErrorHandler().report(ex, "Invalid material:");
             }
         };
 
         regionUpdater.run();
-        ReloadSubCommand.addOnReloadRunnable(regionUpdater);
-        ReloadSubCommand.addOnReloadRunnable(wandUpdater);
+        PlayMoreSounds.addOnReloadRunnable(regionUpdater);
+        PlayMoreSounds.addOnReloadRunnable(wandUpdater);
         PlayMoreSounds.addOnEnableRunnable(wandUpdater);
     }
 
