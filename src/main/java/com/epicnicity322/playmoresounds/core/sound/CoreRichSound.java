@@ -1,0 +1,104 @@
+/*
+ * PlayMoreSounds - A bukkit plugin that manages and plays sounds.
+ * Copyright (C) 2021 Christiano Rangel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package com.epicnicity322.playmoresounds.core.sound;
+
+import com.epicnicity322.playmoresounds.bukkit.sound.Sound;
+import com.epicnicity322.yamlhandler.ConfigurationSection;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+
+public class CoreRichSound
+{
+    private final @NotNull String name;
+    private @Nullable ConfigurationSection section;
+    private boolean enabled;
+    private boolean cancellable;
+    private @NotNull Collection<Sound> childSounds;
+
+    public CoreRichSound(@NotNull String name, boolean enabled, boolean cancellable, @Nullable Collection<Sound> childSounds)
+    {
+        this.name = name;
+        this.enabled = enabled;
+        this.cancellable = cancellable;
+        this.childSounds = childSounds;
+    }
+
+    public CoreRichSound(@NotNull ConfigurationSection section)
+    {
+        this.section = section;
+        this.name = section.getPath();
+        enabled = section.getBoolean("Enabled").orElse(false);
+        cancellable = section.getBoolean("Cancellable").orElse(false);
+        childSounds = new ArrayList<>();
+
+        ConfigurationSection sounds = section.getConfigurationSection("Sounds");
+
+        if (sounds != null) {
+            for (String childSound : sounds.getNodes().keySet())
+                childSounds.add(new Sound(sounds.getConfigurationSection(childSound)));
+        }
+    }
+
+    public @NotNull String getName()
+    {
+        return name;
+    }
+
+    public @Nullable ConfigurationSection getSection()
+    {
+        return section;
+    }
+
+    public boolean isEnabled()
+    {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled)
+    {
+        this.enabled = enabled;
+    }
+
+    public boolean isCancellable()
+    {
+        return cancellable;
+    }
+
+    public void setCancellable(boolean cancellable)
+    {
+        this.cancellable = cancellable;
+    }
+
+    public @NotNull Collection<Sound> getChildSounds()
+    {
+        return childSounds;
+    }
+
+    public void setChildSounds(@Nullable Collection<Sound> childSounds)
+    {
+        if (childSounds == null)
+            this.childSounds = new HashSet<>();
+        else
+            this.childSounds = childSounds;
+    }
+}

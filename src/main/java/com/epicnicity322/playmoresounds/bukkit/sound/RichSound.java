@@ -20,6 +20,7 @@ package com.epicnicity322.playmoresounds.bukkit.sound;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.events.PlayRichSoundEvent;
+import com.epicnicity322.playmoresounds.core.sound.SoundOptions;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;

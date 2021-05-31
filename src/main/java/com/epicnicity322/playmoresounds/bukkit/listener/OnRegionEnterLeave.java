@@ -26,8 +26,8 @@ import com.epicnicity322.playmoresounds.bukkit.region.events.RegionEnterEvent;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionLeaveEvent;
 import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
-import com.epicnicity322.playmoresounds.bukkit.sound.SoundType;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
+import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
@@ -247,7 +247,7 @@ public final class OnRegionEnterLeave extends PMSListener
                 for (String sound : soundsSection.getNodes().keySet()) {
                     String soundToStop = soundsSection.getString(sound + ".Sound").orElse("");
 
-                    sounds.add(SoundManager.getSoundList().contains(soundToStop) ? SoundType.valueOf(soundToStop).getSound().orElse("") : soundToStop);
+                    sounds.add(SoundType.getPresentSoundNames().contains(soundToStop) ? SoundType.valueOf(soundToStop).getSound().orElse("") : soundToStop);
                 }
 
             soundsToStop.put(key, sounds);

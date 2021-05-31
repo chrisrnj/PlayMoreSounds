@@ -24,7 +24,7 @@ import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandUtils;
 import com.epicnicity322.playmoresounds.bukkit.sound.Sound;
-import com.epicnicity322.playmoresounds.bukkit.sound.SoundOptions;
+import com.epicnicity322.playmoresounds.core.sound.SoundOptions;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;

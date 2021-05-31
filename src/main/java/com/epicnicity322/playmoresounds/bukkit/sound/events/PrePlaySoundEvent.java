@@ -19,7 +19,7 @@
 package com.epicnicity322.playmoresounds.bukkit.sound.events;
 
 import com.epicnicity322.playmoresounds.bukkit.sound.Sound;
-import com.epicnicity322.playmoresounds.bukkit.sound.SoundOptions;
+import com.epicnicity322.playmoresounds.core.sound.SoundOptions;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;

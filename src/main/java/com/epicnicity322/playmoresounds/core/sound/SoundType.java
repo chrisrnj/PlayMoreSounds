@@ -16,14 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.epicnicity322.playmoresounds.bukkit.sound;
+package com.epicnicity322.playmoresounds.core.sound;
 
 import com.epicnicity322.epicpluginlib.core.tools.Version;
-import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 public enum SoundType
 {
@@ -1230,7 +1233,7 @@ public enum SoundType
         else if (StaticFields.lowerThanMin)
             versionDependentName = getSound(getMinSupportedVersion()).orElse(null);
         else
-            versionDependentName = getSound(VersionUtils.getBukkitVersion()).orElse(null);
+            versionDependentName = getSound(PlayMoreSoundsCore.getServerVersion()).orElse(null);
     }
 
     /**
@@ -1247,6 +1250,24 @@ public enum SoundType
     public static @NotNull Version getMinSupportedVersion()
     {
         return StaticFields.minSupportedVersion;
+    }
+
+    /**
+     * A set with all {@link SoundType} names, every entry on this enum added as {@link SoundType#name()} for ease of use.
+     *
+     * @return An unmodifiable set with all {@link SoundType} names present on this minecraft version.
+     */
+    public static @NotNull Set<String> getPresentSoundNames()
+    {
+        return StaticFields.availableSoundNames;
+    }
+
+    /**
+     * @return An unmodifiable set with all {@link SoundType}s present on this minecraft version.
+     */
+    public static @NotNull Set<SoundType> getPresentSoundTypes()
+    {
+        return StaticFields.availableSoundTypes;
     }
 
     /**
@@ -1301,10 +1322,24 @@ public enum SoundType
         /**
          * If the current bukkit version is greater than the maximum supported.
          */
-        private static final boolean greaterThanMax = !VersionUtils.getBukkitVersion().getVersion().startsWith(maxSupportedVersion.getVersion()) && VersionUtils.getBukkitVersion().compareTo(maxSupportedVersion) > 0;
+        private static final boolean greaterThanMax = !PlayMoreSoundsCore.getServerVersion().getVersion().startsWith(maxSupportedVersion.getVersion()) && PlayMoreSoundsCore.getServerVersion().compareTo(maxSupportedVersion) > 0;
         /**
          * If the current bukkit version is lower than the minimum supported.
          */
-        private static final boolean lowerThanMin = VersionUtils.getBukkitVersion().compareTo(minSupportedVersion) < 0;
+        private static final boolean lowerThanMin = PlayMoreSoundsCore.getServerVersion().compareTo(minSupportedVersion) < 0;
+        private static @NotNull Set<String> availableSoundNames = new HashSet<>();
+        private static @NotNull Set<SoundType> availableSoundTypes = new HashSet<>();
+
+        static {
+            for (SoundType type : SoundType.values()) {
+                if (type.getSound().isPresent()) {
+                    availableSoundTypes.add(type);
+                    availableSoundNames.add(type.name());
+                }
+            }
+
+            availableSoundTypes = Collections.unmodifiableSet(availableSoundTypes);
+            availableSoundNames = Collections.unmodifiableSet(availableSoundNames);
+        }
     }
 }

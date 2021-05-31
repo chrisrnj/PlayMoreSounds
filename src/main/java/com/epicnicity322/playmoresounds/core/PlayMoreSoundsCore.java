@@ -19,6 +19,8 @@
 package com.epicnicity322.playmoresounds.core;
 
 import com.epicnicity322.epicpluginlib.core.logger.ErrorHandler;
+import com.epicnicity322.epicpluginlib.core.tools.Version;
+import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -31,6 +33,7 @@ public final class PlayMoreSoundsCore
 {
     private static final @NotNull Path folder;
     private static final @NotNull ErrorHandler errorHandler;
+    private static final @NotNull Version serverVersion;
     private static @NotNull Platform platform;
 
     static {
@@ -44,8 +47,10 @@ public final class PlayMoreSoundsCore
 
         if (platform == Platform.BUKKIT) {
             folder = Paths.get("plugins").resolve("PlayMoreSounds");
+            serverVersion = VersionUtils.getBukkitVersion();
         } else {
             folder = Paths.get("config").resolve("playmoresounds");
+            serverVersion = com.epicnicity322.playmoresounds.sponge.util.VersionUtils.getSpongeVersion();
         }
 
         if (Files.notExists(folder)) {
@@ -67,6 +72,14 @@ public final class PlayMoreSoundsCore
     public static @NotNull Platform getPlatform()
     {
         return platform;
+    }
+
+    /**
+     * @return The minecraft version the server is currently running on.
+     */
+    public static @NotNull Version getServerVersion()
+    {
+        return serverVersion;
     }
 
     /**

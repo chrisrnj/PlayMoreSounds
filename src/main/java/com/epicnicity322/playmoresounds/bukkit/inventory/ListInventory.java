@@ -24,10 +24,10 @@ import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
 import com.epicnicity322.epicpluginlib.core.logger.ErrorHandler;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
-import com.epicnicity322.playmoresounds.bukkit.sound.SoundType;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
+import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import com.epicnicity322.yamlhandler.Configuration;
 import org.bukkit.Bukkit;
@@ -103,7 +103,7 @@ public class ListInventory implements PMSInventory, Listener
         if (soundPagesCache.containsKey(soundsPerPage)) {
             soundPages = soundPagesCache.get(soundsPerPage);
         } else {
-            soundPages = PMSHelper.splitIntoPages(new TreeSet<>(SoundManager.getSoundList()), soundsPerPage);
+            soundPages = PMSHelper.splitIntoPages(new TreeSet<>(SoundType.getPresentSoundNames()), soundsPerPage);
 
             soundPagesCache.put(soundsPerPage, soundPages);
         }
