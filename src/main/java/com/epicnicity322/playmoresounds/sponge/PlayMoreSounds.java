@@ -33,6 +33,7 @@ import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import com.epicnicity322.playmoresounds.core.util.LoadableHashSet;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
+import com.epicnicity322.playmoresounds.sponge.listeners.OnChangeInventory;
 import com.epicnicity322.playmoresounds.sponge.listeners.OnClientConnection;
 import com.google.inject.Inject;
 import org.bstats.sponge.Metrics;
@@ -249,6 +250,7 @@ public final class PlayMoreSounds
             addonManager.startAddons(StartTime.BEFORE_LISTENERS);
 
             Sponge.getEventManager().registerListeners(this, new OnClientConnection());
+            Sponge.getEventManager().registerListeners(this, new OnChangeInventory());
 
             logger.log("&6-> &e1 listener loaded.");
 
