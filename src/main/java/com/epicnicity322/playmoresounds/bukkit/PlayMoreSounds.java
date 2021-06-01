@@ -27,7 +27,6 @@ import com.epicnicity322.epicpluginlib.core.logger.ErrorHandler;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.bukkit.listener.*;
 import com.epicnicity322.playmoresounds.bukkit.metrics.Metrics;
-import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
 import com.epicnicity322.playmoresounds.bukkit.util.ListenerRegister;
 import com.epicnicity322.playmoresounds.bukkit.util.UpdateManager;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
@@ -36,6 +35,7 @@ import com.epicnicity322.playmoresounds.core.addons.AddonManager;
 import com.epicnicity322.playmoresounds.core.addons.PMSAddon;
 import com.epicnicity322.playmoresounds.core.addons.StartTime;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
+import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import com.epicnicity322.playmoresounds.core.util.LoadableHashSet;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import org.bukkit.Bukkit;
@@ -93,16 +93,13 @@ public final class PlayMoreSounds extends JavaPlugin
         logger.setLogger(getLogger());
         errorHandler.setLogger(getLogger());
 
-        if (!onInstanceRunnables.isEmpty()) {
-            new Thread(() -> {
-                for (Consumer<PlayMoreSounds> consumer : onInstanceRunnables)
-                    try {
-                        consumer.accept(instance);
-                    } catch (Exception e) {
-                        logger.log("&cAn unknown error occurred on PlayMoreSounds initialization.");
-                        errorHandler.report(e, "PMS Initialization Error (Unknown):");
-                    }
-            }).start();
+        for (Consumer<PlayMoreSounds> consumer : onInstanceRunnables) {
+            try {
+                consumer.accept(instance);
+            } catch (Exception e) {
+                logger.log("&cAn unknown error occurred on PlayMoreSounds initialization.");
+                errorHandler.report(e, "PMS Initialization Error (Unknown):");
+            }
         }
     }
 
@@ -292,7 +289,7 @@ public final class PlayMoreSounds extends JavaPlugin
             if (success) {
                 logger.log("&6============================================");
                 logger.log("&aPlayMoreSounds has been enabled");
-                logger.log("&a" + SoundManager.getSoundTypes().size() + " sounds available on " + VersionUtils.getBukkitVersion());
+                logger.log("&a" + SoundType.getPresentSoundTypes().size() + " sounds available on " + VersionUtils.getBukkitVersion());
                 logger.log("&6============================================");
 
                 if (VersionUtils.supportsBStats()) {
@@ -332,17 +329,6 @@ public final class PlayMoreSounds extends JavaPlugin
 
                 // Bukkit only runs a task once the server has fully loaded.
                 Bukkit.getScheduler().runTaskLater(this, () -> addonManager.startAddons(StartTime.SERVER_LOAD_COMPLETE), 1);
-
-                for (Runnable runnable : onEnableRunnables) {
-                    try {
-                        runnable.run();
-                    } catch (Exception e) {
-                        logger.log("&cAn unknown error occurred on PlayMoreSounds startup.");
-                        errorHandler.report(e, "PMS Loading Error (Unknown):");
-                    }
-                }
-
-                enabled = true;
             } else {
                 logger.log("&6============================================");
                 logger.log("&cSomething went wrong while loading PMS");
@@ -351,6 +337,17 @@ public final class PlayMoreSounds extends JavaPlugin
                 getLogger().severe("Plugin disabled.");
                 Bukkit.getPluginManager().disablePlugin(this);
             }
+
+            for (Runnable runnable : onEnableRunnables) {
+                try {
+                    runnable.run();
+                } catch (Exception e) {
+                    logger.log("&cAn unknown error occurred on PlayMoreSounds startup.");
+                    errorHandler.report(e, "PMS Loading Error (Unknown):");
+                }
+            }
+
+            enabled = true;
         }
     }
 
