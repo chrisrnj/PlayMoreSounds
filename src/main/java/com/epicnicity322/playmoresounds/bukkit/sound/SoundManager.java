@@ -20,6 +20,9 @@ package com.epicnicity322.playmoresounds.bukkit.sound;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
+import com.epicnicity322.playmoresounds.core.sound.SoundOptions;
+import com.epicnicity322.playmoresounds.core.sound.SoundType;
+import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -29,29 +32,16 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-import java.util.regex.Pattern;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.UUID;
 
 public final class SoundManager
 {
     private static final @NotNull BukkitScheduler scheduler = Bukkit.getScheduler();
     private static final @NotNull HashSet<UUID> disabledSoundsPlayers = new HashSet<>();
-    private static final @NotNull Pattern invalidSoundCharacters = Pattern.compile("[^a-z0-9/._-]");
-    private static @NotNull Set<String> soundList = new HashSet<>();
-    private static @NotNull Set<SoundType> soundTypes = new HashSet<>();
     private static NamespacedKey soundState;
-
-    static {
-        for (SoundType type : SoundType.values()) {
-            if (type.getSound().isPresent()) {
-                soundTypes.add(type);
-                soundList.add(type.name());
-            }
-        }
-
-        soundTypes = Collections.unmodifiableSet(soundTypes);
-        soundList = Collections.unmodifiableSet(soundList);
-    }
 
     private SoundManager()
     {
@@ -112,26 +102,6 @@ public final class SoundManager
     }
 
     /**
-     * Gets all {@link SoundType} names that are available in the version bukkit is running.
-     *
-     * @return The sounds available in this version.
-     */
-    public static @NotNull Set<String> getSoundList()
-    {
-        return soundList;
-    }
-
-    /**
-     * Gets all {@link SoundType} that are available in the version bukkit is running.
-     *
-     * @return The sounds available in this version.
-     */
-    public static @NotNull Set<SoundType> getSoundTypes()
-    {
-        return soundTypes;
-    }
-
-    /**
      * Stops the currently playing sounds. If the server is running 1.10.2+, {@link Player#stopSound(String)} method is
      * used, if the server is running an older version, an old glitch of playing lots of sounds is used to stop the sounds.
      * If the server is running a version older than 1.10.2, you can not specify the sounds to stop as all
@@ -144,19 +114,18 @@ public final class SoundManager
      */
     public static void stopSounds(@NotNull Player player, @Nullable HashSet<String> sounds, long delay)
     {
-        //TODO: Fix namespaced sounds not stopping
         PlayMoreSounds main = PlayMoreSounds.getInstance();
 
         if (main == null)
             throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
         if (sounds != null)
-            sounds.removeIf(sound -> invalidSoundCharacters.matcher(sound).find());
+            sounds.removeIf(sound -> !PMSHelper.isNamespacedKey(sound));
 
         scheduler.runTaskLater(main, () -> {
             if (VersionUtils.hasStopSound())
                 if (sounds == null)
-                    for (SoundType toStop : SoundManager.getSoundTypes())
+                    for (SoundType toStop : SoundType.getPresentSoundTypes())
                         // Sounds of #getSoundTypes() are always present.
                         player.stopSound(toStop.getSound().orElse(""));
                 else
@@ -212,7 +181,7 @@ public final class SoundManager
     /**
      * Adds blocks to up, down, right, left, front, back from original sound location based on pitch and yaw.
      */
-    protected static @NotNull Location addRelativeLocation(@NotNull Location location, @NotNull Map<SoundOptions.Direction, Double> locationToAdd)
+    static @NotNull Location addRelativeLocation(@NotNull Location location, @NotNull Map<SoundOptions.Direction, Double> locationToAdd)
     {
         if (!locationToAdd.isEmpty()) {
             location = location.clone();
