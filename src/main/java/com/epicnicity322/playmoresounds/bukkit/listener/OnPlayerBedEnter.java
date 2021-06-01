@@ -32,7 +32,6 @@ public final class OnPlayerBedEnter extends PMSListener
         super(plugin);
     }
 
-
     @Override
     public @NotNull String getName()
     {

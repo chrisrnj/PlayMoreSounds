@@ -26,7 +26,6 @@ import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.jetbrains.annotations.NotNull;
@@ -78,7 +77,7 @@ public final class OnPlayerBedLeave extends PMSListener
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler
     public void onPlayerBedLeave(PlayerBedLeaveEvent event)
     {
         Player player = event.getPlayer();
