@@ -27,12 +27,15 @@ import java.time.Month;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 public final class PMSHelper
 {
     private static final @NotNull SecureRandom random = new SecureRandom();
     private static final @NotNull String chars = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789";
     private static final int charsLength = chars.length();
+    private static final Pattern invalidNamespaceCharacters = Pattern.compile("[^a-z0-9_.-]");
+    private static final Pattern invalidKeyCharacters = Pattern.compile("[^a-z0-9/._-]");
 
     private PMSHelper()
     {
@@ -86,5 +89,28 @@ public final class PMSHelper
 
         pages.put(page, list);
         return pages;
+    }
+
+    /**
+     * Tests if this is a valid namespaced key. Namespaced keys have a namespace and a key, they are separated by a colon,
+     * e.g: minecraft:test. The namespace must have only [a-z0-9_.-] characters and the key [a-z0-9/._-] characters, both
+     * cannot be empty. If you only input a key and not namespace, only the key is tested.
+     *
+     * @param namespacedKey The namespaced key to test.
+     * @return If the argument is a valid namespaced key.
+     */
+    public static boolean isNamespacedKey(@NotNull String namespacedKey)
+    {
+        int colon = namespacedKey.indexOf(":");
+
+        if (colon == -1) {
+            namespacedKey = "minecraft:" + namespacedKey;
+            colon = 9;
+        }
+
+        String namespace = namespacedKey.substring(0, colon);
+        String key = namespacedKey.substring(colon + 1);
+
+        return !namespace.isEmpty() && !key.isEmpty() && namespace.length() + key.length() + 1 <= 256 && !invalidNamespaceCharacters.matcher(namespace).find() && !invalidKeyCharacters.matcher(key).find();
     }
 }
