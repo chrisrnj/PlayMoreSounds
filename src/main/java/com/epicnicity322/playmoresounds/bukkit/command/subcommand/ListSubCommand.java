@@ -24,9 +24,9 @@ import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.inventory.ListInventory;
-import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
+import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import com.epicnicity322.yamlhandler.Configuration;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -139,7 +139,7 @@ public final class ListSubCommand extends Command implements Helpable
             if (soundPagesCache.containsKey(soundsPerPage)) {
                 soundPages = soundPagesCache.get(soundsPerPage);
             } else {
-                soundPages = PMSHelper.splitIntoPages(new TreeSet<>(SoundManager.getSoundList()), soundsPerPage);
+                soundPages = PMSHelper.splitIntoPages(new TreeSet<>(SoundType.getPresentSoundNames()), soundsPerPage);
 
                 soundPagesCache.put(soundsPerPage, soundPages);
             }

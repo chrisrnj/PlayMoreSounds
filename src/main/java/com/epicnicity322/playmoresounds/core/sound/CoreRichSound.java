@@ -18,24 +18,23 @@
 
 package com.epicnicity322.playmoresounds.core.sound;
 
-import com.epicnicity322.playmoresounds.bukkit.sound.Sound;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 
-public class CoreRichSound
+public abstract class CoreRichSound<T extends CoreSound>
 {
     private final @NotNull String name;
     private @Nullable ConfigurationSection section;
     private boolean enabled;
     private boolean cancellable;
-    private @NotNull Collection<Sound> childSounds;
+    private @NotNull Collection<T> childSounds;
 
-    public CoreRichSound(@NotNull String name, boolean enabled, boolean cancellable, @Nullable Collection<Sound> childSounds)
+    public CoreRichSound(@NotNull String name, boolean enabled, boolean cancellable, @Nullable Collection<T> childSounds)
     {
         this.name = name;
         this.enabled = enabled;
@@ -49,15 +48,18 @@ public class CoreRichSound
         this.name = section.getPath();
         enabled = section.getBoolean("Enabled").orElse(false);
         cancellable = section.getBoolean("Cancellable").orElse(false);
-        childSounds = new ArrayList<>();
+        childSounds = new HashSet<>();
 
         ConfigurationSection sounds = section.getConfigurationSection("Sounds");
 
         if (sounds != null) {
-            for (String childSound : sounds.getNodes().keySet())
-                childSounds.add(new Sound(sounds.getConfigurationSection(childSound)));
+            for (String childSound : sounds.getNodes().keySet()) {
+                childSounds.add(newCoreSound(sounds.getConfigurationSection(childSound)));
+            }
         }
     }
+
+    protected abstract @NotNull T newCoreSound(@NotNull ConfigurationSection section);
 
     public @NotNull String getName()
     {
@@ -89,16 +91,37 @@ public class CoreRichSound
         this.cancellable = cancellable;
     }
 
-    public @NotNull Collection<Sound> getChildSounds()
+    public @NotNull Collection<T> getChildSounds()
     {
         return childSounds;
     }
 
-    public void setChildSounds(@Nullable Collection<Sound> childSounds)
+    public void setChildSounds(@Nullable Collection<T> childSounds)
     {
         if (childSounds == null)
             this.childSounds = new HashSet<>();
         else
             this.childSounds = childSounds;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CoreRichSound<?> that = (CoreRichSound<?>) o;
+
+        return enabled == that.enabled
+                && cancellable == that.cancellable
+                && name.equals(that.name)
+                && Objects.equals(section, that.section)
+                && childSounds.equals(that.childSounds);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(name, section, enabled, cancellable, childSounds);
     }
 }

@@ -20,8 +20,8 @@ package com.epicnicity322.playmoresounds.bukkit.sound;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.events.PlayRichSoundEvent;
+import com.epicnicity322.playmoresounds.core.sound.CoreRichSound;
 import com.epicnicity322.playmoresounds.core.sound.SoundOptions;
-import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -30,88 +30,25 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
 import java.util.function.Supplier;
 
-public class RichSound implements Playable
+public class RichSound extends CoreRichSound<Sound> implements Playable
 {
-    private final @NotNull String name;
-    private @Nullable ConfigurationSection section;
-    private boolean enabled;
-    private boolean cancellable;
-    private Collection<Sound> childSounds;
+    public RichSound(@NotNull String name, boolean enabled, boolean cancellable, @Nullable Collection<Sound> childSounds)
+    {
+        super(name, enabled, cancellable, childSounds);
+    }
 
     public RichSound(@NotNull ConfigurationSection section)
     {
-        if (section instanceof Configuration)
-            throw new UnsupportedOperationException("Section can not be Configuration.");
-
-        this.section = section;
-        this.name = section.getPath();
-        enabled = section.getBoolean("Enabled").orElse(false);
-        cancellable = section.getBoolean("Cancellable").orElse(false);
-        childSounds = new ArrayList<>();
-
-        ConfigurationSection sounds = section.getConfigurationSection("Sounds");
-
-        if (sounds != null) {
-            for (String childSound : sounds.getNodes().keySet())
-                childSounds.add(new Sound(sounds.getConfigurationSection(childSound)));
-        }
+        super(section);
     }
 
-    public RichSound(@NotNull String name, boolean enabled, boolean cancellable, @Nullable Collection<Sound> childSounds)
+    @Override
+    protected @NotNull Sound newCoreSound(@NotNull ConfigurationSection section)
     {
-        this.name = name;
-        this.enabled = enabled;
-        this.cancellable = cancellable;
-        setChildSounds(childSounds);
-    }
-
-    public @NotNull String getName()
-    {
-        return name;
-    }
-
-    public @Nullable ConfigurationSection getSection()
-    {
-        return section;
-    }
-
-    public boolean isEnabled()
-    {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled)
-    {
-        this.enabled = enabled;
-    }
-
-    public boolean isCancellable()
-    {
-        return cancellable;
-    }
-
-    public void setCancellable(boolean cancellable)
-    {
-        this.cancellable = cancellable;
-    }
-
-    public @NotNull Collection<Sound> getChildSounds()
-    {
-        return childSounds;
-    }
-
-    public void setChildSounds(@Nullable Collection<Sound> sounds)
-    {
-        if (sounds == null)
-            this.childSounds = new HashSet<>();
-        else
-            this.childSounds = sounds;
+        return new Sound(section);
     }
 
     @Override
@@ -179,37 +116,5 @@ public class RichSound implements Playable
             runnable.runTaskTimer(main, delay, period);
 
         return runnable;
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        RichSound richSound = (RichSound) o;
-
-        return enabled == richSound.enabled &&
-                cancellable == richSound.cancellable &&
-                Objects.equals(section, richSound.section) &&
-                childSounds.equals(richSound.childSounds);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hash(section, enabled, cancellable, childSounds);
-    }
-
-    @Override
-    public String toString()
-    {
-        return "RichSound{" +
-                "name='" + name + '\'' +
-                ", section=" + (section == null ? "null" : "'" + section.getPath() + '\'') +
-                ", enabled=" + enabled +
-                ", cancellable=" + cancellable +
-                ", childSounds=" + childSounds +
-                '}';
     }
 }
