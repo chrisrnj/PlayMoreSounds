@@ -19,19 +19,25 @@
 package com.epicnicity322.playmoresounds.sponge;
 
 import com.epicnicity322.epicpluginlib.core.EpicPluginLib;
+import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
 import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
+import com.epicnicity322.epicpluginlib.core.logger.ErrorHandler;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
+import com.epicnicity322.epicpluginlib.sponge.lang.MessageSender;
 import com.epicnicity322.epicpluginlib.sponge.logger.Logger;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
 import com.epicnicity322.playmoresounds.core.addons.AddonManager;
 import com.epicnicity322.playmoresounds.core.addons.StartTime;
+import com.epicnicity322.playmoresounds.core.config.Configurations;
+import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import com.epicnicity322.playmoresounds.core.util.LoadableHashSet;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import com.epicnicity322.playmoresounds.sponge.listeners.OnClientConnection;
 import com.google.inject.Inject;
 import org.bstats.sponge.Metrics;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
@@ -49,9 +55,10 @@ import org.spongepowered.api.util.metric.MetricsConfigManager;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Random;
+import java.util.function.Consumer;
 
 @Plugin(id = "playmoresounds",
         name = "PlayMoreSounds",
@@ -62,28 +69,33 @@ public final class PlayMoreSounds
 {
     private static final @NotNull HashSet<Runnable> onDisableRunnables = new HashSet<>();
     private static final @NotNull HashSet<Runnable> onEnableRunnables = new HashSet<>();
+    private static final @NotNull HashSet<Consumer<PlayMoreSounds>> onInstanceRunnables = new HashSet<>();
+    private static final @NotNull HashSet<Runnable> onReloadRunnables = new HashSet<>();
     private static final @NotNull LoadableHashSet<String> serverPlugins = new LoadableHashSet<>();
-    private static final @NotNull Random random = new Random();
+    private static final @NotNull MessageSender language = new MessageSender(
+            () -> Configurations.CONFIG.getConfigurationHolder().getConfiguration().getString("Language").orElse("EN_US"),
+            () -> "&6[&9PlayMoreSounds&6]&e ",
+            Configurations.LANGUAGE_EN_US.getConfigurationHolder().getDefaultConfiguration());
+    private static @Nullable PlayMoreSounds instance;
     private static boolean success = true;
     private static boolean enabled = false;
     private static boolean disabled = false;
 
     static {
+        language.addLanguage("EN_US", Configurations.LANGUAGE_EN_US.getConfigurationHolder());
+        language.addLanguage("ES_LA", Configurations.LANGUAGE_ES_LA.getConfigurationHolder());
+        language.addLanguage("PT_BR", Configurations.LANGUAGE_PT_BR.getConfigurationHolder());
+        language.addLanguage("ZH_CN", Configurations.LANGUAGE_ZH_CN.getConfigurationHolder());
+
+        // Checking if EpicPluginLib is outdated.
         if (EpicPluginLib.version.compareTo(new Version("2.0")) < 0) {
             success = false;
 
-            addOnEnableRunnable(() -> {
-                Optional<PluginContainer> plugin = Sponge.getGame().getPluginManager().getPlugin("playmoresounds");
-
-                // EpicPluginLib didn't had platform independent message leveling before 1.6.1 so I'm using l4fj logger.
-                if (plugin.isPresent())
-                    plugin.get().getLogger().error("You are running an old version of EpicPluginLib, make sure you are using the latest one.");
-                else
-                    System.out.println("You are running an old version of EpicPluginLib, make sure you are using the latest one.");
-            });
+            addOnEnableRunnable(() -> getInstance().logger.log("You are running an old version of EpicPluginLib, make sure you are using 2.0 or similar.", ConsoleLogger.Level.ERROR));
         }
     }
 
+    private final @NotNull ErrorHandler errorHandler = PlayMoreSoundsCore.getErrorHandler();
     private final @NotNull String gameVersion;
     private final @NotNull Logger logger;
     private final @NotNull AddonManager addonManager;
@@ -97,6 +109,7 @@ public final class PlayMoreSounds
     @Inject
     public PlayMoreSounds(Game game, org.slf4j.Logger lf4jLogger, Metrics.Factory metricsFactory)
     {
+        instance = this;
         logger = new Logger(PMSHelper.isChristmas() ? "&f[&4PlayMoreSounds&f] " : "&6[&9PlayMoreSounds&6] ", lf4jLogger);
         gameVersion = game.getPlatform().getContainer(Platform.Component.GAME).getVersion().orElse("0");
         addonManager = new AddonManager(serverPlugins, logger);
@@ -104,43 +117,108 @@ public final class PlayMoreSounds
         // success can be false if EpicPluginLib version is not supported.
         if (success)
             metricsFactory.make(8393);
+
+        for (Consumer<PlayMoreSounds> consumer : onInstanceRunnables) {
+            try {
+                consumer.accept(instance);
+            } catch (Exception e) {
+                logger.log("&cAn unknown error occurred on PlayMoreSounds initialization.");
+                errorHandler.report(e, "PMS Initialization Error (Unknown):");
+            }
+        }
     }
 
     /**
-     * Adds a runnable to run when PlayMoreSounds is disabled by bukkit.
+     * Adds a runnable to run when the plugin is disabled. If the plugin was already disabled, then the runnable is run
+     * immediately.
+     * If a exception is caught, PlayMoreSounds automatically handles it and logs into the data folder.
      *
-     * @param runnable The runnable to run on disable.
+     * @param runnable Runnable to run on disable.
      */
     public static void addOnDisableRunnable(@NotNull Runnable runnable)
     {
-        if (disabled)
+        onDisableRunnables.add(runnable);
+
+        if (disabled) {
             runnable.run();
-        else
-            onDisableRunnables.add(runnable);
+        }
     }
 
     /**
-     * Adds a runnable to run when PlayMoreSounds is enabled.
+     * Adds a runnable to run when the plugin is enabled. If the plugin was already enabled, then the runnable is run
+     * immediately.
+     * If a exception is caught, PlayMoreSounds automatically handles it and logs into the data folder.
      *
-     * @param runnable The runnable to run on enable.
+     * @param runnable Runnable to run on enable.
      */
     public static void addOnEnableRunnable(@NotNull Runnable runnable)
     {
-        if (enabled)
+        onEnableRunnables.add(runnable);
+
+        if (enabled) {
             runnable.run();
-        else
-            onEnableRunnables.add(runnable);
+        }
+    }
+
+    /**
+     * Adds a runnable to run when the plugin is loaded. If the plugin was already loaded, then the runnable is run
+     * immediately.
+     * If a exception is caught, PlayMoreSounds automatically handles it and logs into the data folder.
+     *
+     * @param consumer Runnable to run on load.
+     */
+    public static void addOnInstanceRunnable(@NotNull Consumer<PlayMoreSounds> consumer)
+    {
+        onInstanceRunnables.add(consumer);
+
+        if (getInstance() != null) {
+            consumer.accept(getInstance());
+        }
+    }
+
+    /**
+     * Adds a runnable to run when the configurations are reloaded.
+     * If a exception is caught, PlayMoreSounds automatically handles it and logs into the data folder.
+     *
+     * @param runnable Runnable to run on configurations reload.
+     */
+    public static void addOnReloadRunnable(@NotNull Runnable runnable)
+    {
+        onReloadRunnables.add(runnable);
+    }
+
+    /**
+     * The instance of PlayMoreSounds' main class, although this is not the best approach, I decided to leave it like
+     * that for easy use of the API, like playing sounds on {@link com.epicnicity322.playmoresounds.sponge.sound.Sound}
+     *
+     * @return The instance of PlayMoreSounds JavaPlugin class, or null if the plugin wasn't loaded yet.
+     */
+    public static @Nullable PlayMoreSounds getInstance()
+    {
+        return instance;
+    }
+
+    /**
+     * @return PlayMoreSounds' {@link MessageSender} containing every message from language files.
+     */
+    public static @NotNull MessageSender getLanguage()
+    {
+        return language;
     }
 
     @Listener
     public void onGameInitialization(@SuppressWarnings("unused") GameInitializationEvent event)
     {
-        try {
-            if (!success)
-                return;
+        // Checking if PlayMoreSounds was already enabled.
+        if (enabled) return;
 
-            for (PluginContainer plugin : pluginManager.getPlugins())
+        try {
+            if (!success) return;
+
+            // Loading and registering addons:
+            for (PluginContainer plugin : pluginManager.getPlugins()) {
                 serverPlugins.add(plugin.getId());
+            }
 
             serverPlugins.setLoaded(true);
 
@@ -150,18 +228,29 @@ public final class PlayMoreSounds
                 // Only thrown if addons were registered before.
             } catch (IOException ex) {
                 logger.log("&cFailed to register addons.");
-                PlayMoreSoundsCore.getErrorHandler().report(ex, "Addon registration error:");
+                errorHandler.report(ex, "Addon registration error:");
             }
 
             addonManager.startAddons(StartTime.BEFORE_CONFIGURATIONS);
 
-            logger.log("&6-> &eConfigurations not loaded.");
+            HashMap<ConfigurationHolder, Exception> exceptions = Configurations.getConfigurationLoader().loadConfigurations();
+
+            if (exceptions.isEmpty()) {
+                logger.log("&6-> &eConfigurations loaded.");
+            } else {
+                logger.log("Unable to load configurations.", ConsoleLogger.Level.ERROR);
+
+                exceptions.forEach((config, e) -> errorHandler.report(e, "Configuration: " + config.getPath() + "\nConfig load error:"));
+
+                success = false;
+                return;
+            }
 
             addonManager.startAddons(StartTime.BEFORE_LISTENERS);
 
             Sponge.getEventManager().registerListeners(this, new OnClientConnection());
 
-            logger.log("&6-> &eOne listener loaded.");
+            logger.log("&6-> &e1 listener loaded.");
 
             addonManager.startAddons(StartTime.BEFORE_COMMANDS);
 
@@ -174,13 +263,14 @@ public final class PlayMoreSounds
                 logger.log("&6============================================");
                 logger.log("&a PlayMoreSounds is not fully functional on");
                 logger.log("&asponge yet.");
-                logger.log("&a 000 sounds available on " + gameVersion);
+                logger.log("&a " + SoundType.getPresentSoundTypes().size() + " sounds available on " + gameVersion);
                 logger.log("&6============================================");
 
                 if (metricsConfigManager.getCollectionState(container) == Tristate.TRUE)
                     logger.log("&ePlayMoreSounds is using bStats as metrics collector.");
 
                 LocalDateTime now = LocalDateTime.now();
+                Random random = new Random();
 
                 if (now.getMonth() == Month.OCTOBER && now.getDayOfMonth() == 31) {
                     if (random.nextBoolean())
@@ -197,19 +287,6 @@ public final class PlayMoreSounds
                 }
 
                 addonManager.startAddons(StartTime.END);
-
-                if (!onEnableRunnables.isEmpty())
-                    new Thread(() -> {
-                        for (Runnable runnable : onEnableRunnables)
-                            try {
-                                runnable.run();
-                            } catch (Exception e) {
-                                logger.log("&cAn unknown error occurred on PlayMoreSounds startup.");
-                                PlayMoreSoundsCore.getErrorHandler().report(e, "PMS Loading Error (Unknown):");
-                            }
-                    }).start();
-
-                enabled = true;
             } else {
                 logger.log("&6============================================", ConsoleLogger.Level.ERROR);
                 logger.log("&cSomething went wrong while loading PMS", ConsoleLogger.Level.ERROR);
@@ -217,6 +294,17 @@ public final class PlayMoreSounds
                 logger.log("&6============================================", ConsoleLogger.Level.ERROR);
                 logger.log("&4Error log generated on data folder.", ConsoleLogger.Level.WARN);
             }
+
+            for (Runnable runnable : onEnableRunnables) {
+                try {
+                    runnable.run();
+                } catch (Exception e) {
+                    logger.log("&cAn unknown error occurred on PlayMoreSounds startup.");
+                    errorHandler.report(e, "PMS Loading Error (Unknown):");
+                }
+            }
+
+            enabled = true;
         }
     }
 
@@ -229,18 +317,19 @@ public final class PlayMoreSounds
     @Listener
     public void onGameStopping(@SuppressWarnings("unused") GameStoppingEvent event)
     {
+        // Checking if PlayMoreSounds was already disabled.
+        if (disabled) return;
+
         addonManager.stopAddons();
 
-        if (!onDisableRunnables.isEmpty())
-            new Thread(() -> {
-                for (Runnable runnable : onDisableRunnables)
-                    try {
-                        runnable.run();
-                    } catch (Exception e) {
-                        logger.log("&cAn unknown error occurred on PlayMoreSounds shutdown.");
-                        PlayMoreSoundsCore.getErrorHandler().report(e, "PMS Unloading Error (Unknown):");
-                    }
-            }).start();
+        for (Runnable runnable : onDisableRunnables) {
+            try {
+                runnable.run();
+            } catch (Exception e) {
+                logger.log("&cAn unknown error occurred on PlayMoreSounds shutdown.");
+                errorHandler.report(e, "PMS Unloading Error (Unknown):");
+            }
+        }
 
         disabled = true;
     }
