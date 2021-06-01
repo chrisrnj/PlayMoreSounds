@@ -51,13 +51,18 @@ public final class ListenerRegister
             listeners.add(new OnPlayerCommandPreprocess(instance));
             listeners.add(new OnPlayerDeath(instance));
             listeners.add(new OnPlayerDropItem(instance));
+            listeners.add(new OnPlayerEditBook(instance));
             listeners.add(new OnPlayerGameModeChange(instance));
             listeners.add(new OnPlayerItemHeld(instance));
             listeners.add(new OnPlayerKick(instance));
             listeners.add(new OnPlayerLevelChange(instance));
+            listeners.add(new OnPlayerRespawn(instance));
+            listeners.add(new OnPlayerSwapHandItems(instance));
             listeners.add(new OnPlayerToggleFlight(instance));
             listeners.add(new OnPlayerToggleSneak(instance));
+            listeners.add(new OnPortalCreate(instance));
             listeners.add(new OnRegionEnterLeave(instance));
+            listeners.add(new OnWeatherChange(instance));
 
             // Jump events are only available on PaperMC.
             if (VersionUtils.isPaperMC()) {
