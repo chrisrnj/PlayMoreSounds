@@ -1221,6 +1221,15 @@ public enum SoundType
     WEATHER_RAIN("1.7-1.8 ambient.weather.rain", "1.9-1.17 weather.rain"),
     WEATHER_RAIN_ABOVE("1.7-1.8 ambient.weather.rain", "1.9-1.17 weather.rain.above");
 
+    private static final @NotNull Set<String> presentSoundNames;
+    private static final @NotNull Set<SoundType> presentSoundTypes;
+
+    static {
+        // Static body of enum is only loaded after enums were instantiated, so these sets are already populated.
+        presentSoundNames = Collections.unmodifiableSet(StaticFields.availableSoundNames);
+        presentSoundTypes = Collections.unmodifiableSet(StaticFields.availableSoundTypes);
+    }
+
     private final @NotNull String[] versionDependentNames;
     private final @Nullable String versionDependentName;
 
@@ -1234,6 +1243,11 @@ public enum SoundType
             versionDependentName = getSound(getMinSupportedVersion()).orElse(null);
         else
             versionDependentName = getSound(PlayMoreSoundsCore.getServerVersion()).orElse(null);
+
+        if (versionDependentName != null) {
+            StaticFields.availableSoundTypes.add(this);
+            StaticFields.availableSoundNames.add(name());
+        }
     }
 
     /**
@@ -1259,7 +1273,7 @@ public enum SoundType
      */
     public static @NotNull Set<String> getPresentSoundNames()
     {
-        return StaticFields.availableSoundNames;
+        return presentSoundNames;
     }
 
     /**
@@ -1267,7 +1281,7 @@ public enum SoundType
      */
     public static @NotNull Set<SoundType> getPresentSoundTypes()
     {
-        return StaticFields.availableSoundTypes;
+        return presentSoundTypes;
     }
 
     /**
@@ -1327,19 +1341,7 @@ public enum SoundType
          * If the current bukkit version is lower than the minimum supported.
          */
         private static final boolean lowerThanMin = PlayMoreSoundsCore.getServerVersion().compareTo(minSupportedVersion) < 0;
-        private static @NotNull Set<String> availableSoundNames = new HashSet<>();
-        private static @NotNull Set<SoundType> availableSoundTypes = new HashSet<>();
-
-        static {
-            for (SoundType type : SoundType.values()) {
-                if (type.getSound().isPresent()) {
-                    availableSoundTypes.add(type);
-                    availableSoundNames.add(type.name());
-                }
-            }
-
-            availableSoundTypes = Collections.unmodifiableSet(availableSoundTypes);
-            availableSoundNames = Collections.unmodifiableSet(availableSoundNames);
-        }
+        private static final @NotNull HashSet<String> availableSoundNames = new HashSet<>();
+        private static final @NotNull HashSet<SoundType> availableSoundTypes = new HashSet<>();
     }
 }
