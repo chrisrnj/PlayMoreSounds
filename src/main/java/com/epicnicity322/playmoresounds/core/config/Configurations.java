@@ -380,9 +380,117 @@ public enum Configurations
             "    Prevent Other Sounds:\n" +
             "      Default Sound: true\n" +
             "      Other Filters: true", StaticFields.version3_2_0),
-    CONFIG(PlayMoreSoundsCore.getFolder().resolve("config.yml"),
-            //TODO: Redo config.yml
-            "", StaticFields.version3_2_0),
+    CONFIG(PlayMoreSoundsCore.getFolder().resolve("config.yml"), "####################################################################################################\n" +
+            "##  PlayMoreSounds Configuration v" + PlayMoreSoundsVersion.version + "\n" +
+            "##\n" +
+            "## PlayMoreSounds configuration about general stuff like commands and regions, if you are looking\n" +
+            "##for event sounds, check sounds.yml. If you are looking for situational sounds, check the folder\n" +
+            "##'Sounds'.\n" +
+            "##\n" +
+            "## If you have any questions about PlayMoreSounds join the discord: https://discord.gg/eAHPbc3\n" +
+            "####################################################################################################\n" +
+            "\n" +
+            "# The version of this configuration, each configuration has one of this. If the version is too old\n" +
+            "#the configuration will be renamed to \"outdated config.yml\" and a new one will be generated so you\n" +
+            "#don't lose your properties and can update each property manually.\n" +
+            "Version: '" + PlayMoreSoundsVersion.version + "'\n" +
+            "\n" +
+            "#Available languages: EN_US, ES_LA, PT_BR, ZH_CN\n" +
+            "Language Locale: EN_US\n" +
+            "\n" +
+            "# Should the sounds disabled by \"/pms toggle\" be re-enabled on login?\n" +
+            "Enable Sounds On Login: false\n" +
+            "\n" +
+            "# A simple halloween event, disable if you find it annoying.\n" +
+            "Halloween Event: true\n" +
+            "\n" +
+            "Resource Packs:\n" +
+            "  # Request player to download a resource pack on join.\n" +
+            "  Request: false\n" +
+            "  # The URL of the resource pack. Must be a direct link.\n" +
+            "  URL: ''\n" +
+            "  # If a player denies the download, this player will be kicked immediately.\n" +
+            "  Force:\n" +
+            "    Enabled: false\n" +
+            "    # Should the player be kicked even if the download of the resource pack is accepted but fails?\n" +
+            "    Even If Download Fail: false\n" +
+            "\n" +
+            "# Sound Regions configuration:\n" +
+            "Sound Regions:\n" +
+            "  # The border particles of \"/pms region info\"\n" +
+            "  Border:\n" +
+            "    # A limit of how many players can see borders at once, for performance.\n" +
+            "    Max Showing Borders: 30\n" +
+            "    # The time in ticks of how long the border should be shown.\n" +
+            "    Showing Time: 140\n" +
+            "  # The max area in m³ a region can have.\n" +
+            "  # Use permission 'playmoresounds.region.create.unlimited.area' to bypass.\n" +
+            "  Max Area: 15625\n" +
+            "  # The max characters a region name can have.\n" +
+            "  Max Name Characters: 20\n" +
+            "  # The max regions a single player can have.\n" +
+            "  # Use permission 'playmoresounds.region.create.unlimited.regions' to bypass.\n" +
+            "  Max Regions: 5\n" +
+            "  # The region selection tool properties.\n" +
+            "  Wand:\n" +
+            "    Name: '&6&l&nRegion Selection Tool'\n" +
+            "    Glowing: true\n" +
+            "    Material: FEATHER\n" +
+            "\n" +
+            "# The worlds that sounds should not play.\n" +
+            "#\n" +
+            "# Example:\n" +
+            "#World Black List:\n" +
+            "#- 'world_nether'\n" +
+            "#- 'world_the_end'\n" +
+            "#\n" +
+            "# All sounds played by PlayMoreSounds will respect this, even plugins that use PlayMoreSounds to\n" +
+            "#play sounds.\n" +
+            "World Black List: []\n" +
+            "\n" +
+            "# Update scheduler\n" +
+            "Updater:\n" +
+            "  Enabled: true\n" +
+            "  # If false updater messages will only be logged when an update is available.\n" +
+            "  Log: false\n" +
+            "  # Updates will be checked every 144000 ticks or 1 hour.\n" +
+            "  Period: 144000\n" +
+            "\n" +
+            "# Properties of \"/pms list\" command.\n" +
+            "List:\n" +
+            "  Default:\n" +
+            "    Alternate Color: '&8'\n" +
+            "    Color: '&e'\n" +
+            "    Separator: '&f, '\n" +
+            "    Max Per Page: 10\n" +
+            "  # Properties of the sound list GUI.\n" +
+            "  Inventory:\n" +
+            "    Next Page Item:\n" +
+            "      Material: SPECTRAL_ARROW\n" +
+            "      Glowing: false\n" +
+            "    Stop Sound Item:\n" +
+            "      Material: BARRIER\n" +
+            "      Glowing: true\n" +
+            "    Previous Page Item:\n" +
+            "      Material: SPECTRAL_ARROW\n" +
+            "      Glowing: false\n" +
+            "    Sound Item:\n" +
+            "      # The item will be picked randomly from this list for each sound.\n" +
+            "      Material:\n" +
+            "      - MUSIC_DISC_13\n" +
+            "      - MUSIC_DISC_CAT\n" +
+            "      - MUSIC_DISC_CHIRP\n" +
+            "      - MUSIC_DISC_BLOCKS\n" +
+            "      - MUSIC_DISC_FAR\n" +
+            "      - MUSIC_DISC_MALL\n" +
+            "      - MUSIC_DISC_MELLOHI\n" +
+            "      - MUSIC_DISC_STAL\n" +
+            "      - MUSIC_DISC_STRAD\n" +
+            "      - MUSIC_DISC_WARD\n" +
+            "      - MUSIC_DISC_WAIT\n" +
+            "      Glowing: false\n" +
+            "    # How many rows of sounds should there be per page.\n" +
+            "    Rows Per Page: 4", StaticFields.version4_0_0),
     CUSTOM_DISCS(StaticFields.sounds.resolve("custom discs.yml"), "# Set a sound to play when a player clicks at a jukebox with a specific item.\n" +
             "#\n" +
             "# Warnings: \n" +
@@ -730,7 +838,423 @@ public enum Configurations
             "\n" +
             "Version: '" + PlayMoreSoundsVersion.version + "'", StaticFields.version3_3_0),
     //TODO: Redo Languages
-    LANGUAGE_EN_US(StaticFields.lang.resolve("Language EN-US.yml"), "", StaticFields.version4_0_0),
+    LANGUAGE_EN_US(StaticFields.lang.resolve("Language EN-US.yml"), "#Language EN-US\n" +
+            "Version: '" + PlayMoreSoundsVersion.version + "'\n" +
+            "\n" +
+            "Confirm:\n" +
+            "  Error:\n" +
+            "    Nothing Pending: '&cThere is nothing pending to confirm.'\n" +
+            "  List:\n" +
+            "    Confirmation: ' &f<id> &7- <description>'\n" +
+            "    Header: '&8List of pending confirmations:'\n" +
+            "\n" +
+            "Description:\n" +
+            "  Header: '&6&m------------&6[&9PlayMoreSounds v<version>&6]&m------------'\n" +
+            "  Help: '&6Type \"&7&n/<label> help&6\" to see the list of commands.'\n" +
+            "  No Permission: '&6You don''t have permission to use any commands.'\n" +
+            "\n" +
+            "Disc:\n" +
+            "  Error:\n" +
+            "    Not Found: '&cA disc with the ID \"&7<id>&c\" was not found.'\n" +
+            "  Success: '&7Giving the disc &f<id>&7 to &f<target>&7.'\n" +
+            "\n" +
+            "Editor:\n" +
+            "  GUI:\n" +
+            "    Rich Sound:\n" +
+            "      Default:\n" +
+            "        Cancellable:\n" +
+            "          Display Name: '&c&lCancellable'\n" +
+            "          Lore: '&d<value>'\n" +
+            "        Done:\n" +
+            "          Display Name: '&2&lDone'\n" +
+            "          Lore: ' Click to save changes.'\n" +
+            "        Loop Period:\n" +
+            "          Display Name: '&f&l<period>'\n" +
+            "          Lore: ' This sound will play every<line> <period> ticks.'\n" +
+            "        Loop Start Delay:\n" +
+            "          Display Name: '&f&l<delay>'\n" +
+            "          Lore: ' This sound will wait <delay> ticks<line> before start looping.'\n" +
+            "        Name:\n" +
+            "          Display Name: '&8&lName: &7&l<name>'\n" +
+            "          Lore: ' Click to set the name<line> of this sound.'\n" +
+            "        Sound:\n" +
+            "          Display Name: '&3&l<id>'\n" +
+            "          Lore: Click to edit this sound.\n" +
+            "        Title: '&6Editing &e<name>&6 sound'\n" +
+            "      General:\n" +
+            "        Add New Sound:\n" +
+            "          Display Name: '&e&lAdd new sound'\n" +
+            "          Lore: ' Click to add a new sound.'\n" +
+            "        Cancel:\n" +
+            "          Display Name: '&4&lCancel'\n" +
+            "          Lore: ' Discard everything.'\n" +
+            "        Disabled:\n" +
+            "          Display Name: '&4&lDisabled'\n" +
+            "          Lore: ' This sound is disabled.<line> Click to enable.'\n" +
+            "        Enabled:\n" +
+            "          Display Name: '&2&lEnabled'\n" +
+            "          Lore: ' This sound is enabled.<line> Click to disable.'\n" +
+            "        Next Page:\n" +
+            "          Display Name: '&7&lNext Page'\n" +
+            "          Lore: ' Click to see more sounds.'\n" +
+            "        Previous Page:\n" +
+            "          Display Name: '&7&lPrevious Page'\n" +
+            "          Lore: ' Click to go to the previous page.'\n" +
+            "        Separator:\n" +
+            "          Display Name: '&b&lSounds'\n" +
+            "      New:\n" +
+            "        Cancellable:\n" +
+            "          Display Name: '&c&lCancellable'\n" +
+            "          Lore: ' Should this sound be<line> cancellable by other plugins?'\n" +
+            "        Done:\n" +
+            "          Display Name: '&2&lDone'\n" +
+            "          Lore: ' Click to cache this sound.'\n" +
+            "        Loop Period:\n" +
+            "          Display Name: '&f&lLoop Period'\n" +
+            "          Lore: ' Click to set the time<line> this sound should wait<line> before\n" +
+            "            playing again.'\n" +
+            "        Loop Start Delay:\n" +
+            "          Display Name: '&f&lLoop Start Delay'\n" +
+            "          Lore: ' Click to set up the<line> delay to start the loop.'\n" +
+            "        Name:\n" +
+            "          Display Name: '&7&lSection'\n" +
+            "          Lore: ' Click to set the section<line> of this sound.'\n" +
+            "        Title: '&6Create a new sound'\n" +
+            "    Sound:\n" +
+            "      Default:\n" +
+            "        Delay:\n" +
+            "          Display Name: '&9&lDelay'\n" +
+            "          Lore: ' <delay>'\n" +
+            "        Done:\n" +
+            "          Display Name: '&2&lDone'\n" +
+            "          Lore: ' Click to save changes.'\n" +
+            "        Id:\n" +
+            "          Display Name: '&8&lId: &7&l<id>'\n" +
+            "          Lore: ' Click to change the id.'\n" +
+            "        Ignores Toggle:\n" +
+            "          Display Name: '&8&lIgnores Toggle'\n" +
+            "          Lore: ' &d<value>'\n" +
+            "        Permission Required:\n" +
+            "          Display Name: '&f&lPermission Required'\n" +
+            "          Lore: ' <permissionrequired>'\n" +
+            "        Permission To Listen:\n" +
+            "          Display Name: '&f&lPermission To Listen'\n" +
+            "          Lore: ' <permissiontolisten>'\n" +
+            "        Pitch:\n" +
+            "          Display Name: '&a&lPitch'\n" +
+            "          Lore: ' <pitch>'\n" +
+            "        Radius:\n" +
+            "          Display Name: '&4&lRadius: &c&l<radius>'\n" +
+            "          Lore: ' The range in blocks this<line> sound will be heard.'\n" +
+            "        Relative Location:\n" +
+            "          Display Name: '&3&lRelative Location'\n" +
+            "          Lore: ' The location the sound will<line> be played taking the player<line>\n" +
+            "            as the source.<line> <line> &dUp:    &5<up><line> &dDown:  &5<down><line>\n" +
+            "            &dFront: &5<front><line> &dBack:  &5<back><line> &dRight: &5<right><line>\n" +
+            "            &dLeft:  &5<left><line> <line> Click to change.'\n" +
+            "        Sound:\n" +
+            "          Display Name: '&6&lSound'\n" +
+            "          Lore: ' <sound>'\n" +
+            "        Title: '&6Sound: &e<id>'\n" +
+            "        Volume:\n" +
+            "          Display Name: '&2&lVolume'\n" +
+            "          Lore: ' <volume>'\n" +
+            "      General:\n" +
+            "        Cancel:\n" +
+            "          Display Name: '&4&lCancel'\n" +
+            "          Lore Back: ' Discard everything and go<line> back to &7<parent>&5&o.'\n" +
+            "          Lore: ' Discard everything.'\n" +
+            "        Eye Location:\n" +
+            "          Display Name: '&e&lEye Location'\n" +
+            "          Lore: ' This sound will play in the<line> player''s &feye&5&o location.<line>\n" +
+            "            <line> Click to change.'\n" +
+            "        Feet Location:\n" +
+            "          Display Name: '&e&lFeet Location'\n" +
+            "          Lore: ' This sound will play in the<line> player''s &ffeet&5&o location.<line>\n" +
+            "            <line> Click to change.'\n" +
+            "      New:\n" +
+            "        Delay:\n" +
+            "          Display Name: '&9&lDelay'\n" +
+            "          Lore: ' The time to wait before<line> playing this sound.'\n" +
+            "        Done:\n" +
+            "          Display Name: '&2&lDone'\n" +
+            "          Lore Back: ' Add this sound to &7<parent>&5&o.'\n" +
+            "          Lore: ' Add sound.'\n" +
+            "        Id:\n" +
+            "          Display Name: '&7&lSound Id'\n" +
+            "          Lore: ' The id of this sound.'\n" +
+            "        Ignores Toggle:\n" +
+            "          Display Name: '&8&lIgnores Toggle'\n" +
+            "          Lore: ' If this sound should be played<line> even if a player has disabled<line>\n" +
+            "            their sounds.'\n" +
+            "        Permission Required:\n" +
+            "          Display Name: '&f&lPermission Required'\n" +
+            "          Lore: ' Only those who have this<line> permission will play this sound.'\n" +
+            "        Permission To Listen:\n" +
+            "          Display Name: '&f&lPermission To Listen'\n" +
+            "          Lore: ' Only those who have this<line> permission will hear this sound.'\n" +
+            "        Pitch:\n" +
+            "          Display Name: '&a&lPitch'\n" +
+            "          Lore: ' The pitch of the sound.'\n" +
+            "        Radius:\n" +
+            "          Display Name: '&4&lRadius'\n" +
+            "          Lore: ' To who this sound should be played:<line> <line> &60  »&e Yourself<line>\n" +
+            "            &6-1 »&e Everyone online<line> &6-2 »&e Everyone in the world<line> &61+\n" +
+            "            »&e Everyone in this range of blocks'\n" +
+            "        Relative Location:\n" +
+            "          Display Name: '&3&lRelative Location'\n" +
+            "          Lore: ' The location the sound will<line> be played taking the player<line>\n" +
+            "            as the source.<line> <line> Click to set.'\n" +
+            "        Sound:\n" +
+            "          Display Name: '&6&lSound'\n" +
+            "          Lore: ' The sound to be played. It can<line> be a resource pack sound.'\n" +
+            "        Title: '&6New child sound'\n" +
+            "        Volume:\n" +
+            "          Display Name: '&2&lVolume'\n" +
+            "          Lore: ' The volume of the sound.'\n" +
+            "\n" +
+            "Finder:\n" +
+            "  Back:\n" +
+            "    Display Name: '&d&lGo back'\n" +
+            "    Lore: ' Click to go back to &7<path>&5&o.'\n" +
+            "  Error: '&cSomething went wrong while executing this operation on finder.'\n" +
+            "  File:\n" +
+            "    Display Name: '&f&l<name>'\n" +
+            "    Lore: ' Click to edit or add sounds<line> to &7<name>&5&o.'\n" +
+            "  Folder:\n" +
+            "    Display Name: '&e&l<name>'\n" +
+            "    Lore: ' Click to enter &7<name>&5&o folder.'\n" +
+            "  Next Page:\n" +
+            "    Display Name: '&7&lNext page'\n" +
+            "    Lore: ' Click to go to the next page.'\n" +
+            "  Previous Page:\n" +
+            "    Display Name: '&7&lPrevious page'\n" +
+            "    Lore: ' Click to go to the previous page.'\n" +
+            "  Sound:\n" +
+            "    Display Name: '&b&l<name>'\n" +
+            "    Lore: ' Click to edit the sound &7<name>&5&o.'\n" +
+            "  Title:\n" +
+            "    Folder: '&6&n<path>&e folder &8[&7<page>&8/&7<totalPages>&8]'\n" +
+            "    Sound: '&1&n<path>&9 sounds &8[&7<page>&8/&7<totalPages>&8]'\n" +
+            "\n" +
+            "General:\n" +
+            "  And: and\n" +
+            "  Description: description\n" +
+            "  Everyone: Everyone\n" +
+            "  Id: id\n" +
+            "  Invalid Arguments: '&cIncorrect command syntax! Use \"&7/&n<label> <label2> <args>&c\".'\n" +
+            "  Name: name\n" +
+            "  No Permission: '&4You don''t have permission to do this!'\n" +
+            "  Nobody Online: '&cThere are no online players on the server.'\n" +
+            "  Not A Number: '&cThe value \"&7<number>&c\" is not a valid number!'\n" +
+            "  Not A Player: '&cYou must be a player to do this.'\n" +
+            "  Player Not Found: '&cThe player \"&7<player>&c\" was not found.'\n" +
+            "  Player: player\n" +
+            "  Prefix: '&6[&9PlayMoreSounds&6] '\n" +
+            "  Target: target\n" +
+            "  Unknown Command: '&cUnknown command. Use \"&7&n/<label> help&c\" to see the list of\n" +
+            "    commands available to you.'\n" +
+            "  World: world\n" +
+            "  You: You\n" +
+            "\n" +
+            "Help:\n" +
+            "  Check: |-\n" +
+            "    &e/<label> check [target]\n" +
+            "    &7 > Checks if sounds are enabled.\n" +
+            "  Confirm: |-\n" +
+            "    &e/<label> confirm [id|page]\n" +
+            "    &7 > Confirms something.\n" +
+            "  Disc: |-\n" +
+            "    &e/<label> disc <id> [target]\n" +
+            "    &7 > Gives a configured custom disc.\n" +
+            "  Header: 'List of PlayMoreSounds commands:'\n" +
+            "  Help: |-\n" +
+            "    &e/<label> help [command]\n" +
+            "    &7 > Shows the description of commands.\n" +
+            "  List: |-\n" +
+            "    &e/<label> list [page] [--gui]\n" +
+            "    &7 > Shows the sounds available on your version.\n" +
+            "  Play: |-\n" +
+            "    &e/<label> play <sound> [target] [vol] [pitch]\n" +
+            "    &7 > Plays a sound.\n" +
+            "  Region: |-\n" +
+            "    &e/<label> region <create|info|list|remove|rename|set|teleport|wand>\n" +
+            "    &7 > Regions command.\n" +
+            "  Reload: |-\n" +
+            "    &e/<label> reload\n" +
+            "    &7 > Reloads configurations and events.\n" +
+            "  Stop Sound: |-\n" +
+            "    &e/<label> stopsound [target] [sounds]\n" +
+            "    &7 > Stops sounds from playing.\n" +
+            "  Toggle: |-\n" +
+            "    &e/<label> toggle [target] [on|off]\n" +
+            "    &7 > Enables or disables sounds from playing.\n" +
+            "  Update: |-\n" +
+            "    &e/<label> update [download] [--force]\n" +
+            "    &7 > Checks and downloads updates.\n" +
+            "\n" +
+            "List:\n" +
+            "  Error:\n" +
+            "    Not Exists: '&cThe page &7<page>&c doesn''t exist! Max: <totalpages>.'\n" +
+            "  Footer: '&f&l - &aView more sounds with \"&f/&n<label> list <page>&a\"'\n" +
+            "  GUI:\n" +
+            "    Error:\n" +
+            "      Not Supported: '&cSound list GUI only works for version 1.14+'\n" +
+            "    Next Page:\n" +
+            "      Display Name: '&7&lNext page'\n" +
+            "      Lore: ' Click to go to the next page.'\n" +
+            "    Previous Page:\n" +
+            "      Display Name: '&7&lPrevious page'\n" +
+            "      Lore: ' Click to go to the previous page.'\n" +
+            "    Sound:\n" +
+            "      Display Name: '&d&n<sound>'\n" +
+            "      Lore: ' Click to play this sound.'\n" +
+            "    Stop Sound:\n" +
+            "      Display Name: '&6&lStop Sounds'\n" +
+            "      Lore: ' Stop all currently playing sounds.'\n" +
+            "    Title: '&8List of sounds, page &c<page>&8 of &c<totalpages>&8'\n" +
+            "  Header: '&aList of available sounds [Page <page> of <totalpages>]:'\n" +
+            "  Page: page\n" +
+            "  Sound Tooltip: '&5Click me to play the sound &d<sound>'\n" +
+            "\n" +
+            "Play:\n" +
+            "  Error:\n" +
+            "    Not A Sound: '&cThe section \"&7<section>&c\" in the file &7<file>&c is not a valid\n" +
+            "      sound!'\n" +
+            "    Unauthorized: '&cYou can''t go in that folder!'\n" +
+            "  Pitch: pitch\n" +
+            "  Sound: sound\n" +
+            "  Success:\n" +
+            "    Config: '&7Playing the sound &f<sound>&7 of the file &f<file>&7 to &f<player>&7.'\n" +
+            "    Default: '&7Playing the sound &f<sound>&7 with volume &f<volume>&7 and pitch &f<pitch>&7\n" +
+            "      to &f<player>&7.'\n" +
+            "  Volume: volume\n" +
+            "\n" +
+            "Region:\n" +
+            "  Create:\n" +
+            "    Default Description: A sound playing region.\n" +
+            "    Error:\n" +
+            "      Already Exists: '&cThis name was already taken, chose another.'\n" +
+            "      Default: '&cSomething went wrong while creating the region \"&7<name>&c\".'\n" +
+            "      Different Worlds: '&cYour selections are in different worlds!'\n" +
+            "      Max Area: '&cThe selected area exceeds the maximum of <max> blocks.'\n" +
+            "      Max Regions: '&cYou cannot create more than <max> regions.'\n" +
+            "      Not Selected: '&cYou did not select positions, type &7&n/<label> <label2> wand&c\n" +
+            "        to get the region selection tool.'\n" +
+            "    Success: '&aThe region &7<name>&a was created successfully.'\n" +
+            "  General:\n" +
+            "    Error:\n" +
+            "      Illegal Characters: '&cRegion names can only have alpha-numeric characters.'\n" +
+            "      Max Name Characters: '&cRegion names cannot be longer than <max> characters.'\n" +
+            "      Not Found:\n" +
+            "        Name: '&cNo region with that name was found. Type &7/<label> <label2> list&c\n" +
+            "          to see the list of regions.'\n" +
+            "        UUID: '&cNo region with that uuid was found. Type &7/<label> <label2> list&c\n" +
+            "          to see the list of regions.'\n" +
+            "      Save: '&cSomething went wrong while saving <name> region.'\n" +
+            "  Info:\n" +
+            "    Creation Date: '&7Creation Date:&f <date>'\n" +
+            "    Description: '&7Description:&f <description>'\n" +
+            "    Error:\n" +
+            "      No Regions: '&7There are no regions on this location.'\n" +
+            "    Header: '&8Information of the region &f<name>&8:'\n" +
+            "    Id: '&7UUID:&f <uuid>'\n" +
+            "    Owner: '&7Owner:&f <owner>'\n" +
+            "    World: '&7World:&f <world>'\n" +
+            "  List:\n" +
+            "    Error:\n" +
+            "      No Regions: '&c<targets> have no regions.'\n" +
+            "      Not Exists: '&cThe page &7<page>&c doesn''t exist! Max: <totalPages>.'\n" +
+            "    Footer: '&8Type &7/<label> <label2> <label3> <label4> <next>&8 to see more regions.'\n" +
+            "    Header:\n" +
+            "      Default: '&8Your regions [Page <page> of <totalPages>]:'\n" +
+            "      Player: '&8Regions of <targets> [Page <page> of <totalPages>]:'\n" +
+            "    Region: '&7- <uuid>: &f<name>'\n" +
+            "  Region: region\n" +
+            "  Remove:\n" +
+            "    Confirm: '&aType &7/<label> confirm&a to confirm the removal of the region &7<region>&a.'\n" +
+            "    Description: Delete the region <region>\n" +
+            "    Success: '&aThe region &7<region>&a was deleted successfully.'\n" +
+            "  Rename:\n" +
+            "    Error:\n" +
+            "      Already Exists: '&cThe new name was already taken, chose another.'\n" +
+            "      Same: '&cThe new name is not different than the previous.'\n" +
+            "    New Name: new name\n" +
+            "    Success: '&aThe region <region> was renamed to &7<newName>&a.'\n" +
+            "  Select:\n" +
+            "    Error:\n" +
+            "      Overlap: '&cAn already existing region is on that location!'\n" +
+            "  Set:\n" +
+            "    Description:\n" +
+            "      Error:\n" +
+            "        Max Characters: '&cRegion descriptions cannot be longer than 100 characters.'\n" +
+            "      Success: '&aDescription of <region> region was set to &7<description>&a.'\n" +
+            "    Select:\n" +
+            "      Error:\n" +
+            "        Not A World: '&cThe value &7<value>&c is not a valid world.'\n" +
+            "      Position:\n" +
+            "        First: '&6First position selected! World: &e<w>&6, X: &e<x>&6, Y: &e<y>&6,\n" +
+            "          Z: &e<z>&6.'\n" +
+            "        Second: '&6Second position selected! World: &e<w>&6, X: &e<x>&6, Y: &e<y>&6,\n" +
+            "          Z: &e<z>&6.'\n" +
+            "  Teleport:\n" +
+            "    Success: '&aYou were teleported to region <region>.'\n" +
+            "  Wand:\n" +
+            "    Error:\n" +
+            "      Config: '&cYou are missing settings on your configuration. Wand could not be\n" +
+            "        given.'\n" +
+            "    Success: '&6Selection tool: Left-click selects first position and Right-click\n" +
+            "      selects second position.'\n" +
+            "\n" +
+            "Relative Location Setter:\n" +
+            "  Sound Source: '&2&nSound Source'\n" +
+            "  Where To Play: '&4&nWhere To Play'\n" +
+            "\n" +
+            "Reload:\n" +
+            "  Error: '&cSomething went wrong while reloading config. PMS must be shut down immediately.'\n" +
+            "  Success: '&7Configuration reloaded.'\n" +
+            "\n" +
+            "Resource Packs:\n" +
+            "  Error: '&cSomething went wrong while requesting <player> to download the resource\n" +
+            "    pack. Please try another URL.'\n" +
+            "  Kick Message: '&cYou must be using the resource pack to play on this server.'\n" +
+            "  Request Message: '&ePlease download the resource pack to continue.'\n" +
+            "\n" +
+            "Stop Sound:\n" +
+            "  Success:\n" +
+            "    All: '&7Stopped all sounds playing to &f<target>&7.'\n" +
+            "    Default: '&7Stopped &f<sounds>&7 sounds playing to &f<target>&7.'\n" +
+            "\n" +
+            "Toggle:\n" +
+            "  Check:\n" +
+            "    Disabled:\n" +
+            "      Default: '&cYour sounds are disabled.'\n" +
+            "      Player: '&cSounds of &f<target>&c are disabled.'\n" +
+            "    Enabled:\n" +
+            "      Default: '&aYour sounds are enabled.'\n" +
+            "      Player: '&aSounds of &f<target>&a are enabled.'\n" +
+            "  Disabled:\n" +
+            "    Default: '&cYour sounds were toggled to off!'\n" +
+            "    Player: '&cToggled the sounds of &f<target>&c to off!'\n" +
+            "  Enabled:\n" +
+            "    Default: '&aYour sounds were toggled to on!'\n" +
+            "    Player: '&aToggled the sounds of &f<target>&a to on!'\n" +
+            "\n" +
+            "Update:\n" +
+            "  Available: '&2PlayMoreSounds v<version> is available. Type &7/<label> update download&2\n" +
+            "    to download it.'\n" +
+            "  Check: '&eChecking for updates...'\n" +
+            "  Download:\n" +
+            "    Default: '&eDownloading update...'\n" +
+            "    Error: '&7An update was already downloaded.'\n" +
+            "    Latest: '&eDownloading latest version...'\n" +
+            "    Lower: '&7Warning: the downloaded version is lower than the current running version.'\n" +
+            "    Success: '&7PlayMoreSounds v<version> was downloaded successfully.'\n" +
+            "  Error:\n" +
+            "    Default: '&cSomething went wrong while using updater.'\n" +
+            "    Offline: '&cYou are offline or spigot.org is down.'\n" +
+            "    Timeout: '&cTook too long to establish a connection.'\n" +
+            "  Not Available: '&eNo updates available.'", StaticFields.version3_3_0),
     LANGUAGE_ES_LA(StaticFields.lang.resolve("Language ES-LA.yml"), "", StaticFields.version4_0_0),
     LANGUAGE_PT_BR(StaticFields.lang.resolve("Language PT-BR.yml"), "", StaticFields.version4_0_0),
     LANGUAGE_ZH_CN(StaticFields.lang.resolve("Language ZH-CN.yml"), "", StaticFields.version4_0_0),
