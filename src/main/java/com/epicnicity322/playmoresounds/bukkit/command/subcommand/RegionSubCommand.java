@@ -222,7 +222,7 @@ public final class RegionSubCommand extends Command implements Helpable
         if (args.length > 2) {
             name = args[2];
 
-            if (RegionManager.getAllRegions().stream().anyMatch(region -> region.getName().equalsIgnoreCase(name))) {
+            if (RegionManager.getRegions().stream().anyMatch(region -> region.getName().equalsIgnoreCase(name))) {
                 lang.send(sender, lang.get("Region.Create.Error.Already Exists"));
                 return;
             }
@@ -259,7 +259,7 @@ public final class RegionSubCommand extends Command implements Helpable
         if (sender instanceof Player) {
             if (!sender.hasPermission("playmoresounds.region.create.unlimited.regions")) {
                 UUID playerId = ((Player) sender).getUniqueId();
-                long amount = RegionManager.getAllRegions().stream().filter(soundRegion -> soundRegion.getCreator().equals(playerId)).count();
+                long amount = RegionManager.getRegions().stream().filter(soundRegion -> soundRegion.getCreator().equals(playerId)).count();
                 long maxAmount = config.getNumber("Sounds Regions.Max Regions").orElse(5).longValue();
 
                 if (amount >= maxAmount) {
@@ -293,7 +293,7 @@ public final class RegionSubCommand extends Command implements Helpable
             UUID uuid = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
 
             // Filtering so it can check only the regions that are on this world and the regions that are not owned by the sender.
-            Set<SoundRegion> regionsOnWorld = RegionManager.getAllRegions().stream().filter(otherRegion ->
+            Set<SoundRegion> regionsOnWorld = RegionManager.getRegions().stream().filter(otherRegion ->
                     !Objects.equals(otherRegion.getCreator(), uuid) && otherRegion.getMaxDiagonal().getWorld().equals(max.getWorld())).collect(Collectors.toSet());
 
             for (int x = min.getBlockX(); x <= max.getBlockX(); ++x) {
@@ -316,7 +316,7 @@ public final class RegionSubCommand extends Command implements Helpable
         }
 
         try {
-            region.save();
+            RegionManager.save(region);
             lang.send(sender, lang.get("Region.Create.Success").replace("<name>", name));
             OnPlayerInteract.selectDiagonal(creator, null, true);
             OnPlayerInteract.selectDiagonal(creator, null, false);
@@ -346,7 +346,7 @@ public final class RegionSubCommand extends Command implements Helpable
             if (sender instanceof Player) {
                 Location location = ((Player) sender).getLocation();
 
-                regions = RegionManager.getAllRegions().stream().filter(region -> region.isInside(location)).collect(Collectors.toSet());
+                regions = RegionManager.getRegions().stream().filter(region -> region.isInside(location)).collect(Collectors.toSet());
 
                 if (regions.isEmpty()) {
                     lang.send(sender, lang.get("Region.Info.Error.No Regions"));
@@ -439,7 +439,7 @@ public final class RegionSubCommand extends Command implements Helpable
 
             targets.forEach(target -> uuidTargets.add(target.getUniqueId()));
 
-            regions = RegionManager.getAllRegions().stream().filter(region -> {
+            regions = RegionManager.getRegions().stream().filter(region -> {
                 if (targets.isEmpty())
                     return region.getCreator() == null;
                 else
@@ -449,9 +449,9 @@ public final class RegionSubCommand extends Command implements Helpable
             if (sender instanceof Player) {
                 UUID id = ((Player) sender).getUniqueId();
 
-                regions = RegionManager.getAllRegions().stream().filter(region -> region.getCreator().equals(id)).collect(Collectors.toSet());
+                regions = RegionManager.getRegions().stream().filter(region -> region.getCreator().equals(id)).collect(Collectors.toSet());
             } else {
-                regions = RegionManager.getAllRegions().stream().filter(region -> region.getCreator() == null).collect(Collectors.toSet());
+                regions = RegionManager.getRegions().stream().filter(region -> region.getCreator() == null).collect(Collectors.toSet());
             }
 
             who = lang.get("General.You");
@@ -516,7 +516,7 @@ public final class RegionSubCommand extends Command implements Helpable
 
         ConfirmSubCommand.addPendingConfirmation(sender, () -> {
             try {
-                region.delete();
+                RegionManager.delete(region);
                 lang.send(sender, lang.get("Region.Remove.Success").replace("<region>", name));
             } catch (Exception ex) {
                 lang.send(sender, lang.get("Region.Remove.Error").replace("<region>", name));
@@ -540,7 +540,7 @@ public final class RegionSubCommand extends Command implements Helpable
             return;
         }
 
-        if (RegionManager.getAllRegions().stream().anyMatch(region -> region.getName().equalsIgnoreCase(newName))) {
+        if (RegionManager.getRegions().stream().anyMatch(region -> region.getName().equalsIgnoreCase(newName))) {
             lang.send(sender, lang.get("Region.Rename.Error.Already Exists"));
             return;
         }
@@ -572,7 +572,7 @@ public final class RegionSubCommand extends Command implements Helpable
         region.setName(newName);
 
         try {
-            region.save();
+            RegionManager.save(region);
             lang.send(sender, lang.get("Region.Rename.Success").replace("<region>", oldName).replace("<newName>", newName));
         } catch (Exception ex) {
             lang.send(sender, lang.get("Region.General.Error.Save").replace("<region>", region.getName()));
@@ -627,7 +627,7 @@ public final class RegionSubCommand extends Command implements Helpable
 
                 region.setDescription(string);
                 try {
-                    region.save();
+                    RegionManager.save(region);
                     lang.send(sender, lang.get("Region.Set.Description.Success").replace("<region>", region.getName()).replace("<description>", string));
                 } catch (Exception ex) {
                     lang.send(sender, lang.get("Region.General.Error.Save").replace("<region>", region.getName()));
@@ -751,7 +751,7 @@ public final class RegionSubCommand extends Command implements Helpable
         SoundRegion region = null;
         UUID creator = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
 
-        for (SoundRegion soundRegion : RegionManager.getAllRegions()) {
+        for (SoundRegion soundRegion : RegionManager.getRegions()) {
             if (permission == null || sender.hasPermission(permission) || Objects.equals(soundRegion.getCreator(), creator)) {
                 // Checking if nameOrUUID is an uuid since region names cannot contain '-'.
                 if (nameOrUUID.contains("-") ? soundRegion.getId().toString().equalsIgnoreCase(nameOrUUID)

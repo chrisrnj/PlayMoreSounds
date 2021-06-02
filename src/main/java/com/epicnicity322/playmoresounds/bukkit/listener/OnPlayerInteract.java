@@ -236,7 +236,7 @@ public class OnPlayerInteract implements Listener
                         event.setUseItemInHand(Event.Result.DENY);
 
                         if (!player.hasPermission("playmoresounds.region.select.overlap")) {
-                            if (RegionManager.getAllRegions().stream().anyMatch(region ->
+                            if (RegionManager.getRegions().stream().anyMatch(region ->
                                     !Objects.equals(region.getCreator(), player.getUniqueId()) && region.isInside(clicked))) {
                                 lang.send(player, lang.get("Region.Select.Error.Overlap"));
                                 return;

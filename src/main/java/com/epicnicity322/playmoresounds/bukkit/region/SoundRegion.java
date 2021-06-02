@@ -18,66 +18,67 @@
 
 package com.epicnicity322.playmoresounds.bukkit.region;
 
-import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
-import com.epicnicity322.yamlhandler.YamlConfigurationLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 public class SoundRegion
 {
-    private static final @NotNull YamlConfigurationLoader loader = new YamlConfigurationLoader();
     private static final @NotNull Pattern allowedRegionNameChars = Pattern.compile("^[A-Za-z0-9_]+$");
-    protected final @NotNull Path save;
     private final @NotNull UUID id;
     private final @Nullable UUID creator;
     private final @NotNull ZonedDateTime creationDate;
-    private @NotNull String name;
+    private String name;
     private @Nullable String description;
     private @NotNull Location maxDiagonal;
-    private @NotNull Location minDiagonal;
-    private @NotNull Set<Location> border;
+    private Location minDiagonal;
+    private Set<Location> border;
 
-    protected SoundRegion(@NotNull Path path)
+    /**
+     * Loads a sound region from a configuration file. This configuration file must have the name of an {@link UUID} and
+     * contain the keys for Name, Creator, Creation Date, Description, World, Diagonals.First and Diagonals.Second (X, Y and Z).
+     * <p>
+     * If Creator key is not present, the creator is considered {@link org.bukkit.command.ConsoleCommandSender}.
+     *
+     * @param data The configuration containing all the region data.
+     * @throws IllegalArgumentException If data is invalid or missing any of the required keys.
+     * @throws NullPointerException     If the world does not exist anymore or is not loaded.
+     */
+    public SoundRegion(@NotNull Configuration data)
     {
-        // TODO: Fix all this mess
-        try {
-            Configuration region = loader.load(path);
-            String fileName = path.getFileName().toString();
+        Supplier<IllegalArgumentException> invalidRegionData = () -> new IllegalArgumentException("The provided data does not contain valid region data.");
 
-            id = UUID.fromString(fileName.substring(0, fileName.indexOf(".")));
-            creator = region.getString("Creator").map(UUID::fromString).orElse(null);
-            creationDate = region.getString("Creation Date").map(ZonedDateTime::parse).orElse(
-                    Files.readAttributes(path, BasicFileAttributes.class).creationTime().toInstant().atZone(ZoneId.systemDefault()));
-            setName(region.getString("Name").get());
-            description = region.getString("Description").orElse(null);
+        Path path = data.getFilePath().orElseThrow(() -> new IllegalArgumentException("Data is not stored on a real file.")).getFileName();
+        String fileName = path.toString();
 
-            World world = Objects.requireNonNull(Bukkit.getWorld(UUID.fromString(region.getString("World").orElse(null))));
-            ConfigurationSection diagonals = region.getConfigurationSection("Diagonals");
-            ConfigurationSection first = diagonals.getConfigurationSection("First");
-            ConfigurationSection second = diagonals.getConfigurationSection("Second");
+        id = UUID.fromString(fileName.substring(0, fileName.indexOf(".")));
+        creator = data.getString("Creator").map(UUID::fromString).orElse(null);
+        creationDate = data.getString("Creation Date").map(ZonedDateTime::parse).orElseThrow(invalidRegionData);
+        setName(data.getString("Name").orElseThrow(invalidRegionData));
+        description = data.getString("Description").orElse(null);
 
-            maxDiagonal = new Location(world, first.getNumber("X").get().doubleValue(),
-                    first.getNumber("Y").get().doubleValue(), first.getNumber("Z").get().doubleValue());
-            setMinDiagonal(new Location(world, second.getNumber("X").get().doubleValue(),
-                    second.getNumber("Y").get().doubleValue(), second.getNumber("Z").get().doubleValue()));
-            save = path;
-        } catch (Exception ex) {
-            throw new IllegalArgumentException("Path is not pointing to a valid region file.", ex);
+        World world = Objects.requireNonNull(Bukkit.getWorld(UUID.fromString(data.getString("World").orElseThrow(invalidRegionData))), "The world this region is in does not exist or is not loaded.");
+        ConfigurationSection first = data.getConfigurationSection("Diagonals.First");
+        ConfigurationSection second = data.getConfigurationSection("Diagonals.Second");
+
+        if (first == null || second == null) {
+            throw invalidRegionData.get();
         }
+
+        maxDiagonal = new Location(world, first.getNumber("X").orElseThrow(invalidRegionData).doubleValue(),
+                first.getNumber("Y").orElseThrow(invalidRegionData).doubleValue(), first.getNumber("Z").orElseThrow(invalidRegionData).doubleValue());
+        setMinDiagonal(new Location(world, second.getNumber("X").orElseThrow(invalidRegionData).doubleValue(),
+                second.getNumber("Y").orElseThrow(invalidRegionData).doubleValue(), second.getNumber("Z").orElseThrow(invalidRegionData).doubleValue()));
     }
 
     /**
@@ -99,9 +100,11 @@ public class SoundRegion
         this.maxDiagonal = maxDiagonal;
         setName(name);
         setMinDiagonal(minDiagonal);
-        save = PlayMoreSoundsCore.getFolder().resolve("Data").resolve("Regions").resolve(id.toString() + ".yml");
     }
 
+    /**
+     * @return The exact locations of the border blocks of this region.
+     */
     private Set<Location> parseBorder()
     {
         HashSet<Location> border = new HashSet<>();
@@ -188,11 +191,11 @@ public class SoundRegion
     /**
      * Gets the max diagonal location of this region.
      *
-     * @return A diagonal of this region.
+     * @return An immutable location of a diagonal of this region.
      */
     public @NotNull Location getMaxDiagonal()
     {
-        return maxDiagonal;
+        return maxDiagonal.clone();
     }
 
     /**
@@ -222,11 +225,11 @@ public class SoundRegion
     /**
      * Gets the min diagonal location of this region.
      *
-     * @return A diagonal of this region.
+     * @return An immutable location of a diagonal of this region.
      */
     public @NotNull Location getMinDiagonal()
     {
-        return minDiagonal;
+        return minDiagonal.clone();
     }
 
     /**
@@ -294,51 +297,32 @@ public class SoundRegion
     }
 
     /**
-     * Saves this region into a file in PlayMoreSounds folder.
-     */
-    public void save() throws IOException
-    {
-        // Checking if a region with the same name already exists.
-        for (SoundRegion region : RegionManager.getAllRegions())
-            if (region.getName().equals(getName()) && region != this)
-                throw new IllegalStateException("A region with the same name already exists.");
-
-        Configuration region = new Configuration(loader);
-
-        region.set("Name", name);
-        region.set("World", maxDiagonal.getWorld().getUID().toString());
-
-        if (creator != null)
-            region.set("Creator", creator.toString());
-
-        region.set("Creation Date", creationDate.toString());
-        region.set("Description", description);
-        region.set("Diagonals.First.X", maxDiagonal.getBlockX());
-        region.set("Diagonals.First.Y", maxDiagonal.getBlockY());
-        region.set("Diagonals.First.Z", maxDiagonal.getBlockZ());
-        region.set("Diagonals.Second.X", minDiagonal.getBlockX());
-        region.set("Diagonals.Second.Y", minDiagonal.getBlockY());
-        region.set("Diagonals.Second.Z", minDiagonal.getBlockZ());
-
-        delete();
-        region.save(save);
-        RegionManager.regions.add(this);
-    }
-
-    /**
-     * Deletes the file holding this region in PlayMoreSounds folder if exists.
-     */
-    public void delete() throws IOException
-    {
-        Files.deleteIfExists(save);
-        RegionManager.regions.remove(this);
-    }
-
-    /**
-     * Checks if object is a {@link SoundRegion} and if the {@link SoundRegion} has the same creator, name, description
-     * and diagonal locations.
+     * Checks if the {@link Object} is a {@link SoundRegion} and has the same properties as this one, {@link UUID}s are
+     * ignored.
      *
-     * @param o The object to check.
+     * @param o The object to compare.
+     * @return If the object is similar to this one.
+     */
+    public final boolean isSimilar(Object o)
+    {
+        if (this == o) return true;
+        if (!(o instanceof SoundRegion)) return false;
+
+        SoundRegion that = (SoundRegion) o;
+
+        return Objects.equals(creator, that.creator) &&
+                creationDate.equals(that.creationDate) &&
+                name.equals(that.name) &&
+                Objects.equals(description, that.description) &&
+                minDiagonal.equals(that.maxDiagonal) &&
+                minDiagonal.equals(that.minDiagonal);
+    }
+
+    /**
+     * Checks if the {@link Object} is a {@link SoundRegion} and has the same {@link UUID} as this one. If there's two
+     * instances with the same {@link UUID} and different properties, this will return true.
+     *
+     * @see #isSimilar(Object)
      */
     @Override
     public boolean equals(Object o)
@@ -348,16 +332,12 @@ public class SoundRegion
 
         SoundRegion that = (SoundRegion) o;
 
-        return Objects.equals(getCreator(), that.getCreator()) &&
-                getName().equals(that.getName()) &&
-                Objects.equals(getDescription(), that.getDescription()) &&
-                getMaxDiagonal().equals(that.getMaxDiagonal()) &&
-                getMinDiagonal().equals(that.getMinDiagonal());
+        return id.equals(that.id);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(getCreator(), getName(), getDescription(), getMaxDiagonal(), getMinDiagonal());
+        return Objects.hash(id);
     }
 }

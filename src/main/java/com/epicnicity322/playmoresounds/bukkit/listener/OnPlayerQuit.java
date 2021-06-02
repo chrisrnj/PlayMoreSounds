@@ -39,7 +39,7 @@ public final class OnPlayerQuit implements Listener
         Player player = event.getPlayer();
         Location location = player.getLocation();
 
-        RegionManager.getAllRegions().stream().filter(region -> region.isInside(location)).forEach(region -> {
+        RegionManager.getRegions().stream().filter(region -> region.isInside(location)).forEach(region -> {
             RegionLeaveEvent regionLeaveEvent = new RegionLeaveEvent(region, player, location, location);
             Bukkit.getPluginManager().callEvent(regionLeaveEvent);
         });

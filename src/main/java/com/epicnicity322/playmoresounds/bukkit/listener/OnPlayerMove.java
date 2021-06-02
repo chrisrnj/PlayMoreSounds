@@ -61,7 +61,7 @@ public final class OnPlayerMove implements Listener
 
     protected static void callRegionEnterLeaveEvents(Cancellable event, Player player, Location from, Location to)
     {
-        for (SoundRegion region : RegionManager.getAllRegions()) {
+        for (SoundRegion region : RegionManager.getRegions()) {
             boolean isInFrom = region.isInside(from);
             boolean isInTo = region.isInside(to);
 

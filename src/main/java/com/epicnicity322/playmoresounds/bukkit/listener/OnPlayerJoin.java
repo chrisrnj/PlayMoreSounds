@@ -19,7 +19,6 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
-import com.epicnicity322.epicpluginlib.bukkit.logger.Logger;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionEnterEvent;
@@ -42,7 +41,6 @@ import org.jetbrains.annotations.NotNull;
 public final class OnPlayerJoin implements Listener
 {
     private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
-    private static final @NotNull Logger logger = PlayMoreSounds.getConsoleLogger();
     private static final @NotNull BukkitScheduler scheduler = Bukkit.getScheduler();
     private final @NotNull PlayMoreSounds plugin;
 
@@ -59,7 +57,7 @@ public final class OnPlayerJoin implements Listener
         Location location = player.getLocation();
 
         // Playing join sound
-        scheduler.runTaskLater(plugin, () -> {
+        scheduler.runTask(plugin, () -> {
             if (player.isOnline()) {
                 Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
                 ConfigurationSection section;
@@ -72,13 +70,11 @@ public final class OnPlayerJoin implements Listener
                 if (section != null)
                     new RichSound(section).play(player);
             }
-        }, 1);
+        });
 
         // Send update available message.
-        if (UpdateManager.isUpdateAvailable())
-            if (player.hasPermission("playmoresounds.update.joinmessage"))
-                lang.send(player, "&a* PlayMoreSounds has a new update available! *" +
-                        "\n&aLink >&7 https://www.spigotmc.org/resources/37429/");
+        if (UpdateManager.isUpdateAvailable() && player.hasPermission("playmoresounds.update.joinmessage"))
+            lang.send(player, "&a* PlayMoreSounds has a new update available! *\n&aLink >&7 https://www.spigotmc.org/resources/37429/");
 
         Configuration config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
 
@@ -87,7 +83,7 @@ public final class OnPlayerJoin implements Listener
             SoundManager.toggleSoundsState(player, true);
 
         // Calling region enter events.
-        RegionManager.getAllRegions().stream().filter(region -> region.isInside(location)).forEach(region -> {
+        RegionManager.getRegions().stream().filter(region -> region.isInside(location)).forEach(region -> {
             RegionEnterEvent regionEnterEvent = new RegionEnterEvent(region, player, location, location);
             Bukkit.getPluginManager().callEvent(regionEnterEvent);
         });
@@ -101,7 +97,7 @@ public final class OnPlayerJoin implements Listener
                         config.getString("Resource Packs.URL").ifPresent(player::setResourcePack);
                     }, 20);
             } catch (Exception ex) {
-                logger.log(lang.get("Resource Packs.Error").replace("<player>", player.getName()));
+                PlayMoreSounds.getConsoleLogger().log(lang.get("Resource Packs.Error").replace("<player>", player.getName()));
                 ex.printStackTrace();
             }
         }

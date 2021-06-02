@@ -145,7 +145,7 @@ public final class OnRegionEnterLeave extends PMSListener
                         Configuration updatedRegions = Configurations.REGIONS.getConfigurationHolder().getConfiguration();
 
                         return !updatedRegions.getBoolean("PlayMoreSounds." + region.getName() + ".Loop.Enabled").orElse(false)
-                                || !RegionManager.getAllRegions().contains(region) || !player.isOnline() || !region.isInside(player.getLocation());
+                                || !RegionManager.getRegions().contains(region) || !player.isOnline() || !region.isInside(player.getLocation());
                     }));
 
                     stopOnExit(player, region, loop);
