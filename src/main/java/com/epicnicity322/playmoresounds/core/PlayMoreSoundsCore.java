@@ -22,12 +22,15 @@ import com.epicnicity322.epicpluginlib.core.logger.ErrorHandler;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 
 public final class PlayMoreSoundsCore
 {
@@ -62,8 +65,16 @@ public final class PlayMoreSoundsCore
             }
         }
 
-        errorHandler = new ErrorHandler(folder, "PlayMoreSounds", PlayMoreSoundsVersion.version,
-                Collections.singleton("Epicnicity322"), "https://github.com/Epicnicity322/PlayMoreSounds/");
+        if (Objects.equals(System.getProperty("PlayMoreSounds Enabled"), "true")) {
+            System.out.println("PlayMoreSounds NOTICE: A reload was detected and since PlayMoreSounds does not support reloads, all PlayMoreSounds errors thrown from now on will not be logged.");
+            errorHandler = new UselessErrorHandler(folder, "PlayMoreSounds", PlayMoreSoundsVersion.version,
+                    Collections.singleton("Epicnicity322"), "https://github.com/Epicnicity322/PlayMoreSounds/");
+        } else {
+            errorHandler = new ErrorHandler(folder, "PlayMoreSounds", PlayMoreSoundsVersion.version,
+                    Collections.singleton("Epicnicity322"), "https://github.com/Epicnicity322/PlayMoreSounds/");
+        }
+
+        System.setProperty("PlayMoreSounds Enabled", "true");
     }
 
     /**
@@ -102,5 +113,19 @@ public final class PlayMoreSoundsCore
     {
         BUKKIT,
         SPONGE
+    }
+
+    private static final class UselessErrorHandler extends ErrorHandler
+    {
+        public UselessErrorHandler(@NotNull Path errorFolder, @NotNull String pluginName, @NotNull String pluginVersion, @NotNull Collection<String> authors, @Nullable String website)
+        {
+            super(errorFolder, pluginName, pluginVersion, authors, website);
+        }
+
+        @Override
+        public void report(@NotNull Throwable throwable, @NotNull String title)
+        {
+            // Do nothing.
+        }
     }
 }
