@@ -34,7 +34,8 @@ public final class CommandLoader
     private static final @NotNull LinkedHashSet<Command> commands = new LinkedHashSet<>();
 
     static {
-        PlayMoreSounds.addOnInstanceRunnable(plugin -> {
+        PlayMoreSounds.onInstance(() -> {
+            PlayMoreSounds plugin = PlayMoreSounds.getInstance();
             MessageSender lang = PlayMoreSounds.getLanguage();
 
             CommandManager.registerCommand(Bukkit.getPluginCommand("playmoresounds"), commands,

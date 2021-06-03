@@ -65,7 +65,7 @@ public class ListInventory implements PMSInventory, Listener
 
     static {
         // Clear cache on disable.
-        PlayMoreSounds.addOnDisableRunnable(soundPagesCache::clear);
+        PlayMoreSounds.onDisable(soundPagesCache::clear);
     }
 
     private final @NotNull Inventory inventory;
@@ -84,12 +84,12 @@ public class ListInventory implements PMSInventory, Listener
         if (button == null)
             button = InventoryUtils.getButton();
 
-        PlayMoreSounds.addOnDisableRunnable(() -> {
+        PlayMoreSounds.onDisable(() -> {
             openInventories.forEach(HumanEntity::closeInventory);
             openInventories.clear();
         });
 
-        int rowsPerPage = config.getConfiguration().getNumber("Inventories.List.Rows Per Page").orElse(4).intValue();
+        int rowsPerPage = config.getConfiguration().getNumber("List.Inventory.Rows Per Page").orElse(4).intValue();
 
         if (rowsPerPage > 4)
             rowsPerPage = 4;
@@ -244,7 +244,7 @@ public class ListInventory implements PMSInventory, Listener
         Items(@NotNull String name, @Nullable Consumer<ItemMeta> consumer)
         {
             this.name = name;
-            configPath = "Inventories.List." + name + " Item";
+            configPath = "List.Inventory." + name + " Item";
             langPath = "List.GUI." + name;
             this.consumer = consumer;
         }

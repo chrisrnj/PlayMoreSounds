@@ -38,7 +38,9 @@ public final class ListenerRegister
     private static final @NotNull Random random = new Random();
 
     static {
-        PlayMoreSounds.addOnInstanceRunnable(instance -> {
+        PlayMoreSounds.onInstance(() -> {
+            PlayMoreSounds instance = PlayMoreSounds.getInstance();
+
             listeners.add(new OnAsyncPlayerChat(instance));
             listeners.add(new OnCraftItem(instance));
             listeners.add(new OnEntityDamageByEntity(instance));

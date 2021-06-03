@@ -80,7 +80,7 @@ public final class OnNamedSoundEffect extends PacketAdapter
         };
 
         loader.run();
-        PlayMoreSounds.addOnReloadRunnable(loader);
+        PlayMoreSounds.onReload(loader);
     }
 
     @Override

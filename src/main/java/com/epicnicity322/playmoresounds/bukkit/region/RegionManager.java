@@ -105,9 +105,9 @@ public final class RegionManager
         };
 
         regionUpdater.run();
-        PlayMoreSounds.addOnReloadRunnable(regionUpdater);
-        PlayMoreSounds.addOnReloadRunnable(wandUpdater);
-        PlayMoreSounds.addOnEnableRunnable(wandUpdater);
+        PlayMoreSounds.onReload(regionUpdater);
+        PlayMoreSounds.onReload(wandUpdater);
+        PlayMoreSounds.onEnable(wandUpdater);
     }
 
     private RegionManager()

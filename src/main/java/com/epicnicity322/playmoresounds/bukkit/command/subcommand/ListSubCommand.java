@@ -51,7 +51,7 @@ public final class ListSubCommand extends Command implements Helpable
 
     static {
         // Clear cache on disable.
-        PlayMoreSounds.addOnDisableRunnable(soundPagesCache::clear);
+        PlayMoreSounds.onDisable(soundPagesCache::clear);
     }
 
     @Override

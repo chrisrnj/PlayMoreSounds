@@ -56,7 +56,7 @@ public final class OnRegionEnterLeave extends PMSListener
         super(plugin);
         this.plugin = plugin;
 
-        PlayMoreSounds.addOnDisableRunnable(() -> regionsInLoop.entrySet().removeIf(entry -> {
+        PlayMoreSounds.onDisable(() -> regionsInLoop.entrySet().removeIf(entry -> {
             entry.getValue().cancel();
             return true;
         }));

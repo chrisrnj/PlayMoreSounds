@@ -25,6 +25,7 @@ import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
 import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.epicpluginlib.core.logger.ErrorHandler;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
+import com.epicnicity322.playmoresounds.bukkit.command.CommandLoader;
 import com.epicnicity322.playmoresounds.bukkit.listener.*;
 import com.epicnicity322.playmoresounds.bukkit.metrics.Metrics;
 import com.epicnicity322.playmoresounds.bukkit.util.ListenerRegister;
@@ -51,14 +52,13 @@ import java.time.Month;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
-import java.util.function.Consumer;
 
 public final class PlayMoreSounds extends JavaPlugin
 {
-    private static final @NotNull HashSet<Runnable> onDisableRunnables = new HashSet<>();
-    private static final @NotNull HashSet<Runnable> onEnableRunnables = new HashSet<>();
-    private static final @NotNull HashSet<Consumer<PlayMoreSounds>> onInstanceRunnables = new HashSet<>();
-    private static final @NotNull HashSet<Runnable> onReloadRunnables = new HashSet<>();
+    private static final @NotNull HashSet<Runnable> onDisable = new HashSet<>();
+    private static final @NotNull HashSet<Runnable> onEnable = new HashSet<>();
+    private static final @NotNull HashSet<Runnable> onInstance = new HashSet<>();
+    private static final @NotNull HashSet<Runnable> onReload = new HashSet<>();
     private static final @NotNull Logger logger = new Logger(PMSHelper.isChristmas() ? "&f[&4PlayMoreSounds&f] " : "&6[&9PlayMoreSounds&6] ");
     private static final @NotNull MessageSender language = new MessageSender(
             () -> Configurations.CONFIG.getConfigurationHolder().getConfiguration().getString("Language").orElse("EN_US"),
@@ -93,9 +93,9 @@ public final class PlayMoreSounds extends JavaPlugin
         logger.setLogger(getLogger());
         errorHandler.setLogger(getLogger());
 
-        for (Consumer<PlayMoreSounds> consumer : onInstanceRunnables) {
+        for (Runnable runnable : onInstance) {
             try {
-                consumer.accept(instance);
+                runnable.run();
             } catch (Exception e) {
                 logger.log("&cAn unknown error occurred on PlayMoreSounds initialization.");
                 errorHandler.report(e, "PMS Initialization Error (Unknown):");
@@ -110,9 +110,9 @@ public final class PlayMoreSounds extends JavaPlugin
      *
      * @param runnable Runnable to run on disable.
      */
-    public static void addOnDisableRunnable(@NotNull Runnable runnable)
+    public static void onDisable(@NotNull Runnable runnable)
     {
-        onDisableRunnables.add(runnable);
+        onDisable.add(runnable);
 
         if (disabled) {
             runnable.run();
@@ -126,9 +126,9 @@ public final class PlayMoreSounds extends JavaPlugin
      *
      * @param runnable Runnable to run on enable.
      */
-    public static void addOnEnableRunnable(@NotNull Runnable runnable)
+    public static void onEnable(@NotNull Runnable runnable)
     {
-        onEnableRunnables.add(runnable);
+        onEnable.add(runnable);
 
         if (enabled) {
             runnable.run();
@@ -140,14 +140,14 @@ public final class PlayMoreSounds extends JavaPlugin
      * immediately.
      * If a exception is caught, PlayMoreSounds automatically handles it and logs into the data folder.
      *
-     * @param consumer Runnable to run on load.
+     * @param runnable Runnable to run on load.
      */
-    public static void addOnInstanceRunnable(@NotNull Consumer<PlayMoreSounds> consumer)
+    public static void onInstance(@NotNull Runnable runnable)
     {
-        onInstanceRunnables.add(consumer);
+        onInstance.add(runnable);
 
         if (getInstance() != null) {
-            consumer.accept(getInstance());
+            runnable.run();
         }
     }
 
@@ -157,9 +157,9 @@ public final class PlayMoreSounds extends JavaPlugin
      *
      * @param runnable Runnable to run on configurations reload.
      */
-    public static void addOnReloadRunnable(@NotNull Runnable runnable)
+    public static void onReload(@NotNull Runnable runnable)
     {
-        onReloadRunnables.add(runnable);
+        onReload.add(runnable);
     }
 
     /**
@@ -196,7 +196,7 @@ public final class PlayMoreSounds extends JavaPlugin
         WorldTimeListener.load();
         UpdateManager.check(Bukkit.getConsoleSender(), true);
 
-        for (Runnable runnable : onReloadRunnables) {
+        for (Runnable runnable : onReload) {
             try {
                 runnable.run();
             } catch (Exception e) {
@@ -272,6 +272,10 @@ public final class PlayMoreSounds extends JavaPlugin
 
             logger.log("&6-> &e" + ListenerRegister.loadListeners() + " listeners loaded.");
 
+            addonManager.startAddons(StartTime.BEFORE_COMMANDS);
+            CommandLoader.getCommands();
+            logger.log("&6-> &eCommands loaded.");
+
             // Loading Nature Sound Replacer:
             if (VersionUtils.hasSoundEffects()) {
                 try {
@@ -338,7 +342,7 @@ public final class PlayMoreSounds extends JavaPlugin
                 Bukkit.getPluginManager().disablePlugin(this);
             }
 
-            for (Runnable runnable : onEnableRunnables) {
+            for (Runnable runnable : onEnable) {
                 try {
                     runnable.run();
                 } catch (Exception e) {
@@ -359,7 +363,7 @@ public final class PlayMoreSounds extends JavaPlugin
 
         addonManager.stopAddons();
 
-        for (Runnable runnable : onDisableRunnables) {
+        for (Runnable runnable : onDisable) {
             try {
                 runnable.run();
             } catch (Exception e) {

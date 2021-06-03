@@ -46,7 +46,7 @@ public final class OnPlayerDeath extends PMSListener
 
     static {
         if (VersionUtils.hasPersistentData()) {
-            PlayMoreSounds.addOnInstanceRunnable(plugin -> namespacedKey = new NamespacedKey(plugin, "lastDmg"));
+            PlayMoreSounds.onInstance(() -> namespacedKey = new NamespacedKey(PlayMoreSounds.getInstance(), "lastDmg"));
         }
     }
 

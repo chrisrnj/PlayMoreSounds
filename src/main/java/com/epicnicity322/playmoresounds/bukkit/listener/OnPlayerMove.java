@@ -53,7 +53,7 @@ public final class OnPlayerMove implements Listener
     private static final @NotNull HashMap<String, HashSet<String>> soundsToStop = new HashMap<>();
 
     static {
-        PlayMoreSounds.addOnDisableRunnable(() -> biomesInLoop.entrySet().removeIf(entry -> {
+        PlayMoreSounds.onDisable(() -> biomesInLoop.entrySet().removeIf(entry -> {
             entry.getValue().cancel();
             return true;
         }));

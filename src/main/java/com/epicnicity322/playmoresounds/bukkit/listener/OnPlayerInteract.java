@@ -103,8 +103,8 @@ public class OnPlayerInteract implements Listener
                 }
             };
 
-            PlayMoreSounds.addOnEnableRunnable(customDiscUpdater);
-            PlayMoreSounds.addOnReloadRunnable(customDiscUpdater);
+            PlayMoreSounds.onEnable(customDiscUpdater);
+            PlayMoreSounds.onReload(customDiscUpdater);
         }
     }
 
