@@ -31,9 +31,28 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class OnPlayerTeleport implements Listener
 {
+    private static @Nullable RichSound teleport;
+
+    static {
+        Runnable soundUpdater = () -> {
+            ConfigurationSection teleportSection = Configurations.SOUNDS.getConfigurationHolder().getConfiguration().getConfigurationSection("Teleport");
+
+            if (teleportSection != null) {
+                teleport = new RichSound(teleportSection);
+
+                if (!teleport.isEnabled())
+                    teleport = null;
+            }
+        };
+
+        PlayMoreSounds.onInstance(soundUpdater);
+        PlayMoreSounds.onReload(soundUpdater);
+    }
+
     private final @NotNull PlayMoreSounds main;
     private final @NotNull BukkitScheduler scheduler;
 
@@ -55,16 +74,8 @@ public final class OnPlayerTeleport implements Listener
 
         OnPlayerMove.checkBiomeEnterLeaveSounds(event, player, from, to);
 
-        if (event.getCause() == PlayerTeleportEvent.TeleportCause.COMMAND) {
-            ConfigurationSection section = Configurations.SOUNDS.getConfigurationHolder().getConfiguration()
-                    .getConfigurationSection("Teleport");
-
-            if (section != null) {
-                RichSound sound = new RichSound(section);
-
-                if (sound.isEnabled() && (!event.isCancelled() || !sound.isCancellable()))
-                    scheduler.runTaskLater(main, () -> sound.play(player), 1);
-            }
+        if (event.getCause() == PlayerTeleportEvent.TeleportCause.COMMAND && teleport != null && (!event.isCancelled() || !teleport.isCancellable())) {
+            scheduler.runTask(main, () -> teleport.play(player));
         }
     }
 }

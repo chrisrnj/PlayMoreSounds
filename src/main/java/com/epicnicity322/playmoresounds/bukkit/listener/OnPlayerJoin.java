@@ -37,11 +37,39 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class OnPlayerJoin implements Listener
 {
     private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
     private static final @NotNull BukkitScheduler scheduler = Bukkit.getScheduler();
+    private static @Nullable RichSound firstJoin;
+    private static @Nullable RichSound joinServer;
+
+    static {
+        Runnable soundUpdater = () -> {
+            Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+            ConfigurationSection firstJoinSection = sounds.getConfigurationSection("First Join");
+            ConfigurationSection joinServerSection = sounds.getConfigurationSection("Join Server");
+
+            if (firstJoinSection != null) {
+                firstJoin = new RichSound(firstJoinSection);
+
+                if (!firstJoin.isEnabled())
+                    firstJoin = null;
+            }
+            if (joinServerSection != null) {
+                joinServer = new RichSound(joinServerSection);
+
+                if (!joinServer.isEnabled())
+                    joinServer = null;
+            }
+        };
+
+        PlayMoreSounds.onInstance(soundUpdater);
+        PlayMoreSounds.onReload(soundUpdater);
+    }
+
     private final @NotNull PlayMoreSounds plugin;
 
     public OnPlayerJoin(@NotNull PlayMoreSounds plugin)
@@ -57,20 +85,10 @@ public final class OnPlayerJoin implements Listener
         Location location = player.getLocation();
 
         // Playing join sound
-        scheduler.runTask(plugin, () -> {
-            if (player.isOnline()) {
-                Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
-                ConfigurationSection section;
-
-                if (player.hasPlayedBefore())
-                    section = sounds.getConfigurationSection("Join Server");
-                else
-                    section = sounds.getConfigurationSection("First Join");
-
-                if (section != null)
-                    new RichSound(section).play(player);
-            }
-        });
+        if (player.hasPlayedBefore()) {
+            if (joinServer != null) joinServer.play(player);
+            else if (firstJoin != null) firstJoin.play(player);
+        }
 
         // Send update available message.
         if (UpdateManager.isUpdateAvailable() && player.hasPermission("playmoresounds.update.joinmessage"))

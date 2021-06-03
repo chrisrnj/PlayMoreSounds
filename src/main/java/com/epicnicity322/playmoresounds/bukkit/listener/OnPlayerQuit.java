@@ -18,6 +18,7 @@
 
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
+import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionLeaveEvent;
 import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
@@ -30,9 +31,37 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.jetbrains.annotations.Nullable;
 
 public final class OnPlayerQuit implements Listener
 {
+    private static @Nullable RichSound playerBan;
+    private static @Nullable RichSound leaveServer;
+
+    static {
+        Runnable soundUpdater = () -> {
+            Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+            ConfigurationSection playerBanSection = sounds.getConfigurationSection("Player Ban");
+            ConfigurationSection leaveServerSection = sounds.getConfigurationSection("Leave Server");
+
+            if (playerBanSection != null) {
+                playerBan = new RichSound(playerBanSection);
+
+                if (!playerBan.isEnabled())
+                    playerBan = null;
+            }
+            if (leaveServerSection != null) {
+                leaveServer = new RichSound(leaveServerSection);
+
+                if (!leaveServer.isEnabled())
+                    leaveServer = null;
+            }
+        };
+
+        PlayMoreSounds.onInstance(soundUpdater);
+        PlayMoreSounds.onReload(soundUpdater);
+    }
+
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event)
     {
@@ -44,15 +73,9 @@ public final class OnPlayerQuit implements Listener
             Bukkit.getPluginManager().callEvent(regionLeaveEvent);
         });
 
-        Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
-        ConfigurationSection section;
-
-        if (player.isBanned())
-            section = sounds.getConfigurationSection("Player Ban");
-        else
-            section = sounds.getConfigurationSection("Leave Server");
-
-        if (section != null)
-            new RichSound(section).play(player);
+        if (player.isBanned()) {
+            if (playerBan != null) playerBan.play(player);
+            else if (leaveServer != null) leaveServer.play(player);
+        }
     }
 }
