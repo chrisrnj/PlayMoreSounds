@@ -38,19 +38,6 @@ public final class CommandLoader
             PlayMoreSounds plugin = PlayMoreSounds.getInstance();
             MessageSender lang = PlayMoreSounds.getLanguage();
 
-            CommandManager.registerCommand(Bukkit.getPluginCommand("playmoresounds"), commands,
-                    (label, sender, args) -> {
-                        lang.send(sender, false, lang.get("Description.Header").replace("<version>", PlayMoreSoundsVersion.version));
-                        lang.send(sender, false, "&6Author: &7Epicnicity322");
-                        lang.send(sender, false, "&6Description: &7" + plugin.getDescription().getDescription());
-
-                        if (sender.hasPermission("playmoresounds.help"))
-                            lang.send(sender, false, lang.get("Description.Help").replace("<label>", label));
-                        else
-                            lang.send(sender, false, lang.get("Description.No Permission"));
-                    },
-                    (label, sender, args) -> lang.send(sender, lang.get("General.Unknown Command").replace("<label>", label)));
-
             commands.add(new CheckSubCommand());
             commands.add(new ConfirmSubCommand());
             commands.add(new DiscSubCommand());
@@ -70,6 +57,19 @@ public final class CommandLoader
             commands.add(new StopSoundSubCommand());
             commands.add(new ToggleSubCommand());
             commands.add(new UpdateSubCommand());
+
+            CommandManager.registerCommand(Bukkit.getPluginCommand("playmoresounds"), commands,
+                    (label, sender, args) -> {
+                        lang.send(sender, false, lang.get("Description.Header").replace("<version>", PlayMoreSoundsVersion.version));
+                        lang.send(sender, false, "&6Author: &7Epicnicity322");
+                        lang.send(sender, false, "&6Description: &7" + plugin.getDescription().getDescription());
+
+                        if (sender.hasPermission("playmoresounds.help"))
+                            lang.send(sender, false, lang.get("Description.Help").replace("<label>", label));
+                        else
+                            lang.send(sender, false, lang.get("Description.No Permission"));
+                    },
+                    (label, sender, args) -> lang.send(sender, lang.get("General.Unknown Command").replace("<label>", label)));
         });
     }
 
