@@ -131,7 +131,7 @@ public final class ListSubCommand extends Command implements Helpable
         } else {
             Configuration yamlConfig = ListSubCommand.config.getConfiguration();
             HashMap<Long, ArrayList<String>> soundPages;
-            int soundsPerPage = yamlConfig.getNumber("Commands.List.Default.Max Per Page").orElse(10).intValue();
+            int soundsPerPage = yamlConfig.getNumber("List.Default.Max Per Page").orElse(10).intValue();
 
             if (soundsPerPage < 1)
                 soundsPerPage = 1;
@@ -163,11 +163,11 @@ public final class ListSubCommand extends Command implements Helpable
                 String prefix;
 
                 if (alternatePrefix)
-                    prefix = yamlConfig.getString("Commands.List.Default.Alternate Color").orElse("&8");
+                    prefix = yamlConfig.getString("List.Default.Alternate Color").orElse("&8");
                 else
-                    prefix = yamlConfig.getString("Commands.List.Default.Color").orElse("&e");
+                    prefix = yamlConfig.getString("List.Default.Color").orElse("&e");
 
-                String separator = yamlConfig.getString("Commands.List.Default.Separator").orElse(", ");
+                String separator = yamlConfig.getString("List.Default.Separator").orElse(", ");
 
                 if (count++ == soundList.size())
                     separator = "";
