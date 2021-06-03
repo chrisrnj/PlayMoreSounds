@@ -22,7 +22,7 @@ import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionEnterEvent;
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
 import com.epicnicity322.playmoresounds.bukkit.util.UpdateManager;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
@@ -43,8 +43,8 @@ public final class OnPlayerJoin implements Listener
 {
     private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
     private static final @NotNull BukkitScheduler scheduler = Bukkit.getScheduler();
-    private static @Nullable RichSound firstJoin;
-    private static @Nullable RichSound joinServer;
+    private static @Nullable PlayableRichSound firstJoin;
+    private static @Nullable PlayableRichSound joinServer;
 
     static {
         Runnable soundUpdater = () -> {
@@ -53,13 +53,13 @@ public final class OnPlayerJoin implements Listener
             ConfigurationSection joinServerSection = sounds.getConfigurationSection("Join Server");
 
             if (firstJoinSection != null) {
-                firstJoin = new RichSound(firstJoinSection);
+                firstJoin = new PlayableRichSound(firstJoinSection);
 
                 if (!firstJoin.isEnabled())
                     firstJoin = null;
             }
             if (joinServerSection != null) {
-                joinServer = new RichSound(joinServerSection);
+                joinServer = new PlayableRichSound(joinServerSection);
 
                 if (!joinServer.isEnabled())
                     joinServer = null;

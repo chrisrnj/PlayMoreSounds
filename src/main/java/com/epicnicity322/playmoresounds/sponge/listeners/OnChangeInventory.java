@@ -19,7 +19,7 @@
 package com.epicnicity322.playmoresounds.sponge.listeners;
 
 import com.epicnicity322.playmoresounds.core.config.Configurations;
-import com.epicnicity322.playmoresounds.sponge.sound.RichSound;
+import com.epicnicity322.playmoresounds.sponge.sound.PlayableRichSound;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.filter.cause.First;
@@ -30,7 +30,7 @@ public final class OnChangeInventory
     @Listener
     public void onChangeInventoryHeld(ChangeInventoryEvent.Held event, @First Player player)
     {
-        RichSound sound = new RichSound(Configurations.SOUNDS.getConfigurationHolder().getConfiguration().getConfigurationSection("Change Held Item"));
+        PlayableRichSound sound = new PlayableRichSound(Configurations.SOUNDS.getConfigurationHolder().getConfiguration().getConfigurationSection("Change Held Item"));
 
         sound.play(player);
     }

@@ -25,7 +25,7 @@ import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
@@ -36,7 +36,7 @@ import java.util.Map;
 
 public final class OnNamedSoundEffect extends PacketAdapter
 {
-    private final @NotNull HashMap<String, RichSound> sounds = new HashMap<>();
+    private final @NotNull HashMap<String, PlayableRichSound> sounds = new HashMap<>();
 
     public OnNamedSoundEffect(@NotNull PlayMoreSounds plugin)
     {
@@ -61,7 +61,7 @@ public final class OnNamedSoundEffect extends PacketAdapter
                         ConfigurationSection section = (ConfigurationSection) toReplace.getValue();
 
                         if (section.getBoolean("Enabled").orElse(false))
-                            sounds.put(toReplace.getKey(), new RichSound(section));
+                            sounds.put(toReplace.getKey(), new PlayableRichSound(section));
                     }
                 }
 
@@ -86,7 +86,7 @@ public final class OnNamedSoundEffect extends PacketAdapter
     @Override
     public void onPacketSending(PacketEvent event)
     {
-        RichSound sound = sounds.get(event.getPacket().getSoundEffects().read(0).name());
+        PlayableRichSound sound = sounds.get(event.getPacket().getSoundEffects().read(0).name());
 
         if (sound != null) {
             event.setCancelled(true);

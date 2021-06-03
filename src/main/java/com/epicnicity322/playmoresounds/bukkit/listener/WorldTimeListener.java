@@ -19,7 +19,7 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import com.epicnicity322.yamlhandler.Configuration;
@@ -77,7 +77,7 @@ public final class WorldTimeListener
                     if (times.containsKey(time)) {
                         ConfigurationSection timeSection = times.get(time);
 
-                        new RichSound(timeSection).play(world.getSpawnLocation());
+                        new PlayableRichSound(timeSection).play(world.getSpawnLocation());
                     }
                 }, 0, 1));
             }

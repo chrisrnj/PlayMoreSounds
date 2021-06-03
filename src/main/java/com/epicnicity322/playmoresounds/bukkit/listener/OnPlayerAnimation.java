@@ -19,7 +19,7 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
@@ -37,7 +37,7 @@ import java.util.Map;
 public final class OnPlayerAnimation extends PMSListener
 {
     private final @NotNull PlayMoreSounds plugin;
-    private final @NotNull HashMap<String, RichSound> criteriaSounds = new HashMap<>();
+    private final @NotNull HashMap<String, PlayableRichSound> criteriaSounds = new HashMap<>();
 
     public OnPlayerAnimation(@NotNull PlayMoreSounds plugin)
     {
@@ -59,7 +59,7 @@ public final class OnPlayerAnimation extends PMSListener
                 ConfigurationSection section = (ConfigurationSection) node.getValue();
 
                 if (section.getBoolean("Enabled").orElse(false) && section.contains("Sounds")) {
-                    criteriaSounds.put(node.getKey(), new RichSound(section));
+                    criteriaSounds.put(node.getKey(), new PlayableRichSound(section));
                 }
             }
         }
@@ -69,7 +69,7 @@ public final class OnPlayerAnimation extends PMSListener
 
         if (!criteriaSounds.isEmpty() || defaultEnabled) {
             if (defaultEnabled)
-                setRichSound(new RichSound(sounds.getConfigurationSection(getName())));
+                setRichSound(new PlayableRichSound(sounds.getConfigurationSection(getName())));
 
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -87,12 +87,12 @@ public final class OnPlayerAnimation extends PMSListener
     public void onPlayerAnimation(PlayerAnimationEvent event)
     {
         Player player = event.getPlayer();
-        RichSound sound = getRichSound();
+        PlayableRichSound sound = getRichSound();
         String material = player.getInventory().getItemInMainHand().getType().name();
 
-        for (Map.Entry<String, RichSound> criterion : criteriaSounds.entrySet()) {
+        for (Map.Entry<String, PlayableRichSound> criterion : criteriaSounds.entrySet()) {
             if (OnEntityDamageByEntity.matchesCriterion(criterion.getKey(), material)) {
-                RichSound criterionSound = criterion.getValue();
+                PlayableRichSound criterionSound = criterion.getValue();
 
                 if (!event.isCancelled() || !criterionSound.isCancellable()) {
                     criterionSound.play(player);

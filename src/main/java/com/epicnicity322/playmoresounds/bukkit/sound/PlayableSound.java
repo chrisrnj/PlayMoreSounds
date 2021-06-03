@@ -16,32 +16,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.epicnicity322.playmoresounds.sponge.sound;
+package com.epicnicity322.playmoresounds.bukkit.sound;
 
 import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
+import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.bukkit.sound.events.PlaySoundEvent;
+import com.epicnicity322.playmoresounds.bukkit.sound.events.PrePlaySoundEvent;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
-import com.epicnicity322.playmoresounds.core.sound.CoreSound;
+import com.epicnicity322.playmoresounds.core.sound.Sound;
 import com.epicnicity322.playmoresounds.core.sound.SoundOptions;
-import com.epicnicity322.playmoresounds.sponge.PlayMoreSounds;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
-import com.flowpowered.math.vector.Vector3d;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.api.effect.sound.SoundType;
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
 
 import java.util.Collection;
 
-public class Sound extends CoreSound implements Playable
+public class PlayableSound extends Sound implements Playable
 {
     private static final @NotNull ConfigurationHolder config = Configurations.CONFIG.getConfigurationHolder();
+    private static final @NotNull BukkitScheduler scheduler = Bukkit.getScheduler();
 
     private PlayMoreSounds plugin = PlayMoreSounds.getInstance();
 
-    public Sound(@NotNull String sound, float volume, float pitch, long delay, @Nullable SoundOptions options)
+    public PlayableSound(@NotNull String sound, float volume, float pitch, long delay, @Nullable SoundOptions options)
     {
         super(sound, volume, pitch, delay, options);
 
@@ -50,7 +52,7 @@ public class Sound extends CoreSound implements Playable
         }
     }
 
-    public Sound(@NotNull ConfigurationSection section)
+    public PlayableSound(@NotNull ConfigurationSection section)
     {
         super(section);
 
@@ -72,47 +74,49 @@ public class Sound extends CoreSound implements Playable
     }
 
     @Override
-    public void play(@Nullable Player player, @NotNull Location<World> sourceLocation)
+    public void play(@Nullable Player player, @NotNull Location sourceLocation)
     {
-        //PrePlaySoundEvent preEvent = new PrePlaySoundEvent(player, sourceLocation, this);
-        //Bukkit.getPluginManager().callEvent(preEvent);
+        PrePlaySoundEvent preEvent = new PrePlaySoundEvent(player, sourceLocation, this);
 
-        if (//!preEvent.isCancelled() &&
-                getOptions().getPermissionRequired() == null || (player == null || player.hasPermission(getOptions().getPermissionRequired()))) {
-            Vector3d soundLocation = SoundManager.addRelativeLocation(sourceLocation.getPosition(), player == null ? null : player.getRotation(), getOptions().getRelativeLocation());
-            Collection<Player> players = SoundManager.getInRange(getOptions().getRadius(), sourceLocation);
+        Bukkit.getPluginManager().callEvent(preEvent);
+
+        if (!preEvent.isCancelled() &&
+                (getOptions().getPermissionRequired() == null || (player == null || player.hasPermission(getOptions().getPermissionRequired()))) &&
+                (player == null || (!player.hasPotionEffect(PotionEffectType.INVISIBILITY) || !player.hasPermission("playmoresounds.bypass.invisibility")))) {
+            Location soundLocation = SoundManager.addRelativeLocation(preEvent.getLocation(), getOptions().getRelativeLocation());
+            Collection<Player> players = SoundManager.getInRange(getOptions().getRadius(), preEvent.getLocation());
 
             if (player != null)
                 players.add(player);
 
-            Sound instance = this;
+            PlayableSound instance = this;
 
             if (getDelay() == 0)
                 play(player, players, soundLocation, instance);
             else
-                Task.builder().delayTicks(getDelay()).execute(() -> play(player, players, soundLocation, instance)).submit(plugin);
+                scheduler.runTaskLater(plugin, () -> play(player, players, soundLocation, instance), getDelay());
         }
     }
 
-    private void play(@Nullable Player sourcePlayer, @NotNull Collection<Player> players, @NotNull Vector3d soundLocation,
-                      @NotNull Sound instance)
+    private void play(@Nullable Player sourcePlayer, @NotNull Collection<Player> players, @NotNull Location soundLocation,
+                      @NotNull PlayableSound instance)
     {
         for (Player inRange : players) {
             if (!config.getConfiguration().getCollection("World Black List").contains(inRange.getWorld().getName())
-                    //&& (getOptions().ignoresDisabled() || SoundManager.getSoundsState(inRange))
+                    && (getOptions().ignoresDisabled() || SoundManager.getSoundsState(inRange))
                     && (getOptions().getPermissionToListen() == null || inRange.hasPermission(getOptions().getPermissionToListen()))
                     && (sourcePlayer == null || inRange.canSee(sourcePlayer))) {
-                Vector3d fixedLocation = soundLocation;
+                Location fixedLocation = soundLocation;
 
                 if (getOptions().getRadius() < 0)
-                    fixedLocation = SoundManager.addRelativeLocation(inRange.getPosition(), inRange.getRotation(), getOptions().getRelativeLocation());
+                    fixedLocation = SoundManager.addRelativeLocation(inRange.getLocation(), getOptions().getRelativeLocation());
 
-//                PlaySoundEvent event = new PlaySoundEvent(instance, inRange, fixedLocation, players, sourcePlayer, soundLocation);
-//
-//                Bukkit.getPluginManager().callEvent(event);
-//
-//                if (!event.isCancelled())
-                inRange.playSound(SoundType.of(getSound()), fixedLocation, getVolume(), getPitch());
+                PlaySoundEvent event = new PlaySoundEvent(instance, inRange, fixedLocation, players, sourcePlayer, soundLocation);
+
+                Bukkit.getPluginManager().callEvent(event);
+
+                if (!event.isCancelled())
+                    inRange.playSound(event.getLocation(), getSound(), getVolume(), getPitch());
             }
         }
     }

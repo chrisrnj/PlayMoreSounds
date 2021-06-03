@@ -24,7 +24,7 @@ import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionEnterEvent;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionLeaveEvent;
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.sound.SoundType;
@@ -116,7 +116,7 @@ public final class OnPlayerMove implements Listener
                 boolean playEnterSound = true;
 
                 if (loop != null) {
-                    RichSound loopSound = new RichSound(loop);
+                    PlayableRichSound loopSound = new PlayableRichSound(loop);
 
                     if (loopSound.isEnabled() && (!event.isCancelled() || !loopSound.isCancellable())) {
                         long delay = loop.getNumber("Delay").orElse(0).longValue();
@@ -141,7 +141,7 @@ public final class OnPlayerMove implements Listener
                     ConfigurationSection enter = biomesConfiguration.getConfigurationSection(to.getWorld().getName() + '.' + toBiome.name() + ".Enter");
 
                     if (enter != null) {
-                        RichSound enterSound = new RichSound(enter);
+                        PlayableRichSound enterSound = new PlayableRichSound(enter);
 
                         if (!event.isCancelled() || !enterSound.isCancellable()) {
                             enterSound.play(player);
@@ -153,7 +153,7 @@ public final class OnPlayerMove implements Listener
                 }
 
                 if (leave != null) {
-                    RichSound leaveSound = new RichSound(leave);
+                    PlayableRichSound leaveSound = new PlayableRichSound(leave);
 
                     if (!event.isCancelled() || !leaveSound.isCancellable())
                         leaveSound.play(player);

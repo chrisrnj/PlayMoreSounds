@@ -19,7 +19,7 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
@@ -37,7 +37,7 @@ import java.util.Map;
 
 public final class OnPlayerCommandPreprocess extends PMSListener
 {
-    private final @NotNull HashMap<String, HashSet<RichSound>> filtersAndCriteria = new HashMap<>();
+    private final @NotNull HashMap<String, HashSet<PlayableRichSound>> filtersAndCriteria = new HashMap<>();
     private final @NotNull PlayMoreSounds plugin;
 
     public OnPlayerCommandPreprocess(@NotNull PlayMoreSounds plugin)
@@ -68,14 +68,14 @@ public final class OnPlayerCommandPreprocess extends PMSListener
         for (Map.Entry<String, Object> filter : commandTriggers.getNodes().entrySet()) {
             if (filter.getValue() instanceof ConfigurationSection) {
                 ConfigurationSection filterSection = (ConfigurationSection) filter.getValue();
-                HashSet<RichSound> criteria = new HashSet<>();
+                HashSet<PlayableRichSound> criteria = new HashSet<>();
 
                 for (Map.Entry<String, Object> criterion : filterSection.getNodes().entrySet()) {
                     if (criterion.getValue() instanceof ConfigurationSection) {
                         ConfigurationSection criterionSection = (ConfigurationSection) criterion.getValue();
 
                         if (criterionSection.getBoolean("Enabled").orElse(false)) {
-                            criteria.add(new RichSound(criterionSection));
+                            criteria.add(new PlayableRichSound(criterionSection));
                             triggerEnabled = true;
                         }
                     }
@@ -87,7 +87,7 @@ public final class OnPlayerCommandPreprocess extends PMSListener
 
         if (defaultEnabled || triggerEnabled) {
             if (defaultEnabled)
-                setRichSound(new RichSound(defaultSection));
+                setRichSound(new PlayableRichSound(defaultSection));
 
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -109,8 +109,8 @@ public final class OnPlayerCommandPreprocess extends PMSListener
         boolean defaultSound = true;
 
         filterLoop:
-        for (Map.Entry<String, HashSet<RichSound>> filter : filtersAndCriteria.entrySet()) {
-            for (RichSound criteria : filter.getValue()) {
+        for (Map.Entry<String, HashSet<PlayableRichSound>> filter : filtersAndCriteria.entrySet()) {
+            for (PlayableRichSound criteria : filter.getValue()) {
                 ConfigurationSection criteriaSection = criteria.getSection();
 
                 if (!event.isCancelled() || !criteria.isCancellable()) {
@@ -128,7 +128,7 @@ public final class OnPlayerCommandPreprocess extends PMSListener
         }
 
         if (defaultSound) {
-            RichSound sound = getRichSound();
+            PlayableRichSound sound = getRichSound();
 
             if (sound != null)
                 if (!event.isCancelled() || !sound.isCancellable())

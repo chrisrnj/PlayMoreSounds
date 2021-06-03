@@ -19,7 +19,7 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
@@ -44,7 +44,7 @@ import java.util.regex.Pattern;
 public final class OnEntityDamageByEntity extends PMSListener
 {
     private static final @NotNull Pattern comma = Pattern.compile(",");
-    private final @NotNull HashSet<RichSound> conditions = new HashSet<>();
+    private final @NotNull HashSet<PlayableRichSound> conditions = new HashSet<>();
     private final @NotNull PlayMoreSounds plugin;
 
     public OnEntityDamageByEntity(@NotNull PlayMoreSounds plugin)
@@ -155,7 +155,7 @@ public final class OnEntityDamageByEntity extends PMSListener
                 ConfigurationSection conditionSection = (ConfigurationSection) condition.getValue();
 
                 if (conditionSection.getBoolean("Enabled").orElse(false)) {
-                    conditions.add(new RichSound(conditionSection));
+                    conditions.add(new PlayableRichSound(conditionSection));
                     specificHurtEnabled = true;
                 }
             }
@@ -163,7 +163,7 @@ public final class OnEntityDamageByEntity extends PMSListener
 
         if (defaultEnabled || specificHurtEnabled) {
             if (defaultEnabled)
-                setRichSound(new RichSound(defaultSection));
+                setRichSound(new PlayableRichSound(defaultSection));
 
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -211,7 +211,7 @@ public final class OnEntityDamageByEntity extends PMSListener
         boolean defaultSound = true;
 
         // Checking if any condition on hurt sounds.yml matches this scenario.
-        for (RichSound condition : conditions) {
+        for (PlayableRichSound condition : conditions) {
             if (!event.isCancelled() || !condition.isCancellable()) {
                 ConfigurationSection conditionSection = condition.getSection();
 
@@ -231,7 +231,7 @@ public final class OnEntityDamageByEntity extends PMSListener
 
         // Playing the default sound.
         if (defaultSound) {
-            RichSound sound = getRichSound();
+            PlayableRichSound sound = getRichSound();
 
             if (sound != null)
                 if (!event.isCancelled() || !sound.isCancellable())

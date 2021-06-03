@@ -23,7 +23,7 @@ import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandUtils;
-import com.epicnicity322.playmoresounds.bukkit.sound.Sound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
 import com.epicnicity322.playmoresounds.core.sound.SoundOptions;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -112,7 +112,7 @@ public final class PlaySubCommand extends Command implements Helpable
                 }
         }
 
-        Sound sound1 = new Sound(sound, volume, pitch, 0, new SoundOptions(false, null, null, 0, null));
+        PlayableSound sound1 = new PlayableSound(sound, volume, pitch, 0, new SoundOptions(false, null, null, 0, null));
 
         for (Player player : targets)
             sound1.play(player);

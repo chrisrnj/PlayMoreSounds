@@ -28,6 +28,7 @@ import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandLoader;
 import com.epicnicity322.playmoresounds.bukkit.listener.*;
 import com.epicnicity322.playmoresounds.bukkit.metrics.Metrics;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
 import com.epicnicity322.playmoresounds.bukkit.util.ListenerRegister;
 import com.epicnicity322.playmoresounds.bukkit.util.UpdateManager;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
@@ -164,7 +165,7 @@ public final class PlayMoreSounds extends JavaPlugin
 
     /**
      * The instance of PlayMoreSounds' main class, although this is not the best approach, I decided to leave it like
-     * that for easy use of the API, like playing sounds on {@link com.epicnicity322.playmoresounds.bukkit.sound.Sound}
+     * that for easy use of the API, like playing sounds on {@link PlayableSound}
      *
      * @return The instance of PlayMoreSounds JavaPlugin class, or null if the plugin wasn't loaded yet.
      */

@@ -18,7 +18,6 @@
 
 package com.epicnicity322.playmoresounds.core.sound;
 
-import com.epicnicity322.playmoresounds.bukkit.sound.Sound;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -23,7 +23,7 @@ import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
 import com.epicnicity322.epicpluginlib.core.util.ObjectUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
@@ -55,7 +55,7 @@ public class OnPlayerInteract implements Listener
     private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
     private static final @NotNull HashMap<UUID, Location[]> selectedDiagonals = new HashMap<>();
     private static final @NotNull HashMap<String, ItemStack> customDiscs = new HashMap<>();
-    private static final @NotNull HashMap<ItemStack, RichSound> customDiscsSounds = new HashMap<>();
+    private static final @NotNull HashMap<ItemStack, PlayableRichSound> customDiscsSounds = new HashMap<>();
     private static final @NotNull ConfigurationHolder customDiscsPluginConfig = Configurations.CUSTOM_DISCS.getConfigurationHolder();
     private static final @NotNull UUID console = UUID.randomUUID();
     private static NamespacedKey customDiscNBT;
@@ -93,7 +93,7 @@ public class OnPlayerInteract implements Listener
                                 discMeta.addItemFlags(ItemFlag.values());
                                 discItem.setItemMeta(discMeta);
 
-                                customDiscsSounds.put(discItem, new RichSound(disc));
+                                customDiscsSounds.put(discItem, new PlayableRichSound(disc));
                                 customDiscs.put(id, discItem);
                             }
                         } catch (Exception ignored) {
@@ -183,7 +183,7 @@ public class OnPlayerInteract implements Listener
                                 // Players must have this permission to play a custom disc.
                                 if (player.hasPermission("playmoresounds.disc.use")) {
                                     ItemStack itemInHand = event.getItem();
-                                    RichSound customDisc = customDiscsSounds.get(itemInHand);
+                                    PlayableRichSound customDisc = customDiscsSounds.get(itemInHand);
 
                                     if (customDisc != null) {
                                         event.setUseItemInHand(Event.Result.DENY);

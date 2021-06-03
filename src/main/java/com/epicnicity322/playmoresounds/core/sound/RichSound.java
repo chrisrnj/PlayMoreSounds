@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 
-public abstract class CoreRichSound<T extends CoreSound>
+public abstract class RichSound<T extends Sound>
 {
     private final @NotNull String name;
     private @Nullable ConfigurationSection section;
@@ -34,7 +34,7 @@ public abstract class CoreRichSound<T extends CoreSound>
     private boolean cancellable;
     private @NotNull Collection<T> childSounds;
 
-    public CoreRichSound(@NotNull String name, boolean enabled, boolean cancellable, @Nullable Collection<T> childSounds)
+    public RichSound(@NotNull String name, boolean enabled, boolean cancellable, @Nullable Collection<T> childSounds)
     {
         this.name = name;
         this.enabled = enabled;
@@ -42,7 +42,7 @@ public abstract class CoreRichSound<T extends CoreSound>
         this.childSounds = childSounds;
     }
 
-    public CoreRichSound(@NotNull ConfigurationSection section)
+    public RichSound(@NotNull ConfigurationSection section)
     {
         this.section = section;
         this.name = section.getPath();
@@ -110,7 +110,7 @@ public abstract class CoreRichSound<T extends CoreSound>
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        CoreRichSound<?> that = (CoreRichSound<?>) o;
+        RichSound<?> that = (RichSound<?>) o;
 
         return enabled == that.enabled
                 && cancellable == that.cancellable

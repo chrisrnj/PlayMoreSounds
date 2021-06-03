@@ -21,7 +21,7 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionLeaveEvent;
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
@@ -35,8 +35,8 @@ import org.jetbrains.annotations.Nullable;
 
 public final class OnPlayerQuit implements Listener
 {
-    private static @Nullable RichSound playerBan;
-    private static @Nullable RichSound leaveServer;
+    private static @Nullable PlayableRichSound playerBan;
+    private static @Nullable PlayableRichSound leaveServer;
 
     static {
         Runnable soundUpdater = () -> {
@@ -45,13 +45,13 @@ public final class OnPlayerQuit implements Listener
             ConfigurationSection leaveServerSection = sounds.getConfigurationSection("Leave Server");
 
             if (playerBanSection != null) {
-                playerBan = new RichSound(playerBanSection);
+                playerBan = new PlayableRichSound(playerBanSection);
 
                 if (!playerBan.isEnabled())
                     playerBan = null;
             }
             if (leaveServerSection != null) {
-                leaveServer = new RichSound(leaveServerSection);
+                leaveServer = new PlayableRichSound(leaveServerSection);
 
                 if (!leaveServer.isEnabled())
                     leaveServer = null;

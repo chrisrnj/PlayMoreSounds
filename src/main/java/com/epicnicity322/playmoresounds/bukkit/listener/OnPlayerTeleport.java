@@ -19,7 +19,7 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
@@ -35,14 +35,14 @@ import org.jetbrains.annotations.Nullable;
 
 public final class OnPlayerTeleport implements Listener
 {
-    private static @Nullable RichSound teleport;
+    private static @Nullable PlayableRichSound teleport;
 
     static {
         Runnable soundUpdater = () -> {
             ConfigurationSection teleportSection = Configurations.SOUNDS.getConfigurationHolder().getConfiguration().getConfigurationSection("Teleport");
 
             if (teleportSection != null) {
-                teleport = new RichSound(teleportSection);
+                teleport = new PlayableRichSound(teleportSection);
 
                 if (!teleport.isEnabled())
                     teleport = null;

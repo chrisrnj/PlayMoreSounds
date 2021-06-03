@@ -19,7 +19,7 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
@@ -50,7 +50,7 @@ public final class OnPlayerDeath extends PMSListener
         }
     }
 
-    private final @NotNull HashMap<String, RichSound> specificDeaths = new HashMap<>();
+    private final @NotNull HashMap<String, PlayableRichSound> specificDeaths = new HashMap<>();
     private final @NotNull PlayMoreSounds plugin;
 
     public OnPlayerDeath(@NotNull PlayMoreSounds plugin)
@@ -84,7 +84,7 @@ public final class OnPlayerDeath extends PMSListener
                     ConfigurationSection deathTypeSection = (ConfigurationSection) deathType.getValue();
 
                     if (deathTypeSection.getBoolean("Enabled").orElse(false)) {
-                        specificDeaths.put(deathType.getKey().toUpperCase(), new RichSound(deathTypeSection));
+                        specificDeaths.put(deathType.getKey().toUpperCase(), new PlayableRichSound(deathTypeSection));
                         specificDeathEnabled = true;
                     }
                 }
@@ -93,7 +93,7 @@ public final class OnPlayerDeath extends PMSListener
 
         if (defaultEnabled || specificDeathEnabled) {
             if (defaultEnabled)
-                setRichSound(new RichSound(defaultSection));
+                setRichSound(new PlayableRichSound(defaultSection));
 
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -117,7 +117,7 @@ public final class OnPlayerDeath extends PMSListener
             String cause = player.getPersistentDataContainer().get((NamespacedKey) namespacedKey, PersistentDataType.STRING);
 
             if (cause != null) {
-                RichSound specificDeathSound = specificDeaths.get(cause);
+                PlayableRichSound specificDeathSound = specificDeaths.get(cause);
 
                 if (specificDeathSound != null) {
                     specificDeathSound.play(player);
@@ -129,7 +129,7 @@ public final class OnPlayerDeath extends PMSListener
         }
 
         if (defaultSound) {
-            RichSound sound = getRichSound();
+            PlayableRichSound sound = getRichSound();
 
             if (sound != null)
                 sound.play(player);

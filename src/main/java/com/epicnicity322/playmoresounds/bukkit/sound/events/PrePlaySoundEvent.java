@@ -18,7 +18,7 @@
 
 package com.epicnicity322.playmoresounds.bukkit.sound.events;
 
-import com.epicnicity322.playmoresounds.bukkit.sound.Sound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
 import com.epicnicity322.playmoresounds.core.sound.SoundOptions;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -39,11 +39,11 @@ public class PrePlaySoundEvent extends Event implements Cancellable
 {
     private static final HandlerList handlers = new HandlerList();
     private final @Nullable Player player;
-    private final @NotNull Sound sound;
+    private final @NotNull PlayableSound sound;
     private boolean cancelled;
     private @NotNull Location location;
 
-    public PrePlaySoundEvent(@Nullable Player player, @NotNull Location location, @NotNull Sound sound)
+    public PrePlaySoundEvent(@Nullable Player player, @NotNull Location location, @NotNull PlayableSound sound)
     {
         this.player = player;
         this.location = location;
@@ -129,7 +129,7 @@ public class PrePlaySoundEvent extends Event implements Cancellable
      *
      * @return The instance of the sound.
      */
-    public @NotNull Sound getSound()
+    public @NotNull PlayableSound getSound()
     {
         return sound;
     }

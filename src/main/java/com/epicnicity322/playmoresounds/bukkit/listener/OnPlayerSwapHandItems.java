@@ -19,7 +19,7 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
@@ -35,13 +35,13 @@ public class OnPlayerSwapHandItems extends PMSListener
     @Override
     public @NotNull String getName()
     {
-        return "Swap Hand Item";
+        return "Swap Hands";
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event)
     {
-        RichSound sound = getRichSound();
+        PlayableRichSound sound = getRichSound();
 
         if (!event.isCancelled() || !sound.isCancellable())
             sound.play(event.getPlayer());

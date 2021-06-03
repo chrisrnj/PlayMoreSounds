@@ -24,7 +24,7 @@ import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionEnterEvent;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionLeaveEvent;
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.sound.SoundType;
@@ -48,8 +48,8 @@ public final class OnRegionEnterLeave extends PMSListener
     private final @NotNull PlayMoreSounds plugin;
     private final @NotNull HashMap<String, BukkitRunnable> regionsInLoop = new HashMap<>();
     private final @NotNull HashMap<String, HashSet<String>> soundsToStop = new HashMap<>();
-    private @Nullable RichSound regionEnterSound = null;
-    private @Nullable RichSound regionLeaveSound = null;
+    private @Nullable PlayableRichSound regionEnterSound = null;
+    private @Nullable PlayableRichSound regionLeaveSound = null;
 
     public OnRegionEnterLeave(@NotNull PlayMoreSounds plugin)
     {
@@ -98,9 +98,9 @@ public final class OnRegionEnterLeave extends PMSListener
 
         if (load) {
             if (regionEnterSection != null)
-                regionEnterSound = new RichSound(regionEnterSection);
+                regionEnterSound = new PlayableRichSound(regionEnterSection);
             if (regionLeaveSection != null)
-                regionLeaveSound = new RichSound(regionLeaveSection);
+                regionLeaveSound = new PlayableRichSound(regionLeaveSection);
 
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -135,7 +135,7 @@ public final class OnRegionEnterLeave extends PMSListener
             boolean playEnterSound = true;
 
             if (loop != null) {
-                RichSound loopSound = new RichSound(loop);
+                PlayableRichSound loopSound = new PlayableRichSound(loop);
 
                 if (loopSound.isEnabled() && (!event.isCancelled() || !loopSound.isCancellable())) {
                     long delay = loop.getNumber("Delay").orElse(0).longValue();
@@ -161,7 +161,7 @@ public final class OnRegionEnterLeave extends PMSListener
                 ConfigurationSection enter = regions.getConfigurationSection(region.getName() + ".Enter");
 
                 if (enter != null) {
-                    RichSound enterSound = new RichSound(enter);
+                    PlayableRichSound enterSound = new PlayableRichSound(enter);
 
                     if (enterSound.isEnabled()) {
                         if (!event.isCancelled() || !enterSound.isCancellable()) {
@@ -216,7 +216,7 @@ public final class OnRegionEnterLeave extends PMSListener
         ConfigurationSection leave = Configurations.REGIONS.getConfigurationHolder().getConfiguration().getConfigurationSection("PlayMoreSounds." + region.getName() + ".Leave");
 
         if (leave != null) {
-            RichSound leaveSound = new RichSound(leave);
+            PlayableRichSound leaveSound = new PlayableRichSound(leave);
 
             if (leaveSound.isEnabled()) {
                 if (!event.isCancelled() || !leaveSound.isCancellable()) {

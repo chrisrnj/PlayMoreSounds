@@ -19,7 +19,7 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
@@ -33,8 +33,8 @@ import org.jetbrains.annotations.NotNull;
 public final class OnPlayerBedLeave extends PMSListener
 {
     private final @NotNull PlayMoreSounds plugin;
-    private RichSound bedLeave;
-    private RichSound wakeUp;
+    private PlayableRichSound bedLeave;
+    private PlayableRichSound wakeUp;
 
     public OnPlayerBedLeave(@NotNull PlayMoreSounds plugin)
     {
@@ -60,10 +60,10 @@ public final class OnPlayerBedLeave extends PMSListener
 
         if (leaveEnabled || wakeEnabled) {
             if (leaveEnabled)
-                bedLeave = new RichSound(leave);
+                bedLeave = new PlayableRichSound(leave);
 
             if (wakeEnabled)
-                wakeUp = new RichSound(wake);
+                wakeUp = new PlayableRichSound(wake);
 
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);

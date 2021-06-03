@@ -19,7 +19,7 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 public abstract class PMSListener implements Listener
 {
     private final @NotNull PlayMoreSounds plugin;
-    private @Nullable RichSound richSound;
+    private @Nullable PlayableRichSound richSound;
     private boolean loaded = false;
 
     public PMSListener(@NotNull PlayMoreSounds plugin)
@@ -52,12 +52,12 @@ public abstract class PMSListener implements Listener
         this.loaded = loaded;
     }
 
-    public @Nullable RichSound getRichSound()
+    public @Nullable PlayableRichSound getRichSound()
     {
         return richSound;
     }
 
-    protected final void setRichSound(@Nullable RichSound richSound)
+    protected final void setRichSound(@Nullable PlayableRichSound richSound)
     {
         this.richSound = richSound;
     }
@@ -77,7 +77,7 @@ public abstract class PMSListener implements Listener
                 loaded = false;
             }
         } else {
-            richSound = new RichSound(section);
+            richSound = new PlayableRichSound(section);
 
             if (!loaded) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);

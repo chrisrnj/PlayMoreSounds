@@ -19,7 +19,7 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
@@ -36,7 +36,7 @@ import java.util.Map;
 
 public final class OnPlayerGameModeChange extends PMSListener
 {
-    private final @NotNull HashMap<String, RichSound> specificGameModes = new HashMap<>();
+    private final @NotNull HashMap<String, PlayableRichSound> specificGameModes = new HashMap<>();
     private final @NotNull PlayMoreSounds plugin;
 
     public OnPlayerGameModeChange(@NotNull PlayMoreSounds plugin)
@@ -69,7 +69,7 @@ public final class OnPlayerGameModeChange extends PMSListener
                 ConfigurationSection gameModeSection = (ConfigurationSection) gameMode.getValue();
 
                 if (gameModeSection.getBoolean("Enabled").orElse(false)) {
-                    specificGameModes.put(gameMode.getKey().toUpperCase(), new RichSound(gameModeSection));
+                    specificGameModes.put(gameMode.getKey().toUpperCase(), new PlayableRichSound(gameModeSection));
                     specificGameModeEnabled = true;
                 }
             }
@@ -77,7 +77,7 @@ public final class OnPlayerGameModeChange extends PMSListener
 
         if (defaultEnabled || specificGameModeEnabled) {
             if (defaultEnabled)
-                setRichSound(new RichSound(defaultSection));
+                setRichSound(new PlayableRichSound(defaultSection));
 
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -95,7 +95,7 @@ public final class OnPlayerGameModeChange extends PMSListener
     public void onPlayerGameModeChange(PlayerGameModeChangeEvent event)
     {
         Player player = event.getPlayer();
-        RichSound specificGameModeSound = specificGameModes.get(event.getNewGameMode().name());
+        PlayableRichSound specificGameModeSound = specificGameModes.get(event.getNewGameMode().name());
         boolean defaultSound = true;
 
         if (specificGameModeSound != null) {
@@ -108,7 +108,7 @@ public final class OnPlayerGameModeChange extends PMSListener
         }
 
         if (defaultSound) {
-            RichSound sound = getRichSound();
+            PlayableRichSound sound = getRichSound();
 
             if (sound != null)
                 if (!event.isCancelled() || !sound.isCancellable())

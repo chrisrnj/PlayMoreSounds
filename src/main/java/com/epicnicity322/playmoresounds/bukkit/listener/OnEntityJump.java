@@ -20,7 +20,7 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.destroystokyo.paper.event.entity.EntityJumpEvent;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.jetbrains.annotations.NotNull;
@@ -41,7 +41,7 @@ public class OnEntityJump extends PMSListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityJump(EntityJumpEvent event)
     {
-        RichSound sound = getRichSound();
+        PlayableRichSound sound = getRichSound();
 
         if (!event.isCancelled() || !sound.isCancellable())
             sound.play(event.getEntity().getLocation());

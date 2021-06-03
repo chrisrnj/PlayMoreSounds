@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 
-public class CoreSound
+public class Sound
 {
     private final @Nullable ConfigurationSection section;
     private @Nullable SoundType soundType;
@@ -36,7 +36,7 @@ public class CoreSound
     private long delay;
     private SoundOptions options;
 
-    public CoreSound(@NotNull String sound, float volume, float pitch, long delay, @Nullable SoundOptions options)
+    public Sound(@NotNull String sound, float volume, float pitch, long delay, @Nullable SoundOptions options)
     {
         setSound(sound);
         setOptions(options);
@@ -48,7 +48,7 @@ public class CoreSound
     }
 
     /**
-     * Creates an instance for {@link CoreSound} based on the keys of a {@link ConfigurationSection}. This is the section
+     * Creates an instance for {@link Sound} based on the keys of a {@link ConfigurationSection}. This is the section
      * where the keys Delay, Options, Pitch, Sound and Volume are. Options are automatically converted based on the rules
      * set on {@link SoundOptions#SoundOptions(ConfigurationSection)}.
      *
@@ -56,7 +56,7 @@ public class CoreSound
      * @throws IllegalArgumentException If the section does not contain a 'Sound' key with string as value.
      * @see SoundOptions
      */
-    public CoreSound(@NotNull ConfigurationSection section)
+    public Sound(@NotNull ConfigurationSection section)
     {
         setSound(section.getString("Sound").orElseThrow(() -> new IllegalArgumentException("Section must contain a Sound key.")));
 
@@ -242,7 +242,7 @@ public class CoreSound
     }
 
     /**
-     * Whether the {@link Object} is a {@link CoreSound} and has similar delay, options, pitch, sound and volume.
+     * Whether the {@link Object} is a {@link Sound} and has similar delay, options, pitch, sound and volume.
      *
      * @param o The {@link Object} to compare.
      * @return If the argument is a similar sound to this one.
@@ -251,9 +251,9 @@ public class CoreSound
     public boolean isSimilar(Object o)
     {
         if (this == o) return true;
-        if (!(o instanceof CoreSound)) return false;
+        if (!(o instanceof Sound)) return false;
 
-        CoreSound sound1 = (CoreSound) o;
+        Sound sound1 = (Sound) o;
 
         return Float.compare(sound1.volume, volume) == 0 &&
                 Float.compare(sound1.pitch, pitch) == 0 &&
@@ -273,7 +273,7 @@ public class CoreSound
     {
         if (!isSimilar(o)) return false;
 
-        CoreSound sound1 = (CoreSound) o;
+        Sound sound1 = (Sound) o;
 
         return Objects.equals(sound1.section, section);
     }

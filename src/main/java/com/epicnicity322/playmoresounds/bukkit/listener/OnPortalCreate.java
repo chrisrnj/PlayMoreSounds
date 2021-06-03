@@ -19,7 +19,7 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.world.PortalCreateEvent;
@@ -41,7 +41,7 @@ public class OnPortalCreate extends PMSListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerSwapHandItems(PortalCreateEvent event)
     {
-        RichSound sound = getRichSound();
+        PlayableRichSound sound = getRichSound();
 
         // Other plugins might change the blocks list.
         if (event.getBlocks().isEmpty()) return;

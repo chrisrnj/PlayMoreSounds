@@ -18,7 +18,7 @@
 
 package com.epicnicity322.playmoresounds.sponge.sound;
 
-import com.epicnicity322.playmoresounds.core.sound.CoreRichSound;
+import com.epicnicity322.playmoresounds.core.sound.RichSound;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,29 +28,29 @@ import org.spongepowered.api.world.World;
 
 import java.util.Collection;
 
-public class RichSound extends CoreRichSound<Sound> implements Playable
+public class PlayableRichSound extends RichSound<PlayableSound> implements Playable
 {
-    public RichSound(@NotNull String name, boolean enabled, boolean cancellable, @Nullable Collection<Sound> childSounds)
+    public PlayableRichSound(@NotNull String name, boolean enabled, boolean cancellable, @Nullable Collection<PlayableSound> childSounds)
     {
         super(name, enabled, cancellable, childSounds);
     }
 
-    public RichSound(@NotNull ConfigurationSection section)
+    public PlayableRichSound(@NotNull ConfigurationSection section)
     {
         super(section);
     }
 
     @Override
-    protected @NotNull Sound newCoreSound(@NotNull ConfigurationSection section)
+    protected @NotNull PlayableSound newCoreSound(@NotNull ConfigurationSection section)
     {
-        return new Sound(section);
+        return new PlayableSound(section);
     }
 
     @Override
     public void play(@Nullable Player player, @NotNull Location<World> sourceLocation)
     {
         if (isEnabled() && !getChildSounds().isEmpty()) {
-            for (Sound s : getChildSounds()) {
+            for (PlayableSound s : getChildSounds()) {
                 s.play(player, sourceLocation);
             }
         }

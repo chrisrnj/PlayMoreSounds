@@ -19,7 +19,7 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -46,7 +46,7 @@ public final class OnCraftItem extends PMSListener
         HumanEntity whoClicked = event.getWhoClicked();
 
         if (whoClicked instanceof Player) {
-            RichSound sound = getRichSound();
+            PlayableRichSound sound = getRichSound();
 
             if (!event.isCancelled() || !sound.isCancellable())
                 sound.play((Player) whoClicked);

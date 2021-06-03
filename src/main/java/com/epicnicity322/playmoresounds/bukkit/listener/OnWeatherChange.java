@@ -19,7 +19,7 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
@@ -33,8 +33,8 @@ import org.jetbrains.annotations.NotNull;
 public final class OnWeatherChange extends PMSListener
 {
     private final @NotNull PlayMoreSounds plugin;
-    private RichSound stopSound;
-    private RichSound startSound;
+    private PlayableRichSound stopSound;
+    private PlayableRichSound startSound;
 
     public OnWeatherChange(@NotNull PlayMoreSounds plugin)
     {
@@ -59,8 +59,8 @@ public final class OnWeatherChange extends PMSListener
         boolean startEnabled = start != null && start.getBoolean("Enabled").orElse(false);
 
         if (stopEnabled || startEnabled) {
-            stopSound = new RichSound(stop);
-            startSound = new RichSound(start);
+            stopSound = new PlayableRichSound(stop);
+            startSound = new PlayableRichSound(start);
 
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -77,7 +77,7 @@ public final class OnWeatherChange extends PMSListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onWeatherChange(WeatherChangeEvent event)
     {
-        RichSound sound = event.toWeatherState() ? startSound : stopSound;
+        PlayableRichSound sound = event.toWeatherState() ? startSound : stopSound;
 
         if (!event.isCancelled() || !sound.isCancellable())
             sound.play(event.getWorld().getSpawnLocation());

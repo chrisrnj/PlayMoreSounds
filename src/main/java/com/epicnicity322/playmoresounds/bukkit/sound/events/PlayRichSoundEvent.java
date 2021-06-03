@@ -18,7 +18,7 @@
 
 package com.epicnicity322.playmoresounds.bukkit.sound.events;
 
-import com.epicnicity322.playmoresounds.bukkit.sound.RichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.sound.SoundOptions;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -37,11 +37,11 @@ public class PlayRichSoundEvent extends Event implements Cancellable
 {
     private static final HandlerList handlers = new HandlerList();
     private final @Nullable Player player;
-    private final @NotNull RichSound richSound;
+    private final @NotNull PlayableRichSound richSound;
     private boolean cancelled;
     private @NotNull Location location;
 
-    public PlayRichSoundEvent(@Nullable Player player, @NotNull Location location, @NotNull RichSound richSound)
+    public PlayRichSoundEvent(@Nullable Player player, @NotNull Location location, @NotNull PlayableRichSound richSound)
     {
         this.player = player;
         this.location = location;
@@ -109,7 +109,7 @@ public class PlayRichSoundEvent extends Event implements Cancellable
      *
      * @return The rich sound object that will play.
      */
-    public @NotNull RichSound getRichSound()
+    public @NotNull PlayableRichSound getRichSound()
     {
         return richSound;
     }
