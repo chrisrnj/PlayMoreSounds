@@ -395,7 +395,7 @@ public final class RegionSubCommand extends Command implements Helpable
             }
 
             lang.send(sender, lang.get("Region.Info.Header").replace("<name>", region.getName()));
-            lang.send(sender, false, lang.get("Region.Info.Owner").replace("<owner>", Bukkit.getOfflinePlayer(region.getCreator()).getName()));
+            lang.send(sender, false, lang.get("Region.Info.Owner").replace("<owner>", region.getCreator() == null ? "CONSOLE" : Bukkit.getOfflinePlayer(region.getCreator()).getName()));
             lang.send(sender, false, lang.get("Region.Info.Id").replace("<uuid>", region.getId().toString()));
             lang.send(sender, false, lang.get("Region.Info.World").replace("<world>", region.getMaxDiagonal().getWorld().getName()));
             lang.send(sender, false, lang.get("Region.Info.Creation Date").replace("<date>", region.getCreationDate().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"))));
