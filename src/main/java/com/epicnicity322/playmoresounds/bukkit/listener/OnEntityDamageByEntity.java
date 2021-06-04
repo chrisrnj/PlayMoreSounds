@@ -27,6 +27,7 @@ import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -35,6 +36,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
@@ -148,6 +150,7 @@ public final class OnEntityDamageByEntity extends PMSListener
         ConfigurationSection defaultSection = sounds.getConfigurationSection(getName());
 
         boolean defaultEnabled = defaultSection != null && defaultSection.getBoolean("Enabled").orElse(false);
+        boolean playerKillKilledEnabled = sounds.getBoolean("Player Kill.Enabled").orElse(false) || sounds.getBoolean("Player Killed.Enabled").orElse(false);
         boolean specificHurtEnabled = false;
 
         for (Map.Entry<String, Object> condition : hitSounds.getNodes().entrySet()) {
@@ -161,7 +164,7 @@ public final class OnEntityDamageByEntity extends PMSListener
             }
         }
 
-        if (defaultEnabled || specificHurtEnabled) {
+        if (defaultEnabled || specificHurtEnabled || playerKillKilledEnabled) {
             if (defaultEnabled)
                 setRichSound(new PlayableRichSound(defaultSection));
 
@@ -205,6 +208,14 @@ public final class OnEntityDamageByEntity extends PMSListener
                     damagerHand = equipment.getItemInMainHand().getType();
                 else
                     damagerHand = equipment.getItemInHand().getType();
+        }
+
+        if (VersionUtils.hasPersistentData() && player != null && victim instanceof Player) {
+            Player victimPlayer = (Player) victim;
+
+            if (victimPlayer.getHealth() - event.getFinalDamage() <= 0) {
+                victimPlayer.getPersistentDataContainer().set(new NamespacedKey(plugin, "killer_uuid"), PersistentDataType.STRING, player.getUniqueId().toString());
+            }
         }
 
         // If the default sound should play.

@@ -39,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public final class OnPlayerDeath extends PMSListener
 {
@@ -52,6 +53,8 @@ public final class OnPlayerDeath extends PMSListener
 
     private final @NotNull HashMap<String, PlayableRichSound> specificDeaths = new HashMap<>();
     private final @NotNull PlayMoreSounds plugin;
+    private @Nullable PlayableRichSound playerKilled;
+    private @Nullable PlayableRichSound playerKill;
 
     public OnPlayerDeath(@NotNull PlayMoreSounds plugin)
     {
@@ -105,6 +108,15 @@ public final class OnPlayerDeath extends PMSListener
                 setLoaded(false);
             }
         }
+
+        if (!VersionUtils.hasPersistentData()) EntityDamageEvent.getHandlerList().unregister(this);
+
+        if (sounds.getBoolean("Player Kill.Enabled").orElse(false)) {
+            playerKill = new PlayableRichSound(sounds.getConfigurationSection("Player Kill"));
+        }
+        if (sounds.getBoolean("Player Killed.Enabled").orElse(false)) {
+            playerKilled = new PlayableRichSound(sounds.getConfigurationSection("Player Killed"));
+        }
     }
 
     @EventHandler
@@ -114,6 +126,23 @@ public final class OnPlayerDeath extends PMSListener
         boolean defaultSound = true;
 
         if (VersionUtils.hasPersistentData()) {
+            String killerUUID = player.getPersistentDataContainer().get(new NamespacedKey(plugin, "killer_uuid"), PersistentDataType.STRING);
+
+            if (killerUUID != null) {
+                if (playerKill != null) {
+                    Player killer = Bukkit.getPlayer(UUID.fromString(killerUUID));
+
+                    playerKill.play(killer);
+                }
+                if (playerKilled != null) {
+                    playerKilled.play(player);
+
+                    if (playerKilled.getSection().getBoolean("Prevent Death Sounds").orElse(false)) {
+                        return;
+                    }
+                }
+            }
+
             String cause = player.getPersistentDataContainer().get((NamespacedKey) namespacedKey, PersistentDataType.STRING);
 
             if (cause != null) {
@@ -141,9 +170,10 @@ public final class OnPlayerDeath extends PMSListener
     {
         Entity entity = event.getEntity();
 
-        if (entity instanceof Player)
-            if (!event.isCancelled() && VersionUtils.hasPersistentData())
-                entity.getPersistentDataContainer().set((NamespacedKey) namespacedKey, PersistentDataType.STRING,
-                        event.getCause().toString());
+        if (VersionUtils.hasPersistentData() && !event.isCancelled() && entity instanceof Player) {
+            if (((Player) entity).getHealth() - event.getFinalDamage() <= 0) {
+                entity.getPersistentDataContainer().set((NamespacedKey) namespacedKey, PersistentDataType.STRING, event.getCause().toString());
+            }
+        }
     }
 }
