@@ -24,7 +24,6 @@ import com.epicnicity322.playmoresounds.bukkit.region.events.RegionLeaveEvent;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
-import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -41,23 +40,14 @@ public final class OnPlayerQuit implements Listener
     static {
         Runnable soundUpdater = () -> {
             Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
-            ConfigurationSection playerBanSection = sounds.getConfigurationSection("Player Ban");
-            ConfigurationSection leaveServerSection = sounds.getConfigurationSection("Leave Server");
 
-            if (playerBanSection != null) {
-                playerBan = new PlayableRichSound(playerBanSection);
-
-                if (!playerBan.isEnabled())
-                    playerBan = null;
-            }
-            if (leaveServerSection != null) {
-                leaveServer = new PlayableRichSound(leaveServerSection);
-
-                if (!leaveServer.isEnabled())
-                    leaveServer = null;
-            }
+            if (sounds.getBoolean("Player Ban.Enabled").orElse(false))
+                playerBan = new PlayableRichSound(sounds.getConfigurationSection("Player Ban"));
+            if (sounds.getBoolean("Join Server.Enabled").orElse(false))
+                leaveServer = new PlayableRichSound(sounds.getConfigurationSection("Leave Server"));
         };
 
+        // Not running it immediately because PlayableRichSound requires PlayMoreSounds loaded if delay > 0.
         PlayMoreSounds.onInstance(soundUpdater);
         PlayMoreSounds.onReload(soundUpdater);
     }

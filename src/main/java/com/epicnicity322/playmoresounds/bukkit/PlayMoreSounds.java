@@ -255,7 +255,7 @@ public final class PlayMoreSounds extends JavaPlugin
             PluginManager pluginManager = Bukkit.getPluginManager();
 
             if (VersionUtils.supportsResourcePacks()) {
-                pluginManager.registerEvents(new OnPlayerResourcePackStatus(), this);
+                pluginManager.registerEvents(new OnPlayerResourcePackStatus(this), this);
             }
 
             // Registering region wand tool listener.

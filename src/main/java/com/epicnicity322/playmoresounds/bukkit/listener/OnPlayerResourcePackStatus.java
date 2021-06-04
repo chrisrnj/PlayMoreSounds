@@ -18,19 +18,24 @@
 
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
-import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 public class OnPlayerResourcePackStatus implements Listener
 {
-    private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
+    private final @NotNull PlayMoreSounds plugin;
+
+    public OnPlayerResourcePackStatus(@NotNull PlayMoreSounds plugin)
+    {
+        this.plugin = plugin;
+    }
 
     @EventHandler
     public void onPlayerResourcePackStatus(PlayerResourcePackStatusEvent event)
@@ -42,17 +47,15 @@ public class OnPlayerResourcePackStatus implements Listener
                 config.getBoolean("Resource Packs.Force.Enabled").orElse(false) &&
                 status == PlayerResourcePackStatusEvent.Status.DECLINED ||
                 status == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD) {
-            if (!config.getBoolean("Resource Packs.Force.Even If Download Fail").orElse(false))
-                if (status == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD)
-                    return;
+            if (!config.getBoolean("Resource Packs.Force.Even If Download Fail").orElse(false) && status == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD)
+                return;
 
-            new BukkitRunnable()
-            {
-                public void run()
-                {
-                    event.getPlayer().kickPlayer(lang.getColored("Resource Packs.Kick Message"));
-                }
-            }.runTaskLater(PlayMoreSounds.getInstance(), 20);
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                Player player = event.getPlayer();
+
+                if (player.isOnline())
+                    player.kickPlayer(PlayMoreSounds.getLanguage().getColored("Resource Packs.Kick Message"));
+            }, 20);
         }
     }
 }

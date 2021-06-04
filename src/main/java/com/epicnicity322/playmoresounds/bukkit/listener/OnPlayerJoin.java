@@ -28,44 +28,32 @@ import com.epicnicity322.playmoresounds.bukkit.util.UpdateManager;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
-import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class OnPlayerJoin implements Listener
 {
     private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
-    private static final @NotNull BukkitScheduler scheduler = Bukkit.getScheduler();
     private static @Nullable PlayableRichSound firstJoin;
     private static @Nullable PlayableRichSound joinServer;
 
     static {
         Runnable soundUpdater = () -> {
             Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
-            ConfigurationSection firstJoinSection = sounds.getConfigurationSection("First Join");
-            ConfigurationSection joinServerSection = sounds.getConfigurationSection("Join Server");
 
-            if (firstJoinSection != null) {
-                firstJoin = new PlayableRichSound(firstJoinSection);
-
-                if (!firstJoin.isEnabled())
-                    firstJoin = null;
-            }
-            if (joinServerSection != null) {
-                joinServer = new PlayableRichSound(joinServerSection);
-
-                if (!joinServer.isEnabled())
-                    joinServer = null;
-            }
+            if (sounds.getBoolean("First Join.Enabled").orElse(false))
+                firstJoin = new PlayableRichSound(sounds.getConfigurationSection("First Join"));
+            if (sounds.getBoolean("Join Server.Enabled").orElse(false))
+                joinServer = new PlayableRichSound(sounds.getConfigurationSection("Join Server"));
         };
 
+        // Not running it immediately because PlayableRichSound requires PlayMoreSounds loaded if delay > 0.
         PlayMoreSounds.onInstance(soundUpdater);
         PlayMoreSounds.onReload(soundUpdater);
     }
@@ -108,7 +96,7 @@ public final class OnPlayerJoin implements Listener
         if (VersionUtils.supportsResourcePacks()) {
             try {
                 if (config.getBoolean("Resource Packs.Request").orElse(false))
-                    scheduler.runTaskLater(plugin, () -> {
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
                         lang.send(player, lang.get("Resource Packs.Request Message"));
                         config.getString("Resource Packs.URL").ifPresent(player::setResourcePack);
                     }, 20);
