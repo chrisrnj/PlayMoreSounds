@@ -77,7 +77,6 @@ public final class OnPlayerJoin implements Listener
         this.plugin = plugin;
     }
 
-
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event)
     {
@@ -87,8 +86,7 @@ public final class OnPlayerJoin implements Listener
         // Playing join sound
         if (player.hasPlayedBefore()) {
             if (joinServer != null) joinServer.play(player);
-            else if (firstJoin != null) firstJoin.play(player);
-        }
+        } else if (firstJoin != null) firstJoin.play(player);
 
         // Send update available message.
         if (UpdateManager.isUpdateAvailable() && player.hasPermission("playmoresounds.update.joinmessage"))
