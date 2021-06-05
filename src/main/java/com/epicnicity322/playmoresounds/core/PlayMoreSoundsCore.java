@@ -20,7 +20,9 @@ package com.epicnicity322.playmoresounds.core;
 
 import com.epicnicity322.epicpluginlib.core.logger.ErrorHandler;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
+import com.epicnicity322.epicpluginlib.core.util.PathUtils;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
+import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,6 +67,7 @@ public final class PlayMoreSoundsCore
             }
         }
 
+        // Removing error reports if the server was reloaded
         if (Objects.equals(System.getProperty("PlayMoreSounds Enabled"), "true")) {
             System.out.println("PlayMoreSounds NOTICE: A reload was detected and since PlayMoreSounds does not support reloads, all PlayMoreSounds errors thrown from now on will not be logged.");
             errorHandler = new UselessErrorHandler(folder, "PlayMoreSounds", PlayMoreSoundsVersion.version,
@@ -75,6 +78,26 @@ public final class PlayMoreSoundsCore
         }
 
         System.setProperty("PlayMoreSounds Enabled", "true");
+
+        // Creating available sounds file
+        Path availableSounds = folder.resolve("available sounds.txt");
+        StringBuilder data = new StringBuilder();
+
+        data.append("A list of sounds available in this minecraft version.\n")
+                .append("This file is not a configuration and any information stored here is not used anywhere in the plugin.\n")
+                .append("This file is restored everytime the server starts.\n")
+                .append("\n")
+                .append("List of sounds available in your minecraft version:\n");
+
+        for (String sound : SoundType.getPresentSoundNames())
+            data.append("\n- ").append(sound);
+
+        try {
+            Files.deleteIfExists(availableSounds);
+            PathUtils.write(data.toString(), availableSounds);
+        } catch (IOException ex) {
+            errorHandler.report(ex, "Fail to create available sounds file:");
+        }
     }
 
     /**
