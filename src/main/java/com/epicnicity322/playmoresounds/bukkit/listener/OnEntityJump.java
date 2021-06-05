@@ -25,7 +25,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.jetbrains.annotations.NotNull;
 
-public class OnEntityJump extends PMSListener
+public final class OnEntityJump extends PMSListener
 {
     public OnEntityJump(@NotNull PlayMoreSounds plugin)
     {

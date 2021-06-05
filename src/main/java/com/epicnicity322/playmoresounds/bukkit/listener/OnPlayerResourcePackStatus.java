@@ -28,7 +28,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class OnPlayerResourcePackStatus implements Listener
+public final class OnPlayerResourcePackStatus implements Listener
 {
     private final @NotNull PlayMoreSounds plugin;
 

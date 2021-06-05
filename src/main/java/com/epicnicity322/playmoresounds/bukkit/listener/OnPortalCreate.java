@@ -25,7 +25,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class OnPortalCreate extends PMSListener
+public final class OnPortalCreate extends PMSListener
 {
     public OnPortalCreate(@NotNull PlayMoreSounds plugin)
     {

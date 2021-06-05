@@ -23,7 +23,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class OnPlayerRespawn extends PMSListener
+public final class OnPlayerRespawn extends PMSListener
 {
     public OnPlayerRespawn(@NotNull PlayMoreSounds plugin)
     {

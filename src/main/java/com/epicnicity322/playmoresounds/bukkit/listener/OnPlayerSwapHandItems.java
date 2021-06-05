@@ -25,7 +25,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class OnPlayerSwapHandItems extends PMSListener
+public final class OnPlayerSwapHandItems extends PMSListener
 {
     public OnPlayerSwapHandItems(@NotNull PlayMoreSounds plugin)
     {
