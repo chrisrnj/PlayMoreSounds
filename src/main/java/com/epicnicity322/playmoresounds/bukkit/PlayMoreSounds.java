@@ -333,7 +333,7 @@ public final class PlayMoreSounds extends JavaPlugin
                 addonManager.startAddons(StartTime.END);
 
                 // Bukkit only runs a task once the server has fully loaded.
-                Bukkit.getScheduler().runTaskLater(this, () -> addonManager.startAddons(StartTime.SERVER_LOAD_COMPLETE), 1);
+                Bukkit.getScheduler().runTask(this, () -> addonManager.startAddons(StartTime.SERVER_LOAD_COMPLETE));
             } else {
                 logger.log("&6============================================");
                 logger.log("&cSomething went wrong while loading PMS");

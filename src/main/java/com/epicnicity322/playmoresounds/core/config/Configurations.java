@@ -1258,9 +1258,9 @@ public enum Configurations
             "    Offline: '&cYou are offline or spigot.org is down.'\n" +
             "    Timeout: '&cTook too long to establish a connection.'\n" +
             "  Not Available: '&eNo updates available.'", StaticFields.version3_3_0),
-    LANGUAGE_ES_LA(StaticFields.lang.resolve("Language ES-LA.yml"), "", StaticFields.version4_0_0),
-    LANGUAGE_PT_BR(StaticFields.lang.resolve("Language PT-BR.yml"), "", StaticFields.version4_0_0),
-    LANGUAGE_ZH_CN(StaticFields.lang.resolve("Language ZH-CN.yml"), "", StaticFields.version4_0_0),
+    LANGUAGE_ES_LA(StaticFields.lang.resolve("Language ES-LA.yml"), "", StaticFields.version3_3_0),
+    LANGUAGE_PT_BR(StaticFields.lang.resolve("Language PT-BR.yml"), "", StaticFields.version3_3_0),
+    LANGUAGE_ZH_CN(StaticFields.lang.resolve("Language ZH-CN.yml"), "", StaticFields.version3_3_0),
     NATURE_SOUNDS_REPLACER(StaticFields.sounds.resolve("nature sounds replacer.yml"), "# Replace any sound played by nature on your server.\n" +
             "#\n" +
             "#  When a sound here is played, PlayMoreSounds interrupts the sound packets from being\n" +
@@ -1278,7 +1278,7 @@ public enum Configurations
             "#  To replace a sound create a section with the sound name and set the replacing sound\n" +
             "# on it, for example:\n" +
             "#\n" +
-            "#ENTITY_ZOMBIE_HURT: # This is the sound to replace\n" +
+            "#ENTITY_ZOMBIE_HURT: # This is the sound that I want to replace, remember this sound changes depending on the server version.\n" +
             "#  Enabled: true\n" +
             "#  Sounds: # The sounds that will play instead.\n" +
             "#    '0':\n" +
@@ -1291,11 +1291,11 @@ public enum Configurations
             "#          FRONT_BACK: 0.0\n" +
             "#          RIGHT_LEFT: 0.0\n" +
             "#          UP_DOWN: 0.0\n" +
-            "#      Pitch: 1.0\n" +
+            "#      Pitch: 0.5\n" +
             "#      Sound: ENTITY_SKELETON_HURT\n" +
-            "#      Volume: 10.0\n" +
+            "#      Volume: 1.0\n" +
             "#\n" +
-            "# More information about sounds on sounds.yml.\n" +
+            "# More information about sound options on sounds.yml.\n" +
             "\n" +
             "Version: '" + PlayMoreSoundsVersion.version + "'", StaticFields.version4_0_0),
     REGIONS(StaticFields.sounds.resolve("regions.yml"), "# Set a sound to play when you enter, exit or stand on a specific region.\n" +
