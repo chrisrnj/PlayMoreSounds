@@ -94,7 +94,7 @@ public final class UpdateManager
     {
         MessageSender lang = PlayMoreSounds.getLanguage();
 
-        if (updateAvailable.get()) {
+        if (updateAvailable.get() && !sendUnsupportedNotice(sender)) {
             if (log) {
                 lang.send(sender, lang.get("Update.Available").replace("<version>", latestVersion.getVersion()).replace("<label>", "pms"));
             }
@@ -113,13 +113,15 @@ public final class UpdateManager
                 updateAvailable.set(true);
                 latestVersion = latest;
 
-                if (log) {
-                    lang.send(sender, lang.get("Update.Available").replace("<version>", UpdateManager.latestVersion.getVersion()).replace("<label>", "pms"));
-                }
+                if (!sendUnsupportedNotice(sender)) {
+                    if (log) {
+                        lang.send(sender, lang.get("Update.Available").replace("<version>", UpdateManager.latestVersion.getVersion()).replace("<label>", "pms"));
+                    }
 
-                if (PlayMoreSounds.getInstance() != null) {
-                    Bukkit.getScheduler().runTaskTimer(PlayMoreSounds.getInstance(), () ->
-                            logger.log("&2PMS has a new update available. Please download using /pms update download."), 12000, 12000);
+                    if (PlayMoreSounds.getInstance() != null) {
+                        Bukkit.getScheduler().runTaskTimer(PlayMoreSounds.getInstance(), () ->
+                                logger.log("&2PMS has a new update available. Please download it on spigotmc.org."), 12000, 12000);
+                    }
                 }
             } else {
                 lang.send(sender, lang.get("Update.Not Available"));
@@ -145,5 +147,14 @@ public final class UpdateManager
                 PlayMoreSoundsCore.getErrorHandler().report(exception, "Update Check Exception:");
             }
         });
+    }
+
+    private static boolean sendUnsupportedNotice(CommandSender sender)
+    {
+        if (latestVersion.compareTo(new Version("4.1")) >= 0 && PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.17")) < 0) {
+            logger.log(sender, "&4Version " + latestVersion + " is available but your server does not support it. Disable updater on config and restart your server to stop checking for updates.");
+            return true;
+        }
+        return false;
     }
 }
