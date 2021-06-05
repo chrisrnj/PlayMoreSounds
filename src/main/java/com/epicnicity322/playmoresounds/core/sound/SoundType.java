@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -1341,7 +1341,7 @@ public enum SoundType
          * If the current bukkit version is lower than the minimum supported.
          */
         private static final boolean lowerThanMin = PlayMoreSoundsCore.getServerVersion().compareTo(minSupportedVersion) < 0;
-        private static final @NotNull HashSet<String> availableSoundNames = new HashSet<>();
-        private static final @NotNull HashSet<SoundType> availableSoundTypes = new HashSet<>();
+        private static final @NotNull LinkedHashSet<String> availableSoundNames = new LinkedHashSet<>();
+        private static final @NotNull LinkedHashSet<SoundType> availableSoundTypes = new LinkedHashSet<>();
     }
 }
