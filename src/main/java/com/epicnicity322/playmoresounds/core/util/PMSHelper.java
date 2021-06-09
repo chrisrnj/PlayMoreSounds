@@ -19,7 +19,10 @@
 package com.epicnicity322.playmoresounds.core.util;
 
 import com.epicnicity322.playmoresounds.core.config.Configurations;
+import com.epicnicity322.yamlhandler.Configuration;
+import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -27,6 +30,7 @@ import java.time.Month;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public final class PMSHelper
@@ -39,6 +43,30 @@ public final class PMSHelper
 
     private PMSHelper()
     {
+    }
+
+    public static boolean anySoundEnabled(@NotNull Configuration configuration, @Nullable String prefix)
+    {
+        if (prefix == null) {
+            for (Map.Entry<String, Object> node : configuration.getNodes().entrySet()) {
+                Object value = node.getValue();
+
+                if (value instanceof ConfigurationSection && ((ConfigurationSection) value).getBoolean("Enabled").orElse(false)) {
+                    return true;
+                }
+            }
+        } else {
+            for (Map.Entry<String, Object> node : configuration.getAbsoluteNodes().entrySet()) {
+                String key = node.getKey();
+                Object value = node.getValue();
+
+                if (value != null && value.equals(true) && key.startsWith(prefix) && key.substring(prefix.length()).equals(".Enabled")) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public static @NotNull String getRandomString(int length)
