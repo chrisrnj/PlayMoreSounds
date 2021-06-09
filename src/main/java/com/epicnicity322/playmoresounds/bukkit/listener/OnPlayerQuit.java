@@ -65,7 +65,6 @@ public final class OnPlayerQuit implements Listener
 
         if (player.isBanned()) {
             if (playerBan != null) playerBan.play(player);
-            else if (leaveServer != null) leaveServer.play(player);
-        }
+        } else if (leaveServer != null) leaveServer.play(player);
     }
 }
