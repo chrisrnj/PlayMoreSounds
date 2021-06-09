@@ -192,9 +192,12 @@ public final class PlayMoreSounds extends JavaPlugin
 
     public static @NotNull HashMap<ConfigurationHolder, Exception> reload()
     {
+        if (instance == null) throw new UnsupportedOperationException("PlayMoreSounds is not loaded.");
+
         HashMap<ConfigurationHolder, Exception> exceptions = Configurations.getConfigurationLoader().loadConfigurations();
         ListenerRegister.loadListeners();
         WorldTimeListener.load();
+        NatureSoundReplacer.loadNatureSoundReplacer(instance);
         UpdateManager.check(Bukkit.getConsoleSender(), true);
 
         for (Runnable runnable : onReload) {
@@ -278,14 +281,12 @@ public final class PlayMoreSounds extends JavaPlugin
             logger.log("&6-> &eCommands loaded.");
 
             // Loading Nature Sound Replacer:
-            if (VersionUtils.hasSoundEffects()) {
-                try {
-                    // Checking if ProtocolLib is present
-                    Class.forName("com.comphenix.protocol.events.PacketAdapter");
-                    new OnNamedSoundEffect(this);
-                    logger.log("&eProtocolLib was found and hooked.");
-                } catch (ClassNotFoundException ignored) {
-                }
+            try {
+                // Checking if ProtocolLib is present
+                Class.forName("com.comphenix.protocol.events.PacketAdapter");
+                NatureSoundReplacer.loadNatureSoundReplacer(this);
+                logger.log("&eProtocolLib was found and hooked.");
+            } catch (ClassNotFoundException ignored) {
             }
         } catch (Exception e) {
             success = false;
