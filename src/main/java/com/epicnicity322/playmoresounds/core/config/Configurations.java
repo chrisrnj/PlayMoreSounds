@@ -1261,32 +1261,31 @@ public enum Configurations
     LANGUAGE_ES_LA(StaticFields.lang.resolve("Language ES-LA.yml"), "", StaticFields.version3_3_0),
     LANGUAGE_PT_BR(StaticFields.lang.resolve("Language PT-BR.yml"), "", StaticFields.version3_3_0),
     LANGUAGE_ZH_CN(StaticFields.lang.resolve("Language ZH-CN.yml"), "", StaticFields.version3_3_0),
-    NATURE_SOUNDS_REPLACER(StaticFields.sounds.resolve("nature sounds replacer.yml"), "# Replace any sound played by nature on your server.\n" +
+    NATURE_SOUND_REPLACER(StaticFields.sounds.resolve("nature sound replacer.yml"), "# Replace any sound played by nature in your server.\n" +
             "#\n" +
-            "#  When a sound here is played, PlayMoreSounds interrupts the sound packets from being\n" +
-            "# sent to the players and plays the sound set here instead. This way you can take\n" +
-            "# advantage of PlayMoreSounds features, like replace a nature sound with resource pack\n" +
-            "# sound, radius sound, delayed sound etc.\n" +
+            "#  When a sound here is played, PlayMoreSounds interrupts the sound packets from being sent to the\n" +
+            "# players and plays the sound set here instead. This way you can take advantage of PlayMoreSounds\n" +
+            "# features, like play multiple sounds, delayed sounds, toggleable sounds, permissible sounds,\n" +
+            "# resource pack sounds etc.\n" +
             "#\n" +
             "# Warnings:\n" +
-            "# >> ProtocolLib is required to work.\n" +
-            "# >> Server needs to be running on version 1.9+.\n" +
-            "# >> Sounds to replace are bukkit sounds, that means the name changes depending on the\n" +
-            "# version you are running, unlike PlayMoreSounds sounds that have the same name on all\n" +
-            "# versions.\n" +
+            "# >> ProtocolLib is required for this feature to work.\n" +
+            "# >> Only sounds played by the server are replaceable, sounds played to the client (like walking or\n" +
+            "# building) are replaceable only if the source is another player that's not you.\n" +
             "#\n" +
-            "#  To replace a sound create a section with the sound name and set the replacing sound\n" +
-            "# on it, for example:\n" +
+            "#  To replace a sound, create a section with the sound name and set the replacing sound\n" +
+            "# in it, for example:\n" +
             "#\n" +
-            "#ENTITY_ZOMBIE_HURT: # This is the sound that I want to replace, remember this sound changes depending on the server version.\n" +
+            "#ENTITY_ZOMBIE_HURT: # This is the sound that I want to replace.\n" +
             "#  Enabled: true\n" +
             "#  Sounds: # The sounds that will play instead.\n" +
             "#    '0':\n" +
             "#      Delay: 0\n" +
             "#      Options:\n" +
             "#        Ignores Disabled: true\n" +
+            "#        #Permission Required: '' # Permission Required is available but it's not recommended, use Permission To Listen instead.\n" +
             "#        Permission To Listen: 'listen.zombiehurt'\n" +
-            "#        Radius: 15.2\n" +
+            "#        Radius: 0.0 # Radius > 0 is not recommended\n" +
             "#        Relative Location:\n" +
             "#          FRONT_BACK: 0.0\n" +
             "#          RIGHT_LEFT: 0.0\n" +
@@ -1295,7 +1294,15 @@ public enum Configurations
             "#      Sound: ENTITY_SKELETON_HURT\n" +
             "#      Volume: 1.0\n" +
             "#\n" +
-            "# More information about sound options on sounds.yml.\n" +
+            "#  If you want to completely stop a sound from being played in your server, add as in the example:\n" +
+            "#\n" +
+            "#ENTITY_ZOMBIE_AMBIENT: # This is the sound that I want to stop from playing in my server.\n" +
+            "#  Enabled: true\n" +
+            "#  #Sounds: # Don't add 'Sounds' section since you don't want sounds to play.\n" +
+            "#\n" +
+            "#  A more in deep tutorial of all sound options can be found in sounds.yml file.\n" +
+            "#  If you have any other doubts on how to set this configuration up, feel free to ask in\n" +
+            "# PlayMoreSounds' discord: https://discord.gg/eAHPbc3\n" +
             "\n" +
             "Version: '" + PlayMoreSoundsVersion.version + "'", StaticFields.version4_0_0),
     REGIONS(StaticFields.sounds.resolve("regions.yml"), "# Set a sound to play when you enter, exit or stand on a specific region.\n" +
@@ -1508,7 +1515,7 @@ public enum Configurations
             "# This sound is cancellable.\n" +
             "Edit Book:\n" +
             "  Cancellable: false\n" +
-            "  Enabled: true\n" +
+            "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.9")) < 0 ? "false # ITEM_ARMOR_EQUIP_LEATHER is not available in " + PlayMoreSoundsCore.getServerVersion() + " please choose another sound.\n" : "true\n") +
             "  Sounds:\n" +
             "    '0':\n" +
             "      Delay: 0\n" +
@@ -1592,13 +1599,13 @@ public enum Configurations
             "      Options:\n" +
             "        Radius: 0.0\n" +
             "      Pitch: 1.5\n" +
-            "      Sound: UI_BUTTON_CLICK\n" +
+            "      Sound: BLOCK_COMPARATOR_CLICK\n" +
             "      Volume: 0.4\n" +
             "\n" +
             "# When a player closes an inventory.\n" +
             "# This sound is not cancellable.\n" +
             "Inventory Close:\n" +
-            "  Enabled: true\n" +
+            "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.12")) < 0 ? "false # UI_TOAST_OUT is not available in " + PlayMoreSoundsCore.getServerVersion() + " please choose another sound.\n" : "true\n") +
             "  Sounds:\n" +
             "    '0':\n" +
             "      Delay: 0\n" +
@@ -1726,7 +1733,7 @@ public enum Configurations
             "# This sound is cancellable.\n" +
             "Portal Create:\n" +
             "  Cancellable: true\n" +
-            "  Enabled: true\n" +
+            "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.12")) < 0 ? "false # BLOCK_END_PORTAL_SPAWN is not available in " + PlayMoreSoundsCore.getServerVersion() + " please choose another sound.\n" : "true\n") +
             "  Sounds:\n" +
             "    '0':\n" +
             "      Delay: 0\n" +
@@ -1818,7 +1825,8 @@ public enum Configurations
             "# When the player moves their current item to their off hand.\n" +
             "# This sound is cancellable.\n" +
             "Swap Hands:\n" +
-            "  Enabled: true\n" +
+            "  Cancellable: true\n" +
+            "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.9")) < 0 ? "false # This event is not available in " + PlayMoreSoundsCore.getServerVersion() + ".\n" : "true\n") +
             "  Sounds:\n" +
             "    '0':\n" +
             "      Delay: 0\n" +
@@ -1867,7 +1875,7 @@ public enum Configurations
             "# This sound is cancellable.\n" +
             "Weather Rain:\n" +
             "  Cancellable: true\n" +
-            "  Enabled: true\n" +
+            "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.9")) < 0 ? "false # ITEM_ELYTRA_FLYING is not available in " + PlayMoreSoundsCore.getServerVersion() + " please choose another sound.\n" : "true\n") +
             "  Sounds:\n" +
             "    '0':\n" +
             "      Delay: 0\n" +
