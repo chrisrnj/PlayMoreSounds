@@ -38,8 +38,8 @@ public final class PMSHelper
     private static final @NotNull SecureRandom random = new SecureRandom();
     private static final @NotNull String chars = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789";
     private static final int charsLength = chars.length();
-    private static final Pattern invalidNamespaceCharacters = Pattern.compile("[^a-z0-9_.-]");
-    private static final Pattern invalidKeyCharacters = Pattern.compile("[^a-z0-9/._-]");
+    private static final @NotNull Pattern invalidNamespaceCharacters = Pattern.compile("[^a-z0-9_.-]");
+    private static final @NotNull Pattern invalidKeyCharacters = Pattern.compile("[^a-z0-9/._-]");
 
     private PMSHelper()
     {
