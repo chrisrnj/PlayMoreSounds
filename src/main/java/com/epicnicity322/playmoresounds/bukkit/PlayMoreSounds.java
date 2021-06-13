@@ -65,7 +65,10 @@ public final class PlayMoreSounds extends JavaPlugin
             () -> Configurations.CONFIG.getConfigurationHolder().getConfiguration().getString("Language").orElse("EN_US"),
             logger::getPrefix,
             Configurations.LANGUAGE_EN_US.getConfigurationHolder().getDefaultConfiguration());
+    private static final @NotNull LoadableHashSet<String> serverPlugins = new LoadableHashSet<>();
+    private static final @NotNull AddonManager addonManager = new AddonManager(serverPlugins, logger);
     private static @Nullable PlayMoreSounds instance;
+    private static boolean protocolLib = false;
     private static boolean enabled = false;
     private static boolean disabled = false;
     private static boolean success = true;
@@ -81,10 +84,14 @@ public final class PlayMoreSounds extends JavaPlugin
             success = false;
             logger.log("You are running an old version of EpicPluginLib, make sure you are using 2.0 or similar.", ConsoleLogger.Level.ERROR);
         }
+
+        try {
+            Class.forName("com.comphenix.protocol.events.PacketAdapter");
+            protocolLib = true;
+        } catch (ClassNotFoundException ignored) {
+        }
     }
 
-    private final @NotNull LoadableHashSet<String> serverPlugins = new LoadableHashSet<>();
-    private final @NotNull AddonManager addonManager = new AddonManager(serverPlugins, logger);
     private final @NotNull ErrorHandler errorHandler = PlayMoreSoundsCore.getErrorHandler();
 
     public PlayMoreSounds()
@@ -190,6 +197,16 @@ public final class PlayMoreSounds extends JavaPlugin
         return language;
     }
 
+    /**
+     * Gets the addon manager for this platform.
+     *
+     * @return The addon manager.
+     */
+    public static @NotNull AddonManager getAddonManager()
+    {
+        return addonManager;
+    }
+
     public static @NotNull HashMap<ConfigurationHolder, Exception> reload()
     {
         if (instance == null) throw new UnsupportedOperationException("PlayMoreSounds is not loaded.");
@@ -197,7 +214,7 @@ public final class PlayMoreSounds extends JavaPlugin
         HashMap<ConfigurationHolder, Exception> exceptions = Configurations.getConfigurationLoader().loadConfigurations();
         ListenerRegister.loadListeners();
         WorldTimeListener.load();
-        NatureSoundReplacer.loadNatureSoundReplacer(instance);
+        if (protocolLib) NatureSoundReplacer.loadNatureSoundReplacer(instance);
         UpdateManager.check(Bukkit.getConsoleSender(), true);
 
         for (Runnable runnable : onReload) {
@@ -281,12 +298,9 @@ public final class PlayMoreSounds extends JavaPlugin
             logger.log("&6-> &eCommands loaded.");
 
             // Loading Nature Sound Replacer:
-            try {
-                // Checking if ProtocolLib is present
-                Class.forName("com.comphenix.protocol.events.PacketAdapter");
+            if (protocolLib) {
                 NatureSoundReplacer.loadNatureSoundReplacer(this);
                 logger.log("&eProtocolLib was found and hooked.");
-            } catch (ClassNotFoundException ignored) {
             }
         } catch (Exception e) {
             success = false;
