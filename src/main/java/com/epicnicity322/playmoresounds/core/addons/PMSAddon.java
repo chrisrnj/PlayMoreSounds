@@ -25,34 +25,33 @@ import java.util.Objects;
 
 public class PMSAddon
 {
+    private final @NotNull AddonClassLoader classLoader;
+    private final @NotNull Path jar;
+    private final @NotNull AddonDescription description;
     volatile boolean started = false;
     volatile boolean stopped = false;
     volatile boolean loaded = false;
-    private AddonDescription description;
-    private Path jar;
 
     protected PMSAddon()
     {
         ClassLoader classLoader = getClass().getClassLoader();
+        String name = this.getClass().getName();
 
         if (!(classLoader instanceof AddonClassLoader))
-            throw new UnsupportedOperationException(this.getClass().getName() + " can only be instantiated by " + AddonClassLoader.class.getName());
+            throw new UnsupportedOperationException(name + " can only be instantiated by " + AddonClassLoader.class.getName());
 
-        ((AddonClassLoader) classLoader).init(this);
+        this.classLoader = (AddonClassLoader) classLoader;
+
+        if (this.classLoader.addon != null)
+            throw new IllegalStateException(name + " is a singleton and was already instantiated.");
+
+        jar = this.classLoader.jar;
+        description = this.classLoader.description;
     }
 
-    final void init(@NotNull AddonDescription description, @NotNull Path file)
+    @NotNull AddonClassLoader getClassLoader()
     {
-        this.description = description;
-        this.jar = file;
-    }
-
-    /**
-     * @return The description file of this addon.
-     */
-    public final @NotNull AddonDescription getDescription()
-    {
-        return description;
+        return classLoader;
     }
 
     /**
@@ -61,6 +60,14 @@ public class PMSAddon
     public final @NotNull Path getJar()
     {
         return jar;
+    }
+
+    /**
+     * @return The description file of this addon.
+     */
+    public final @NotNull AddonDescription getDescription()
+    {
+        return description;
     }
 
     /**
@@ -95,7 +102,7 @@ public class PMSAddon
     protected void onStart()
     {
         if (started)
-            throw new IllegalStateException(toString() + " has already started.");
+            throw new IllegalStateException(this + " was already started.");
     }
 
     /**
@@ -106,7 +113,7 @@ public class PMSAddon
     protected void onStop()
     {
         if (stopped)
-            throw new IllegalStateException(toString() + " has already stopped.");
+            throw new IllegalStateException(this + " was already stopped.");
     }
 
     /**
@@ -129,12 +136,12 @@ public class PMSAddon
 
         PMSAddon pmsAddon = (PMSAddon) otherAddon;
 
-        return getJar().equals(pmsAddon.getJar());
+        return jar.equals(pmsAddon.jar);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(getJar());
+        return Objects.hash(jar);
     }
 }

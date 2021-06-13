@@ -198,6 +198,8 @@ public class AddonManager
                 for (PMSAddon addon : getAddons())
                     if (addon.started && !addon.stopped)
                         callOnStop(addon);
+
+                AddonClassLoader.clearCaches();
             }, "PMSAddon Stopper").start();
         }
     }
@@ -207,8 +209,10 @@ public class AddonManager
      */
     public void stopAddon(@NotNull PMSAddon addon)
     {
-        if (addon.started && !addon.stopped)
+        if (addon.started && !addon.stopped) {
             callOnStop(addon);
+            AddonClassLoader.clearCaches(addon);
+        }
     }
 
     private void callOnStop(@NotNull PMSAddon addon)
@@ -220,11 +224,18 @@ public class AddonManager
         try {
             addon.onStop();
             addon.stopped = true;
-            addon.loaded = false;
-            AddonEventManager.callLoadUnloadEvent(addon);
         } catch (Exception ex) {
             logger.log("&cException while stopping the addon '" + name + "': " + ex.getMessage(), ConsoleLogger.Level.WARN);
             PlayMoreSoundsCore.getErrorHandler().report(ex, "Path: " + addon.getJar() + "\nStop addon exception:");
+        }
+
+        try {
+            addon.getClassLoader().close();
+            addon.loaded = false;
+            AddonEventManager.callLoadUnloadEvent(addon);
+        } catch (IOException e) {
+            logger.log("&cUnable to close '" + addon + "' addon class loader.");
+            PlayMoreSoundsCore.getErrorHandler().report(e, "Path: " + addon.getJar() + "\nAddonClassLoader close exception:");
         }
     }
 
