@@ -19,15 +19,53 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
+import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
+import com.epicnicity322.playmoresounds.core.config.Configurations;
+import com.epicnicity322.playmoresounds.core.util.PMSHelper;
+import com.epicnicity322.yamlhandler.Configuration;
+import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.jetbrains.annotations.NotNull;
 
 public final class OnPlayerRespawn extends PMSListener
 {
+    private final @NotNull PlayMoreSounds plugin;
+
     public OnPlayerRespawn(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
+        this.plugin = plugin;
+    }
+
+    @Override
+    public void load()
+    {
+        Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+
+        boolean respawnEnabled = sounds.getBoolean("Respawn.Enabled").orElse(false);
+        boolean playerKillKilledEnabled = VersionUtils.hasPersistentData() && sounds.getBoolean("Player Kill.Enabled").orElse(false) || sounds.getBoolean("Player Killer.Enabled").orElse(false);
+        boolean deathTypeEnabled = VersionUtils.hasPersistentData() && PMSHelper.anySoundEnabled(Configurations.DEATH_TYPES.getConfigurationHolder().getConfiguration(), null);
+
+        if (respawnEnabled || playerKillKilledEnabled || deathTypeEnabled) {
+            if (!isLoaded()) {
+                if (respawnEnabled) {
+                    setRichSound(new PlayableRichSound(sounds.getConfigurationSection("Respawn")));
+                }
+
+                Bukkit.getPluginManager().registerEvents(this, plugin);
+                setLoaded(true);
+            }
+        } else {
+            if (isLoaded()) {
+                HandlerList.unregisterAll(this);
+                setLoaded(false);
+            }
+        }
     }
 
     @Override
@@ -39,6 +77,14 @@ public final class OnPlayerRespawn extends PMSListener
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event)
     {
-        getRichSound().play(event.getPlayer());
+        Player player = event.getPlayer();
+
+        if (VersionUtils.hasPersistentData()) {
+            player.getPersistentDataContainer().remove(new NamespacedKey(plugin, "last_damage"));
+            player.getPersistentDataContainer().remove(new NamespacedKey(plugin, "killer_uuid"));
+        }
+
+        if (getRichSound() != null)
+            getRichSound().play(player);
     }
 }
