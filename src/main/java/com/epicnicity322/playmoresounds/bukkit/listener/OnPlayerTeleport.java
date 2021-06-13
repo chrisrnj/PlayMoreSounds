@@ -21,7 +21,7 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
-import com.epicnicity322.yamlhandler.ConfigurationSection;
+import com.epicnicity322.yamlhandler.Configuration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -36,17 +36,16 @@ import org.jetbrains.annotations.Nullable;
 public final class OnPlayerTeleport implements Listener
 {
     private static @Nullable PlayableRichSound teleport;
+    private static @Nullable PlayableRichSound worldChange;
 
     static {
         Runnable soundUpdater = () -> {
-            ConfigurationSection teleportSection = Configurations.SOUNDS.getConfigurationHolder().getConfiguration().getConfigurationSection("Teleport");
+            Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
 
-            if (teleportSection != null) {
-                teleport = new PlayableRichSound(teleportSection);
-
-                if (!teleport.isEnabled())
-                    teleport = null;
-            }
+            if (sounds.getBoolean("Teleport.Enabled").orElse(false))
+                teleport = new PlayableRichSound(sounds.getConfigurationSection("Teleport"));
+            if (sounds.getBoolean("World Change.Enabled").orElse(false))
+                worldChange = new PlayableRichSound(sounds.getConfigurationSection("World Change"));
         };
 
         PlayMoreSounds.onInstance(soundUpdater);
@@ -74,8 +73,21 @@ public final class OnPlayerTeleport implements Listener
 
         OnPlayerMove.checkBiomeEnterLeaveSounds(event, player, from, to);
 
-        if (event.getCause() == PlayerTeleportEvent.TeleportCause.COMMAND && teleport != null && (!event.isCancelled() || !teleport.isCancellable())) {
-            scheduler.runTask(main, () -> teleport.play(player));
-        }
+        if (event.getCause() != PlayerTeleportEvent.TeleportCause.COMMAND) return;
+
+        boolean playTeleport = teleport != null && !event.isCancelled() || !teleport.isCancellable();
+        boolean playWorldChange = !from.getWorld().equals(to.getWorld()) && worldChange != null && !event.isCancelled() || !worldChange.isCancellable();
+
+        if (playTeleport || playWorldChange)
+            scheduler.runTask(main, () -> {
+                if (playWorldChange) {
+                    worldChange.play(player);
+
+                    if (worldChange.getSection().getBoolean("Prevent Teleport Sound").orElse(false)) return;
+                }
+
+                if (playTeleport)
+                    teleport.play(player);
+            });
     }
 }

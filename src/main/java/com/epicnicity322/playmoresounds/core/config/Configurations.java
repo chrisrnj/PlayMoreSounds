@@ -840,9 +840,29 @@ public enum Configurations
             "# https://discord.gg/eAHPbc3\n" +
             "\n" +
             "Version: '" + PlayMoreSoundsVersion.version + "'", StaticFields.version3_3_0),
-    //TODO: Redo Languages
     LANGUAGE_EN_US(StaticFields.lang.resolve("Language EN-US.yml"), "#Language EN-US\n" +
             "Version: '" + PlayMoreSoundsVersion.version + "'\n" +
+            "\n" +
+            "Addons:\n" +
+            "  Title: '&9Installed Addons:'\n" +
+            "  Empty Title: '&cNo addons found'\n" +
+            "  Management Inventory:\n" +
+            "    Install:\n" +
+            "      Display Name: '&2&lInstall Addons'\n" +
+            "      Lore: '&7Click to download latest addons<line>from PlayMoreSounds'' GitHub.'\n" +
+            "  Download:\n" +
+            "    Already Exists: '&7An addons zip was already downloaded before, deleting and downloading the latest one.'\n" +
+            "    Error:" +
+            "      Title: '&4&lError'\n" +
+            "      Subtitle: '&7Something went wrong'\n" +
+            "      Not Found: '&cAddons for PlayMoreSounds v<version> were not found.'\n" +
+            "    Title: '&cDownloading'\n" +
+            "    Info: '&6Info about addons...'\n" +
+            "    Files: '&6Addons files...'\n" +
+            "    Success:\n" +
+            "      Title: '&2Success'\n" +
+            "      Subtitle: '&7Latest addons were downloaded'\n" +
+            "    Unsupported Version: '&7The latest addons were downloaded, but it seems that they don't support the current PlayMoreSounds version you're running, downloading addons made for this version...'\n" +
             "\n" +
             "Confirm:\n" +
             "  Error:\n" +
@@ -1800,8 +1820,6 @@ public enum Configurations
             "      Delay: 0\n" +
             "      Options:\n" +
             "        Radius: 12.0\n" +
-            "        Relative Location:\n" +
-            "          UP_DOWN: 2.0\n" +
             "      Pitch: 1.0\n" +
             "      Sound: BLOCK_PISTON_EXTEND\n" +
             "      Volume: 0.5\n" +
@@ -1816,8 +1834,6 @@ public enum Configurations
             "      Delay: 0\n" +
             "      Options:\n" +
             "        Radius: 12.0\n" +
-            "        Relative Location:\n" +
-            "          UP_DOWN: -1.0\n" +
             "      Pitch: 1.0\n" +
             "      Sound: BLOCK_PISTON_CONTRACT\n" +
             "      Volume: 0.5\n" +
@@ -1891,7 +1907,24 @@ public enum Configurations
             "# This sound is cancellable.\n" +
             "Weather Rain End:\n" +
             "  Cancellable: true\n" +
-            "  Enabled: false", StaticFields.version4_0_0),
+            "  Enabled: false\n" +
+            "\n" +
+            "# When a player teleports to a different world.\n" +
+            "# This sound is cancellable.\n" +
+            "World Change:\n" +
+            "  Cancellable: true\n" +
+            "  Enabled: true\n" +
+            "  # Makes so when the player teleports to a different world, the default sound of 'Teleport' does\n" +
+            "  #not play.\n" +
+            "  Prevent Teleport Sound: true\n" +
+            "  Sounds:\n" +
+            "    '0':\n" +
+            "      Delay: 0\n" +
+            "      Options:\n" +
+            "        Radius: 15.0\n" +
+            "      Pitch: 2.0\n" +
+            "      Sound: BLOCK_PORTAL_TRAVEL\n" +
+            "      Volume: 0.6", StaticFields.version4_0_0),
     WORLD_TIME_TRIGGERS(StaticFields.sounds.resolve("world time triggers.yml"), "# Set a sound to play when a world reaches a specific time of the day.\n" +
             "#\n" +
             "#world: # The name of the world that you want to track time.\n" +
