@@ -493,7 +493,25 @@ public enum Configurations
             "      - MUSIC_DISC_WAIT\n" +
             "      Glowing: false\n" +
             "    # How many rows of sounds should there be per page.\n" +
-            "    Rows Per Page: 4", StaticFields.version4_0_0),
+            "    Rows Per Page: 4\n" +
+            "\n" +
+            "# Configuration for addon management and installer inventories.\n" +
+            "Addons Inventory:\n" +
+            "  Addon Item:\n" +
+            "    Material: IRON_BLOCK\n" +
+            "    Glowing: false\n" +
+            "  Info Item:\n" +
+            "    Material: PAPER\n" +
+            "    Glowing: false\n" +
+            "  Install Item:\n" +
+            "    Material: EMERALD_BLOCK\n" +
+            "    Glowing: true\n" +
+            "  Next Page Item:\n" +
+            "    Material: ARROW\n" +
+            "    Glowing: false\n" +
+            "  Previous Page Item:\n" +
+            "    Material: ARROW\n" +
+            "    Glowing: false", StaticFields.version4_0_0),
     CUSTOM_DISCS(StaticFields.sounds.resolve("custom discs.yml"), "# Set a sound to play when a player clicks at a jukebox with a specific item.\n" +
             "#\n" +
             "# Warnings: \n" +
@@ -844,25 +862,43 @@ public enum Configurations
             "Version: '" + PlayMoreSoundsVersion.version + "'\n" +
             "\n" +
             "Addons:\n" +
-            "  Title: '&9Installed Addons:'\n" +
-            "  Empty Title: '&cNo addons found'\n" +
+            "  Title: '&9&lInstalled Addons:'\n" +
+            "  Empty Title: '&c&lNo addons found'\n" +
+            "  Error:\n" +
+            "    Blocked: '&cAddons are currently being installed, wait until the installation process finishes to open the addon management inventory.'\n" +
             "  Management Inventory:\n" +
+            "    Addon:\n" +
+            "      Display Name: '&a&l<name>'\n" +
+            "      Lore: >-\n" +
+            "        &7Author(s):&8 <authors>\n" +
+            "        <line>&7Description:&8 <description>\n" +
+            "        <line>&7Version:&8 <version>\n" +
+            "    Info:\n" +
+            "      Display Name: '&d&lInfo'\n" +
+            "      Lore: '&7You have <addons> addons installed.'\n" +
             "    Install:\n" +
             "      Display Name: '&2&lInstall Addons'\n" +
-            "      Lore: '&7Click to download latest addons<line>from PlayMoreSounds'' GitHub.'\n" +
+            "      Lore: '&7Click to download latest addons<line>&7from PlayMoreSounds'' GitHub.'\n" +
+            "    Next Page:\n" +
+            "      Display Name: '&7&lNext Page'\n" +
+            "      Lore: '&7Click to go to page <to>.'\n" +
+            "    Previous Page:\n" +
+            "      Display Name: '&7&lNext Page'\n" +
+            "      Lore: '&7Click to go to page <to>.'\n" +
             "  Download:\n" +
             "    Already Exists: '&7An addons zip was already downloaded before, deleting and downloading the latest one.'\n" +
-            "    Error:" +
+            "    Error:\n" +
             "      Title: '&4&lError'\n" +
             "      Subtitle: '&7Something went wrong'\n" +
             "      Not Found: '&cAddons for PlayMoreSounds v<version> were not found.'\n" +
+            "      Unknown: '&cAn unknown error occurred when downloading addons.'\n" +
             "    Title: '&cDownloading'\n" +
             "    Info: '&6Info about addons...'\n" +
             "    Files: '&6Addons files...'\n" +
             "    Success:\n" +
             "      Title: '&2Success'\n" +
             "      Subtitle: '&7Latest addons were downloaded'\n" +
-            "    Unsupported Version: '&7The latest addons were downloaded, but it seems that they don't support the current PlayMoreSounds version you're running, downloading addons made for this version...'\n" +
+            "    Unsupported Version: '&7The latest addons were downloaded, but it seems that they don''t support the current PlayMoreSounds version you''re running, downloading addons made for this version...'\n" +
             "\n" +
             "Confirm:\n" +
             "  Error:\n" +
@@ -1142,9 +1178,10 @@ public enum Configurations
             "\n" +
             "Play:\n" +
             "  Error:\n" +
-            "    Not A Sound: '&cThe section \"&7<section>&c\" in the file &7<file>&c is not a valid\n" +
-            "      sound!'\n" +
+            "    Invalid Sound: '&cThe value \"&7<sound>&c\" has invalid sound characters.'\n" +
+            "    Not A Section: '&cThe section \"&7<section>&c\" in the file &7<file>&c is not a valid sound!'\n" +
             "    Unauthorized: '&cYou can''t go in that folder!'\n" +
+            "    Unavailable: '&cThe sound <sound> is not available in this minecraft version.'\n" +
             "  Pitch: pitch\n" +
             "  Sound: sound\n" +
             "  Success:\n" +
@@ -1277,9 +1314,9 @@ public enum Configurations
             "    Default: '&cSomething went wrong while using updater.'\n" +
             "    Offline: '&cYou are offline or spigot.org is down.'\n" +
             "    Timeout: '&cTook too long to establish a connection.'\n" +
-            "  Not Available: '&eNo updates available.'", StaticFields.version3_3_0),
-    LANGUAGE_ES_LA(StaticFields.lang.resolve("Language ES-LA.yml"), "", StaticFields.version3_3_0),
-    LANGUAGE_PT_BR(StaticFields.lang.resolve("Language PT-BR.yml"), "", StaticFields.version3_3_0),
+            "  Not Available: '&eNo updates available.'", StaticFields.version4_0_0),
+    LANGUAGE_ES_LA(StaticFields.lang.resolve("Language ES-LA.yml"), "", StaticFields.version4_0_0),
+    LANGUAGE_PT_BR(StaticFields.lang.resolve("Language PT-BR.yml"), "", StaticFields.version4_0_0),
     LANGUAGE_ZH_CN(StaticFields.lang.resolve("Language ZH-CN.yml"), "", StaticFields.version3_3_0),
     NATURE_SOUND_REPLACER(StaticFields.sounds.resolve("nature sound replacer.yml"), "# Replace any sound played by nature in your server.\n" +
             "#\n" +
@@ -1972,12 +2009,12 @@ public enum Configurations
 
     private static class StaticFields
     {
-        protected static final @NotNull Path sounds = PlayMoreSoundsCore.getFolder().resolve("Sounds");
-        protected static final @NotNull Path lang = PlayMoreSoundsCore.getFolder().resolve("Language");
+        private static final @NotNull Path sounds = PlayMoreSoundsCore.getFolder().resolve("Sounds");
+        private static final @NotNull Path lang = PlayMoreSoundsCore.getFolder().resolve("Language");
         // These versions are used to set the configurations' minimum versions.
-        protected static final @NotNull Version version3_0_0 = new Version("3.0.0");
-        protected static final @NotNull Version version3_2_0 = new Version("3.2.0");
-        protected static final @NotNull Version version3_3_0 = new Version("3.3.0");
-        protected static final @NotNull Version version4_0_0 = new Version("4.0.0");
+        private static final @NotNull Version version3_0_0 = new Version("3.0.0");
+        private static final @NotNull Version version3_2_0 = new Version("3.2.0");
+        private static final @NotNull Version version3_3_0 = new Version("3.3.0");
+        private static final @NotNull Version version4_0_0 = new Version("4.0.0");
     }
 }

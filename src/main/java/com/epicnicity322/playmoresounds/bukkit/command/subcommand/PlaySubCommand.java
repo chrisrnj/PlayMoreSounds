@@ -23,18 +23,27 @@ import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandUtils;
-import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
-import com.epicnicity322.playmoresounds.core.sound.SoundOptions;
+import com.epicnicity322.playmoresounds.core.sound.SoundType;
+import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
+import java.util.Locale;
+import java.util.Optional;
 
 public final class PlaySubCommand extends Command implements Helpable
 {
     private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
+    private static final @NotNull HashSet<String> soundTypes = new HashSet<>();
+
+    static {
+        for (SoundType type : SoundType.values()) {
+            soundTypes.add(type.name());
+        }
+    }
 
     @Override
     public @NotNull CommandRunnable onHelp()
@@ -91,6 +100,22 @@ public final class PlaySubCommand extends Command implements Helpable
             return;
 
         String sound = args[1];
+
+        if (soundTypes.contains(sound.toUpperCase(Locale.ROOT))) {
+            SoundType type = SoundType.valueOf(sound.toUpperCase(Locale.ROOT));
+            Optional<String> versionSound = type.getSound();
+
+            if (versionSound.isPresent()) {
+                sound = versionSound.get();
+            } else {
+                lang.send(sender, lang.get("Play.Error.Unavailable").replace("<sound>", sound));
+                return;
+            }
+        } else if (!PMSHelper.isNamespacedKey(sound)) {
+            lang.send(sender, lang.get("Play.Error.Invalid Sound").replace("<sound>", sound));
+            return;
+        }
+
         String who = CommandUtils.getWho(targets, sender);
         float volume = 10;
         float pitch = 1;
@@ -99,23 +124,21 @@ public final class PlaySubCommand extends Command implements Helpable
             try {
                 volume = Float.parseFloat(args[3]);
             } catch (NumberFormatException e) {
-                lang.send(sender, lang.get("General.Not A Number").replace("<number>",
-                        args[3]));
+                lang.send(sender, lang.get("General.Not A Number").replace("<number>", args[3]));
+                return;
             }
 
             if (args.length > 4)
                 try {
                     pitch = Float.parseFloat(args[4]);
                 } catch (NumberFormatException e) {
-                    lang.send(sender, lang.get("General.Not A Number").replace("<number>",
-                            args[4]));
+                    lang.send(sender, lang.get("General.Not A Number").replace("<number>", args[4]));
+                    return;
                 }
         }
 
-        PlayableSound sound1 = new PlayableSound(sound, volume, pitch, 0, new SoundOptions(false, null, null, 0, null));
-
         for (Player player : targets)
-            sound1.play(player);
+            player.playSound(player.getLocation(), sound, volume, pitch);
 
         lang.send(sender, lang.get("Play.Success.Default").replace("<sound>", sound).replace(
                 "<player>", who).replace("<volume>", Float.toString(volume)).replace(
