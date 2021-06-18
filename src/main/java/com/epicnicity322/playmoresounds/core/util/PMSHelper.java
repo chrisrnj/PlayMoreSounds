@@ -93,16 +93,16 @@ public final class PMSHelper
         return now.getMonth() == Month.DECEMBER && now.getDayOfMonth() == 25;
     }
 
-    public static <T> @NotNull HashMap<Long, ArrayList<T>> splitIntoPages(@NotNull Collection<T> collection,
-                                                                          int maxPerPage)
+    public static <T> @NotNull HashMap<Integer, ArrayList<T>> splitIntoPages(@NotNull Collection<T> collection,
+                                                                             int maxPerPage)
     {
-        HashMap<Long, ArrayList<T>> pages = new HashMap<>();
+        HashMap<Integer, ArrayList<T>> pages = new HashMap<>();
 
         if (collection.isEmpty())
             return pages;
 
-        long l = 0;
-        long page = 1;
+        int l = 0;
+        int page = 1;
         ArrayList<T> list = new ArrayList<>();
 
         for (T t : collection) {
