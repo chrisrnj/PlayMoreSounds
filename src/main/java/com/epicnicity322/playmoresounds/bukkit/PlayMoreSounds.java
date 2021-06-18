@@ -67,6 +67,7 @@ public final class PlayMoreSounds extends JavaPlugin
             Configurations.LANGUAGE_EN_US.getConfigurationHolder().getDefaultConfiguration());
     private static final @NotNull LoadableHashSet<String> serverPlugins = new LoadableHashSet<>();
     private static final @NotNull AddonManager addonManager = new AddonManager(serverPlugins, logger);
+    private static final @NotNull ErrorHandler errorHandler = PlayMoreSoundsCore.getErrorHandler();
     private static @Nullable PlayMoreSounds instance;
     private static boolean protocolLib = false;
     private static boolean enabled = false;
@@ -74,6 +75,8 @@ public final class PlayMoreSounds extends JavaPlugin
     private static boolean success = true;
 
     static {
+        errorHandler.setLogger(logger);
+
         language.addLanguage("EN_US", Configurations.LANGUAGE_EN_US.getConfigurationHolder());
         language.addLanguage("ES_LA", Configurations.LANGUAGE_ES_LA.getConfigurationHolder());
         language.addLanguage("PT_BR", Configurations.LANGUAGE_PT_BR.getConfigurationHolder());
@@ -92,14 +95,11 @@ public final class PlayMoreSounds extends JavaPlugin
         }
     }
 
-    private final @NotNull ErrorHandler errorHandler = PlayMoreSoundsCore.getErrorHandler();
-
     public PlayMoreSounds()
     {
         instance = this;
 
         logger.setLogger(getLogger());
-        errorHandler.setLogger(getLogger());
 
         for (Runnable runnable : onInstance) {
             try {
