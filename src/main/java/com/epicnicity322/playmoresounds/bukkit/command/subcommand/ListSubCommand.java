@@ -46,7 +46,7 @@ import java.util.TreeSet;
 public final class ListSubCommand extends Command implements Helpable
 {
     private static final @NotNull ConfigurationHolder config = Configurations.CONFIG.getConfigurationHolder();
-    private static final @NotNull HashMap<Integer, HashMap<Long, ArrayList<String>>> soundPagesCache = new HashMap<>();
+    private static final @NotNull HashMap<Integer, HashMap<Integer, ArrayList<String>>> soundPagesCache = new HashMap<>();
     private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
 
     static {
@@ -130,7 +130,7 @@ public final class ListSubCommand extends Command implements Helpable
             listInventory.openInventory(player);
         } else {
             Configuration yamlConfig = ListSubCommand.config.getConfiguration();
-            HashMap<Long, ArrayList<String>> soundPages;
+            HashMap<Integer, ArrayList<String>> soundPages;
             int soundsPerPage = yamlConfig.getNumber("List.Default.Max Per Page").orElse(10).intValue();
 
             if (soundsPerPage < 1)

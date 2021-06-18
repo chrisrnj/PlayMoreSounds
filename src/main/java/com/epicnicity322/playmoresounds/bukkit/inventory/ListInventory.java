@@ -59,7 +59,7 @@ public class ListInventory implements PMSInventory, Listener
     private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
     private static final @NotNull Logger logger = PlayMoreSounds.getConsoleLogger();
     private static final @NotNull ErrorHandler errorLogger = PlayMoreSoundsCore.getErrorHandler();
-    private static final @NotNull HashMap<Integer, HashMap<Long, ArrayList<String>>> soundPagesCache = new HashMap<>();
+    private static final @NotNull HashMap<Integer, HashMap<Integer, ArrayList<String>>> soundPagesCache = new HashMap<>();
     private static final @NotNull Pattern spaceRegex = Pattern.compile(" ");
     private static NamespacedKey button;
 
@@ -73,7 +73,7 @@ public class ListInventory implements PMSInventory, Listener
     private final long page;
     private final @NotNull HashSet<HumanEntity> openInventories = new HashSet<>();
 
-    public ListInventory(long page)
+    public ListInventory(int page)
     {
         if (!VersionUtils.hasPersistentData())
             throw new UnsupportedOperationException("This class only works with bukkit 1.14+.");
@@ -98,7 +98,7 @@ public class ListInventory implements PMSInventory, Listener
 
         soundsPerPage = rowsPerPage * 9;
 
-        HashMap<Long, ArrayList<String>> soundPages;
+        HashMap<Integer, ArrayList<String>> soundPages;
 
         if (soundPagesCache.containsKey(soundsPerPage)) {
             soundPages = soundPagesCache.get(soundsPerPage);
@@ -201,7 +201,7 @@ public class ListInventory implements PMSInventory, Listener
                         PersistentDataType.STRING);
 
                 if (button.startsWith("GOTO"))
-                    Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> new ListInventory(Long.parseLong(spaceRegex.split(button)[1])).openInventory(humanEntity), 10);
+                    Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> new ListInventory(Integer.parseInt(spaceRegex.split(button)[1])).openInventory(humanEntity), 10);
                 else if (button.equals("STOP_SOUND"))
                     SoundManager.stopSounds(player, null, 0);
                 else

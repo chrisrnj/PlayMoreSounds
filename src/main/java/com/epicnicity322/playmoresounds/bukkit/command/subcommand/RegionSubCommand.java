@@ -476,7 +476,7 @@ public final class RegionSubCommand extends Command implements Helpable
         if (page < 1)
             page = 1;
 
-        HashMap<Long, ArrayList<SoundRegion>> pages = PMSHelper.splitIntoPages(regions, 5);
+        HashMap<Integer, ArrayList<SoundRegion>> pages = PMSHelper.splitIntoPages(regions, 5);
 
         if (page > pages.size()) {
             lang.send(sender, lang.get("Region.List.Error.Not Exists").replace("<page>", Long.toString(page)).replace("<totalPages>", Integer.toString(pages.size())));
