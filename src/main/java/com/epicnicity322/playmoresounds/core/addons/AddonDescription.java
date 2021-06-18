@@ -24,6 +24,7 @@ import com.epicnicity322.playmoresounds.core.addons.exceptions.InvalidAddonExcep
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.YamlConfigurationLoader;
 import com.epicnicity322.yamlhandler.exceptions.InvalidConfigurationException;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.FileNotFoundException;
@@ -40,20 +41,21 @@ import java.util.regex.Pattern;
 
 public class AddonDescription
 {
-    private static final @NotNull YamlConfigurationLoader loader = new YamlConfigurationLoader();
     private static final @NotNull Pattern duplicatedSpaces = Pattern.compile(" +");
-    private static final @NotNull Pattern notLetters = Pattern.compile("[^A-Za-z]");
     private static final @NotNull Pattern notAlphaNumericAndSpace = Pattern.compile("[^A-Za-z0-9\\s]");
-    private final @NotNull String mainClass;
-    private final @NotNull String name;
-    private final @NotNull Version version;
-    private final @NotNull Version apiVersion;
-    private final @NotNull StartTime startTime;
+    private static final @NotNull Pattern notLetters = Pattern.compile("[^A-Za-z]");
+    private static final @NotNull YamlConfigurationLoader loader = new YamlConfigurationLoader();
+    private final @NotNull Collection<String> addonHooks;
     private final @NotNull Collection<String> authors;
     private final @NotNull Collection<String> pluginHooks;
-    private final @NotNull Collection<String> addonHooks;
-    private final @NotNull Collection<String> requiredPlugins;
     private final @NotNull Collection<String> requiredAddons;
+    private final @NotNull Collection<String> requiredPlugins;
+    private final @NotNull StartTime startTime;
+    private final @NotNull String description;
+    private final @NotNull String mainClass;
+    private final @NotNull String name;
+    private final @NotNull Version apiVersion;
+    private final @NotNull Version version;
 
     protected AddonDescription(@NotNull Path jar) throws IOException, InvalidAddonException
     {
@@ -100,6 +102,7 @@ public class AddonDescription
                 throw new InvalidAddonException("The addon '" + name + "' has an invalid version defined for Api Version key.", ex);
             }
 
+            this.description = description.getString("Description").orElse("I'm a PMSAddon.");
             authors = Collections.unmodifiableCollection(description.getCollection("Authors", Object::toString));
             pluginHooks = Collections.unmodifiableCollection(description.getCollection("Plugin Hooks", Object::toString));
             addonHooks = Collections.unmodifiableCollection(description.getCollection("Addon Hooks", Object::toString));
@@ -112,13 +115,26 @@ public class AddonDescription
 
     /**
      * For better organization addons names must:
-     * - Be not greater than 26 characters.
-     * - Have at least 3 characters.
-     * - Have at least 3 letters.
-     * - Contain only letters, numbers and spaces.
+     * <ul>
+     *     <li>Contain only letters, numbers and spaces.</li>
+     *     <li>Have the maximum of 26 characters.</li>
+     *     <li>Have at least 3 characters.</li>
+     *     <li>Have at least 3 letters.</li>
+     * </ul>
+     * <p>
+     * All double spaces will be replaced by one.
+     * <p>
+     * The name extra spaces at the tail of the string will trimmed.
+     *
+     * @param name The string to parse as a PMSAddon name.
+     * @return The formatted PMSAddon name.
+     * @throws IllegalArgumentException If {@param name} does not meet any of the requirements listed above.
      */
-    private String parseName(String name)
+    @Contract("null -> null")
+    public static String parseName(String name)
     {
+        if (name == null) return null;
+
         // Trimming and removing duplicated spaces.
         name = duplicatedSpaces.matcher(name.trim()).replaceAll(" ");
 
@@ -137,29 +153,9 @@ public class AddonDescription
         return name;
     }
 
-    public @NotNull String getMainClass()
+    public @NotNull Collection<String> getAddonHooks()
     {
-        return mainClass;
-    }
-
-    public @NotNull String getName()
-    {
-        return name;
-    }
-
-    public @NotNull Version getVersion()
-    {
-        return version;
-    }
-
-    public @NotNull Version getApiVersion()
-    {
-        return apiVersion;
-    }
-
-    public @NotNull StartTime getStartTime()
-    {
-        return startTime;
+        return addonHooks;
     }
 
     public @NotNull Collection<String> getAuthors()
@@ -172,9 +168,9 @@ public class AddonDescription
         return pluginHooks;
     }
 
-    public @NotNull Collection<String> getAddonHooks()
+    public @NotNull Collection<String> getRequiredAddons()
     {
-        return addonHooks;
+        return requiredAddons;
     }
 
     public @NotNull Collection<String> getRequiredPlugins()
@@ -182,25 +178,51 @@ public class AddonDescription
         return requiredPlugins;
     }
 
-    public @NotNull Collection<String> getRequiredAddons()
+    public @NotNull StartTime getStartTime()
     {
-        return requiredAddons;
+        return startTime;
+    }
+
+    public @NotNull String getDescription()
+    {
+        return description;
+    }
+
+    public @NotNull String getMainClass()
+    {
+        return mainClass;
+    }
+
+    public @NotNull String getName()
+    {
+        return name;
+    }
+
+    public @NotNull Version getApiVersion()
+    {
+        return apiVersion;
+    }
+
+    public @NotNull Version getVersion()
+    {
+        return version;
     }
 
     @Override
     public String toString()
     {
         return "AddonDescription{" +
-                "mainClass='" + mainClass + '\'' +
-                ", name='" + name + '\'' +
-                ", version=" + version +
+                "addonHooks=" + addonHooks +
                 ", apiVersion=" + apiVersion +
-                ", startTime=" + startTime +
                 ", authors=" + authors +
+                ", description='" + description + '\'' +
+                ", mainClass='" + mainClass + '\'' +
+                ", name='" + name + '\'' +
                 ", pluginHooks=" + pluginHooks +
-                ", addonHooks=" + addonHooks +
-                ", requiredPlugins=" + requiredPlugins +
                 ", requiredAddons=" + requiredAddons +
+                ", requiredPlugins=" + requiredPlugins +
+                ", startTime=" + startTime +
+                ", version=" + version +
                 '}';
     }
 
@@ -209,22 +231,25 @@ public class AddonDescription
     {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         AddonDescription that = (AddonDescription) o;
-        return mainClass.equals(that.mainClass) &&
-                name.equals(that.name) &&
-                version.equals(that.version) &&
+
+        return addonHooks.equals(that.addonHooks) &&
                 apiVersion.equals(that.apiVersion) &&
-                startTime == that.startTime &&
                 authors.equals(that.authors) &&
+                description.equals(that.description) &&
+                mainClass.equals(that.mainClass) &&
+                name.equals(that.name) &&
                 pluginHooks.equals(that.pluginHooks) &&
-                addonHooks.equals(that.addonHooks) &&
+                requiredAddons.equals(that.requiredAddons) &&
                 requiredPlugins.equals(that.requiredPlugins) &&
-                requiredAddons.equals(that.requiredAddons);
+                startTime == that.startTime &&
+                version.equals(that.version);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(mainClass, name, version, apiVersion, startTime, authors, pluginHooks, addonHooks, requiredPlugins, requiredAddons);
+        return Objects.hash(addonHooks, apiVersion, authors, description, mainClass, name, pluginHooks, requiredAddons, requiredPlugins, startTime, version);
     }
 }
