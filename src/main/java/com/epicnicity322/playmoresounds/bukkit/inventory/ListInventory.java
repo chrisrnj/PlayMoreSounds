@@ -245,7 +245,7 @@ public class ListInventory implements PMSInventory, Listener
         {
             this.name = name;
             configPath = "List.Inventory." + name + " Item";
-            langPath = "List.GUI." + name;
+            langPath = "List.Inventory." + name;
             this.consumer = consumer;
         }
 
