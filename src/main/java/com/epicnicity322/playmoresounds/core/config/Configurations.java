@@ -949,6 +949,9 @@ public enum Configurations
             "  You: You\n" +
             "\n" +
             "Help:\n" +
+            "  Addons: |-\n" +
+            "    &e/<label> addons\n" +
+            "    &7 > Opens a GUI that helps you install addons.\n" +
             "  Check: |-\n" +
             "    &e/<label> check [target]\n" +
             "    &7 > Checks if sounds are enabled.\n" +

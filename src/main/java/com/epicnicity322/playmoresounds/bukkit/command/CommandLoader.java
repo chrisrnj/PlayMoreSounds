@@ -38,6 +38,7 @@ public final class CommandLoader
             PlayMoreSounds plugin = PlayMoreSounds.getInstance();
             MessageSender lang = PlayMoreSounds.getLanguage();
 
+            commands.add(new AddonsSubCommand());
             commands.add(new CheckSubCommand());
             commands.add(new ConfirmSubCommand());
             commands.add(new DiscSubCommand());
