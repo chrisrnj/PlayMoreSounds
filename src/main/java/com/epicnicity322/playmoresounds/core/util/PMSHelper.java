@@ -119,6 +119,17 @@ public final class PMSHelper
         return pages;
     }
 
+    public static @NotNull String repeatChar(char repeat, long times)
+    {
+        StringBuilder builder = new StringBuilder();
+
+        for (long l = 0; l < times; ++l) {
+            builder.append(repeat);
+        }
+
+        return builder.toString();
+    }
+
     /**
      * Tests if this is a valid namespaced key. Namespaced keys have a namespace and a key, they are separated by a colon,
      * e.g: minecraft:test. The namespace must have only [a-z0-9_.-] characters and the key [a-z0-9/._-] characters, both
