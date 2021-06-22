@@ -1,0 +1,6 @@
+Api Version: '4.0.0'
+Authors: [ Epicnicity322 ]
+Main Class: com.epicnicity322.authmehook.AuthMeHook
+Name: AuthMe Hook
+Required Plugins: [ AuthMe ]
+Version: '${project.version}'

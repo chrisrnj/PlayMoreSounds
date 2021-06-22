@@ -1,0 +1,6 @@
+Addon Hooks: [ NBS Song Player ]
+Api Version: '4.0.0'
+Authors: [ Epicnicity322 ]
+Main Class: com.epicnicity322.regionshandler.Main
+Name: Regions Handler
+Version: '${project.version}'

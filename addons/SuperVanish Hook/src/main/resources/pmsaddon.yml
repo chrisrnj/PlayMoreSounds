@@ -1,0 +1,6 @@
+Api Version: '4.0.0'
+Authors: [ Epicnicity322 ]
+Main Class: com.epicnicity322.supervanishhook.SuperVanishHook
+Name: SuperVanish Hook
+Plugin Hooks: [ PremiumVanish,SuperVanish ]
+Version: '${project.version}'
