@@ -500,6 +500,9 @@ public enum Configurations
             "  Addon Item:\n" +
             "    Material: IRON_BLOCK\n" +
             "    Glowing: false\n" +
+            "  Done Item:\n" +
+            "    Material: GREEN_WOOL\n" +
+            "    Glowing: false\n" +
             "  Info Item:\n" +
             "    Material: PAPER\n" +
             "    Glowing: false\n" +
@@ -864,8 +867,13 @@ public enum Configurations
             "Addons:\n" +
             "  Title: '&9&lInstalled Addons:'\n" +
             "  Empty Title: '&c&lNo addons found'\n" +
+            "  Installer Title: '&2&lInstall Addons:'\n" +
             "  Error:\n" +
             "    Blocked: '&cAddons are currently being installed, wait until the installation process finishes to open the addon management inventory.'\n" +
+            "  Install:\n" +
+            "    Error: '&cSomething went wrong while installing the addon &4<addon>&c.'\n" +
+            "    Installed: '&7<addon>&7 was installed.'\n" +
+            "    Success: '&aAddon <addon>&a was installed successfully, restart your server so it can be loaded.'\n" +
             "  Management Inventory:\n" +
             "    Addon:\n" +
             "      Display Name: '&a&l<name>'\n" +
@@ -873,6 +881,9 @@ public enum Configurations
             "        &7Author(s):&8 <authors>\n" +
             "        <line>&7Description:&8 <description>\n" +
             "        <line>&7Version:&8 <version>\n" +
+            "    Done:\n" +
+            "      Display Name: '&2&lDone'\n" +
+            "      Lore: '&7Click to exit.'\n" +
             "    Info:\n" +
             "      Display Name: '&d&lInfo'\n" +
             "      Lore: '&7You have <addons> addons installed.'\n" +
@@ -916,185 +927,6 @@ public enum Configurations
             "  Error:\n" +
             "    Not Found: '&cA disc with the ID \"&7<id>&c\" was not found.'\n" +
             "  Success: '&7Giving the disc &f<id>&7 to &f<target>&7.'\n" +
-            "\n" +
-            "Editor:\n" +
-            "  GUI:\n" +
-            "    Rich Sound:\n" +
-            "      Default:\n" +
-            "        Cancellable:\n" +
-            "          Display Name: '&c&lCancellable'\n" +
-            "          Lore: '&d<value>'\n" +
-            "        Done:\n" +
-            "          Display Name: '&2&lDone'\n" +
-            "          Lore: ' Click to save changes.'\n" +
-            "        Loop Period:\n" +
-            "          Display Name: '&f&l<period>'\n" +
-            "          Lore: ' This sound will play every<line> <period> ticks.'\n" +
-            "        Loop Start Delay:\n" +
-            "          Display Name: '&f&l<delay>'\n" +
-            "          Lore: ' This sound will wait <delay> ticks<line> before start looping.'\n" +
-            "        Name:\n" +
-            "          Display Name: '&8&lName: &7&l<name>'\n" +
-            "          Lore: ' Click to set the name<line> of this sound.'\n" +
-            "        Sound:\n" +
-            "          Display Name: '&3&l<id>'\n" +
-            "          Lore: Click to edit this sound.\n" +
-            "        Title: '&6Editing &e<name>&6 sound'\n" +
-            "      General:\n" +
-            "        Add New Sound:\n" +
-            "          Display Name: '&e&lAdd new sound'\n" +
-            "          Lore: ' Click to add a new sound.'\n" +
-            "        Cancel:\n" +
-            "          Display Name: '&4&lCancel'\n" +
-            "          Lore: ' Discard everything.'\n" +
-            "        Disabled:\n" +
-            "          Display Name: '&4&lDisabled'\n" +
-            "          Lore: ' This sound is disabled.<line> Click to enable.'\n" +
-            "        Enabled:\n" +
-            "          Display Name: '&2&lEnabled'\n" +
-            "          Lore: ' This sound is enabled.<line> Click to disable.'\n" +
-            "        Next Page:\n" +
-            "          Display Name: '&7&lNext Page'\n" +
-            "          Lore: ' Click to see more sounds.'\n" +
-            "        Previous Page:\n" +
-            "          Display Name: '&7&lPrevious Page'\n" +
-            "          Lore: ' Click to go to the previous page.'\n" +
-            "        Separator:\n" +
-            "          Display Name: '&b&lSounds'\n" +
-            "      New:\n" +
-            "        Cancellable:\n" +
-            "          Display Name: '&c&lCancellable'\n" +
-            "          Lore: ' Should this sound be<line> cancellable by other plugins?'\n" +
-            "        Done:\n" +
-            "          Display Name: '&2&lDone'\n" +
-            "          Lore: ' Click to cache this sound.'\n" +
-            "        Loop Period:\n" +
-            "          Display Name: '&f&lLoop Period'\n" +
-            "          Lore: ' Click to set the time<line> this sound should wait<line> before\n" +
-            "            playing again.'\n" +
-            "        Loop Start Delay:\n" +
-            "          Display Name: '&f&lLoop Start Delay'\n" +
-            "          Lore: ' Click to set up the<line> delay to start the loop.'\n" +
-            "        Name:\n" +
-            "          Display Name: '&7&lSection'\n" +
-            "          Lore: ' Click to set the section<line> of this sound.'\n" +
-            "        Title: '&6Create a new sound'\n" +
-            "    Sound:\n" +
-            "      Default:\n" +
-            "        Delay:\n" +
-            "          Display Name: '&9&lDelay'\n" +
-            "          Lore: ' <delay>'\n" +
-            "        Done:\n" +
-            "          Display Name: '&2&lDone'\n" +
-            "          Lore: ' Click to save changes.'\n" +
-            "        Id:\n" +
-            "          Display Name: '&8&lId: &7&l<id>'\n" +
-            "          Lore: ' Click to change the id.'\n" +
-            "        Ignores Toggle:\n" +
-            "          Display Name: '&8&lIgnores Toggle'\n" +
-            "          Lore: ' &d<value>'\n" +
-            "        Permission Required:\n" +
-            "          Display Name: '&f&lPermission Required'\n" +
-            "          Lore: ' <permissionrequired>'\n" +
-            "        Permission To Listen:\n" +
-            "          Display Name: '&f&lPermission To Listen'\n" +
-            "          Lore: ' <permissiontolisten>'\n" +
-            "        Pitch:\n" +
-            "          Display Name: '&a&lPitch'\n" +
-            "          Lore: ' <pitch>'\n" +
-            "        Radius:\n" +
-            "          Display Name: '&4&lRadius: &c&l<radius>'\n" +
-            "          Lore: ' The range in blocks this<line> sound will be heard.'\n" +
-            "        Relative Location:\n" +
-            "          Display Name: '&3&lRelative Location'\n" +
-            "          Lore: ' The location the sound will<line> be played taking the player<line>\n" +
-            "            as the source.<line> <line> &dUp:    &5<up><line> &dDown:  &5<down><line>\n" +
-            "            &dFront: &5<front><line> &dBack:  &5<back><line> &dRight: &5<right><line>\n" +
-            "            &dLeft:  &5<left><line> <line> Click to change.'\n" +
-            "        Sound:\n" +
-            "          Display Name: '&6&lSound'\n" +
-            "          Lore: ' <sound>'\n" +
-            "        Title: '&6Sound: &e<id>'\n" +
-            "        Volume:\n" +
-            "          Display Name: '&2&lVolume'\n" +
-            "          Lore: ' <volume>'\n" +
-            "      General:\n" +
-            "        Cancel:\n" +
-            "          Display Name: '&4&lCancel'\n" +
-            "          Lore Back: ' Discard everything and go<line> back to &7<parent>&5&o.'\n" +
-            "          Lore: ' Discard everything.'\n" +
-            "        Eye Location:\n" +
-            "          Display Name: '&e&lEye Location'\n" +
-            "          Lore: ' This sound will play in the<line> player''s &feye&5&o location.<line>\n" +
-            "            <line> Click to change.'\n" +
-            "        Feet Location:\n" +
-            "          Display Name: '&e&lFeet Location'\n" +
-            "          Lore: ' This sound will play in the<line> player''s &ffeet&5&o location.<line>\n" +
-            "            <line> Click to change.'\n" +
-            "      New:\n" +
-            "        Delay:\n" +
-            "          Display Name: '&9&lDelay'\n" +
-            "          Lore: ' The time to wait before<line> playing this sound.'\n" +
-            "        Done:\n" +
-            "          Display Name: '&2&lDone'\n" +
-            "          Lore Back: ' Add this sound to &7<parent>&5&o.'\n" +
-            "          Lore: ' Add sound.'\n" +
-            "        Id:\n" +
-            "          Display Name: '&7&lSound Id'\n" +
-            "          Lore: ' The id of this sound.'\n" +
-            "        Ignores Toggle:\n" +
-            "          Display Name: '&8&lIgnores Toggle'\n" +
-            "          Lore: ' If this sound should be played<line> even if a player has disabled<line>\n" +
-            "            their sounds.'\n" +
-            "        Permission Required:\n" +
-            "          Display Name: '&f&lPermission Required'\n" +
-            "          Lore: ' Only those who have this<line> permission will play this sound.'\n" +
-            "        Permission To Listen:\n" +
-            "          Display Name: '&f&lPermission To Listen'\n" +
-            "          Lore: ' Only those who have this<line> permission will hear this sound.'\n" +
-            "        Pitch:\n" +
-            "          Display Name: '&a&lPitch'\n" +
-            "          Lore: ' The pitch of the sound.'\n" +
-            "        Radius:\n" +
-            "          Display Name: '&4&lRadius'\n" +
-            "          Lore: ' To who this sound should be played:<line> <line> &60  »&e Yourself<line>\n" +
-            "            &6-1 »&e Everyone online<line> &6-2 »&e Everyone in the world<line> &61+\n" +
-            "            »&e Everyone in this range of blocks'\n" +
-            "        Relative Location:\n" +
-            "          Display Name: '&3&lRelative Location'\n" +
-            "          Lore: ' The location the sound will<line> be played taking the player<line>\n" +
-            "            as the source.<line> <line> Click to set.'\n" +
-            "        Sound:\n" +
-            "          Display Name: '&6&lSound'\n" +
-            "          Lore: ' The sound to be played. It can<line> be a resource pack sound.'\n" +
-            "        Title: '&6New child sound'\n" +
-            "        Volume:\n" +
-            "          Display Name: '&2&lVolume'\n" +
-            "          Lore: ' The volume of the sound.'\n" +
-            "\n" +
-            "Finder:\n" +
-            "  Back:\n" +
-            "    Display Name: '&d&lGo back'\n" +
-            "    Lore: ' Click to go back to &7<path>&5&o.'\n" +
-            "  Error: '&cSomething went wrong while executing this operation on finder.'\n" +
-            "  File:\n" +
-            "    Display Name: '&f&l<name>'\n" +
-            "    Lore: ' Click to edit or add sounds<line> to &7<name>&5&o.'\n" +
-            "  Folder:\n" +
-            "    Display Name: '&e&l<name>'\n" +
-            "    Lore: ' Click to enter &7<name>&5&o folder.'\n" +
-            "  Next Page:\n" +
-            "    Display Name: '&7&lNext page'\n" +
-            "    Lore: ' Click to go to the next page.'\n" +
-            "  Previous Page:\n" +
-            "    Display Name: '&7&lPrevious page'\n" +
-            "    Lore: ' Click to go to the previous page.'\n" +
-            "  Sound:\n" +
-            "    Display Name: '&b&l<name>'\n" +
-            "    Lore: ' Click to edit the sound &7<name>&5&o.'\n" +
-            "  Title:\n" +
-            "    Folder: '&6&n<path>&e folder &8[&7<page>&8/&7<totalPages>&8]'\n" +
-            "    Sound: '&1&n<path>&9 sounds &8[&7<page>&8/&7<totalPages>&8]'\n" +
             "\n" +
             "General:\n" +
             "  And: and\n" +
@@ -1156,7 +988,7 @@ public enum Configurations
             "  Error:\n" +
             "    Not Exists: '&cThe page &7<page>&c doesn''t exist! Max: <totalpages>.'\n" +
             "  Footer: '&f&l - &aView more sounds with \"&f/&n<label> list <page>&a\"'\n" +
-            "  GUI:\n" +
+            "  Inventory:\n" +
             "    Error:\n" +
             "      Not Supported: '&cSound list GUI only works for version 1.14+'\n" +
             "    Next Page:\n" +
@@ -1253,22 +1085,14 @@ public enum Configurations
             "      Error:\n" +
             "        Not A World: '&cThe value &7<value>&c is not a valid world.'\n" +
             "      Position:\n" +
-            "        First: '&6First position selected! World: &e<w>&6, X: &e<x>&6, Y: &e<y>&6,\n" +
-            "          Z: &e<z>&6.'\n" +
-            "        Second: '&6Second position selected! World: &e<w>&6, X: &e<x>&6, Y: &e<y>&6,\n" +
-            "          Z: &e<z>&6.'\n" +
+            "        First: '&6First position selected! World: &e<w>&6, X: &e<x>&6, Y: &e<y>&6, Z: &e<z>&6.'\n" +
+            "        Second: '&6Second position selected! World: &e<w>&6, X: &e<x>&6, Y: &e<y>&6, Z: &e<z>&6.'\n" +
             "  Teleport:\n" +
             "    Success: '&aYou were teleported to region <region>.'\n" +
             "  Wand:\n" +
             "    Error:\n" +
-            "      Config: '&cYou are missing settings on your configuration. Wand could not be\n" +
-            "        given.'\n" +
-            "    Success: '&6Selection tool: Left-click selects first position and Right-click\n" +
-            "      selects second position.'\n" +
-            "\n" +
-            "Relative Location Setter:\n" +
-            "  Sound Source: '&2&nSound Source'\n" +
-            "  Where To Play: '&4&nWhere To Play'\n" +
+            "      Config: '&cYou are missing settings on your configuration. Wand could not be given.'\n" +
+            "    Success: '&6Selection tool: Left-click selects first position and Right-click selects second position.'\n" +
             "\n" +
             "Reload:\n" +
             "  Error: '&cSomething went wrong while reloading config. PMS must be shut down immediately.'\n" +
@@ -1301,18 +1125,11 @@ public enum Configurations
             "    Player: '&aToggled the sounds of &f<target>&a to on!'\n" +
             "\n" +
             "Update:\n" +
-            "  Available: '&2PlayMoreSounds v<version> is available. Type &7/<label> update download&2\n" +
-            "    to download it.'\n" +
+            "  Available: '&2PlayMoreSounds v<version> is available. Type &7/<label> update download&2 to download it.'\n" +
             "  Check: '&eChecking for updates...'\n" +
-            "  Download:\n" +
-            "    Default: '&eDownloading update...'\n" +
-            "    Error: '&7An update was already downloaded.'\n" +
-            "    Latest: '&eDownloading latest version...'\n" +
-            "    Lower: '&7Warning: the downloaded version is lower than the current running version.'\n" +
-            "    Success: '&7PlayMoreSounds v<version> was downloaded successfully.'\n" +
             "  Error:\n" +
             "    Default: '&cSomething went wrong while using updater.'\n" +
-            "    Offline: '&cYou are offline or spigot.org is down.'\n" +
+            "    Offline: '&cYou are offline or spigotmc.org is down.'\n" +
             "    Timeout: '&cTook too long to establish a connection.'\n" +
             "  Not Available: '&eNo updates available.'", StaticFields.version4_0_0),
     LANGUAGE_ES_LA(StaticFields.lang.resolve("Language ES-LA.yml"), "", StaticFields.version4_0_0),
@@ -1330,8 +1147,8 @@ public enum Configurations
             "# >> Only sounds played by the server are replaceable, sounds played to the client (like walking or\n" +
             "# building) are replaceable only if the source is another player that's not you.\n" +
             "#\n" +
-            "#  To replace a sound, create a section with the sound name and set the replacing sound\n" +
-            "# in it, for example:\n" +
+            "#  To replace a sound, create a section with the sound name and set the replacing sound in it, for\n" +
+            "# example:\n" +
             "#\n" +
             "#ENTITY_ZOMBIE_HURT: # This is the sound that I want to replace.\n" +
             "#  Enabled: true\n" +
@@ -1357,7 +1174,7 @@ public enum Configurations
             "#  Enabled: true\n" +
             "#  #Sounds: # Don't add 'Sounds' section since you don't want sounds to play.\n" +
             "#\n" +
-            "#  A more in deep tutorial of all sound options can be found in sounds.yml file.\n" +
+            "#  A more in depth tutorial of all sound options can be found in sounds.yml file.\n" +
             "#  If you have any other doubts on how to set this configuration up, feel free to ask in\n" +
             "# PlayMoreSounds' discord: https://discord.gg/eAHPbc3\n" +
             "\n" +
@@ -1426,129 +1243,122 @@ public enum Configurations
             "# More information about sounds on sounds.yml.\n" +
             "\n" +
             "Version: '" + PlayMoreSoundsVersion.version + "'", StaticFields.version3_2_0),
-    //TODO: Redo sounds.yml
-    SOUNDS(PlayMoreSoundsCore.getFolder().resolve("sounds.yml"), "# Set a sound to play when a player triggers an event.\n" +
+    SOUNDS(PlayMoreSoundsCore.getFolder().resolve("sounds.yml"), "####################################################################################################\n" +
+            "# Set a sound to play when an event is triggered.\n" +
             "#\n" +
-            "# To set a sound to be played when a player triggers a event, create a\n" +
-            "# section with the name of the event and add the sound options.\n" +
+            "# Create a section with the name of the event you want to play a sound, for example:\n" +
             "#\n" +
-            "# -> Event and multiple sound sample:\n" +
+            "Teleport: # The event that when triggered, a sound will be played.\n" +
+            "  # Cancellable prevents the sound from playing if another plugin cancelled the event. This boolean\n" +
+            "  #helps sounds be compatible with other plugins.\n" +
+            "  Cancellable: true\n" +
+            "  # Enables or disables a sound. In sounds.yml when this boolean is set to false the event is\n" +
+            "  #unregistered as well, so you can use this plugin if you want to play sounds just for one event\n" +
+            "  #and don't worry about performance being spent on things you don't use.\n" +
+            "  Enabled: true\n" +
+            "  # This is a list of sounds that will be played. You can copy and paste the options below to play\n" +
+            "  #multiple sounds, each section must have a different name, here I numbered them just for\n" +
+            "  #organization.\n" +
+            "  Sounds:\n" +
+            "    '1':\n" +
+            "      # This is a delay in ticks the sound will wait before playing. Set to 0 for no delay.\n" +
+            "      Delay: 0\n" +
+            "      # Sounds can have multiple options, all of them are optional.\n" +
+            "      Options:\n" +
+            "        # Even if a player has toggled their sounds off, the sound will be played.\n" +
+            "        Ignores Disabled: false\n" +
+            "        # The sound will be only played if the player has this permission.\n" +
+            "        # In case the event is not triggered by a player, this option is ignored.\n" +
+            "        Permission Required: 'playmoresounds.reproduce.teleport'\n" +
+            "        # The sound will be only listened by who have this permission.\n" +
+            "        # In case this is a Radius sound and the player has the Permission Required and not\n" +
+            "        #Permission To Listen, the sound will be played anyway, but only those in the Radius with\n" +
+            "        #the Permission To Listen will hear.\n" +
+            "        Permission To Listen: 'playmoresounds.listen.teleport'\n" +
+            "        # A range of blocks the sound will be hearable.\n" +
+            "        # A distance squared is calculated to every player in the world if the value is greater than 0.\n" +
+            "        # If you want the sound to play only to the player who triggered the event, set this to 0.\n" +
+            "        # If you want the sound to play to everyone online in the server, set this to -1.\n" +
+            "        # If you want the sound to play to everyone in the event's world, set this to -2.\n" +
+            "        Radius: 15.2\n" +
+            "        # A location is added to the event's final location. This will always respect where the player\n" +
+            "        #is looking, i.e. if you add blocks to right the sound will be played to the player's right ear.\n" +
+            "        # Relative location option consumes a lot of memory, I recommend you leave it disabled if\n" +
+            "        #your server has a lot of players.\n" +
+            "        # Set negative to add blocks to the opposite direction, for example:\n" +
+            "        Relative Location:\n" +
+            "          FRONT_BACK: 1.3 # This will be played relative to the back.\n" +
+            "          RIGHT_LEFT: -0.01 # This will be played relative to the right.\n" +
+            "          UP_DOWN: 0.13 # This will be played relative to up.\n" +
+            "      # What the sound pitch is, values greater than 2 have no difference.\n" +
+            "      Pitch: 1.0\n" +
+            "      # You can set this to either a Sound Type or a Custom Sound.\n" +
+            "      # Custom sounds do not need to be listed anywhere in the plugin, just set this value to the\n" +
+            "      #name of custom sound you set in your resource pack's sounds.json.\n" +
+            "      # PlayMoreSounds' sound types are different than bukkit's sound types, PlayMoreSounds' sound\n" +
+            "      #types are always the same no matter which version of the server you are running, so sounds\n" +
+            "      #have the same names in 1.7 to 1.17.\n" +
+            "      # You can find a list of available sounds for the version " + PlayMoreSoundsCore.getServerVersion() + " in the file 'available sounds.txt'.\n" +
+            "      Sound: ENTITY_ENDERMAN_TELEPORT\n" +
+            "      # The volume of the sound. The way minecraft does it is by distance, volume 1 = ~15 blocks.\n" +
+            "      # If you are playing region sounds you might want to set this to a big number so it plays with\n" +
+            "      #the same volume the whole region.\n" +
+            "      # You will notice the volume go lower if you set it to a decimal lower than 0.\n" +
+            "      Volume: 0.9\n" +
             "#\n" +
-            "#Teleport: # The event that when triggered a sound will be played.\n" +
-            "#  # Cancellable stops the sound from playing when another plugin cancels\n" +
-            "#  #the event. This boolean helps events to be compatible with other\n" +
-            "#  #plugins.\n" +
-            "#  Cancellable: true\n" +
-            "#  # Tell if a sound should be played or not. In sounds.yml case, this\n" +
-            "#  #boolean helps with the server performance.\n" +
-            "#  Enabled: true\n" +
-            "#  # This is the sound list. Set the sound name by the section name. By\n" +
-            "#  #default I left with numbers just to organize things, but it can be\n" +
-            "#  #any name you want as long as it respects YAML section name rules.\n" +
-            "#  Sounds:\n" +
-            "#    '0':\n" +
-            "#      # This is the time in ticks the sound will wait before playing.\n" +
-            "#      # By default most of them is 0, so the sound plays immediately.\n" +
-            "#      Delay: 0\n" +
-            "#      # Sounds can have multiple options, all of them are optional.\n" +
-            "#      Options:\n" +
-            "#        # Even if a player has toggled it's sounds to off, the sound will\n" +
-            "#        #be played.\n" +
-            "#        Ignores Disabled: true\n" +
-            "#        # The sound will be only listened by who have this permission.\n" +
-            "#        Permission To Listen: 'pms.listen.playerteleport'\n" +
-            "#        # The sound will be only played to who have this permission.\n" +
-            "#        Permission Required: 'pms.reproduce.playerteleport'\n" +
-            "#        # Set how blocks far the sound will be listenable by players.\n" +
-            "#        # To play to everyone in the server, set to -1. To play to\n" +
-            "#        #everyone in the world of the player, set to -2. To play to the\n" +
-            "#        #player itself, set to 0. To play to players around the player, set\n" +
-            "#        #a value greater than 0.\n" +
-            "#        Radius: 15.2\n" +
-            "#        # You can specify in blocks the location of the sound. The sound\n" +
-            "#        #can be played to player's Front, Back, Right, Left, Up and Down.\n" +
-            "#        #You can use negative numbers to add to the opposite direction.\n" +
-            "#        Relative Location:\n" +
-            "#          FRONT_BACK: 1.3\n" +
-            "#          RIGHT_LEFT: -0.8\n" +
-            "#          UP_DOWN: 0.13\n" +
-            "#      # Set how pitchy the sound will be. Values greater than 2 don't have\n" +
-            "#      #any difference.\n" +
-            "#      Pitch: 1.0\n" +
-            "#      # Here you can add a Sound Type or a sound modifier (check below).\n" +
-            "#      # Check Sound Type names on https://www.spigotmc.org/resources/37429/\n" +
-            "#      # Sound Types are not the same thing as bukkit sounds and sounds can be\n" +
-            "#      #available or not depending on your version.\n" +
-            "#      Sound: 'BLOCK_NOTE_BLOCK_PLING'\n" +
-            "#      # Minecraft volume is the distance the sound can be heard. For the\n" +
-            "#      #player who played, volume has only effect when the value is lower than 1.\n" +
-            "#      #For near players, volume 1 = 15 blocks.\n" +
-            "#      # Volumes may or may not be available depending on your sound modifier.\n" +
-            "#      Volume: 0.7\n" +
+            "# Any of the above options are optional, here's an example of a sound that doesn't need to use all\n" +
+            "#of these options:\n" +
+            "Player Death:\n" +
+            "  Enabled: true\n" +
+            "  Sounds:\n" +
+            "    '1':\n" +
+            "      Sound: ENTITY_WITHER_SPAWN\n" +
             "#\n" +
-            "# -> Resource pack sound sample:\n" +
+            "# If you don't want to use a sound, you can either completely remove it from this configuraiton or\n" +
+            "#set 'Enabled' to false, like this:\n" +
+            "Bed Leave:\n" +
+            "  Enabled: false # Disabled sounds will be unregistered and not affect server performance.\n" +
             "#\n" +
-            "# To play a resource pack sound, simply add the custom sound name into the \"Sound:\"\n" +
-            "#setting.\n" +
             "#\n" +
-            "#Teleport:\n" +
-            "#  Enabled: true\n" +
-            "#  Sounds:\n" +
-            "#    '0':\n" +
-            "#      Delay: 0\n" +
-            "#      Options:\n" +
-            "#        Radius: 0.0\n" +
-            "#      Pitch: 1.0\n" +
-            "#      Sound: 'customsoundname'\n" +
-            "#      Volume: 10\n" +
+            "# If you have any other doubts on how to set this configuration up, feel free to ask in\n" +
+            "#PlayMoreSounds' discord: https://discord.gg/eAHPbc3\n" +
+            "####################################################################################################\n" +
             "\n" +
-            "Version: '" + PlayMoreSoundsVersion.version + "'\n" +
+            "Version: '" + PlayMoreSoundsVersion.version + "' # Configuration version, don't change if you don't want your configuration reset.\n" +
             "\n" +
             "# When a player lies in bed.\n" +
             "# This sound is cancellable.\n" +
             "Bed Enter:\n" +
-            "  Cancellable: true\n" +
             "  Enabled: true\n" +
+            "  Cancellable: true\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
+            "    '1':\n" +
             "      Options:\n" +
             "        Radius: 15.0\n" +
             "      Pitch: 0.65\n" +
             "      Sound: ENTITY_VILLAGER_AMBIENT\n" +
             "      Volume: 0.5\n" +
             "\n" +
-            "# When a player gets out of bed.\n" +
-            "# This sound is disabled by default. To enable it, copy the options from the sound\n" +
-            "#above and set 'Enabled' to true.\n" +
-            "# This sound is not cancellable.\n" +
-            "Bed Leave:\n" +
-            "  Enabled: false\n" +
-            "\n" +
             "# When a player changes the item slot of the hotbar.\n" +
             "# This sound is cancellable.\n" +
             "Change Held Item:\n" +
-            "  Cancellable: false\n" +
             "  Enabled: true\n" +
+            "  Cancellable: false\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
-            "      Options:\n" +
-            "        Radius: 0.0\n" +
+            "    '1':\n" +
             "      Pitch: 2.0\n" +
             "      Sound: BLOCK_NOTE_BLOCK_HAT\n" +
-            "      Volume: 10.0\n" +
             "\n" +
             "# When a player changes their level of experience.\n" +
-            "# This sound is disabled by default. To enable it, copy the options from the sound\n" +
-            "#above and set 'Enabled' to true.\n" +
+            "# This sound is disabled by default. To enable it, copy the options from the sound above and set\n" +
+            "#'Enabled' to true.\n" +
             "# This sound is not cancellable.\n" +
             "Change Level:\n" +
             "  Enabled: false\n" +
             "\n" +
             "# When a player crafts an item.\n" +
-            "# This sound is disabled by default. To enable it, copy the options from another sound\n" +
-            "#and set 'Enabled' to true.\n" +
+            "# This sound is disabled by default. To enable it, copy the options from another sound and set\n" +
+            "#'Enabled' to true.\n" +
             "# This sound is cancellable.\n" +
             "Craft Item:\n" +
             "  Enabled: false\n" +
@@ -1560,11 +1370,9 @@ public enum Configurations
             "  Cancellable: false\n" +
             "  Enabled: true\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
+            "    '1':\n" +
             "      Options:\n" +
             "        Radius: 15.0\n" +
-            "      Pitch: 1.0\n" +
             "      Sound: ENTITY_EGG_THROW\n" +
             "      Volume: 0.5\n" +
             "\n" +
@@ -1574,8 +1382,7 @@ public enum Configurations
             "  Cancellable: false\n" +
             "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.9")) < 0 ? "false # ITEM_ARMOR_EQUIP_LEATHER is not available in " + PlayMoreSoundsCore.getServerVersion() + " please choose another sound.\n" : "true\n") +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
+            "    '1':\n" +
             "      Options:\n" +
             "        Radius: 10.0\n" +
             "      Pitch: 2.0\n" +
@@ -1588,13 +1395,11 @@ public enum Configurations
             "  Cancellable: true\n" +
             "  Enabled: true\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
+            "    '1':\n" +
             "      Options:\n" +
             "        Radius: 15.0\n" +
             "      Pitch: 2.0\n" +
             "      Sound: ENTITY_GENERIC_HURT\n" +
-            "      Volume: 10.0\n" +
             "\n" +
             "# When any entity jumps.\n" +
             "# This sound only plays if you are running PaperMC.\n" +
@@ -1610,21 +1415,18 @@ public enum Configurations
             "First Join:\n" +
             "  Enabled: true\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
+            "    '1':\n" +
             "      Options:\n" +
             "        Radius: -1.0\n" +
             "      Pitch: 2.0\n" +
             "      Sound: BLOCK_NOTE_BLOCK_PLING\n" +
-            "      Volume: 10.0\n" +
             "\n" +
             "# When a player extracts something from a furnace.\n" +
             "# This sound is not cancellable.\n" +
             "Furnace Extract:\n" +
             "  Enabled: true\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
+            "    '1':\n" +
             "      Options:\n" +
             "        Radius: 15.0\n" +
             "      Pitch: 1.3\n" +
@@ -1634,27 +1436,19 @@ public enum Configurations
             "# When a player changes their game mode.\n" +
             "# This sound is cancellable.\n" +
             "Game Mode Change:\n" +
-            "  Cancellable: true\n" +
             "  Enabled: true\n" +
+            "  Cancellable: true\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
-            "      Options:\n" +
-            "        Radius: 0.0\n" +
-            "      Pitch: 1.0\n" +
+            "    '1':\n" +
             "      Sound: BLOCK_ANVIL_LAND\n" +
-            "      Volume: 10.0\n" +
             "\n" +
             "# When a player clicks on an inventory.\n" +
             "# This sound is cancellable.\n" +
             "Inventory Click:\n" +
-            "  Cancellable: true\n" +
             "  Enabled: true\n" +
+            "  Cancellable: true\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
-            "      Options:\n" +
-            "        Radius: 0.0\n" +
+            "    '1':\n" +
             "      Pitch: 1.5\n" +
             "      Sound: BLOCK_COMPARATOR_CLICK\n" +
             "      Volume: 0.4\n" +
@@ -1664,105 +1458,74 @@ public enum Configurations
             "Inventory Close:\n" +
             "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.12")) < 0 ? "false # UI_TOAST_OUT is not available in " + PlayMoreSoundsCore.getServerVersion() + " please choose another sound.\n" : "true\n") +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
-            "      Options:\n" +
-            "        Radius: 0.0\n" +
+            "    '1':\n" +
             "      Pitch: 2.0\n" +
             "      Sound: UI_TOAST_OUT\n" +
-            "      Volume: 10.0\n" +
             "\n" +
             "# When a player joins the server.\n" +
             "# This sound is not cancellable.\n" +
             "Join Server:\n" +
             "  Enabled: true\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
+            "    '1':\n" +
             "      Options:\n" +
             "        Radius: -1.0\n" +
-            "      Pitch: 1.0\n" +
             "      Sound: BLOCK_NOTE_BLOCK_PLING\n" +
-            "      Volume: 10.0\n" +
             "\n" +
             "# When a player leaves the server.\n" +
             "# This sound is not cancellable.\n" +
             "Leave Server:\n" +
             "  Enabled: true\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
+            "    '1':\n" +
             "      Options:\n" +
             "        Radius: -1.0\n" +
-            "      Pitch: 1.0\n" +
             "      Sound: BLOCK_NOTE_BLOCK_BASS\n" +
-            "      Volume: 10.0\n" +
             "\n" +
             "# When a player bans another player from the server.\n" +
             "# This sound is not cancellable.\n" +
             "Player Ban:\n" +
             "  Enabled: true\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
+            "    '1':\n" +
             "      Options:\n" +
             "        Radius: -1.0\n" +
             "      Pitch: 1.3\n" +
             "      Sound: ENTITY_ENDER_DRAGON_DEATH\n" +
-            "      Volume: 10.0\n" +
             "\n" +
             "# When a player sends a message on chat.\n" +
             "# This sound is cancellable.\n" +
             "Player Chat:\n" +
-            "  Cancellable: true\n" +
             "  Enabled: true\n" +
+            "  Cancellable: true\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
+            "    '1':\n" +
             "      Options:\n" +
             "        Radius: -1.0\n" +
-            "      Pitch: 1.0\n" +
             "      Sound: ENTITY_ITEM_PICKUP\n" +
-            "      Volume: 10.0\n" +
-            "\n" +
-            "# When a player dies.\n" +
-            "# This sound is not cancellable.\n" +
-            "Player Death:\n" +
-            "  Enabled: true\n" +
-            "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
-            "      Options:\n" +
-            "        Radius: 0.0\n" +
-            "      Pitch: 1.0\n" +
-            "      Sound: ENTITY_WITHER_SPAWN\n" +
-            "      Volume: 10.0\n" +
             "\n" +
             "# When a player is kicked from the server.\n" +
             "# This sound is cancellable.\n" +
             "Player Kicked:\n" +
-            "  Cancellable: true\n" +
             "  Enabled: true\n" +
+            "  Cancellable: true\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
+            "    '1':\n" +
             "      Options:\n" +
             "        Radius: -1.0\n" +
             "      Pitch: 1.3\n" +
             "      Sound: ENTITY_ENDER_DRAGON_HURT\n" +
-            "      Volume: 10.0\n" +
             "\n" +
             "# When a player kills another player. (Damager)\n" +
-            "# This sound is disabled by default. To enable it, copy the options from the sound\n" +
-            "#above and set 'Enabled' to true.\n" +
+            "# This sound is disabled by default. To enable it, copy the options from the sound above and set\n" +
+            "#'Enabled' to true.\n" +
             "# This sound is not cancellable.\n" +
             "Player Kill:\n" +
             "  Enabled: false\n" +
             "\n" +
             "# When a player is killed by another player. (Victim)\n" +
-            "# This sound only plays if you are running PaperMC.\n" +
-            "# This sound is disabled by default. To enable it, copy the options from another sound\n" +
-            "#and set 'Enabled' to true.\n" +
+            "# This sound is disabled by default. To enable it, copy the options from another sound and set\n" +
+            "#'Enabled' to true.\n" +
             "# This sound is not cancellable.\n" +
             "Player Killed:\n" +
             "  Enabled: false\n" +
@@ -1771,16 +1534,16 @@ public enum Configurations
             "\n" +
             "# When a player jumps.\n" +
             "# This sound only plays if you are running PaperMC.\n" +
-            "# This sound is disabled by default. To enable it, copy the options from another sound\n" +
-            "#and set 'Enabled' to true.\n" +
+            "# This sound is disabled by default. To enable it, copy the options from another sound and set\n" +
+            "#'Enabled' to true.\n" +
             "# This sound is cancellable.\n" +
             "Player Jump:\n" +
             "  Enabled: false\n" +
             "  Cancellable: true\n" +
             "\n" +
             "# When a player swings their hand.\n" +
-            "# This sound is disabled by default. To enable it, copy the options from another sound\n" +
-            "#and set 'Enabled' to true.\n" +
+            "# This sound is disabled by default. To enable it, copy the options from another sound and set\n" +
+            "#'Enabled' to true.\n" +
             "# This sound is cancellable.\n" +
             "Player Swing:\n" +
             "  Enabled: false\n" +
@@ -1789,11 +1552,10 @@ public enum Configurations
             "# When a nether portal is opened.\n" +
             "# This sound is cancellable.\n" +
             "Portal Create:\n" +
-            "  Cancellable: true\n" +
             "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.12")) < 0 ? "false # BLOCK_END_PORTAL_SPAWN is not available in " + PlayMoreSoundsCore.getServerVersion() + " please choose another sound.\n" : "true\n") +
+            "  Cancellable: true\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
+            "    '1':\n" +
             "      Options:\n" +
             "        Radius: 15.0\n" +
             "      Pitch: 0.8\n" +
@@ -1801,34 +1563,32 @@ public enum Configurations
             "      Volume: 0.8\n" +
             "\n" +
             "# When a player enters a PlayMoreSounds region.\n" +
-            "# This sound can also be played when entering another plugin's region. To do that you\n" +
-            "#need to install addons.\n" +
-            "# This sound is disabled by default. To enable it, copy the options from the sound\n" +
-            "#above and set 'Enabled' to true.\n" +
+            "# This sound can also be played when entering another plugin's region. To do that you need to\n" +
+            "#install addons.\n" +
+            "# This sound is disabled by default. To enable it, copy the options from the sound above and set\n" +
+            "#'Enabled' to true.\n" +
             "# This sound is cancellable.\n" +
-            "# The sound played by entering this region can also be stopped on exit. To do that,\n" +
-            "#add the following options:\n" +
-            "#\n" +
-            "#  Stop On Exit:\n" +
-            "#    Enabled: true\n" +
-            "#    Delay: 20 # The time in ticks to wait before stopping the sound\n" +
             "Region Enter:\n" +
             "  Enabled: false\n" +
             "  Cancellable: true\n" +
+            "  # This sound can be stopped when the player leaves the region.\n" +
+            "  Stop On Exit:\n" +
+            "    Enabled: true\n" +
+            "    Delay: 20 # The time in ticks to wait before stopping the sound\n" +
             "\n" +
             "# When a player leaves a PlayMoreSounds region.\n" +
-            "# This sound can also be played when leaving another plugin's region. To do that you\n" +
-            "#need to install addons.\n" +
-            "# This sound is disabled by default. To enable it, copy the options from another sound\n" +
-            "#and set 'Enabled' to true.\n" +
+            "# This sound can also be played when leaving another plugin's region. To do that you need to\n" +
+            "#install addons.\n" +
+            "# This sound is disabled by default. To enable it, copy the options from another sound and set\n" +
+            "#'Enabled' to true.\n" +
             "# This sound is cancellable.\n" +
             "Region Leave:\n" +
             "  Enabled: false\n" +
             "  Cancellable: true\n" +
             "\n" +
             "# When a player respawns.\n" +
-            "# This sound is disabled by default. To enable it, copy the options from another sound\n" +
-            "#and set 'Enabled' to true.\n" +
+            "# This sound is disabled by default. To enable it, copy the options from another sound and set\n" +
+            "#'Enabled' to true.\n" +
             "# This sound is not cancellable.\n" +
             "Respawn:\n" +
             "  Enabled: false\n" +
@@ -1836,76 +1596,50 @@ public enum Configurations
             "# When a player sends a command.\n" +
             "# This sound is cancellable.\n" +
             "Send Command:\n" +
-            "  Cancellable: true\n" +
             "  Enabled: true\n" +
+            "  Cancellable: true\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
-            "      Options:\n" +
-            "        Radius: 0.0\n" +
+            "    '1':\n" +
             "      Pitch: 2.0\n" +
             "      Sound: ENTITY_ITEM_PICKUP\n" +
-            "      Volume: 10.0\n" +
             "\n" +
             "# When a player starts flying.\n" +
             "# This sound is cancellable.\n" +
             "Start Flying:\n" +
-            "  Cancellable: true\n" +
             "  Enabled: true\n" +
+            "  Cancellable: true\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
+            "    '1':\n" +
             "      Options:\n" +
             "        Radius: 12.0\n" +
-            "      Pitch: 1.0\n" +
             "      Sound: BLOCK_PISTON_EXTEND\n" +
             "      Volume: 0.5\n" +
             "\n" +
             "# When a player stops flying.\n" +
             "# This sound is cancellable.\n" +
             "Stop Flying:\n" +
-            "  Cancellable: true\n" +
             "  Enabled: true\n" +
+            "  Cancellable: true\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
+            "    '1':\n" +
             "      Options:\n" +
             "        Radius: 12.0\n" +
-            "      Pitch: 1.0\n" +
             "      Sound: BLOCK_PISTON_CONTRACT\n" +
             "      Volume: 0.5\n" +
             "\n" +
             "# When the player moves their current item to their off hand.\n" +
             "# This sound is cancellable.\n" +
             "Swap Hands:\n" +
-            "  Cancellable: true\n" +
             "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.9")) < 0 ? "false # This event is not available in " + PlayMoreSoundsCore.getServerVersion() + ".\n" : "true\n") +
+            "  Cancellable: true\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
-            "      Options:\n" +
-            "        Radius: 0.0\n" +
+            "    '1':\n" +
             "      Pitch: 1.3\n" +
             "      Sound: ITEM_ARMOR_EQUIP_GENERIC\n" +
-            "      Volume: 10.0\n" +
-            "\n" +
-            "# When a player teleports using a command.\n" +
-            "# This sound is cancellable.\n" +
-            "Teleport:\n" +
-            "  Cancellable: true\n" +
-            "  Enabled: true\n" +
-            "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
-            "      Options:\n" +
-            "        Radius: 15.0\n" +
-            "      Pitch: 1.0\n" +
-            "      Sound: ENTITY_ENDERMAN_TELEPORT\n" +
-            "      Volume: 1.0\n" +
             "\n" +
             "# When a player crouches.\n" +
-            "# This sound is disabled by default. To enable it, copy the options from the sound\n" +
-            "#above and set 'Enabled' to true.\n" +
+            "# This sound is disabled by default. To enable it, copy the options from the sound above and set\n" +
+            "#'Enabled' to true.\n" +
             "# This sound is cancellable.\n" +
             "Toggle Sneak:\n" +
             "  Enabled: false\n" +
@@ -1916,49 +1650,42 @@ public enum Configurations
             "Wake Up:\n" +
             "  Enabled: true\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
-            "      Options:\n" +
-            "        Radius: 0.0\n" +
-            "      Pitch: 1.0\n" +
+            "    '1':\n" +
             "      Sound: ENTITY_CHICKEN_HURT\n" +
             "      Volume: 0.4\n" +
             "\n" +
             "# When it starts raining on the world.\n" +
             "# This sound is cancellable.\n" +
             "Weather Rain:\n" +
-            "  Cancellable: true\n" +
             "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.9")) < 0 ? "false # ITEM_ELYTRA_FLYING is not available in " + PlayMoreSoundsCore.getServerVersion() + " please choose another sound.\n" : "true\n") +
+            "  Cancellable: true\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
+            "    '1':\n" +
             "      Options:\n" +
-            "        Radius: -2.0\n" +
-            "      Pitch: 1.0\n" +
+            "        Radius: -2.0 # This sound is played in the world's spawn if the radius is greater than 0.\n" +
             "      Sound: ITEM_ELYTRA_FLYING\n" +
             "      Volume: 0.3\n" +
             "\n" +
             "# When it stops raining on the world.\n" +
-            "# This sound is disabled by default. To enable it, copy the options from the sound\n" +
-            "#above and set 'Enabled' to true.\n" +
+            "# This sound is disabled by default. To enable it, copy the options from the sound above and set\n" +
+            "#'Enabled' to true.\n" +
             "# This sound is cancellable.\n" +
             "Weather Rain End:\n" +
-            "  Cancellable: true\n" +
             "  Enabled: false\n" +
+            "  Cancellable: true\n" +
             "\n" +
             "# When a player teleports to a different world.\n" +
             "# This sound is cancellable.\n" +
             "World Change:\n" +
-            "  Cancellable: true\n" +
             "  Enabled: true\n" +
+            "  Cancellable: true\n" +
             "  # Makes so when the player teleports to a different world, the default sound of 'Teleport' does\n" +
             "  #not play.\n" +
             "  Prevent Teleport Sound: true\n" +
             "  Sounds:\n" +
-            "    '0':\n" +
-            "      Delay: 0\n" +
+            "    '1':\n" +
             "      Options:\n" +
-            "        Radius: 15.0\n" +
+            "        Radius: 15.2\n" +
             "      Pitch: 2.0\n" +
             "      Sound: BLOCK_PORTAL_TRAVEL\n" +
             "      Volume: 0.6", StaticFields.version4_0_0),
