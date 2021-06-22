@@ -19,9 +19,16 @@
 package com.epicnicity322.playmoresounds.bukkit.inventory;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.HashSet;
 
 public final class InventoryUtils
 {
@@ -41,5 +48,35 @@ public final class InventoryUtils
             throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
         return button;
+    }
+
+    /**
+     * Fills a inventory with glass panes, ignoring items that are not air.
+     *
+     * @param inventory  The inventory to fill.
+     * @param from_index The slot to start the filling.
+     * @param to_index   The slot to stop the filling.
+     * @return A set with all the glass panes that filled the inventory.
+     */
+    public static @NotNull HashSet<ItemStack> fillWithGlass(@NotNull Inventory inventory, int from_index, int to_index)
+    {
+        HashSet<ItemStack> glassPanes = new HashSet<>();
+
+        if (from_index < 0 || to_index < 0 || from_index > 53 || to_index > 53) return glassPanes;
+
+        for (int slot = from_index; slot <= to_index; ++slot) {
+            if (inventory.getItem(slot) != null) continue;
+
+            ItemStack glassPane = new ItemStack(Material.GLASS_PANE);
+            ItemMeta meta = glassPane.getItemMeta();
+
+            meta.setDisplayName(" ");
+            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+            glassPane.setItemMeta(meta);
+            inventory.setItem(slot, glassPane);
+            glassPanes.add(glassPane);
+        }
+
+        return glassPanes;
     }
 }
