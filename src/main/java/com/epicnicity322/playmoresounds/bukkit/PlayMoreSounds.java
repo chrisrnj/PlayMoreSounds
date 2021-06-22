@@ -25,6 +25,7 @@ import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
 import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.epicpluginlib.core.logger.ErrorHandler;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
+import com.epicnicity322.epicpluginlib.core.util.PathUtils;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandLoader;
 import com.epicnicity322.playmoresounds.bukkit.listener.*;
 import com.epicnicity322.playmoresounds.bukkit.metrics.Metrics;
@@ -386,6 +387,12 @@ public final class PlayMoreSounds extends JavaPlugin
                 logger.log("&cAn unknown error occurred on PlayMoreSounds shutdown.");
                 errorHandler.report(e, "PMS Unloading Error (Unknown):");
             }
+        }
+
+        try {
+            PathUtils.deleteAll(PlayMoreSoundsCore.getFolder().resolve("Temp"));
+        } catch (IOException e) {
+            PlayMoreSoundsCore.getErrorHandler().report(e, "Temp Folder Delete Exception:");
         }
 
         disabled = true;
