@@ -23,6 +23,7 @@ import com.epicnicity322.epicpluginlib.core.config.ConfigurationLoader;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
+import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -865,15 +866,28 @@ public enum Configurations
             "Version: '" + PlayMoreSoundsVersion.version + "'\n" +
             "\n" +
             "Addons:\n" +
-            "  Title: '&9&lInstalled Addons:'\n" +
+            "  Download:\n" +
+            "    Already Exists: '&7An addons zip was already downloaded before, deleting and downloading the latest one.'\n" +
+            "    Error:\n" +
+            "      Not Found: '&cAddons for PlayMoreSounds v<version> were not found.'\n" +
+            "      Subtitle: '&7Something went wrong'\n" +
+            "      Title: '&4&lError'\n" +
+            "      Unknown: '&cAn unknown error occurred when downloading addons.'\n" +
+            "    Title: '&cDownloading'\n" +
+            "    Info: '&6Info about addons...'\n" +
+            "    Files: '&6Addons files...'\n" +
+            "    Success:\n" +
+            "      Subtitle: '&7Latest addons were downloaded'\n" +
+            "      Title: '&2Success'\n" +
+            "    Unsupported Version: '&7The latest addons were downloaded, but it seems that they don''t support the current PlayMoreSounds version you''re running, downloading addons made for this version...'\n" +
             "  Empty Title: '&c&lNo addons found'\n" +
-            "  Installer Title: '&2&lInstall Addons:'\n" +
             "  Error:\n" +
             "    Blocked: '&cAddons are currently being installed, wait until the installation process finishes to open the addon management inventory.'\n" +
             "  Install:\n" +
             "    Error: '&cSomething went wrong while installing the addon &4<addon>&c.'\n" +
             "    Installed: '&7<addon>&7 was installed.'\n" +
             "    Success: '&aAddon <addon>&a was installed successfully, restart your server so it can be loaded.'\n" +
+            "  Installer Title: '&2&lInstall Addons:'\n" +
             "  Management Inventory:\n" +
             "    Addon:\n" +
             "      Display Name: '&a&l<name>'\n" +
@@ -889,27 +903,14 @@ public enum Configurations
             "      Lore: '&7You have <addons> addons installed.'\n" +
             "    Install:\n" +
             "      Display Name: '&2&lInstall Addons'\n" +
-            "      Lore: '&7Click to download latest addons<line>&7from PlayMoreSounds'' GitHub.'\n" +
+            "      Lore: '&7Click to download latest addons from<line> &7PlayMoreSounds'' GitHub.'\n" +
             "    Next Page:\n" +
             "      Display Name: '&7&lNext Page'\n" +
             "      Lore: '&7Click to go to page <to>.'\n" +
             "    Previous Page:\n" +
             "      Display Name: '&7&lNext Page'\n" +
             "      Lore: '&7Click to go to page <to>.'\n" +
-            "  Download:\n" +
-            "    Already Exists: '&7An addons zip was already downloaded before, deleting and downloading the latest one.'\n" +
-            "    Error:\n" +
-            "      Title: '&4&lError'\n" +
-            "      Subtitle: '&7Something went wrong'\n" +
-            "      Not Found: '&cAddons for PlayMoreSounds v<version> were not found.'\n" +
-            "      Unknown: '&cAn unknown error occurred when downloading addons.'\n" +
-            "    Title: '&cDownloading'\n" +
-            "    Info: '&6Info about addons...'\n" +
-            "    Files: '&6Addons files...'\n" +
-            "    Success:\n" +
-            "      Title: '&2Success'\n" +
-            "      Subtitle: '&7Latest addons were downloaded'\n" +
-            "    Unsupported Version: '&7The latest addons were downloaded, but it seems that they don''t support the current PlayMoreSounds version you''re running, downloading addons made for this version...'\n" +
+            "  Title: '&9&lInstalled Addons:'\n" +
             "\n" +
             "Confirm:\n" +
             "  Error:\n" +
@@ -939,12 +940,11 @@ public enum Configurations
             "  Nobody Online: '&cThere are no online players on the server.'\n" +
             "  Not A Number: '&cThe value \"&7<number>&c\" is not a valid number!'\n" +
             "  Not A Player: '&cYou must be a player to do this.'\n" +
-            "  Player Not Found: '&cThe player \"&7<player>&c\" was not found.'\n" +
             "  Player: player\n" +
+            "  Player Not Found: '&cThe player \"&7<player>&c\" was not found.'\n" +
             "  Prefix: '&6[&9PlayMoreSounds&6] '\n" +
             "  Target: target\n" +
-            "  Unknown Command: '&cUnknown command. Use \"&7&n/<label> help&c\" to see the list of\n" +
-            "    commands available to you.'\n" +
+            "  Unknown Command: '&cUnknown command. Use \"&7&n/<label> help&c\" to see the list of commands available to you.'\n" +
             "  World: world\n" +
             "  You: You\n" +
             "\n" +
@@ -963,7 +963,7 @@ public enum Configurations
             "    &7 > Gives a configured custom disc.\n" +
             "  Header: 'List of PlayMoreSounds commands:'\n" +
             "  Help: |-\n" +
-            "    &e/<label> help [command]\n" +
+            "    &e/<label> help\n" +
             "    &7 > Shows the description of commands.\n" +
             "  List: |-\n" +
             "    &e/<label> list [page] [--gui]\n" +
@@ -991,6 +991,7 @@ public enum Configurations
             "  Error:\n" +
             "    Not Exists: '&cThe page &7<page>&c doesn''t exist! Max: <totalpages>.'\n" +
             "  Footer: '&f&l - &aView more sounds with \"&f/&n<label> list <page>&a\"'\n" +
+            "  Header: '&aList of available sounds [Page <page> of <totalpages>]:'\n" +
             "  Inventory:\n" +
             "    Error:\n" +
             "      Not Supported: '&cSound list GUI only works for version 1.14+'\n" +
@@ -1007,7 +1008,6 @@ public enum Configurations
             "      Display Name: '&6&lStop Sounds'\n" +
             "      Lore: ' Stop all currently playing sounds.'\n" +
             "    Title: '&8List of sounds, page &c<page>&8 of &c<totalpages>&8'\n" +
-            "  Header: '&aList of available sounds [Page <page> of <totalpages>]:'\n" +
             "  Page: page\n" +
             "  Sound Tooltip: '&5Click me to play the sound &d<sound>'\n" +
             "\n" +
@@ -1021,8 +1021,7 @@ public enum Configurations
             "  Sound: sound\n" +
             "  Success:\n" +
             "    Config: '&7Playing the sound &f<sound>&7 of the file &f<file>&7 to &f<player>&7.'\n" +
-            "    Default: '&7Playing the sound &f<sound>&7 with volume &f<volume>&7 and pitch &f<pitch>&7\n" +
-            "      to &f<player>&7.'\n" +
+            "    Default: '&7Playing the sound &f<sound>&7 with volume &f<volume>&7 and pitch &f<pitch>&7 to &f<player>&7.'\n" +
             "  Volume: volume\n" +
             "\n" +
             "Region:\n" +
@@ -1034,18 +1033,15 @@ public enum Configurations
             "      Different Worlds: '&cYour selections are in different worlds!'\n" +
             "      Max Area: '&cThe selected area exceeds the maximum of <max> blocks.'\n" +
             "      Max Regions: '&cYou cannot create more than <max> regions.'\n" +
-            "      Not Selected: '&cYou did not select positions, type &7&n/<label> <label2> wand&c\n" +
-            "        to get the region selection tool.'\n" +
+            "      Not Selected: '&cYou did not select positions, type &7&n/<label> <label2> wand&c to get the region selection tool.'\n" +
             "    Success: '&aThe region &7<name>&a was created successfully.'\n" +
             "  General:\n" +
             "    Error:\n" +
             "      Illegal Characters: '&cRegion names can only have alpha-numeric characters.'\n" +
             "      Max Name Characters: '&cRegion names cannot be longer than <max> characters.'\n" +
             "      Not Found:\n" +
-            "        Name: '&cNo region with that name was found. Type &7/<label> <label2> list&c\n" +
-            "          to see the list of regions.'\n" +
-            "        UUID: '&cNo region with that uuid was found. Type &7/<label> <label2> list&c\n" +
-            "          to see the list of regions.'\n" +
+            "        Name: '&cNo region with that name was found. Type &7/<label> <label2> list&c to see the list of regions.'\n" +
+            "        UUID: '&cNo region with that uuid was found. Type &7/<label> <label2> list&c to see the list of regions.'\n" +
             "      Save: '&cSomething went wrong while saving <name> region.'\n" +
             "  Info:\n" +
             "    Creation Date: '&7Creation Date:&f <date>'\n" +
@@ -1098,12 +1094,11 @@ public enum Configurations
             "    Success: '&6Selection tool: Left-click selects first position and Right-click selects second position.'\n" +
             "\n" +
             "Reload:\n" +
-            "  Error: '&cSomething went wrong while reloading config. PMS must be shut down immediately.'\n" +
+            "  Error: '&cSomething went wrong while reloading config. PlayMoreSounds must be shut down immediately.'\n" +
             "  Success: '&7Configuration reloaded.'\n" +
             "\n" +
             "Resource Packs:\n" +
-            "  Error: '&cSomething went wrong while requesting <player> to download the resource\n" +
-            "    pack. Please try another URL.'\n" +
+            "  Error: '&cSomething went wrong while requesting <player> to download the resource pack. Please try another URL.'\n" +
             "  Kick Message: '&cYou must be using the resource pack to play on this server.'\n" +
             "  Request Message: '&ePlease download the resource pack to continue.'\n" +
             "\n" +
@@ -1128,7 +1123,7 @@ public enum Configurations
             "    Player: '&aToggled the sounds of &f<target>&a to on!'\n" +
             "\n" +
             "Update:\n" +
-            "  Available: '&2PlayMoreSounds v<version> is available. Type &7/<label> update download&2 to download it.'\n" +
+            "  Available: '&2PlayMoreSounds v<version> is available. Download the latest version on spigotmc.org.'\n" +
             "  Check: '&eChecking for updates...'\n" +
             "  Error:\n" +
             "    Default: '&cSomething went wrong while using updater.'\n" +
@@ -1246,86 +1241,84 @@ public enum Configurations
             "# More information about sounds on sounds.yml.\n" +
             "\n" +
             "Version: '" + PlayMoreSoundsVersion.version + "'", StaticFields.version3_2_0),
-    SOUNDS(PlayMoreSoundsCore.getFolder().resolve("sounds.yml"), "####################################################################################################\n" +
-            "# Set a sound to play when an event is triggered.\n" +
-            "#\n" +
-            "# Create a section with the name of the event you want to play a sound, for example:\n" +
-            "#\n" +
-            "Teleport: # The event that when triggered, a sound will be played.\n" +
-            "  # Cancellable prevents the sound from playing if another plugin cancelled the event. This boolean\n" +
-            "  #helps sounds be compatible with other plugins.\n" +
-            "  Cancellable: true\n" +
-            "  # Enables or disables a sound. In sounds.yml when this boolean is set to false the event is\n" +
-            "  #unregistered as well, so you can use this plugin if you want to play sounds just for one event\n" +
-            "  #and don't worry about performance being spent on things you don't use.\n" +
-            "  Enabled: true\n" +
-            "  # This is a list of sounds that will be played. You can copy and paste the options below to play\n" +
-            "  #multiple sounds, each section must have a different name, here I numbered them just for\n" +
-            "  #organization.\n" +
-            "  Sounds:\n" +
-            "    '1':\n" +
-            "      # This is a delay in ticks the sound will wait before playing. Set to 0 for no delay.\n" +
-            "      Delay: 0\n" +
-            "      # Sounds can have multiple options, all of them are optional.\n" +
-            "      Options:\n" +
-            "        # Even if a player has toggled their sounds off, the sound will be played.\n" +
-            "        Ignores Disabled: false\n" +
-            "        # The sound will be only played if the player has this permission.\n" +
-            "        # In case the event is not triggered by a player, this option is ignored.\n" +
-            "        Permission Required: 'playmoresounds.reproduce.teleport'\n" +
-            "        # The sound will be only listened by who have this permission.\n" +
-            "        # In case this is a Radius sound and the player has the Permission Required and not\n" +
-            "        #Permission To Listen, the sound will be played anyway, but only those in the Radius with\n" +
-            "        #the Permission To Listen will hear.\n" +
-            "        Permission To Listen: 'playmoresounds.listen.teleport'\n" +
-            "        # A range of blocks the sound will be hearable.\n" +
-            "        # A distance squared is calculated to every player in the world if the value is greater than 0.\n" +
-            "        # If you want the sound to play only to the player who triggered the event, set this to 0.\n" +
-            "        # If you want the sound to play to everyone online in the server, set this to -1.\n" +
-            "        # If you want the sound to play to everyone in the event's world, set this to -2.\n" +
-            "        Radius: 15.2\n" +
-            "        # A location is added to the event's final location. This will always respect where the player\n" +
-            "        #is looking, i.e. if you add blocks to right the sound will be played to the player's right ear.\n" +
-            "        # Relative location option consumes a lot of memory, I recommend you leave it disabled if\n" +
-            "        #your server has a lot of players.\n" +
-            "        # Set negative to add blocks to the opposite direction, for example:\n" +
-            "        Relative Location:\n" +
-            "          FRONT_BACK: 1.3 # This will be played relative to the back.\n" +
-            "          RIGHT_LEFT: -0.01 # This will be played relative to the right.\n" +
-            "          UP_DOWN: 0.13 # This will be played relative to up.\n" +
-            "      # What the sound pitch is, values greater than 2 have no difference.\n" +
-            "      Pitch: 1.0\n" +
-            "      # You can set this to either a Sound Type or a Custom Sound.\n" +
-            "      # Custom sounds do not need to be listed anywhere in the plugin, just set this value to the\n" +
-            "      #name of custom sound you set in your resource pack's sounds.json.\n" +
-            "      # PlayMoreSounds' sound types are different than bukkit's sound types, PlayMoreSounds' sound\n" +
-            "      #types are always the same no matter which version of the server you are running, so sounds\n" +
-            "      #have the same names in 1.7 to 1.17.\n" +
-            "      # You can find a list of available sounds for the version " + PlayMoreSoundsCore.getServerVersion() + " in the file 'available sounds.txt'.\n" +
-            "      Sound: ENTITY_ENDERMAN_TELEPORT\n" +
-            "      # The volume of the sound. The way minecraft does it is by distance, volume 1 = ~15 blocks.\n" +
-            "      # If you are playing region sounds you might want to set this to a big number so it plays with\n" +
-            "      #the same volume the whole region.\n" +
-            "      # You will notice the volume go lower if you set it to a decimal lower than 0.\n" +
-            "      Volume: 0.9\n" +
-            "#\n" +
-            "# Any of the above options are optional, here's an example of a sound that doesn't need to use all\n" +
-            "#of these options:\n" +
-            "Player Death:\n" +
-            "  Enabled: true\n" +
-            "  Sounds:\n" +
-            "    '1':\n" +
-            "      Sound: ENTITY_WITHER_SPAWN\n" +
-            "#\n" +
-            "# If you don't want to use a sound, you can either completely remove it from this configuraiton or\n" +
-            "#set 'Enabled' to false, like this:\n" +
-            "Bed Leave:\n" +
-            "  Enabled: false # Disabled sounds will be unregistered and not affect server performance.\n" +
-            "#\n" +
-            "#\n" +
-            "# If you have any other doubts on how to set this configuration up, feel free to ask in\n" +
-            "#PlayMoreSounds' discord: https://discord.gg/eAHPbc3\n" +
-            "####################################################################################################\n" +
+    SOUNDS(PlayMoreSoundsCore.getFolder().resolve("sounds.yml"), "###########################################################################################################\n" +
+            "# Set a sound to play when an event is triggered.                                                         #\n" +
+            "#                                                                                                         #\n" +
+            "# Create a section with the name of the event you want to play a sound, for example:                      #\n" +
+            "#                                                                                                         #\n" +
+            "Teleport: # The event that when triggered, a sound will be played.                                        #\n" +
+            "  # Cancellable prevents the sound from playing if another plugin cancelled the event. This boolean helps #\n" +
+            "  #sounds be compatible with other plugins.                                                               #\n" +
+            "  Cancellable: true                                                                                       #\n" +
+            "  # Enables or disables a sound. In sounds.yml when this boolean is set to false the event is unregistered#\n" +
+            "  #as well, so you can use this plugin if you want to play sounds just for one event and don't worry about#\n" +
+            "  #performance being spent on things you don't use.                                                       #\n" +
+            "  Enabled: true                                                                                           #\n" +
+            "  # This is a list of sounds that will be played. You can copy and paste the options below to play        #\n" +
+            "  #multiple sounds, each section must have a different name, here I numbered them just for organization.  #\n" +
+            "  Sounds:                                                                                                 #\n" +
+            "    '1':                                                                                                  #\n" +
+            "      # This is a delay in ticks the sound will wait before playing. Set to 0 for no delay.               #\n" +
+            "      Delay: 0                                                                                            #\n" +
+            "      # Sounds can have multiple options, all of them are optional.                                       #\n" +
+            "      Options:                                                                                            #\n" +
+            "        # Even if a player has toggled their sounds off, the sound will be played.                        #\n" +
+            "        Ignores Disabled: false                                                                           #\n" +
+            "        # The sound will be only played if the player has this permission.                                #\n" +
+            "        # In case the event is not triggered by a player, this option is ignored.                         #\n" +
+            "        Permission Required: 'playmoresounds.reproduce.teleport'                                          #\n" +
+            "        # The sound will be only listened by who have this permission.                                    #\n" +
+            "        # In case this is a Radius sound and the player has the Permission Required and not               #\n" +
+            "        #Permission To Listen, the sound will be played anyway, but only those in the Radius with the     #\n" +
+            "        #Permission To Listen will hear.                                                                  #\n" +
+            "        Permission To Listen: 'playmoresounds.listen.teleport'                                            #\n" +
+            "        # A range of blocks the sound will be hearable.                                                   #\n" +
+            "        # A distance squared is calculated to every player in the world if the value is greater than 0.   #\n" +
+            "        # If you want the sound to play only to the player who triggered the event, set this to 0.        #\n" +
+            "        # If you want the sound to play to everyone online in the server, set this to -1.                 #\n" +
+            "        # If you want the sound to play to everyone in the event's world, set this to -2.                 #\n" +
+            "        Radius: 15.2                                                                                      #\n" +
+            "        # A location is added to the event's final location. This will always respect where the player is #\n" +
+            "        #looking, i.e. if you add blocks to right the sound will be played to the player's right ear.     #\n" +
+            "        # Relative location option consumes a lot of memory, I recommend you leave it disabled if your    #\n" +
+            "        #server has a lot of players.                                                                     #\n" +
+            "        # Set negative to add blocks to the opposite direction, for example:                              #\n" +
+            "        Relative Location:                                                                                #\n" +
+            "          FRONT_BACK: 1.3 # This will be played relative to the back.                                     #\n" +
+            "          RIGHT_LEFT: -0.01 # This will be played relative to the right.                                  #\n" +
+            "          UP_DOWN: 0.13 # This will be played relative to up.                                             #\n" +
+            "      # What the sound pitch is, values greater than 2 have no difference.                                #\n" +
+            "      Pitch: 1.0                                                                                          #\n" +
+            "      # You can set this to either a Sound Type or a Custom Sound.                                        #\n" +
+            "      # Custom sounds do not need to be listed anywhere in the plugin, just set this value to the name of #\n" +
+            "      #custom sound you set in your resource pack's sounds.json.                                          #\n" +
+            "      # PlayMoreSounds' sound types are different than bukkit's sound types, PlayMoreSounds' sound types  #\n" +
+            "      #are always the same no matter which version of the server you are running, so sounds have the same #\n" +
+            "      #names in 1.7 to 1.17.                                                                              #\n" +
+            "      # You can find a list of available sounds for the version " + PlayMoreSoundsCore.getServerVersion() + " in the file 'available sounds.txt'." + PMSHelper.repeatChar(' ', 6 - PlayMoreSoundsCore.getServerVersion().toString().length()) + "#\n" +
+            "      Sound: ENTITY_ENDERMAN_TELEPORT                                                                     #\n" +
+            "      # The volume of the sound. The way minecraft does it is by distance, volume 1 = ~15 blocks.         #\n" +
+            "      # If you are playing region sounds you might want to set this to a big number so it plays with the  #\n" +
+            "      #same volume the whole region.                                                                      #\n" +
+            "      # You will notice the volume go lower if you set it to a decimal lower than 1.                      #\n" +
+            "      Volume: 0.9                                                                                         #\n" +
+            "#                                                                                                         #\n" +
+            "# Any of the above options are optional, here's an example of a sound that doesn't need to use all of     #\n" +
+            "#these options:                                                                                           #\n" +
+            "Player Death:                                                                                             #\n" +
+            "  Enabled: true                                                                                           #\n" +
+            "  Sounds:                                                                                                 #\n" +
+            "    '1':                                                                                                  #\n" +
+            "      Sound: ENTITY_WITHER_SPAWN                                                                          #\n" +
+            "#                                                                                                         #\n" +
+            "# If you don't want to use a sound, you can either completely remove it from this configuraiton or set    #\n" +
+            "#'Enabled' to false, like this:                                                                           #\n" +
+            "Bed Leave:                                                                                                #\n" +
+            "  Enabled: false # Disabled sounds will be unregistered and not affect server performance.                #\n" +
+            "#                                                                                                         #\n" +
+            "# If you have any other doubts on how to set this configuration up, feel free to ask in PlayMoreSounds'   #\n" +
+            "#Discord: https://discord.gg/eAHPbc3                                                                      #\n" +
+            "###########################################################################################################\n" +
             "\n" +
             "Version: '" + PlayMoreSoundsVersion.version + "' # Configuration version, don't change if you don't want your configuration reset.\n" +
             "\n" +
@@ -1370,8 +1363,8 @@ public enum Configurations
             "# When a player drops an item.\n" +
             "# This sound is cancellable.\n" +
             "Drop Item:\n" +
-            "  Cancellable: false\n" +
             "  Enabled: true\n" +
+            "  Cancellable: false\n" +
             "  Sounds:\n" +
             "    '1':\n" +
             "      Options:\n" +
@@ -1382,8 +1375,8 @@ public enum Configurations
             "# When a player edits or creates a book using a book and quill.\n" +
             "# This sound is cancellable.\n" +
             "Edit Book:\n" +
-            "  Cancellable: false\n" +
             "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.9")) < 0 ? "false # ITEM_ARMOR_EQUIP_LEATHER is not available in " + PlayMoreSoundsCore.getServerVersion() + " please choose another sound.\n" : "true\n") +
+            "  Cancellable: false\n" +
             "  Sounds:\n" +
             "    '1':\n" +
             "      Options:\n" +
@@ -1395,8 +1388,8 @@ public enum Configurations
             "# When an entity is hit by another entity.\n" +
             "# This sound is cancellable.\n" +
             "Entity Hit:\n" +
-            "  Cancellable: true\n" +
             "  Enabled: true\n" +
+            "  Cancellable: true\n" +
             "  Sounds:\n" +
             "    '1':\n" +
             "      Options:\n" +
