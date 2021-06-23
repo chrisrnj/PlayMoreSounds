@@ -256,7 +256,7 @@ public final class AddonsInventory implements Listener
 
             // Downloading addons zip to PlayMoreSounds data folder.
             if (hasTitles)
-                repeatingTitle = scheduler.runTaskTimer(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Title"), lang.getColored("Addons.Download.Latest"), 5, 10, 5), 0, 25);
+                repeatingTitle = scheduler.runTaskTimer(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Title"), lang.getColored("Addons.Download.Files"), 5, 10, 5), 0, 25);
             try (FileOutputStream fos = new FileOutputStream(tempAddonsZip.toFile())) {
                 Downloader downloader = new Downloader(new URL(addonsDownloadURL), fos);
                 downloader.run();
