@@ -84,7 +84,7 @@ public class PlayableSound extends Sound implements Playable
                 (getOptions().getPermissionRequired() == null || (player == null || player.hasPermission(getOptions().getPermissionRequired()))) &&
                 (player == null || (!player.hasPotionEffect(PotionEffectType.INVISIBILITY) || !player.hasPermission("playmoresounds.bypass.invisibility")))) {
             Location soundLocation = SoundManager.addRelativeLocation(preEvent.getLocation(), getOptions().getRelativeLocation());
-            Collection<Player> players = SoundManager.getInRange(getOptions().getRadius(), preEvent.getLocation());
+            Collection<Player> players = SoundManager.getInRange(getOptions().getRadiusSquared(), preEvent.getLocation());
 
             if (player != null)
                 players.add(player);

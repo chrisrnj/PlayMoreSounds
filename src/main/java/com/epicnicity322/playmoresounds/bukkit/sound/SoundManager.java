@@ -29,6 +29,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.util.NumberConversions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -143,14 +144,12 @@ public final class SoundManager
 
     /**
      * Gets all players inside a radius range.
-     * <p>
-     * Radius < -1 - All players in the world.
-     * <p>
-     * Radius < 0  - All players in the server.
-     * <p>
-     * Radius > 0  - All players in this range of blocks.
-     * <p>
-     * Radius = 0  - Empty.
+     * <ul>
+     * <li>Radius < -1 - All players in the world.</li>
+     * <li>Radius < 0  - All players in the server.</li>
+     * <li>Radius > 0  - All players that have their location's distance compared by {@link Location#distanceSquared(Location)} lower than the {@param radius}.</li>
+     * <li>Radius = 0  - Empty.</li>
+     * </ul>
      *
      * @param radius   The range of blocks to get the players.
      * @param location The location to calculate the radius.
@@ -167,7 +166,7 @@ public final class SoundManager
             HashSet<Player> players = new HashSet<>();
 
             for (Player player : location.getWorld().getPlayers()) {
-                if (location.distanceSquared(player.getLocation()) <= radius) {
+                if (distance(location, player.getLocation()) <= radius) {
                     players.add(player);
                 }
             }
@@ -176,6 +175,12 @@ public final class SoundManager
         } else {
             return new HashSet<>();
         }
+    }
+
+    //Avoiding checks for different worlds.
+    private static double distance(Location loc1, Location loc2)
+    {
+        return NumberConversions.square(loc1.getX() - loc2.getX()) + NumberConversions.square(loc1.getY() - loc2.getY()) + NumberConversions.square(loc1.getZ() - loc2.getZ());
     }
 
     /**

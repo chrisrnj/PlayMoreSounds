@@ -32,6 +32,7 @@ public class SoundOptions
     private @Nullable String permissionToListen;
     private @Nullable String permissionRequired;
     private double radius;
+    private double radiusSquared;
     private @NotNull Map<Direction, Double> relativeLocation = new HashMap<>();
 
     /**
@@ -67,8 +68,8 @@ public class SoundOptions
     {
         setPermissionRequired(section.getString("Permission Required").orElse(null));
         setPermissionToListen(section.getString("Permission To Listen").orElse(null));
+        setRadius(section.getNumber("Radius").orElse(0).doubleValue());
 
-        radius = section.getNumber("Radius").orElse(0).doubleValue();
         ignoresDisabled = section.getBoolean("Ignores Disabled").orElse(false);
 
         ConfigurationSection relativeLoc = section.getConfigurationSection("Relative Location");
@@ -153,9 +154,20 @@ public class SoundOptions
         return radius;
     }
 
+    /**
+     * The value of {@link #getRadius()}, but squared. Useful to calculate radius.
+     *
+     * @return The radius squared.
+     */
+    public double getRadiusSquared()
+    {
+        return radiusSquared;
+    }
+
     public void setRadius(double radius)
     {
         this.radius = radius;
+        radiusSquared = radius * radius;
     }
 
     /**
