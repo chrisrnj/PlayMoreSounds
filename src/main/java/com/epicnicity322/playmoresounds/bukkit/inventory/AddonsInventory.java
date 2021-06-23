@@ -87,7 +87,7 @@ public final class AddonsInventory implements Listener
             // Will never happen...
         }
 
-        hasTitles = PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.8.7")) < 0;
+        hasTitles = PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.8.7")) > 0;
 
         PlayMoreSounds.onDisable(() -> {
             allInventories.forEach(HumanEntity::closeInventory);
