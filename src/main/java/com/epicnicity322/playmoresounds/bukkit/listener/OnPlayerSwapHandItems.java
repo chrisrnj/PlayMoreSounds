@@ -41,6 +41,8 @@ public final class OnPlayerSwapHandItems extends PMSListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event)
     {
+        if (event.getMainHandItem() == null || event.getMainHandItem().getType().isAir()) return;
+
         PlayableRichSound sound = getRichSound();
 
         if (!event.isCancelled() || !sound.isCancellable())
