@@ -462,11 +462,11 @@ public final class RegionSubCommand extends Command implements Helpable
             return;
         }
 
-        long page = 1;
+        int page = 1;
 
         if (args.length > 3) {
             if (StringUtils.isNumeric(args[3])) {
-                page = Long.parseLong(args[3]);
+                page = Integer.parseInt(args[3]);
             } else {
                 lang.send(sender, lang.get("General.Not A Number").replace("<number>", args[3]));
                 return;

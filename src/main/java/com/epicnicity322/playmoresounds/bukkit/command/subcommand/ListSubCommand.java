@@ -84,14 +84,14 @@ public final class ListSubCommand extends Command implements Helpable
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
         boolean gui = sender instanceof Player && sender.hasPermission("playmoresounds.list.gui") && VersionUtils.hasPersistentData();
-        long page = 1;
+        int page = 1;
         String invalidArgs = lang.get("General.Invalid Arguments").replace("<label>", label).replace(
                 "<label2>", args[0]).replace("<args>", "[" + lang.get("List.Page")
                 + "] [--gui]");
 
         if (args.length > 1) {
             try {
-                page = Long.parseLong(args[1]);
+                page = Integer.parseInt(args[1]);
                 gui = false;
             } catch (NumberFormatException e) {
                 lang.send(sender, lang.get("General.Not A Number").replace("<number>", args[1]));
@@ -124,7 +124,7 @@ public final class ListSubCommand extends Command implements Helpable
         }
 
         if (gui) {
-            ListInventory listInventory = new ListInventory((int) page);
+            ListInventory listInventory = new ListInventory(page);
             Player player = (Player) sender;
 
             listInventory.openInventory(player);
