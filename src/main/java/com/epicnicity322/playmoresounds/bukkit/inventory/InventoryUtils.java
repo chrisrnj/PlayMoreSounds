@@ -18,7 +18,9 @@
 
 package com.epicnicity322.playmoresounds.bukkit.inventory;
 
+import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.Inventory;
@@ -32,10 +34,17 @@ import java.util.HashSet;
 
 public final class InventoryUtils
 {
+    private static final @NotNull Material glassPanel;
     private static @Nullable NamespacedKey button;
 
     static {
         PlayMoreSounds.onInstance(() -> button = new NamespacedKey(PlayMoreSounds.getInstance(), "button"));
+
+        if (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.13")) < 0) {
+            glassPanel = Material.valueOf("THIN_GLASS");
+        } else {
+            glassPanel = Material.GLASS_PANE;
+        }
     }
 
     private InventoryUtils()
@@ -67,7 +76,7 @@ public final class InventoryUtils
         for (int slot = from_index; slot <= to_index; ++slot) {
             if (inventory.getItem(slot) != null) continue;
 
-            ItemStack glassPane = new ItemStack(Material.GLASS_PANE);
+            ItemStack glassPane = new ItemStack(glassPanel);
             ItemMeta meta = glassPane.getItemMeta();
 
             meta.setDisplayName(" ");
