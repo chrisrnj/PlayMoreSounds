@@ -23,5 +23,7 @@ permissions:
     children:
       playmoresounds.disc.use: true
       playmoresounds.help: true
+      playmoresounds.listen.teleport: true
+      playmoresounds.reproduce.teleport: true
       playmoresounds.toggle: true
       playmoresounds.toggle.check: true
