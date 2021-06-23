@@ -184,12 +184,12 @@ public final class NBSSongPlayer extends PMSAddon implements Listener
     {
         String sound = event.getSound().getSound();
 
-        if (sound.toLowerCase().startsWith("nbs::")) {
+        if (sound.toLowerCase().startsWith("nbs:")) {
             Player player = event.getPlayer();
             ConfigurationSection childSection = event.getSound().getSection();
 
             event.setCancelled(true);
-            sound = sound.substring(5);
+            sound = sound.substring(4);
 
             try {
                 play(player, sound);
