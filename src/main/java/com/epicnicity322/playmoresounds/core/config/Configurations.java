@@ -874,12 +874,12 @@ public enum Configurations
             "      Subtitle: '&7Something went wrong'\n" +
             "      Title: '&4&lError'\n" +
             "      Unknown: '&cAn unknown error occurred when downloading addons.'\n" +
-            "    Title: '&cDownloading'\n" +
-            "    Info: '&6Info about addons...'\n" +
             "    Files: '&6Addons files...'\n" +
+            "    Info: '&6Info about addons...'\n" +
             "    Success:\n" +
             "      Subtitle: '&7Latest addons were downloaded'\n" +
             "      Title: '&2Success'\n" +
+            "    Title: '&cDownloading'\n" +
             "    Unsupported Version: '&7The latest addons were downloaded, but it seems that they don''t support the current PlayMoreSounds version you''re running, downloading addons made for this version...'\n" +
             "  Empty Title: '&c&lNo addons found'\n" +
             "  Error:\n" +
@@ -1142,12 +1142,12 @@ public enum Configurations
             "      Subtitle: '&7Algo salió mal'\n" +
             "      Title: '&4&lError'\n" +
             "      Unknown: '&cSe produjo un error desconocido al descargar addons.'\n" +
-            "    Title: '&cDescargando'\n" +
-            "    Info: '&6Información de addons...'\n" +
             "    Files: '&6Archivos de addons...'\n" +
+            "    Info: '&6Información de addons...'\n" +
             "    Success:\n" +
             "      Subtitle: '&7Últimos addons descargados'\n" +
             "      Title: '&2Éxito'\n" +
+            "    Title: '&cDescargando'\n" +
             "    Unsupported Version: '&7Se han descargado los últimos addons, pero parece que no son compatibles con la versión actual de PlayMoreSounds, descargando addons hechos para la versión actual...'\n" +
             "  Empty Title: '&c&lAddons no encontrados'\n" +
             "  Error:\n" +
@@ -1410,12 +1410,12 @@ public enum Configurations
             "      Subtitle: '&7Aconteceu algo de errado'\n" +
             "      Title: '&4&lErro'\n" +
             "      Unknown: '&cUm erro desconhecido ocorreu ao baixar os addons.'\n" +
-            "    Title: '&cBaixando'\n" +
-            "    Info: '&6Informação de addons...'\n" +
             "    Files: '&6Arquivos de addons...'\n" +
+            "    Info: '&6Informação de addons...'\n" +
             "    Success:\n" +
             "      Subtitle: '&7Addons mais recentes baixados'\n" +
             "      Title: '&2Sucesso'\n" +
+            "    Title: '&cBaixando'\n" +
             "    Unsupported Version: '&7Os addons mais recentes foram baixados, mas parece que eles não suportam a versão atual do PlayMoreSounds, baixando addons feitos para a versão atual...'\n" +
             "  Empty Title: '&c&lAddons não encontrados'\n" +
             "  Error:\n" +
@@ -1679,12 +1679,12 @@ public enum Configurations
             "      Subtitle: '&7Something went wrong'\n" +
             "      Title: '&4&lError'\n" +
             "      Unknown: '&cAn unknown error occurred when downloading addons.'\n" +
-            "    Title: '&cDownloading'\n" +
-            "    Info: '&6Info about addons...'\n" +
             "    Files: '&6Addons files...'\n" +
+            "    Info: '&6Info about addons...'\n" +
             "    Success:\n" +
             "      Subtitle: '&7Latest addons were downloaded'\n" +
             "      Title: '&2Success'\n" +
+            "    Title: '&cDownloading'\n" +
             "    Unsupported Version: '&7The latest addons were downloaded, but it seems that they don''t support the current PlayMoreSounds version you''re running, downloading addons made for this version...'\n" +
             "  Empty Title: '&c&lNo addons found'\n" +
             "  Error:\n" +
