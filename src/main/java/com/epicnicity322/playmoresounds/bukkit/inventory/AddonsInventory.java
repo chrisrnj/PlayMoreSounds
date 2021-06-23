@@ -211,7 +211,7 @@ public final class AddonsInventory implements Listener
                 if (downloader.getResult() != Downloader.Result.SUCCESS) {
                     if (hasTitles) {
                         repeatingTitle.cancel();
-                        player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10);
+                        scheduler.runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
                     }
                     throw downloader.getException();
                 }
@@ -233,36 +233,44 @@ public final class AddonsInventory implements Listener
                     if (releaseData == null) {
                         if (hasTitles) {
                             repeatingTitle.cancel();
-                            player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10);
+                            scheduler.runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
                         }
                         lang.send(player, lang.get("Addons.Download.Error.Not Found").replace("<version>", PlayMoreSoundsVersion.version));
-                        throw new NullPointerException("Tag for this version not found on github.");
+                        return;
                     }
                 }
             }
 
             if (hasTitles) repeatingTitle.cancel();
 
-            URL addonsDownloadURL = new URL(Objects.requireNonNull(findAddonsDownloadURL((JSONArray) releaseData.get("assets"))));
+            String addonsDownloadURL = findAddonsDownloadURL((JSONArray) releaseData.get("assets"));
+
+            if (addonsDownloadURL == null) {
+                if (hasTitles) {
+                    scheduler.runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
+                }
+                lang.send(player, lang.get("Addons.Download.Error.Not Found").replace("<version>", PlayMoreSoundsVersion.version));
+                return;
+            }
 
             // Downloading addons zip to PlayMoreSounds data folder.
             if (hasTitles)
                 repeatingTitle = scheduler.runTaskTimer(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Title"), lang.getColored("Addons.Download.Latest"), 5, 10, 5), 0, 25);
             try (FileOutputStream fos = new FileOutputStream(tempAddonsZip.toFile())) {
-                Downloader downloader = new Downloader(addonsDownloadURL, fos);
+                Downloader downloader = new Downloader(new URL(addonsDownloadURL), fos);
                 downloader.run();
 
                 if (downloader.getResult() != Downloader.Result.SUCCESS) {
                     if (hasTitles) {
                         repeatingTitle.cancel();
-                        player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10);
+                        scheduler.runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
                     }
                     throw downloader.getException();
                 }
 
                 if (hasTitles) {
                     repeatingTitle.cancel();
-                    player.sendTitle(lang.getColored("Addons.Download.Success.Title"), lang.getColored("Addons.Download.Success.Subtitle"), 10, 20, 10);
+                    scheduler.runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Success.Title"), lang.getColored("Addons.Download.Success.Subtitle"), 10, 20, 10));
                 }
             }
         } finally {
