@@ -18,6 +18,7 @@
 
 package com.epicnicity322.playmoresounds.bukkit.util;
 
+import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.listener.*;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
@@ -62,7 +63,10 @@ public final class ListenerRegister
             listeners.add(new OnPlayerSwapHandItems(instance));
             listeners.add(new OnPlayerToggleFlight(instance));
             listeners.add(new OnPlayerToggleSneak(instance));
-            listeners.add(new OnPortalCreate(instance));
+
+            if (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.14")) >= 0)
+                listeners.add(new OnPortalCreate(instance));
+
             listeners.add(new OnRegionEnterLeave(instance));
             listeners.add(new OnWeatherChange(instance));
 

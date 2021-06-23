@@ -18,8 +18,10 @@
 
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
+import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.world.PortalCreateEvent;
@@ -30,6 +32,10 @@ public final class OnPortalCreate extends PMSListener
     public OnPortalCreate(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
+
+        //OnPortalCreate listener uses methods that were changed in 1.14
+        if (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.14")) < 0)
+            throw new UnsupportedOperationException("This listener is not supported in " + PlayMoreSoundsCore.getServerVersion());
     }
 
     @Override
@@ -39,7 +45,7 @@ public final class OnPortalCreate extends PMSListener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerSwapHandItems(PortalCreateEvent event)
+    public void onPortalCreate(PortalCreateEvent event)
     {
         PlayableRichSound sound = getRichSound();
 

@@ -2355,7 +2355,7 @@ public enum Configurations
             "# When a nether portal is opened.\n" +
             "# This sound is cancellable.\n" +
             "Portal Create:\n" +
-            "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.12")) < 0 ? "false # BLOCK_END_PORTAL_SPAWN is not available in " + PlayMoreSoundsCore.getServerVersion() + " please choose another sound.\n" : "true\n") +
+            "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.14")) < 0 ? "false # This event only supports 1.14+ and you are on " + PlayMoreSoundsCore.getServerVersion() + "\n" : "true\n") +
             "  Cancellable: true\n" +
             "  Sounds:\n" +
             "    '1':\n" +
