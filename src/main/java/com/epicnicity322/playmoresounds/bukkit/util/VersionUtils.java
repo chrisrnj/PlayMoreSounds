@@ -34,7 +34,6 @@ public final class VersionUtils
     private static boolean hasSoundEffects = false;
     private static boolean hasHoverContentApi = false;
     private static boolean paperMC = false;
-    private static boolean bStats = false;
     private static boolean resourcePacks = false;
     private static boolean hasItemFlags = false;
 
@@ -69,12 +68,6 @@ public final class VersionUtils
         }
 
         try {
-            Class.forName("com.google.gson.JsonElement");
-            bStats = true;
-        } catch (ClassNotFoundException ignored) {
-        }
-
-        try {
             Class.forName("org.bukkit.event.player.PlayerResourcePackStatusEvent");
             resourcePacks = true;
         } catch (ClassNotFoundException ignored) {
@@ -105,16 +98,6 @@ public final class VersionUtils
     public static @NotNull Version getBukkitVersion()
     {
         return bukkitVersion;
-    }
-
-    /**
-     * Whether the version of bukkit running supports bStats.
-     *
-     * @return If bStats is supported.
-     */
-    public static boolean supportsBStats()
-    {
-        return bStats;
     }
 
     /**
