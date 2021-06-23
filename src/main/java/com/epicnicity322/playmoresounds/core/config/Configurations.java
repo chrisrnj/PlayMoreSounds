@@ -23,6 +23,7 @@ import com.epicnicity322.epicpluginlib.core.config.ConfigurationLoader;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
+import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import org.jetbrains.annotations.NotNull;
 
@@ -2069,7 +2070,11 @@ public enum Configurations
             "      Delay: 0                                                                                            #\n" +
             "      # Sounds can have multiple options, all of them are optional.                                       #\n" +
             "      Options:                                                                                            #\n" +
-            "        # Even if a player has toggled their sounds off, the sound will be played.                        #\n" +
+            //"        # Global location makes so the sound location is always the player who's hearing it, instead of   #\n" +
+            //"        #the location the event was triggered. This makes so sounds with Radius -2 for example, are heard #\n" +
+            //"        #by all players in the world, no matter their distance. (Radius -1 always has Global Location on.)#\n" +
+            //"        Global Location: false                                                                            #\n" +
+            "        # Even if a player has toggled their sounds off using \"/pms toggle\", the sound will be played.    #\n" +
             "        Ignores Disabled: false                                                                           #\n" +
             "        # The sound will be only played if the player has this permission.                                #\n" +
             "        # In case the event is not triggered by a player, this option is ignored.                         #\n" +
@@ -2108,6 +2113,7 @@ public enum Configurations
             "      # If you are playing region sounds you might want to set this to a big number so it plays with the  #\n" +
             "      #same volume the whole region.                                                                      #\n" +
             "      # You will notice the volume go lower if you set it to a decimal lower than 1.                      #\n" +
+            //"      # Set to -1 to use the maximum possible volume.                                                     #\n" +
             "      Volume: 0.9                                                                                         #\n" +
             "#                                                                                                         #\n" +
             "# Any of the above options are optional, here's an example of a sound that doesn't need to use all of     #\n" +
@@ -2182,7 +2188,7 @@ public enum Configurations
             "# When a player edits or creates a book using a book and quill.\n" +
             "# This sound is cancellable.\n" +
             "Edit Book:\n" +
-            "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.9")) < 0 ? "false # ITEM_ARMOR_EQUIP_LEATHER is not available in " + PlayMoreSoundsCore.getServerVersion() + " please choose another sound.\n" : "true\n") +
+            "  Enabled: " + (SoundType.ITEM_ARMOR_EQUIP_LEATHER.getSound().isPresent() ? "true\n" : "false # ITEM_ARMOR_EQUIP_LEATHER is not available in " + PlayMoreSoundsCore.getServerVersion() + " please choose another sound.\n") +
             "  Cancellable: false\n" +
             "  Sounds:\n" +
             "    '1':\n" +
@@ -2200,9 +2206,10 @@ public enum Configurations
             "  Sounds:\n" +
             "    '1':\n" +
             "      Options:\n" +
-            "        Radius: 15.0\n" +
+            "        Radius: 16.0\n" +
             "      Pitch: 2.0\n" +
             "      Sound: ENTITY_GENERIC_HURT\n" +
+            "      Volume: 0.9\n" +
             "\n" +
             "# When any entity jumps.\n" +
             "# This sound only plays if you are running PaperMC.\n" +
@@ -2244,6 +2251,7 @@ public enum Configurations
             "  Sounds:\n" +
             "    '1':\n" +
             "      Sound: BLOCK_ANVIL_LAND\n" +
+            "      Volume: 0.4\n" +
             "\n" +
             "# When a player clicks on an inventory.\n" +
             "# This sound is cancellable.\n" +
@@ -2259,7 +2267,7 @@ public enum Configurations
             "# When a player closes an inventory.\n" +
             "# This sound is not cancellable.\n" +
             "Inventory Close:\n" +
-            "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.12")) < 0 ? "false # UI_TOAST_OUT is not available in " + PlayMoreSoundsCore.getServerVersion() + " please choose another sound.\n" : "true\n") +
+            "  Enabled: " + (SoundType.UI_TOAST_OUT.getSound().isPresent() ? "true\n" : "false # UI_TOAST_OUT is not available in " + PlayMoreSoundsCore.getServerVersion() + " please choose another sound.\n") +
             "  Sounds:\n" +
             "    '1':\n" +
             "      Pitch: 2.0\n" +
@@ -2433,7 +2441,7 @@ public enum Configurations
             "# When the player moves their current item to their off hand.\n" +
             "# This sound is cancellable.\n" +
             "Swap Hands:\n" +
-            "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.9")) < 0 ? "false # This event is not available in " + PlayMoreSoundsCore.getServerVersion() + ".\n" : "true\n") +
+            "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.9")) < 0 ? "false # This event only supports 1.9+ and you are on " + PlayMoreSoundsCore.getServerVersion() + "\n" : "true\n") +
             "  Cancellable: true\n" +
             "  Sounds:\n" +
             "    '1':\n" +
