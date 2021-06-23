@@ -1,5 +1,6 @@
 Api Version: '4.0.0'
 Authors: [ Epicnicity322 ]
+Description: Plays .nbs songs using NoteBlockAPI.
 Main Class: com.epicnicity322.nbssongplayer.NBSSongPlayer
 Name: NBS Song Player
 Required Plugins: [ NoteBlockAPI ]

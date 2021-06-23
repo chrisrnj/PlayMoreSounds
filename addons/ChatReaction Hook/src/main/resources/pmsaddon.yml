@@ -1,5 +1,6 @@
 Api Version: '4.0.0'
 Authors: [ Epicnicity322 ]
+Description: Adds sounds to reaction fail, start, and win from ChatReaction.
 Main Class: com.epicnicity322.chatreactionhook.ChatReactionHook
 Name: ChatReaction Hook
 Required Plugins: [ ChatReaction ]

@@ -1,4 +1,5 @@
 Authors: [ Epicnicity322 ]
+Description: Prevents sounds from playing if the player is not in a range of height or time.
 Main Class: com.epicnicity322.soundfactors.SoundFactors
 Name: Sound Factors
 Version: '${project.version}'

@@ -1,5 +1,6 @@
 Api Version: '4.0.0'
 Authors: [ Epicnicity322 ]
+Description: Adds sounds to login and register events from AuthMe.
 Main Class: com.epicnicity322.authmehook.AuthMeHook
 Name: AuthMe Hook
 Required Plugins: [ AuthMe ]

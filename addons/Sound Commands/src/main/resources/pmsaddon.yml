@@ -1,4 +1,5 @@
 Authors: [ Epicnicity322 ]
+Description: 'Execute commands when a sound is played.'
 Main Class: com.epicnicity322.soundcommands.SoundCommands
 Name: Sound Commands
 Version: '${project.version}'
