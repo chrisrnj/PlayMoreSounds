@@ -41,6 +41,7 @@ import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import com.epicnicity322.playmoresounds.core.util.LoadableHashSet;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
+import com.epicnicity322.yamlhandler.YamlConfigurationLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -49,6 +50,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.HashMap;
@@ -313,7 +315,14 @@ public final class PlayMoreSounds extends JavaPlugin
                 logger.log("&a" + SoundType.getPresentSoundTypes().size() + " sounds available on " + VersionUtils.getBukkitVersion());
                 logger.log("&6============================================");
 
-                if (VersionUtils.supportsBStats()) {
+                boolean bStats = false;
+
+                try {
+                    bStats = new YamlConfigurationLoader().load(Paths.get("plugins/bStats/config.yml")).getBoolean("enabled").orElse(false);
+                } catch (Exception ignored) {
+                }
+
+                if (bStats) {
                     Metrics metrics = new Metrics(this, 7985);
 
                     metrics.addCustomChart(new Metrics.AdvancedPie("running_addons", () -> {
