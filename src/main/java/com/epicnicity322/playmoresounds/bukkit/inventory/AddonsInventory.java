@@ -162,7 +162,6 @@ public final class AddonsInventory implements Listener
         new Thread(() -> {
             try {
                 downloadAddons(player, true);
-
                 ZipUtils.extractZip(tempAddonsZip, tempAddonsFolder);
 
                 if (unsupportedAddonsVersion()) {
@@ -171,6 +170,8 @@ public final class AddonsInventory implements Listener
                 }
 
                 new AddonInstallerInventory(player);
+            } catch (NullPointerException ignored) {
+                // Error message already logged.
             } catch (Exception e) {
                 lang.send(player, lang.get("Addons.Download.Error.Unknown"));
                 PlayMoreSoundsCore.getErrorHandler().report(e, "Download Addons Exception:");
@@ -236,7 +237,7 @@ public final class AddonsInventory implements Listener
                             scheduler.runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
                         }
                         lang.send(player, lang.get("Addons.Download.Error.Not Found").replace("<version>", PlayMoreSoundsVersion.version));
-                        return;
+                        throw new NullPointerException();
                     }
                 }
             }
@@ -250,7 +251,7 @@ public final class AddonsInventory implements Listener
                     scheduler.runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
                 }
                 lang.send(player, lang.get("Addons.Download.Error.Not Found").replace("<version>", PlayMoreSoundsVersion.version));
-                return;
+                throw new NullPointerException();
             }
 
             // Downloading addons zip to PlayMoreSounds data folder.
