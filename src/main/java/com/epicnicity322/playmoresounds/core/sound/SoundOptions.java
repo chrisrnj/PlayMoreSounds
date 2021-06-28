@@ -167,7 +167,7 @@ public class SoundOptions
     public void setRadius(double radius)
     {
         this.radius = radius;
-        radiusSquared = radius * radius;
+        radiusSquared = radius > 0 ? radius * radius : radius;
     }
 
     /**
