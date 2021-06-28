@@ -23,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class PlayMoreSoundsVersion
 {
-    public static final @NotNull String version = "4.0.1";
+    public static final @NotNull String version = "4.0.2";
     private static final @NotNull Version versionVersion = new Version(version);
 
     /**
