@@ -75,8 +75,8 @@ public final class OnPlayerTeleport implements Listener
 
         if (event.getCause() != PlayerTeleportEvent.TeleportCause.COMMAND) return;
 
-        boolean playTeleport = teleport != null && !event.isCancelled() || !teleport.isCancellable();
-        boolean playWorldChange = !from.getWorld().equals(to.getWorld()) && worldChange != null && !event.isCancelled() || !worldChange.isCancellable();
+        boolean playTeleport = teleport != null && (!event.isCancelled() || !teleport.isCancellable());
+        boolean playWorldChange = worldChange != null && !from.getWorld().equals(to.getWorld()) && (!event.isCancelled() || !worldChange.isCancellable());
 
         if (playTeleport || playWorldChange)
             scheduler.runTask(main, () -> {
