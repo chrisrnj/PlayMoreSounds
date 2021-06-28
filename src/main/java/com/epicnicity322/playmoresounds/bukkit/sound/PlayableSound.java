@@ -80,26 +80,28 @@ public class PlayableSound extends Sound implements Playable
 
         Bukkit.getPluginManager().callEvent(preEvent);
 
-        if (!preEvent.isCancelled() &&
-                (getOptions().getPermissionRequired() == null || (player == null || player.hasPermission(getOptions().getPermissionRequired()))) &&
-                (player == null || (!player.hasPotionEffect(PotionEffectType.INVISIBILITY) || !player.hasPermission("playmoresounds.bypass.invisibility")))) {
-            Location soundLocation = SoundManager.addRelativeLocation(preEvent.getLocation(), getOptions().getRelativeLocation());
-            Collection<Player> players = SoundManager.getInRange(getOptions().getRadiusSquared(), preEvent.getLocation());
+        if (preEvent.isCancelled()) return;
 
-            if (player != null)
-                players.add(player);
+        SoundOptions options = getOptions();
 
-            PlayableSound instance = this;
+        if (player != null &&
+                ((options.getPermissionRequired() != null && !player.hasPermission(options.getPermissionRequired())) || (player.hasPotionEffect(PotionEffectType.INVISIBILITY) && player.hasPermission("playmoresounds.bypass.invisibility")))) {
+            return;
+        }
 
-            if (getDelay() == 0)
-                play(player, players, soundLocation, instance);
-            else
-                scheduler.runTaskLater(plugin, () -> play(player, players, soundLocation, instance), getDelay());
+        Location soundLocation = SoundManager.addRelativeLocation(preEvent.getLocation(), options.getRelativeLocation());
+        Collection<Player> players = SoundManager.getInRange(options.getRadiusSquared(), soundLocation);
+
+        if (player != null) players.add(player);
+
+        if (getDelay() == 0) {
+            play(player, players, soundLocation);
+        } else {
+            scheduler.runTaskLater(plugin, () -> play(player, players, soundLocation), getDelay());
         }
     }
 
-    private void play(@Nullable Player sourcePlayer, @NotNull Collection<Player> players, @NotNull Location soundLocation,
-                      @NotNull PlayableSound instance)
+    private void play(@Nullable Player sourcePlayer, @NotNull Collection<Player> players, @NotNull Location soundLocation)
     {
         for (Player inRange : players) {
             if (!config.getConfiguration().getCollection("World Black List").contains(inRange.getWorld().getName())
@@ -111,7 +113,7 @@ public class PlayableSound extends Sound implements Playable
                 if (getOptions().getRadius() < 0)
                     fixedLocation = SoundManager.addRelativeLocation(inRange.getLocation(), getOptions().getRelativeLocation());
 
-                PlaySoundEvent event = new PlaySoundEvent(instance, inRange, fixedLocation, players, sourcePlayer, soundLocation);
+                PlaySoundEvent event = new PlaySoundEvent(this, inRange, fixedLocation, players, sourcePlayer, soundLocation);
 
                 Bukkit.getPluginManager().callEvent(event);
 
