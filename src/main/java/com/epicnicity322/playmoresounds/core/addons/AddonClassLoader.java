@@ -94,10 +94,9 @@ public final class AddonClassLoader extends URLClassLoader
 
     private Class<?> findClass(String name, boolean addons) throws ClassNotFoundException
     {
-        if (cacheClasses.containsKey(name))
-            return cacheClasses.get(name);
+        Class<?> clazz = cacheClasses.get(name);
 
-        Class<?> clazz = null;
+        if (clazz != null) return clazz;
 
         try {
             clazz = super.findClass(name);
@@ -108,7 +107,7 @@ public final class AddonClassLoader extends URLClassLoader
         }
 
         // Searching for clazz in other addons.
-        if (addons)
+        if (addons) {
             for (AddonClassLoader loader : AddonManager.addonClassLoaders) {
                 if (loader == this) continue;
 
@@ -121,6 +120,7 @@ public final class AddonClassLoader extends URLClassLoader
                     // Continue searching on the other addons left.
                 }
             }
+        }
 
         if (clazz == null) {
             throw new ClassNotFoundException(description.getName() + " is missing the class " + name + " (Probably from a not specified dependency). Please contact the author(s): " + description.getAuthors());
