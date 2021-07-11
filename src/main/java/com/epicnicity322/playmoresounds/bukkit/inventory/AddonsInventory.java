@@ -25,6 +25,7 @@ import com.epicnicity322.epicpluginlib.core.util.ObjectUtils;
 import com.epicnicity322.epicpluginlib.core.util.PathUtils;
 import com.epicnicity322.epicpluginlib.core.util.ZipUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
 import com.epicnicity322.playmoresounds.core.addons.AddonDescription;
@@ -300,8 +301,9 @@ public final class AddonsInventory implements Listener
 
         if (config.getBoolean("Addons Inventory." + name + " Item.Glowing").orElse(false))
             itemMeta.addEnchant(Enchantment.DURABILITY, 1, true);
+        if (VersionUtils.hasItemFlags())
+            itemMeta.addItemFlags(ItemFlag.values());
 
-        itemMeta.addItemFlags(ItemFlag.values());
         itemStack.setItemMeta(itemMeta);
         return itemStack;
     }
