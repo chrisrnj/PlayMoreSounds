@@ -19,27 +19,22 @@
 package com.epicnicity322.playmoresounds.bukkit.inventory;
 
 import com.epicnicity322.epicpluginlib.core.tools.Version;
-import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 
 public final class InventoryUtils
 {
     private static final @NotNull Material glassPanel;
-    private static @Nullable NamespacedKey button;
 
     static {
-        PlayMoreSounds.onInstance(() -> button = new NamespacedKey(PlayMoreSounds.getInstance(), "button"));
-
         if (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.13")) < 0) {
             glassPanel = Material.valueOf("THIN_GLASS");
         } else {
@@ -49,14 +44,6 @@ public final class InventoryUtils
 
     private InventoryUtils()
     {
-    }
-
-    public static @NotNull NamespacedKey getButton()
-    {
-        if (button == null)
-            throw new IllegalStateException("PlayMoreSounds is not loaded.");
-
-        return button;
     }
 
     /**
@@ -80,7 +67,7 @@ public final class InventoryUtils
             ItemMeta meta = glassPane.getItemMeta();
 
             meta.setDisplayName(" ");
-            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+            if (VersionUtils.hasItemFlags()) meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
             glassPane.setItemMeta(meta);
             inventory.setItem(slot, glassPane);
             glassPanes.add(glassPane);

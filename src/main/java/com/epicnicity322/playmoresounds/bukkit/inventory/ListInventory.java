@@ -82,7 +82,7 @@ public class ListInventory implements PMSInventory, Listener
             throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
         if (button == null)
-            button = InventoryUtils.getButton();
+            button = new NamespacedKey(PlayMoreSounds.getInstance(), "button");
 
         PlayMoreSounds.onDisable(() -> {
             openInventories.forEach(HumanEntity::closeInventory);
