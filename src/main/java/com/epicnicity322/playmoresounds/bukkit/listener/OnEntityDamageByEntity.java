@@ -203,11 +203,10 @@ public final class OnEntityDamageByEntity extends PMSListener
                 equipment = ((LivingEntity) damager).getEquipment();
             }
 
-            if (equipment != null)
-                if (VersionUtils.hasOffHand())
-                    damagerHand = equipment.getItemInMainHand().getType();
-                else
+            if (equipment != null) {
+                if (equipment.getItemInHand() != null)
                     damagerHand = equipment.getItemInHand().getType();
+            }
         }
 
         if (VersionUtils.hasPersistentData() && player != null && victim instanceof Player) {
