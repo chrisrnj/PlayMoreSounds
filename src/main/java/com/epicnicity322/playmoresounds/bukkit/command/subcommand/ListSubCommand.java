@@ -105,7 +105,7 @@ public final class ListSubCommand extends Command implements Helpable
                             if (VersionUtils.hasPersistentData()) {
                                 gui = true;
                             } else {
-                                lang.send(sender, lang.get("List.GUI.Error.Not Supported"));
+                                lang.send(sender, lang.get("List.Inventory.Error.Not Supported"));
                                 return;
                             }
                         } else {
