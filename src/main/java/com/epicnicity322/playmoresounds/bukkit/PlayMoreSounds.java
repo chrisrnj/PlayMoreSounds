@@ -315,6 +315,12 @@ public final class PlayMoreSounds extends JavaPlugin
                 logger.log("&a" + SoundType.getPresentSoundTypes().size() + " sounds available on " + VersionUtils.getBukkitVersion());
                 logger.log("&6============================================");
 
+                if (VersionUtils.getBukkitVersion().compareTo(new Version("1.7.10")) < 0) {
+                    logger.log("PlayMoreSounds detected you are on version " + VersionUtils.getBukkitVersion() + ". This version is not supported and some errors WILL be thrown if you proceed to use the plugin.", ConsoleLogger.Level.WARN);
+                } else if (VersionUtils.getBukkitVersion().compareTo(new Version("1.18")) >= 0) {
+                    logger.log("PlayMoreSounds detected you are on version " + VersionUtils.getBukkitVersion() + ". This version is not officially supported and some errors might be thrown.", ConsoleLogger.Level.WARN);
+                }
+
                 boolean bStats = false;
 
                 try {
