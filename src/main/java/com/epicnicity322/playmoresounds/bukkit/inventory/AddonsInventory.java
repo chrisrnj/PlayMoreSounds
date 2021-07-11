@@ -292,7 +292,7 @@ public final class AddonsInventory implements Listener
     private static @NotNull ItemStack getItemStack(String name)
     {
         Configuration config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
-        ItemStack itemStack = new ItemStack(ObjectUtils.getOrDefault(Material.matchMaterial(config.getString("Addons Inventory." + name + " Item.Material").orElse("")), Material.BARRIER));
+        ItemStack itemStack = new ItemStack(ObjectUtils.getOrDefault(Material.matchMaterial(config.getString("Addons Inventory." + name + " Item.Material").orElse("")), Material.STONE));
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         itemMeta.setDisplayName(lang.getColored("Addons.Management Inventory." + name + ".Display Name"));
