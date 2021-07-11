@@ -332,6 +332,30 @@ public final class PlayMoreSounds extends JavaPlugin
                         addons.forEach(addon -> map.put(addon.getDescription().getName(), 1));
                         return map;
                     }));
+                    metrics.addCustomChart(new Metrics.AdvancedPie("uses_sound_replacer", () -> {
+                        HashMap<String, Integer> map = new HashMap<>(1);
+
+                        map.put(Boolean.toString(PMSHelper.anySoundEnabled(Configurations.NATURE_SOUND_REPLACER.getConfigurationHolder().getConfiguration(), null)), 1);
+                        return map;
+                    }));
+                    metrics.addCustomChart(new Metrics.AdvancedPie("checking_for_updates", () -> {
+                        HashMap<String, Integer> map = new HashMap<>(1);
+
+                        map.put(Boolean.toString(Configurations.CONFIG.getConfigurationHolder().getConfiguration().getBoolean("Updater.Enabled").orElse(false)), 1);
+                        return map;
+                    }));
+                    metrics.addCustomChart(new Metrics.AdvancedPie("uses_world_black_list", () -> {
+                        HashMap<String, Integer> map = new HashMap<>(1);
+
+                        map.put(Boolean.toString(!Configurations.CONFIG.getConfigurationHolder().getConfiguration().getCollection("World Black List", Object::toString).isEmpty()), 1);
+                        return map;
+                    }));
+                    metrics.addCustomChart(new Metrics.AdvancedPie("uses_custom_discs", () -> {
+                        HashMap<String, Integer> map = new HashMap<>(1);
+
+                        map.put(Boolean.toString(PMSHelper.anySoundEnabled(Configurations.CUSTOM_DISCS.getConfigurationHolder().getConfiguration(), null)), 1);
+                        return map;
+                    }));
 
                     logger.log("&ePlayMoreSounds is using bStats as metrics collector.");
                 }
