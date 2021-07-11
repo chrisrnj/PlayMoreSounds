@@ -398,7 +398,7 @@ public enum Configurations
             "Version: '" + PlayMoreSoundsVersion.version + "'\n" +
             "\n" +
             "# Available languages: EN_US, ES_LA, PT_BR, ZH_CN\n" +
-            "Language Locale: EN_US\n" +
+            "Language: EN_US\n" +
             "\n" +
             "# All playing sounds will be logged to console with their location.\n" +
             "Debug: false\n" +
