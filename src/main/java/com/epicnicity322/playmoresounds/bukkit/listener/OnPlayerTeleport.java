@@ -44,8 +44,13 @@ public final class OnPlayerTeleport implements Listener
 
             if (sounds.getBoolean("Teleport.Enabled").orElse(false))
                 teleport = new PlayableRichSound(sounds.getConfigurationSection("Teleport"));
+            else
+                teleport = null;
+
             if (sounds.getBoolean("World Change.Enabled").orElse(false))
                 worldChange = new PlayableRichSound(sounds.getConfigurationSection("World Change"));
+            else
+                worldChange = null;
         };
 
         PlayMoreSounds.onInstance(soundUpdater);

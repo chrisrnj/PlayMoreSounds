@@ -43,8 +43,13 @@ public final class OnPlayerQuit implements Listener
 
             if (sounds.getBoolean("Player Ban.Enabled").orElse(false))
                 playerBan = new PlayableRichSound(sounds.getConfigurationSection("Player Ban"));
+            else
+                playerBan = null;
+
             if (sounds.getBoolean("Leave Server.Enabled").orElse(false))
                 leaveServer = new PlayableRichSound(sounds.getConfigurationSection("Leave Server"));
+            else
+                leaveServer = null;
         };
 
         // Not running it immediately because PlayableRichSound requires PlayMoreSounds loaded if delay > 0.

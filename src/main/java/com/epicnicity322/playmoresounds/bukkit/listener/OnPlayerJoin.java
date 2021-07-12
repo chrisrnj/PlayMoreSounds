@@ -49,8 +49,13 @@ public final class OnPlayerJoin implements Listener
 
             if (sounds.getBoolean("First Join.Enabled").orElse(false))
                 firstJoin = new PlayableRichSound(sounds.getConfigurationSection("First Join"));
+            else
+                firstJoin = null;
+
             if (sounds.getBoolean("Join Server.Enabled").orElse(false))
                 joinServer = new PlayableRichSound(sounds.getConfigurationSection("Join Server"));
+            else
+                joinServer = null;
         };
 
         // Not running it immediately because PlayableRichSound requires PlayMoreSounds loaded if delay > 0.

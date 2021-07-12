@@ -55,6 +55,8 @@ public final class OnPlayerItemHeld extends PMSListener
     @Override
     public void load()
     {
+        criteriaSounds.clear();
+
         for (Map.Entry<String, Object> node : Configurations.ITEMS_HELD.getConfigurationHolder().getConfiguration().getNodes().entrySet()) {
             if (node.getValue() instanceof ConfigurationSection) {
                 ConfigurationSection section = (ConfigurationSection) node.getValue();
