@@ -151,7 +151,7 @@ public final class UpdateManager
 
     private static boolean sendUnsupportedNotice(CommandSender sender)
     {
-        if (latestVersion.compareTo(new Version("4.1")) >= 0 && PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.17")) < 0) {
+        if (latestVersion.compareTo(new Version("4.2")) >= 0 && PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.17")) < 0) {
             logger.log(sender, "&4Version " + latestVersion + " is available but your server does not support it. Disable updater on config and restart your server to stop checking for updates.");
             return true;
         }
