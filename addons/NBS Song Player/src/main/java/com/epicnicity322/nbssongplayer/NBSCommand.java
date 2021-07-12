@@ -67,7 +67,7 @@ public class NBSCommand extends Command implements Helpable
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        String invalidArgs =lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", "play|stop");
+        String invalidArgs = lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", "play|stop");
 
         if (args.length < 2) {
             lang.send(sender, invalidArgs);
@@ -76,7 +76,7 @@ public class NBSCommand extends Command implements Helpable
 
         if (args[1].equalsIgnoreCase("stop")) {
             HashSet<Player> targets = CommandUtils.getTargets(sender, args, 2, lang.get("General.Invalid Arguments")
-                    .replace("<label>", label).replace("<label2>", args[0]).replace("<args>", "stop <" + lang.get("General.Target") + ">"),
+                            .replace("<label>", label).replace("<label2>", args[0]).replace("<args>", "stop <" + lang.get("General.Target") + ">"),
                     "playmoresounds.nbssongplayer.others");
 
             if (targets == null)

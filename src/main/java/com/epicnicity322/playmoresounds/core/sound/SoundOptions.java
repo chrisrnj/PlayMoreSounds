@@ -154,6 +154,12 @@ public class SoundOptions
         return radius;
     }
 
+    public void setRadius(double radius)
+    {
+        this.radius = radius;
+        radiusSquared = radius > 0 ? radius * radius : radius;
+    }
+
     /**
      * The value of {@link #getRadius()}, but squared. Useful to calculate radius.
      *
@@ -162,12 +168,6 @@ public class SoundOptions
     public double getRadiusSquared()
     {
         return radiusSquared;
-    }
-
-    public void setRadius(double radius)
-    {
-        this.radius = radius;
-        radiusSquared = radius > 0 ? radius * radius : radius;
     }
 
     /**

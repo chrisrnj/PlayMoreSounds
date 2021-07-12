@@ -44,10 +44,6 @@ public class RegionsHandler
 {
     private static @Nullable PlayableRichSound regionEnterSound;
     private static @Nullable PlayableRichSound regionLeaveSound;
-    private final @NotNull String pluginName;
-    private final @NotNull HashMap<String, BukkitRunnable> regionsInLoop = new HashMap<>();
-    private final @NotNull HashMap<String, HashSet<String>> soundsToStop = new HashMap<>();
-    private boolean registered = false;
 
     static {
         Runnable runnable = () -> {
@@ -65,6 +61,11 @@ public class RegionsHandler
         runnable.run();
         PlayMoreSounds.onReload(runnable);
     }
+
+    private final @NotNull String pluginName;
+    private final @NotNull HashMap<String, BukkitRunnable> regionsInLoop = new HashMap<>();
+    private final @NotNull HashMap<String, HashSet<String>> soundsToStop = new HashMap<>();
+    private boolean registered = false;
 
     public RegionsHandler(@NotNull String pluginName, @NotNull Listener listener)
     {
