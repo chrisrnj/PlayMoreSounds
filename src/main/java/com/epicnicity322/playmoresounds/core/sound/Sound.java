@@ -23,22 +23,34 @@ import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
 public class Sound
 {
+    private static final @NotNull HashMap<String, SoundCategory> categories = new HashMap<>();
+
+    static {
+        for (SoundCategory category : SoundCategory.values()) {
+            categories.put(category.name(), category);
+        }
+    }
+
     private final @Nullable ConfigurationSection section;
     private @Nullable SoundType soundType;
     private String sound;
+    private SoundCategory category;
     private float volume;
     private float pitch;
     private long delay;
     private SoundOptions options;
 
-    public Sound(@NotNull String sound, float volume, float pitch, long delay, @Nullable SoundOptions options)
+    public Sound(@NotNull String sound, @Nullable SoundCategory category, float volume, float pitch, long delay, @Nullable SoundOptions options)
     {
         setSound(sound);
+        setCategory(category);
         setOptions(options);
 
         this.volume = volume;
@@ -59,6 +71,7 @@ public class Sound
     public Sound(@NotNull ConfigurationSection section)
     {
         setSound(section.getString("Sound").orElseThrow(() -> new IllegalArgumentException("Section must contain a Sound key.")));
+        setCategory(categories.get(section.getString("Category").orElse("").toUpperCase(Locale.ROOT)));
 
         this.section = section;
         volume = section.getNumber("Volume").orElse(10).floatValue();
@@ -146,6 +159,30 @@ public class Sound
                 throw new IllegalArgumentException("Sound is not a valid namespaced key.");
 
             this.sound = sound;
+        }
+    }
+
+    /**
+     * The category this sound should be played as, irrelevant if the current version does not support categories.
+     *
+     * @return The category of this sound.
+     */
+    public @NotNull SoundCategory getCategory()
+    {
+        return category;
+    }
+
+    /**
+     * Sets the category this sound should be played as, use null to set it to {@link SoundCategory#MASTER}.
+     *
+     * @param category The category this sound should be played.
+     */
+    public void setCategory(@Nullable SoundCategory category)
+    {
+        if (category == null) {
+            this.category = SoundCategory.MASTER;
+        } else {
+            this.category = category;
         }
     }
 

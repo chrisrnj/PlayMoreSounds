@@ -21,6 +21,7 @@ package com.epicnicity322.playmoresounds.sponge.sound;
 import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.sound.Sound;
+import com.epicnicity322.playmoresounds.core.sound.SoundCategory;
 import com.epicnicity322.playmoresounds.core.sound.SoundOptions;
 import com.epicnicity322.playmoresounds.sponge.PlayMoreSounds;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
@@ -41,9 +42,9 @@ public class PlayableSound extends Sound implements Playable
 
     private PlayMoreSounds plugin = PlayMoreSounds.getInstance();
 
-    public PlayableSound(@NotNull String sound, float volume, float pitch, long delay, @Nullable SoundOptions options)
+    public PlayableSound(@NotNull String sound, @Nullable SoundCategory category, float volume, float pitch, long delay, @Nullable SoundOptions options)
     {
-        super(sound, volume, pitch, delay, options);
+        super(sound, category, volume, pitch, delay, options);
 
         if (delay > 0 && plugin == null) {
             throw new UnsupportedOperationException("PlayMoreSounds must be enabled to play delayed sounds.");
