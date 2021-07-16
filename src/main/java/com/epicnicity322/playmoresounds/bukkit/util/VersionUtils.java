@@ -19,72 +19,24 @@
 package com.epicnicity322.playmoresounds.bukkit.util;
 
 import com.epicnicity322.epicpluginlib.bukkit.reflection.ReflectionUtil;
+import com.epicnicity322.epicpluginlib.bukkit.reflection.type.PackageType;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 
 public final class VersionUtils
 {
-    private static final boolean hasStopSound;
-    private static final boolean hasOffHand;
-    private static final @NotNull Version bukkitVersion;
-    private static boolean hasPersistentData = false;
-    private static boolean hasSoundEffects = false;
-    private static boolean hasHoverContentApi = false;
-    private static boolean paperMC = false;
-    private static boolean resourcePacks = false;
-    private static boolean hasItemFlags = false;
-
-    static {
-        String version = Bukkit.getBukkitVersion();
-
-        // Removing release number.
-        bukkitVersion = new Version(version.substring(0, version.indexOf("-")));
-
-        // Checking if bukkit version is 1.10.2 because Player#stopSound was added in that version.
-        hasStopSound = bukkitVersion.compareTo(new Version("1.10.2")) >= 0;
-
-        // Checking if bukkit version is 1.9 because off hand was added in that version.
-        hasOffHand = bukkitVersion.compareTo(new Version("1.9")) >= 0;
-
-        try {
-            Class.forName("org.bukkit.persistence.PersistentDataContainer");
-            hasPersistentData = true;
-        } catch (ClassNotFoundException ignored) {
-        }
-
-        try {
-            Class.forName("net.md_5.bungee.api.chat.hover.content.Content");
-            hasHoverContentApi = true;
-        } catch (ClassNotFoundException ignored) {
-        }
-
-        try {
-            Class.forName("com.destroystokyo.paper.PaperConfig");
-            paperMC = true;
-        } catch (ClassNotFoundException ignored) {
-        }
-
-        try {
-            Class.forName("org.bukkit.event.player.PlayerResourcePackStatusEvent");
-            resourcePacks = true;
-        } catch (ClassNotFoundException ignored) {
-        }
-
-        try {
-            Class.forName("org.bukkit.inventory.ItemFlag");
-            hasItemFlags = true;
-        } catch (ClassNotFoundException ignored) {
-        }
-
-        try {
-            Class.forName("net.minecraft.server." + ReflectionUtil.getNmsVersion() + ".SoundEffect");
-            hasSoundEffects = true;
-        } catch (ClassNotFoundException ignored) {
-        }
-    }
+    private static final @NotNull Version bukkitVersion = new Version(Bukkit.getBukkitVersion().substring(0, Bukkit.getBukkitVersion().indexOf("-")));
+    // Checking if bukkit version is 1.10.2 because Player#stopSound was added in that version.
+    private static final boolean hasStopSound = bukkitVersion.compareTo(new Version("1.10.2")) >= 0;
+    // Checking if bukkit version is 1.9 because off hand was added in that version.
+    private static final boolean hasOffHand = bukkitVersion.compareTo(new Version("1.9")) >= 0;
+    private static final boolean hasPersistentData = ReflectionUtil.getClass("org.bukkit.persistence.PersistentDataContainer") != null;
+    private static final boolean hasSoundEffects = ReflectionUtil.getClass("net.minecraft.sounds.SoundEffect") != null || ReflectionUtil.getClass("SoundEffect", PackageType.MINECRAFT_SERVER) != null;
+    private static final boolean hasHoverContentApi = ReflectionUtil.getClass("net.md_5.bungee.api.chat.hover.content.Content") != null;
+    private static final boolean paperMC = ReflectionUtil.getClass("com.destroystokyo.paper.PaperConfig") != null;
+    private static final boolean resourcePacks = ReflectionUtil.getClass("org.bukkit.event.player.PlayerResourcePackStatusEvent") != null;
+    private static final boolean hasItemFlags = ReflectionUtil.getClass("org.bukkit.inventory.ItemFlag") != null;
 
     private VersionUtils()
     {
@@ -141,7 +93,7 @@ public final class VersionUtils
     }
 
     /**
-     * Whether the version of bukkit running has {@link Player#stopSound} method.
+     * Whether the version of bukkit running has {@link org.bukkit.entity.Player#stopSound} method.
      *
      * @return If stop sound method is present.
      */
@@ -151,7 +103,7 @@ public final class VersionUtils
     }
 
     /**
-     * Whether the version of bukkit running has item in main hand or off hand methods for {@link PlayerInventory}.
+     * Whether the version of bukkit running has item in main hand or off hand methods for {@link org.bukkit.inventory.PlayerInventory}.
      */
     public static boolean hasOffHand()
     {
