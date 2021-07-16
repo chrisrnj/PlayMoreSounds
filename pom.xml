@@ -24,7 +24,7 @@
 
     <groupId>com.epicnicity322</groupId>
     <artifactId>PlayMoreSounds</artifactId>
-    <version>4.0.4</version>
+    <version>4.1.0</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -118,7 +118,7 @@
         <dependency>
             <groupId>com.github.Epicnicity322</groupId>
             <artifactId>EpicPluginLib</artifactId>
-            <version>2.0</version>
+            <version>5655f2bd7c</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
