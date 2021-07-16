@@ -23,6 +23,8 @@ import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandUtils;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
+import com.epicnicity322.playmoresounds.core.sound.SoundCategory;
 import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import org.bukkit.command.CommandSender;
@@ -137,8 +139,10 @@ public final class PlaySubCommand extends Command implements Helpable
                 }
         }
 
+        PlayableSound pmsSound = new PlayableSound(sound, SoundCategory.MASTER, volume, pitch, 0, null);
+
         for (Player player : targets)
-            player.playSound(player.getLocation(), sound, volume, pitch);
+            pmsSound.play(player);
 
         lang.send(sender, lang.get("Play.Success.Default").replace("<sound>", sound).replace(
                 "<player>", who).replace("<volume>", Float.toString(volume)).replace(

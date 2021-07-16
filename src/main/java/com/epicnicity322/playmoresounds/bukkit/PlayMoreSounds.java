@@ -220,12 +220,14 @@ public final class PlayMoreSounds extends JavaPlugin
         if (protocolLib) NatureSoundReplacer.loadNatureSoundReplacer(instance);
         UpdateManager.check(Bukkit.getConsoleSender(), true);
 
-        for (Runnable runnable : onReload) {
-            try {
-                runnable.run();
-            } catch (Exception e) {
-                logger.log("&cAn unknown error occurred on PlayMoreSounds reload.");
-                PlayMoreSoundsCore.getErrorHandler().report(e, "PMS Reloading Error (Unknown):");
+        synchronized (onReload) {
+            for (Runnable runnable : onReload) {
+                try {
+                    runnable.run();
+                } catch (Exception e) {
+                    logger.log("&cAn unknown error occurred on PlayMoreSounds reload.");
+                    PlayMoreSoundsCore.getErrorHandler().report(e, "PMS Reloading Error (Unknown):");
+                }
             }
         }
 
@@ -237,6 +239,9 @@ public final class PlayMoreSounds extends JavaPlugin
     {
         // Checking if PlayMoreSounds was already enabled.
         if (enabled) return;
+
+        // On older versions of bukkit #getLogger() is null before the plugin is enabled.
+        logger.setLogger(getLogger());
 
         try {
             if (!success) return;

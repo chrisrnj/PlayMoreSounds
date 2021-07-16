@@ -19,6 +19,7 @@
 package com.epicnicity322.playmoresounds.bukkit.sound;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.bukkit.util.UniversalVersionMethods;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.sound.SoundOptions;
 import com.epicnicity322.playmoresounds.core.sound.SoundType;
@@ -29,7 +30,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitScheduler;
-import org.bukkit.util.NumberConversions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -161,7 +161,7 @@ public final class SoundManager
             return location.getWorld().getPlayers();
         } else if (radius < 0) {
             // Creating new HashSet because Bukkit#getOnlinePlayers is not immutable.
-            return new HashSet<>(Bukkit.getOnlinePlayers());
+            return new HashSet<>(UniversalVersionMethods.getOnlinePlayers());
         } else if (radius != 0) {
             HashSet<Player> players = new HashSet<>();
 
@@ -180,7 +180,12 @@ public final class SoundManager
     //Avoiding checks for different worlds.
     private static double distance(Location loc1, Location loc2)
     {
-        return NumberConversions.square(loc1.getX() - loc2.getX()) + NumberConversions.square(loc1.getY() - loc2.getY()) + NumberConversions.square(loc1.getZ() - loc2.getZ());
+        return square(loc1.getX() - loc2.getX()) + square(loc1.getY() - loc2.getY()) + square(loc1.getZ() - loc2.getZ());
+    }
+
+    private static double square(double value)
+    {
+        return value * value;
     }
 
     /**

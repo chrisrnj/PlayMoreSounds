@@ -21,6 +21,7 @@ package com.epicnicity322.playmoresounds.bukkit.command;
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
+import com.epicnicity322.playmoresounds.bukkit.util.UniversalVersionMethods;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -72,7 +73,7 @@ public final class CommandUtils
                 case "online":
                 case "*":
                     if (sender.hasPermission(permissionOthers)) {
-                        Collection<? extends Player> online = Bukkit.getOnlinePlayers();
+                        Collection<? extends Player> online = UniversalVersionMethods.getOnlinePlayers();
 
                         if (online.size() == 0) {
                             lang.send(sender, lang.get("General.Nobody Online"));
@@ -168,7 +169,7 @@ public final class CommandUtils
                 return theOne.getName();
         }
 
-        if (players.containsAll(Bukkit.getOnlinePlayers()))
+        if (players.containsAll(UniversalVersionMethods.getOnlinePlayers()))
             return lang.get("General.Everyone");
 
         StringBuilder names = new StringBuilder();
