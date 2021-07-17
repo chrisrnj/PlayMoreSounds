@@ -400,8 +400,18 @@ public enum Configurations
             "# Available languages: EN_US, ES_LA, PT_BR, ZH_CN\n" +
             "Language: EN_US\n" +
             "\n" +
-            "# All playing sounds will be logged to console with their location.\n" +
-            "Debug: false\n" +
+//            "# All playing sounds will be logged to console with their location.\n" +
+//            "Debug: false\n" +
+//            "\n" +
+            "# If PlayMoreSounds should send packets instead of using the provided bukkit methods for playing sounds.\n" +
+            "# Sending packets directly allows PlayMoreSounds to cache things that can't be cached when using the\n" +
+            "#bukkit alternative method, improving performance when playing sounds. However, packets tend to\n" +
+            "#change a lot depending on the version, that's why PlayMoreSounds has to use reflection to send them.\n" +
+            "#Reflection is more expensive on performance, so setting this to true might or might not compensate\n" +
+            "#for the things that can't be cached on bukkit's method.\n" +
+            "# Setting this to true will have no difference if you're playing on versions lower than 1.13.\n" +
+            "# This setting only updates when you restart your server.\n" +
+            "Send Packets Directly: false\n" +
             "\n" +
             "# Should the sounds disabled by \"/pms toggle\" be re-enabled on login?\n" +
             "Enable Sounds On Login: false\n" +
@@ -2066,6 +2076,10 @@ public enum Configurations
             "  #multiple sounds, each section must have a different name, here I numbered them just for organization.  #\n" +
             "  Sounds:                                                                                                 #\n" +
             "    '1':                                                                                                  #\n" +
+            "      # The category this sound will be played. You can find available categories in file                 #\n" +
+            "      #'available sounds.txt'.                                                                            #\n" +
+            (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.11")) <= 0 ? "      # It looks like this version does not support this feature. This option will be ignored.            #\n" : "") +
+            "      Category: MASTER                                                                                    #\n" +
             "      # This is a delay in ticks the sound will wait before playing. Set to 0 for no delay.               #\n" +
             "      Delay: 0                                                                                            #\n" +
             "      # Sounds can have multiple options, all of them are optional.                                       #\n" +
@@ -2085,7 +2099,7 @@ public enum Configurations
             "        #Permission To Listen will hear.                                                                  #\n" +
             "        Permission To Listen: 'playmoresounds.listen.teleport'                                            #\n" +
             "        # A range of blocks the sound will be hearable.                                                   #\n" +
-            "        # A distance squared is calculated to every player in the world if the value is greater than 0.   #\n" +
+            "        # A distance in blocks is calculated to every player in the world if the value is greater than 0. #\n" +
             "        # If you want the sound to play only to the player who triggered the event, set this to 0.        #\n" +
             "        # If you want the sound to play to everyone online in the server, set this to -1.                 #\n" +
             "        # If you want the sound to play to everyone in the event's world, set this to -2.                 #\n" +
