@@ -20,13 +20,19 @@ package com.epicnicity322.playmoresounds.bukkit.sound;
 
 import com.epicnicity322.epicpluginlib.bukkit.reflection.ReflectionUtil;
 import com.epicnicity322.epicpluginlib.bukkit.reflection.type.PackageType;
+import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
+import com.epicnicity322.epicpluginlib.core.tools.Version;
+import com.epicnicity322.epicpluginlib.core.util.ObjectUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.events.PlaySoundEvent;
 import com.epicnicity322.playmoresounds.bukkit.sound.events.PrePlaySoundEvent;
+import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.sound.Sound;
 import com.epicnicity322.playmoresounds.core.sound.SoundCategory;
 import com.epicnicity322.playmoresounds.core.sound.SoundOptions;
+import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -37,14 +43,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Locale;
 
 public class PlayableSound extends Sound implements Playable
 {
     private static final @NotNull HashSet<String> blackListedWorlds = new HashSet<>();
     private static final @NotNull Validator validator;
     private static final @NotNull SoundPlayer soundPlayer;
+    private static Object[] soundCategory_enumConstants;
+    private static Method soundCategory_a_method;
+    private static Constructor<?> minecraftKey_constructor;
 
     static {
         // PlayMoreSounds might be used on versions where GameMode.SPECTATOR is not a thing.
@@ -73,7 +84,11 @@ public class PlayableSound extends Sound implements Playable
             soundPlayer = (player, location, sound) -> player.playSound(location, sound.getSound(), sound.getCategory().asBukkit(), sound.getVolume(), sound.getPitch());
         } else {
             if (hasCustomSounds) {
-                soundPlayer = (player, location, sound) -> player.playSound(location, sound.getSound(), sound.getVolume(), sound.getPitch());
+                if (Configurations.CONFIG.getConfigurationHolder().getConfiguration().getBoolean("Send Packets Directly").orElse(false) && VersionUtils.getBukkitVersion().compareTo(new Version("1.13")) >= 0) {
+                    soundPlayer = getPacketSoundPlayer();
+                } else {
+                    soundPlayer = (player, location, sound) -> player.playSound(location, sound.getSound(), sound.getVolume(), sound.getPitch());
+                }
             } else {
                 // Versions before Player#playSound(Location,String,float,float) used to have Packet62NamedSoundEffect, sending packet manually.
                 Class<?> packet62NamedSoundEffect_class = ReflectionUtil.getClass("Packet62NamedSoundEffect", PackageType.MINECRAFT_SERVER);
@@ -111,6 +126,8 @@ public class PlayableSound extends Sound implements Playable
         PlayMoreSounds.onReload(blackListedWorldsUpdater);
     }
 
+    private Object minecraftKeySound;
+    private Object soundCategory;
     private PlayMoreSounds plugin = PlayMoreSounds.getInstance();
 
     public PlayableSound(@NotNull String sound, @Nullable SoundCategory category, float volume, float pitch, long delay, @Nullable SoundOptions options)
@@ -128,6 +145,101 @@ public class PlayableSound extends Sound implements Playable
 
         if (getDelay() > 0 && plugin == null) {
             throw new UnsupportedOperationException("PlayMoreSounds must be enabled to play delayed sounds.");
+        }
+    }
+
+    private static @NotNull SoundPlayer getPacketSoundPlayer()
+    {
+        SoundPlayer defaultSoundPlayer = (player, location, sound) -> player.playSound(location, sound.getSound(), sound.getVolume(), sound.getPitch());
+
+        try {
+            Class<?> packetPlayOutCustomSoundEffect_class = ObjectUtils.getOrDefault(ReflectionUtil.getClass("PacketPlayOutCustomSoundEffect", PackageType.MINECRAFT_SERVER), ReflectionUtil.getClass("net.minecraft.network.protocol.game.PacketPlayOutCustomSoundEffect"));
+            Class<?> minecraftKey_class = ObjectUtils.getOrDefault(ReflectionUtil.getClass("MinecraftKey", PackageType.MINECRAFT_SERVER), ReflectionUtil.getClass("net.minecraft.resources.MinecraftKey"));
+            Class<?> soundCategory_class = ObjectUtils.getOrDefault(ReflectionUtil.getClass("SoundCategory", PackageType.MINECRAFT_SERVER), ReflectionUtil.getClass("net.minecraft.sounds.SoundCategory"));
+            Class<?> vec3D_class = ObjectUtils.getOrDefault(ReflectionUtil.getClass("Vec3D", PackageType.MINECRAFT_SERVER), ReflectionUtil.getClass("net.minecraft.world.phys.Vec3D"));
+
+            if (packetPlayOutCustomSoundEffect_class == null || minecraftKey_class == null || soundCategory_class == null || vec3D_class == null)
+                return defaultSoundPlayer;
+
+            soundCategory_a_method = soundCategory_class.getMethod("a");
+            soundCategory_enumConstants = soundCategory_class.getEnumConstants();
+
+            if (soundCategory_a_method == null || soundCategory_enumConstants == null) return defaultSoundPlayer;
+
+            // Removing checks for security, making instantiation faster.
+            soundCategory_a_method.setAccessible(true);
+
+            Constructor<?> packetPlayOutCustomSoundEffect_constructor = ReflectionUtil.getConstructor(packetPlayOutCustomSoundEffect_class, minecraftKey_class, soundCategory_class, vec3D_class, float.class, float.class);
+            minecraftKey_constructor = ReflectionUtil.getConstructor(minecraftKey_class, String.class);
+            Constructor<?> vec3D_constructor = ReflectionUtil.getConstructor(vec3D_class, double.class, double.class, double.class);
+
+            if (packetPlayOutCustomSoundEffect_constructor == null || minecraftKey_constructor == null || vec3D_constructor == null)
+                return defaultSoundPlayer;
+
+            // Removing checks for security, making instantiation faster.
+            packetPlayOutCustomSoundEffect_constructor.setAccessible(true);
+            vec3D_constructor.setAccessible(true);
+
+            return (player, location, sound) -> {
+                try {
+                    ReflectionUtil.sendPacket(player, packetPlayOutCustomSoundEffect_constructor.newInstance(sound.minecraftKeySound, sound.soundCategory, vec3D_constructor.newInstance(location.getX(), location.getY(), location.getZ()), sound.getVolume(), sound.getPitch()));
+                } catch (Exception e) {
+                    PlayMoreSounds.getConsoleLogger().log("Could not play '" + sound.getSound() + "' using reflection. Please disable 'Send Packets Directly' in config.", ConsoleLogger.Level.WARN);
+                    PlayMoreSoundsCore.getErrorHandler().report(e, "Send Sound Packet Exception:");
+                }
+            };
+        } catch (Exception e) {
+            return defaultSoundPlayer;
+        }
+    }
+
+    @Override
+    public void setSound(@NotNull String sound)
+    {
+        super.setSound(sound);
+
+        if (minecraftKey_constructor == null) return;
+
+        try {
+            minecraftKeySound = minecraftKey_constructor.newInstance(getSound());
+        } catch (Exception e) {
+            PlayMoreSounds.getConsoleLogger().log("Failed to create a MinecraftKey to the sound '" + sound + "'. Please disable 'Send Packets Directly' in config.", ConsoleLogger.Level.WARN);
+            PlayMoreSoundsCore.getErrorHandler().report(e, "MinecraftKey instantiation exception:");
+        }
+    }
+
+    @Override
+    public void setSoundType(@NotNull SoundType soundType)
+    {
+        super.setSoundType(soundType);
+
+        if (minecraftKey_constructor == null) return;
+
+        try {
+            minecraftKeySound = minecraftKey_constructor.newInstance(getSound());
+        } catch (Exception e) {
+            PlayMoreSounds.getConsoleLogger().log("Failed to create a MinecraftKey to the sound '" + getSound() + "'. Please disable 'Send Packets Directly' in config.", ConsoleLogger.Level.WARN);
+            PlayMoreSoundsCore.getErrorHandler().report(e, "MinecraftKey instantiation exception:");
+        }
+    }
+
+    @Override
+    public void setCategory(@Nullable SoundCategory category)
+    {
+        super.setCategory(category);
+
+        if (soundCategory_a_method == null || soundCategory_enumConstants == null) return;
+
+        for (Object soundCategory : soundCategory_enumConstants) {
+            try {
+                String name = soundCategory_a_method.invoke(soundCategory).toString();
+
+                if (getCategory().name().toLowerCase(Locale.ROOT).equals(name)) {
+                    this.soundCategory = soundCategory;
+                    break;
+                }
+            } catch (Exception ignored) {
+            }
         }
     }
 
@@ -199,7 +311,7 @@ public class PlayableSound extends Sound implements Playable
          * @param location The location the sound should be played at.
          * @param pmsSound The sound to play.
          */
-        void play(@NotNull Player player, @NotNull Location location, @NotNull Sound pmsSound);
+        void play(@NotNull Player player, @NotNull Location location, @NotNull PlayableSound pmsSound);
     }
 
     private interface Validator
