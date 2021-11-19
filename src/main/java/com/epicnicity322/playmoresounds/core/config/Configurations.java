@@ -2110,7 +2110,7 @@ public enum Configurations
             "      #custom sound you set in your resource pack's sounds.json.                                          #\n" +
             "      # PlayMoreSounds' sound types are different than bukkit's sound types, PlayMoreSounds' sound types  #\n" +
             "      #are always the same no matter which version of the server you are running, so sounds have the same #\n" +
-            "      #names in 1.7 to 1.17.                                                                              #\n" +
+            "      #names in 1.7 to 1.18.                                                                              #\n" +
             "      # You can find a list of available sounds for the version " + PlayMoreSoundsCore.getServerVersion() + " in the file 'available sounds.txt'." + PMSHelper.repeatChar(' ', 6 - PlayMoreSoundsCore.getServerVersion().toString().length()) + "#\n" +
             "      Sound: ENTITY_ENDERMAN_TELEPORT                                                                     #\n" +
             "      # The volume of the sound. The way minecraft does it is by distance, volume 1 = ~15 blocks.         #\n" +
@@ -2128,7 +2128,7 @@ public enum Configurations
             "    '1':                                                                                                  #\n" +
             "      Sound: ENTITY_WITHER_SPAWN                                                                          #\n" +
             "#                                                                                                         #\n" +
-            "# If you don't want to use a sound, you can either completely remove it from this configuraiton or set    #\n" +
+            "# If you don't want to use a sound, you can either completely remove it from this configuration or set    #\n" +
             "#'Enabled' to false, like this:                                                                           #\n" +
             "Bed Leave:                                                                                                #\n" +
             "  Enabled: false # Disabled sounds will be unregistered and not affect server performance.                #\n" +
