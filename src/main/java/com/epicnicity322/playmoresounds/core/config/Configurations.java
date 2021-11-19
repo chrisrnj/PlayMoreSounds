@@ -403,16 +403,6 @@ public enum Configurations
 //            "# All playing sounds will be logged to console with their location.\n" +
 //            "Debug: false\n" +
 //            "\n" +
-            "# If PlayMoreSounds should send packets instead of using the provided bukkit methods for playing sounds.\n" +
-            "# Sending packets directly allows PlayMoreSounds to cache things that can't be cached when using the\n" +
-            "#bukkit alternative method, improving performance when playing sounds. However, packets tend to\n" +
-            "#change a lot depending on the version, that's why PlayMoreSounds has to use reflection to send them.\n" +
-            "#Reflection is more expensive on performance, so setting this to true might or might not compensate\n" +
-            "#for the things that can't be cached on bukkit's method.\n" +
-            "# Setting this to true will have no difference if you're playing on versions lower than 1.13.\n" +
-            "# This setting only updates when you restart your server.\n" +
-            "Send Packets Directly: false\n" +
-            "\n" +
             "# Should the sounds disabled by \"/pms toggle\" be re-enabled on login?\n" +
             "Enable Sounds On Login: false\n" +
             "\n" +
