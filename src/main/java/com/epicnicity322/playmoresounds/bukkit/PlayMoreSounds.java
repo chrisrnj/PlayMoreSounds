@@ -322,7 +322,7 @@ public final class PlayMoreSounds extends JavaPlugin
 
                 if (VersionUtils.getBukkitVersion().compareTo(new Version("1.7.10")) < 0) {
                     logger.log("PlayMoreSounds detected you are on version " + VersionUtils.getBukkitVersion() + ". This version is not supported and some errors WILL be thrown if you proceed to use the plugin.", ConsoleLogger.Level.WARN);
-                } else if (VersionUtils.getBukkitVersion().compareTo(new Version("1.18")) >= 0) {
+                } else if (VersionUtils.getBukkitVersion().compareTo(new Version("1.19")) >= 0) {
                     logger.log("PlayMoreSounds detected you are on version " + VersionUtils.getBukkitVersion() + ". This version is not officially supported and some errors might be thrown.", ConsoleLogger.Level.WARN);
                 }
 
@@ -343,10 +343,8 @@ public final class PlayMoreSounds extends JavaPlugin
                         addons.forEach(addon -> map.put(addon.getDescription().getName(), 1));
                         return map;
                     }));
-                    metrics.addCustomChart(new Metrics.SimplePie("uses_sound_replacer", () -> Boolean.toString(PMSHelper.anySoundEnabled(Configurations.NATURE_SOUND_REPLACER.getConfigurationHolder().getConfiguration(), null))));
                     metrics.addCustomChart(new Metrics.SimplePie("checking_for_updates", () -> Boolean.toString(Configurations.CONFIG.getConfigurationHolder().getConfiguration().getBoolean("Updater.Enabled").orElse(false))));
                     metrics.addCustomChart(new Metrics.SimplePie("uses_world_black_list", () -> Boolean.toString(!Configurations.CONFIG.getConfigurationHolder().getConfiguration().getCollection("World Black List", Object::toString).isEmpty())));
-                    metrics.addCustomChart(new Metrics.SimplePie("uses_custom_discs", () -> Boolean.toString(PMSHelper.anySoundEnabled(Configurations.CUSTOM_DISCS.getConfigurationHolder().getConfiguration(), null))));
 
                     logger.log("&ePlayMoreSounds is using bStats as metrics collector.");
                 }
