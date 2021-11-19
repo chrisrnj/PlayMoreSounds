@@ -18,7 +18,6 @@
 package com.epicnicity322.chatreactionhook;
 
 import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
-import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.epicpluginlib.core.util.PathUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
@@ -156,21 +155,24 @@ public class ChatReactionHook extends PMSAddon implements Listener
     @EventHandler
     public void onReactionFail(ReactionFailEvent event)
     {
-        if (failSound != null)
-            failSound.play(Bukkit.getWorlds().get(0).getSpawnLocation());
+        if (failSound != null) {
+            Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> failSound.play(Bukkit.getWorlds().get(0).getSpawnLocation()));
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onReactionStart(ReactionStartEvent event)
     {
-        if (startSound != null && (!event.isCancelled() || !startSound.isCancellable()))
-            startSound.play(Bukkit.getWorlds().get(0).getSpawnLocation());
+        if (startSound != null && (!event.isCancelled() || !startSound.isCancellable())) {
+            Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> startSound.play(Bukkit.getWorlds().get(0).getSpawnLocation()));
+        }
     }
 
     @EventHandler
     public void onReactionWin(ReactionWinEvent event)
     {
-        if (winSound != null)
-            winSound.play(event.getWinner());
+        if (winSound != null) {
+            Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> winSound.play(event.getWinner()));
+        }
     }
 }
