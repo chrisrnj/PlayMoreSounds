@@ -19,6 +19,8 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.bukkit.region.events.RegionEnterEvent;
+import com.epicnicity322.playmoresounds.bukkit.util.ListenerRegister;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import org.bukkit.Bukkit;
@@ -27,6 +29,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.HashSet;
 
 public final class OnPlayerResourcePackStatus implements Listener
 {
@@ -41,21 +45,36 @@ public final class OnPlayerResourcePackStatus implements Listener
     public void onPlayerResourcePackStatus(PlayerResourcePackStatusEvent event)
     {
         Configuration config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
-        PlayerResourcePackStatusEvent.Status status = event.getStatus();
 
-        if (config.getBoolean("Resource Packs.Request").orElse(false) &&
-                config.getBoolean("Resource Packs.Force.Enabled").orElse(false) &&
-                status == PlayerResourcePackStatusEvent.Status.DECLINED ||
-                status == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD) {
-            if (!config.getBoolean("Resource Packs.Force.Even If Download Fail").orElse(false) && status == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD)
-                return;
+        if (config.getBoolean("Resource Packs.Request").orElse(false)) {
+            PlayerResourcePackStatusEvent.Status status = event.getStatus();
+            Player player = event.getPlayer();
 
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                Player player = event.getPlayer();
+            if (status == PlayerResourcePackStatusEvent.Status.SUCCESSFULLY_LOADED) {
+                OnRegionEnterLeave regionListener = (OnRegionEnterLeave) ListenerRegister.getListeners().stream().filter(listener -> listener.getName().equals("Region Enter|Region Leave")).findFirst().orElseThrow(NullPointerException::new);
+                HashSet<RegionEnterEvent> removedRegionEvents = new HashSet<>();
 
-                if (player.isOnline())
-                    player.kickPlayer(PlayMoreSounds.getLanguage().getColored("Resource Packs.Kick Message"));
-            }, 20);
+                OnPlayerJoin.playersInRegionWaitingToLoadResourcePack.removeIf(regionEvent -> {
+                    if (player.equals(regionEvent.getPlayer())) {
+                        removedRegionEvents.add(regionEvent);
+                        return true;
+                    }
+
+                    return false;
+                });
+
+                for (RegionEnterEvent regionEvent : removedRegionEvents) {
+                    regionListener.onRegionEnter(regionEvent);
+                }
+            } else if (status != PlayerResourcePackStatusEvent.Status.ACCEPTED && config.getBoolean("Resource Packs.Force.Enabled").orElse(false)) {
+                if (status == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD && !config.getBoolean("Resource Packs.Force.Even If Download Fail").orElse(false))
+                    return;
+
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    if (player.isOnline())
+                        player.kickPlayer(PlayMoreSounds.getLanguage().getColored("Resource Packs.Kick Message"));
+                }, 20);
+            }
         }
     }
 }

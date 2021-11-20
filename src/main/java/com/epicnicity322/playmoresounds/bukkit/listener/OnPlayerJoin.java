@@ -37,8 +37,11 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
+
 public final class OnPlayerJoin implements Listener
 {
+    static final @NotNull HashSet<RegionEnterEvent> playersInRegionWaitingToLoadResourcePack = new HashSet<>();
     private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
     private static @Nullable PlayableRichSound firstJoin;
     private static @Nullable PlayableRichSound joinServer;
@@ -91,9 +94,16 @@ public final class OnPlayerJoin implements Listener
         if (config.getBoolean("Enable Sounds On Login").orElse(false))
             SoundManager.toggleSoundsState(player, true);
 
-        // Calling region enter events.
+        // Getting all regions in the location.
         RegionManager.getRegions().stream().filter(region -> region.isInside(location)).forEach(region -> {
             RegionEnterEvent regionEnterEvent = new RegionEnterEvent(region, player, location, location);
+
+            // Checking if event should be added to playersInRegionWaitingToLoadResourcePack.
+            if (config.getBoolean("Resource Packs.Request").orElse(false)) {
+                playersInRegionWaitingToLoadResourcePack.add(regionEnterEvent);
+            }
+
+            // Calling the event.
             Bukkit.getPluginManager().callEvent(regionEnterEvent);
         });
 
