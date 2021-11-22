@@ -1,22 +1,4 @@
-/*
- * PlayMoreSounds - A bukkit plugin that manages and plays sounds.
- * Copyright (C) 2021 Christiano Rangel
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-package com.epicnicity322.playmoresounds.bukkit.listener;
+package com.epicnicity322.naturesoundreplacer;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
@@ -25,9 +7,11 @@ import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
+import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
@@ -40,13 +24,62 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public final class NatureSoundReplacer extends PacketAdapter
+public final class NatureSoundReplacerPacketAdapter extends PacketAdapter
 {
     private static final @NotNull HashMap<String, PlayableRichSound> sounds = new HashMap<>();
-    private static NatureSoundReplacer natureSoundReplacer;
+    public static final @NotNull ConfigurationHolder natureSoundReplacerConfig;
+    private static NatureSoundReplacerPacketAdapter instance;
     private static boolean registered = false;
 
-    private NatureSoundReplacer(@NotNull PlayMoreSounds plugin)
+    static {
+        natureSoundReplacerConfig = new ConfigurationHolder(Configurations.BIOMES.getConfigurationHolder().getPath().getParent().resolve("nature sound replacer.yml"),
+                "# Replace any sound played by nature in your server.\n" +
+                        "#\n" +
+                        "#  When a sound here is played, PlayMoreSounds interrupts the sound packets from being sent to the\n" +
+                        "# players and plays the sound set here instead. This way you can take advantage of PlayMoreSounds\n" +
+                        "# features, like play multiple sounds, delayed sounds, toggleable sounds, permissible sounds,\n" +
+                        "# resource pack sounds etc.\n" +
+                        "#\n" +
+                        "# Warnings:\n" +
+                        "# >> ProtocolLib is required for this feature to work.\n" +
+                        "# >> Only sounds played by the server are replaceable, sounds played to the client (like walking or\n" +
+                        "# building) are replaceable only if the source is another player that's not you.\n" +
+                        "#\n" +
+                        "#  To replace a sound, create a section with the sound name and set the replacing sound in it, for\n" +
+                        "# example:\n" +
+                        "#\n" +
+                        "#ENTITY_ZOMBIE_HURT: # This is the sound that I want to replace.\n" +
+                        "#  Enabled: true\n" +
+                        "#  Sounds: # The sounds that will play instead.\n" +
+                        "#    '0':\n" +
+                        "#      Delay: 0\n" +
+                        "#      Options:\n" +
+                        "#        Ignores Disabled: true\n" +
+                        "#        #Permission Required: '' # Permission Required is available but it's not recommended, use Permission To Listen instead.\n" +
+                        "#        Permission To Listen: 'listen.zombiehurt'\n" +
+                        "#        Radius: 0.0 # Radius > 0 is not recommended\n" +
+                        "#        Relative Location:\n" +
+                        "#          FRONT_BACK: 0.0\n" +
+                        "#          RIGHT_LEFT: 0.0\n" +
+                        "#          UP_DOWN: 0.0\n" +
+                        "#      Pitch: 0.5\n" +
+                        "#      Sound: ENTITY_SKELETON_HURT\n" +
+                        "#      Volume: 1.0\n" +
+                        "#\n" +
+                        "#  If you want to completely stop a sound from being played in your server, add as in the example:\n" +
+                        "#\n" +
+                        "#ENTITY_ZOMBIE_AMBIENT: # This is the sound that I want to stop from playing in my server.\n" +
+                        "#  Enabled: true\n" +
+                        "#  #Sounds: # Don't add 'Sounds' section since you don't want sounds to play.\n" +
+                        "#\n" +
+                        "#  A more in depth tutorial of all sound options can be found in sounds.yml file.\n" +
+                        "#  If you have any other doubts on how to set this configuration up, feel free to ask in\n" +
+                        "# PlayMoreSounds' discord: https://discord.gg/eAHPbc3\n" +
+                        "\n" +
+                        "Version: '" + PlayMoreSoundsVersion.version + "'");
+    }
+
+    private NatureSoundReplacerPacketAdapter(@NotNull PlayMoreSounds plugin)
     {
         // It is changing sounds so priority is set to lowest.
         super(plugin, ListenerPriority.LOWEST, PacketType.Play.Server.NAMED_SOUND_EFFECT);
@@ -54,8 +87,8 @@ public final class NatureSoundReplacer extends PacketAdapter
 
     public synchronized static void loadNatureSoundReplacer(@NotNull PlayMoreSounds plugin)
     {
-        if (natureSoundReplacer == null) {
-            natureSoundReplacer = new NatureSoundReplacer(plugin);
+        if (instance == null) {
+            instance = new NatureSoundReplacerPacketAdapter(plugin);
         }
 
         ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
@@ -105,10 +138,10 @@ public final class NatureSoundReplacer extends PacketAdapter
         }
 
         if (anySoundEnabled && !registered) {
-            protocolManager.addPacketListener(natureSoundReplacer);
+            protocolManager.addPacketListener(instance);
             registered = true;
         } else if (!anySoundEnabled && registered) {
-            protocolManager.removePacketListener(natureSoundReplacer);
+            protocolManager.removePacketListener(instance);
             registered = false;
         }
     }

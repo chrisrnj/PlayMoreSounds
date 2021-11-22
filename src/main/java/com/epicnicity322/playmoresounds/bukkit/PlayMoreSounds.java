@@ -72,7 +72,6 @@ public final class PlayMoreSounds extends JavaPlugin
     private static final @NotNull AddonManager addonManager = new AddonManager(serverPlugins, logger);
     private static final @NotNull ErrorHandler errorHandler = PlayMoreSoundsCore.getErrorHandler();
     private static @Nullable PlayMoreSounds instance;
-    private static boolean protocolLib = false;
     private static boolean enabled = false;
     private static boolean disabled = false;
     private static boolean success = true;
@@ -89,12 +88,6 @@ public final class PlayMoreSounds extends JavaPlugin
         if (EpicPluginLib.version.compareTo(new Version("2.0")) < 0) {
             success = false;
             logger.log("You are running an old version of EpicPluginLib, make sure you are using 2.0 or similar.", ConsoleLogger.Level.ERROR);
-        }
-
-        try {
-            Class.forName("com.comphenix.protocol.events.PacketAdapter");
-            protocolLib = true;
-        } catch (ClassNotFoundException ignored) {
         }
     }
 
@@ -217,7 +210,6 @@ public final class PlayMoreSounds extends JavaPlugin
         HashMap<ConfigurationHolder, Exception> exceptions = Configurations.getConfigurationLoader().loadConfigurations();
         ListenerRegister.loadListeners();
         WorldTimeListener.load();
-        if (protocolLib) NatureSoundReplacer.loadNatureSoundReplacer(instance);
         UpdateManager.check(Bukkit.getConsoleSender(), true);
 
         synchronized (onReload) {
@@ -304,12 +296,6 @@ public final class PlayMoreSounds extends JavaPlugin
             addonManager.startAddons(StartTime.BEFORE_COMMANDS);
             CommandLoader.getCommands();
             logger.log("&6-> &eCommands loaded.");
-
-            // Loading Nature Sound Replacer:
-            if (protocolLib) {
-                NatureSoundReplacer.loadNatureSoundReplacer(this);
-                logger.log("&eProtocolLib was found and hooked.");
-            }
         } catch (Exception e) {
             success = false;
             errorHandler.report(e, "PMS Loading Error (Unknown):");

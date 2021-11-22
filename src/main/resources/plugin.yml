@@ -4,7 +4,6 @@ depend: [ EpicPluginLib ]
 description: Plays sounds at player events.
 main: com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds
 name: PlayMoreSounds
-softdepend: [ ProtocolLib ]
 version: '${project.version}'
 website: https://www.spigotmc.org/resources/37429/
 

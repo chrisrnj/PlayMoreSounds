@@ -1941,50 +1941,6 @@ public enum Configurations
             "    Offline: '&c您当前未连接网络，或者您的防火墙拦截了联网请求，更新失败'\n" +
             "    Timeout: '&c连接超时，请检查网络'\n" +
             "  Not Available: '&e没有可用更新'", StaticFields.version4_0_0),
-    NATURE_SOUND_REPLACER(StaticFields.sounds.resolve("nature sound replacer.yml"), "# Replace any sound played by nature in your server.\n" +
-            "#\n" +
-            "#  When a sound here is played, PlayMoreSounds interrupts the sound packets from being sent to the\n" +
-            "# players and plays the sound set here instead. This way you can take advantage of PlayMoreSounds\n" +
-            "# features, like play multiple sounds, delayed sounds, toggleable sounds, permissible sounds,\n" +
-            "# resource pack sounds etc.\n" +
-            "#\n" +
-            "# Warnings:\n" +
-            "# >> ProtocolLib is required for this feature to work.\n" +
-            "# >> Only sounds played by the server are replaceable, sounds played to the client (like walking or\n" +
-            "# building) are replaceable only if the source is another player that's not you.\n" +
-            "#\n" +
-            "#  To replace a sound, create a section with the sound name and set the replacing sound in it, for\n" +
-            "# example:\n" +
-            "#\n" +
-            "#ENTITY_ZOMBIE_HURT: # This is the sound that I want to replace.\n" +
-            "#  Enabled: true\n" +
-            "#  Sounds: # The sounds that will play instead.\n" +
-            "#    '0':\n" +
-            "#      Delay: 0\n" +
-            "#      Options:\n" +
-            "#        Ignores Disabled: true\n" +
-            "#        #Permission Required: '' # Permission Required is available but it's not recommended, use Permission To Listen instead.\n" +
-            "#        Permission To Listen: 'listen.zombiehurt'\n" +
-            "#        Radius: 0.0 # Radius > 0 is not recommended\n" +
-            "#        Relative Location:\n" +
-            "#          FRONT_BACK: 0.0\n" +
-            "#          RIGHT_LEFT: 0.0\n" +
-            "#          UP_DOWN: 0.0\n" +
-            "#      Pitch: 0.5\n" +
-            "#      Sound: ENTITY_SKELETON_HURT\n" +
-            "#      Volume: 1.0\n" +
-            "#\n" +
-            "#  If you want to completely stop a sound from being played in your server, add as in the example:\n" +
-            "#\n" +
-            "#ENTITY_ZOMBIE_AMBIENT: # This is the sound that I want to stop from playing in my server.\n" +
-            "#  Enabled: true\n" +
-            "#  #Sounds: # Don't add 'Sounds' section since you don't want sounds to play.\n" +
-            "#\n" +
-            "#  A more in depth tutorial of all sound options can be found in sounds.yml file.\n" +
-            "#  If you have any other doubts on how to set this configuration up, feel free to ask in\n" +
-            "# PlayMoreSounds' discord: https://discord.gg/eAHPbc3\n" +
-            "\n" +
-            "Version: '" + PlayMoreSoundsVersion.version + "'", StaticFields.version4_0_0),
     REGIONS(StaticFields.sounds.resolve("regions.yml"), "# Set a sound to play when you enter, exit or stand on a specific region.\n" +
             "#\n" +
             "# Sample:\n" +
