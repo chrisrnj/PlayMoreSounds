@@ -96,7 +96,7 @@ public final class NatureSoundReplacerPacketAdapter extends PacketAdapter
 
         sounds.clear();
 
-        for (Map.Entry<String, Object> node : Configurations.NATURE_SOUND_REPLACER.getConfigurationHolder().getConfiguration().getNodes().entrySet()) {
+        for (Map.Entry<String, Object> node : natureSoundReplacerConfig.getConfiguration().getNodes().entrySet()) {
             String key = node.getKey();
             Object value = node.getValue();
 
