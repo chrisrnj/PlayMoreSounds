@@ -23,24 +23,15 @@ import com.epicnicity322.playmoresounds.bukkit.region.events.RegionEnterEvent;
 import com.epicnicity322.playmoresounds.bukkit.util.ListenerRegister;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 
 public final class OnPlayerResourcePackStatus implements Listener
 {
-    private final @NotNull PlayMoreSounds plugin;
-
-    public OnPlayerResourcePackStatus(@NotNull PlayMoreSounds plugin)
-    {
-        this.plugin = plugin;
-    }
-
     @EventHandler
     public void onPlayerResourcePackStatus(PlayerResourcePackStatusEvent event)
     {
@@ -70,10 +61,7 @@ public final class OnPlayerResourcePackStatus implements Listener
                 if (status == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD && !config.getBoolean("Resource Packs.Force.Even If Download Fail").orElse(false))
                     return;
 
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    if (player.isOnline())
-                        player.kickPlayer(PlayMoreSounds.getLanguage().getColored("Resource Packs.Kick Message"));
-                }, 20);
+                player.kickPlayer(PlayMoreSounds.getLanguage().getColored("Resource Packs.Kick Message"));
             }
         }
     }
