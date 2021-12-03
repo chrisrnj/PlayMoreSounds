@@ -59,7 +59,7 @@ public final class OnPlayerMove implements Listener
         }));
     }
 
-    protected static void callRegionEnterLeaveEvents(Cancellable event, Player player, Location from, Location to)
+    static void callRegionEnterLeaveEvents(Cancellable event, Player player, Location from, Location to)
     {
         for (SoundRegion region : RegionManager.getRegions()) {
             boolean isInFrom = region.isInside(from);
@@ -81,7 +81,7 @@ public final class OnPlayerMove implements Listener
         }
     }
 
-    protected static void checkBiomeEnterLeaveSounds(Cancellable event, Player player, Location from, Location to)
+    static void checkBiomeEnterLeaveSounds(Cancellable event, Player player, Location from, Location to)
     {
         // Playing sounds for biomes.yml.
         Configuration biomesConfiguration = biomes.getConfiguration();
