@@ -190,7 +190,7 @@ public class RegionsHandler
                     if (value != null)
                         value.removeIf(sound -> {
                             if (sound.startsWith("nbs:") && PlayMoreSounds.getAddonManager().getAddons().stream().anyMatch(addon -> addon.toString().equals("NBS Song Player"))) {
-                                NBSSongPlayer.stop(player, sound.substring(5));
+                                NBSSongPlayer.stop(player, sound.substring(4));
                                 return true;
                             }
 
