@@ -26,8 +26,8 @@ import java.util.Optional;
 
 public final class NatureSoundReplacerPacketAdapter extends PacketAdapter
 {
-    private static final @NotNull HashMap<String, PlayableRichSound> sounds = new HashMap<>();
     public static final @NotNull ConfigurationHolder natureSoundReplacerConfig;
+    private static final @NotNull HashMap<String, PlayableRichSound> sounds = new HashMap<>();
     private static NatureSoundReplacerPacketAdapter instance;
     private static boolean registered = false;
 
