@@ -88,7 +88,8 @@ public final class AddonsInventory implements Listener
             // Will never happen...
         }
 
-        hasTitles = PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.8.7")) > 0;
+        // Player#sendTitle(String, String, int, int, int) was added on Spigot v1.11.1
+        hasTitles = PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.11.1")) >= 0;
 
         PlayMoreSounds.onDisable(() -> {
             allInventories.forEach(HumanEntity::closeInventory);
