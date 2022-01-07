@@ -33,7 +33,7 @@ public final class OnFurnaceExtract extends PMSListener
     @Override
     public @NotNull String getName()
     {
-        return "Craft Item";
+        return "Furnace Extract";
     }
 
     @EventHandler
