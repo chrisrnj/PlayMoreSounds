@@ -61,7 +61,7 @@ public final class ListenerRegister
             listeners.add(new OnPlayerLevelChange(instance));
             listeners.add(new OnPlayerRespawn(instance));
 
-            if (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.9")) >= 0)
+            if (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.9.2")) >= 0)
                 listeners.add(new OnPlayerSwapHandItems(instance));
 
             listeners.add(new OnPlayerToggleFlight(instance));

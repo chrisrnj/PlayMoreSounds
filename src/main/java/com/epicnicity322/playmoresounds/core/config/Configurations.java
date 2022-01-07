@@ -2401,7 +2401,7 @@ public enum Configurations
             "# When the player moves their current item to their off hand.\n" +
             "# This sound is cancellable.\n" +
             "Swap Hands:\n" +
-            "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.9")) < 0 ? "false # This event only supports 1.9+ and you are on " + PlayMoreSoundsCore.getServerVersion() + "\n" : "true\n") +
+            "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.9.2")) < 0 ? "false # This event only supports 1.9.2+ and you are on " + PlayMoreSoundsCore.getServerVersion() + "\n" : "true\n") +
             "  Cancellable: true\n" +
             "  Sounds:\n" +
             "    '1':\n" +
