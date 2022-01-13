@@ -18,6 +18,7 @@
 
 package com.epicnicity322.playmoresounds.bukkit.util;
 
+import com.epicnicity322.epicpluginlib.bukkit.reflection.ReflectionUtil;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.listener.*;
@@ -61,12 +62,14 @@ public final class ListenerRegister
             listeners.add(new OnPlayerLevelChange(instance));
             listeners.add(new OnPlayerRespawn(instance));
 
-            if (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.9.2")) >= 0)
+            // PlayerSwapHandItemsEvent was added on 1.9.2
+            if (ReflectionUtil.getClass("org.bukkit.event.player.PlayerSwapHandItemsEvent") != null)
                 listeners.add(new OnPlayerSwapHandItems(instance));
 
             listeners.add(new OnPlayerToggleFlight(instance));
             listeners.add(new OnPlayerToggleSneak(instance));
 
+            // OnPortalCreate listener uses methods that were changed in 1.14
             if (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.14")) >= 0)
                 listeners.add(new OnPortalCreate(instance));
 
@@ -74,10 +77,10 @@ public final class ListenerRegister
             listeners.add(new OnWeatherChange(instance));
 
             // Jump events are only available on PaperMC.
-            if (VersionUtils.isPaperMC()) {
+            if (ReflectionUtil.getClass("com.destroystokyo.paper.event.player.PlayerJumpEvent") != null)
                 listeners.add(new OnPlayerJump(instance));
+            if (ReflectionUtil.getClass("com.destroystokyo.paper.event.entity.EntityJumpEvent") != null)
                 listeners.add(new OnEntityJump(instance));
-            }
         });
     }
 

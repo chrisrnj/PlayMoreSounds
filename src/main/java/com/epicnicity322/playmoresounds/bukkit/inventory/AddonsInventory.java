@@ -19,6 +19,7 @@
 package com.epicnicity322.playmoresounds.bukkit.inventory;
 
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
+import com.epicnicity322.epicpluginlib.bukkit.reflection.ReflectionUtil;
 import com.epicnicity322.epicpluginlib.core.tools.Downloader;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.epicpluginlib.core.util.ObjectUtils;
@@ -69,6 +70,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@SuppressWarnings("deprecation")
 public final class AddonsInventory implements Listener
 {
     private static final @NotNull AtomicBoolean block = new AtomicBoolean(false);
@@ -89,7 +91,7 @@ public final class AddonsInventory implements Listener
         }
 
         // Player#sendTitle(String, String, int, int, int) was added on Spigot v1.11.1
-        hasTitles = PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.11.1")) >= 0;
+        hasTitles = ReflectionUtil.getMethod(Player.class, "sendTitle", String.class, String.class, int.class, int.class, int.class) != null;
 
         PlayMoreSounds.onDisable(() -> {
             allInventories.forEach(HumanEntity::closeInventory);
@@ -101,7 +103,6 @@ public final class AddonsInventory implements Listener
     private final @NotNull Inventory inventory;
     private final @NotNull HashSet<HumanEntity> openInventories = new HashSet<>();
     private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>();
-    private final @NotNull Configuration config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
     private final @NotNull HashMap<Integer, ArrayList<PMSAddon>> addonPages;
 
     public AddonsInventory()
@@ -135,7 +136,7 @@ public final class AddonsInventory implements Listener
             inventory.setItem(8, getItemStack("Install"));
             buttons.put(8, event -> openInstallerInventory((Player) event.getWhoClicked()));
 
-            fillAddons(1);
+            fillAddons();
         }
     }
 
@@ -309,9 +310,9 @@ public final class AddonsInventory implements Listener
         return itemStack;
     }
 
-    private void fillAddons(int page)
+    private void fillAddons()
     {
-        ArrayList<PMSAddon> addons = addonPages.get(page);
+        ArrayList<PMSAddon> addons = addonPages.get(1);
 
         if (addons == null) return;
 
@@ -350,7 +351,7 @@ public final class AddonsInventory implements Listener
     }
 
     @EventHandler
-    public final void onInventoryClose(InventoryCloseEvent event)
+    public void onInventoryClose(InventoryCloseEvent event)
     {
         openInventories.remove(event.getPlayer());
         allInventories.remove(event.getPlayer());
@@ -360,7 +361,7 @@ public final class AddonsInventory implements Listener
     }
 
     @EventHandler
-    public final void onInventoryClick(InventoryClickEvent event)
+    public void onInventoryClick(InventoryClickEvent event)
     {
         HumanEntity humanEntity = event.getWhoClicked();
 
@@ -409,7 +410,7 @@ public final class AddonsInventory implements Listener
 
             inventory.setItem(size - 5, AddonsInventory.getItemStack("Done"));
             buttons.put(size - 5, event -> event.getWhoClicked().closeInventory());
-            fillAddons(1);
+            fillAddons();
             Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> humanEntity.openInventory(inventory));
 
             synchronized (allInventories) {
@@ -419,11 +420,11 @@ public final class AddonsInventory implements Listener
             Bukkit.getPluginManager().registerEvents(this, PlayMoreSounds.getInstance());
         }
 
-        private void fillAddons(int page)
+        private void fillAddons()
         {
             int slot = -1;
 
-            for (Path addon : addonPages.get(page)) {
+            for (Path addon : addonPages.get(1)) {
                 ItemStack addonItem = new ItemStack(getItemStack("Addon"));
                 ItemMeta meta = addonItem.getItemMeta();
 
@@ -476,7 +477,7 @@ public final class AddonsInventory implements Listener
         }
 
         @EventHandler
-        public final void onInventoryClick(InventoryClickEvent event)
+        public void onInventoryClick(InventoryClickEvent event)
         {
             if (event.getWhoClicked().equals(humanEntity)) {
                 event.setCancelled(true);
