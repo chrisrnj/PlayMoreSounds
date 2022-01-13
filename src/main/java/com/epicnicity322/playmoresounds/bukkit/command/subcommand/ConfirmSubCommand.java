@@ -34,20 +34,17 @@ import java.util.Map;
 
 public final class ConfirmSubCommand extends Command implements Helpable
 {
-    private static final @NotNull HashMap<CommandSender, LinkedHashMap<Runnable, String>> pendingConfirmation = new HashMap<>();
+    private static final @NotNull HashMap<CommandSender, LinkedHashMap<Runnable, String>> pendingConfirmations = new HashMap<>();
     private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
 
     public static void addPendingConfirmation(@NotNull CommandSender sender, @NotNull Runnable confirmation, @NotNull String description)
     {
-        LinkedHashMap<Runnable, String> confirmations;
+        LinkedHashMap<Runnable, String> confirmations = pendingConfirmations.get(sender);
 
-        if (pendingConfirmation.containsKey(sender))
-            confirmations = pendingConfirmation.get(sender);
-        else
-            confirmations = new LinkedHashMap<>();
+        if (confirmations == null) confirmations = new LinkedHashMap<>();
 
         confirmations.put(confirmation, description);
-        pendingConfirmation.put(sender, confirmations);
+        pendingConfirmations.put(sender, confirmations);
     }
 
     @Override
@@ -77,7 +74,7 @@ public final class ConfirmSubCommand extends Command implements Helpable
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        LinkedHashMap<Runnable, String> confirmations = pendingConfirmation.get(sender);
+        LinkedHashMap<Runnable, String> confirmations = pendingConfirmations.get(sender);
 
         if (confirmations == null || confirmations.isEmpty()) {
             lang.send(sender, lang.get("Confirm.Error.Nothing Pending"));

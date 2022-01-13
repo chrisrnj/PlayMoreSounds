@@ -28,6 +28,7 @@ import com.epicnicity322.playmoresounds.bukkit.command.CommandUtils;
 import com.epicnicity322.playmoresounds.bukkit.listener.OnPlayerInteract;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
+import com.epicnicity322.playmoresounds.bukkit.util.UniqueRunnable;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
@@ -514,13 +515,18 @@ public final class RegionSubCommand extends Command implements Helpable
 
         lang.send(sender, lang.get("Region.Remove.Confirm").replace("<label>", label).replace("<region>", name));
 
-        ConfirmSubCommand.addPendingConfirmation(sender, () -> {
-            try {
-                RegionManager.delete(region);
-                lang.send(sender, lang.get("Region.Remove.Success").replace("<region>", name));
-            } catch (Exception ex) {
-                lang.send(sender, lang.get("Region.Remove.Error").replace("<region>", name));
-                PlayMoreSoundsCore.getErrorHandler().report(ex, "Error while deleting region " + name);
+        ConfirmSubCommand.addPendingConfirmation(sender, new UniqueRunnable(region.getId())
+        {
+            @Override
+            public void run()
+            {
+                try {
+                    RegionManager.delete(region);
+                    lang.send(sender, lang.get("Region.Remove.Success").replace("<region>", name));
+                } catch (Exception ex) {
+                    lang.send(sender, lang.get("Region.Remove.Error").replace("<region>", name));
+                    PlayMoreSoundsCore.getErrorHandler().report(ex, "Error while deleting region " + name);
+                }
             }
         }, lang.get("Region.Remove.Description").replace("<region>", name));
     }
