@@ -21,8 +21,11 @@ package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
+import com.epicnicity322.epicpluginlib.core.tools.SpigotUpdateChecker;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.util.UpdateManager;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,6 +33,12 @@ import org.jetbrains.annotations.Nullable;
 public final class UpdateSubCommand extends Command implements Helpable
 {
     private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
+    private final @NotNull PlayMoreSounds instance;
+
+    public UpdateSubCommand(@NotNull PlayMoreSounds instance)
+    {
+        this.instance = instance;
+    }
 
     @Override
     public @NotNull String getName()
@@ -58,6 +67,66 @@ public final class UpdateSubCommand extends Command implements Helpable
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        UpdateManager.check(sender, true);
+        if (args.length > 1 && args[1].equalsIgnoreCase("download")) {
+            if (args.length > 2 && args[2].equalsIgnoreCase("-force")) {
+                lang.send(sender, lang.get("Update.Download.Downloading.Forcefully"));
+                download(sender);
+                return;
+            }
+
+            if (UpdateManager.isUpdateAvailable()) {
+                lang.send(sender, lang.get("Update.Download.Downloading.Default"));
+                download(sender);
+                return;
+            }
+
+            SpigotUpdateChecker checker = new SpigotUpdateChecker(37429, PlayMoreSoundsVersion.getVersion());
+
+            lang.send(sender, lang.get("Update.Download.Checking"));
+
+            checker.check((available, version) -> {
+                if (available) {
+                    UpdateManager.check(null);
+                    lang.send(sender, lang.get("Update.Download.Downloading.Default"));
+                    download(sender);
+                } else {
+                    lang.send(sender, lang.get("Update.Not Available"));
+                }
+            }, (result, ex) -> {
+                switch (result) {
+                    case OFFLINE:
+                        lang.send(sender, lang.get("Update.Error.Offline"));
+                        break;
+
+                    case TIMEOUT:
+                        lang.send(sender, lang.get("Update.Error.Timeout"));
+                        break;
+
+                    case UNEXPECTED_ERROR:
+                        lang.send(sender, lang.get("Update.Error.Default"));
+                        PlayMoreSoundsCore.getErrorHandler().report(ex, "Unexpected Error On Check Before Update Download:");
+                        break;
+                }
+            });
+
+            return;
+        }
+
+        UpdateManager.check(sender);
+    }
+
+    private void download(CommandSender sender)
+    {
+        new Thread("PMS Update Downloader")
+        {
+            @Override public void run()
+            {
+                String downloadedVersion = UpdateManager.downloadLatest(sender, instance);
+
+                if (downloadedVersion != null) {
+                    lang.send(sender, lang.get("Update.Download.Success").replace("<version>", downloadedVersion));
+                }
+            }
+        }.start();
     }
 }

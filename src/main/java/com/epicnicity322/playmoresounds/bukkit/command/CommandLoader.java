@@ -57,7 +57,7 @@ public final class CommandLoader
             commands.add(new ReloadSubCommand());
             commands.add(new StopSoundSubCommand());
             commands.add(new ToggleSubCommand());
-            commands.add(new UpdateSubCommand());
+            commands.add(new UpdateSubCommand(plugin));
 
             CommandManager.registerCommand(Bukkit.getPluginCommand("playmoresounds"), commands,
                     (label, sender, args) -> {

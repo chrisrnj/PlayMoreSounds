@@ -86,7 +86,7 @@ public final class OnPlayerJoin implements Listener
 
         // Send update available message.
         if (UpdateManager.isUpdateAvailable() && player.hasPermission("playmoresounds.update.joinmessage"))
-            lang.send(player, "&a* PlayMoreSounds has a new update available! *\n&aLink >&7 https://www.spigotmc.org/resources/37429/");
+            lang.send(player, "&2* &aPlayMoreSounds has a new update available!\n&2* &aDownload it using &7&n/pms update download&a command.");
 
         Configuration config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
 

@@ -1124,8 +1124,25 @@ public enum Configurations
             "    Player: '&aToggled the sounds of &f<target>&a to on!'\n" +
             "\n" +
             "Update:\n" +
-            "  Available: '&2PlayMoreSounds v<version> is available. Download the latest version on spigotmc.org.'\n" +
+            "  Available: '&2PlayMoreSounds v<version> is available. Download the latest version using &7&n/pms update download&a.'\n" +
             "  Check: '&eChecking for updates...'\n" +
+            "  Download:\n" +
+            "    Checking: '&7Checking if an update is available for download...'\n" +
+            "    Confirmation:\n" +
+            "      Not Latest:\n" +
+            "        Deleted: '&aOlder downloaded version of PlayMoreSounds was deleted.'\n" +
+            "        Description: 'Delete the downloaded update with older version.'\n" +
+            "      Not Supported:\n" +
+            "        Deleted: '&aUnsupported downloaded version of PlayMoreSounds was deleted.'\n" +
+            "        Description: 'Delete the unsupported update.'\n" +
+            "    Deleted Downloaded: '&7A download of an update was already found. Deleting it and downloading again.'\n" +
+            "    Downloading:\n" +
+            "      Default: '&7An update was found and is being downloaded.'\n" +
+            "      Forcefully: '&7Downloading latest version available of PlayMoreSounds...'\n" +
+            "    Error:\n" +
+            "      Not Latest: '&cYou downloaded PlayMoreSounds version &f<downloaded>&c which is older than the current installed version: &f<current>&c. Type &f&n/pms confirm&c to delete the older version.'\n" +
+            "      Not Supported: '&cThe downloaded update was made for Spigot &f<apiversion>&c and you are currently using Spigot &f<current>&c. If you proceed to install this version, PlayMoreSounds will stop working on your server. Type &f&n/pms confirm&c to delete the unsupported version.'\n" +
+            "    Success: '&aPlayMoreSounds v<version> was downloaded successfully and will be installed the next time you restart your server.'\n" +
             "  Error:\n" +
             "    Default: '&cSomething went wrong while using updater.'\n" +
             "    Offline: '&cYou are offline or spigotmc.org is down.'\n" +
@@ -1394,6 +1411,23 @@ public enum Configurations
             "Update:\n" +
             "  Available: '&2PlayMoreSounds v<version> está disponible. Descargue la última versión en spigotmc.org.'\n" +
             "  Check: '&eBuscando actualizaciones...'\n" +
+            "  Download:\n" +
+            "    Checking: '&7Verificando si existe alguna actualización disponible para descargar...'\n" +
+            "    Confirmation:\n" +
+            "      Not Latest:\n" +
+            "        Deleted: '&aLa versión inferior que fue descargada ha sido eliminada.'\n" +
+            "        Description: 'Eliminar la actualización que tiene una versión inferior.'\n" +
+            "      Not Supported:\n" +
+            "        Deleted: '&aLa actualización no compatible de PlayMoreSounds fue eliminada.'\n" +
+            "        Description: 'Eliminar la actualización no compatible.'\n" +
+            "    Deleted Downloaded: '&7'\n" +
+            "    Downloading:\n" +
+            "      Default: '&7Uma atualização foi encontrada e está sendo baixada.'\n" +
+            "      Forcefully: '&7Baixando a versão mais recente do PlayMoreSounds...'\n" +
+            "    Error:\n" +
+            "      Not Latest: '&cVocê baixou o PlayMoreSounds versão &f<downloaded>&c que é mais antigo que a versão atualmente instalada: &f<current>&c. Use &f&n/pms confirm&c para apagar a versão antiga.'\n" +
+            "      Not Supported: '&cA atualização baixada foi feita para o Spigot &f<apiversion>&c e você está usando o Spigot &f<current>&c. Se você prosseguir com a instalação dessa versão, o PlayMoreSounds vai parar de funcionar no seu servidor. Use &f&n/pms confirm&c para apagar a versão não suportada.'\n" +
+            "    Success: '&aPlayMoreSounds v<version> foi baixado com sucesso e será instalado na próxima vez que você reiniciar seu servidor.'\n" +
             "  Error:\n" +
             "    Default: '&cAlgo salió mal al usar el actualizador.'\n" +
             "    Offline: '&cEstá desconectado o spigot.org está caído.'\n" +
@@ -1660,8 +1694,25 @@ public enum Configurations
             "    Player: '&aOs sons de &f<target>&a foram ativados!'\n" +
             "\n" +
             "Update:\n" +
-            "  Available: '&2PlayMoreSounds v<version> está disponível. Baixe a última versão em spigotmc.org.'\n" +
+            "  Available: '&2PlayMoreSounds v<version> está disponível. Baixe a última versão usando &7&n/pms update download&2.'\n" +
             "  Check: '&eProcurando por atualizações...'\n" +
+            "  Download:\n" +
+            "    Checking: '&7Vendo se uma atualização está disponível para download...'\n" +
+            "    Confirmation:\n" +
+            "      Not Latest:\n" +
+            "        Deleted: '&aA versão antiga que foi baixada foi deletada.'\n" +
+            "        Description: 'Deletar a atualização baixada que tem versão inferior.'\n" +
+            "      Not Supported:\n" +
+            "        Deleted: '&aA versão não suportada baixada do PlayMoreSounds foi deletada.'\n" +
+            "        Description: 'Deletar a atualização não suportada.'\n" +
+            "    Deleted Downloaded: '&7Um arquivo de atualização foi encontrado. Apagando-o e baixando de novo.'\n" +
+            "    Downloading:\n" +
+            "      Default: '&7Uma atualização foi encontrada e está sendo baixada.'\n" +
+            "      Forcefully: '&7Baixando a versão mais recente do PlayMoreSounds...'\n" +
+            "    Error:\n" +
+            "      Not Latest: '&cVocê baixou o PlayMoreSounds versão &f<downloaded>&c que é mais antigo que a versão atualmente instalada: &f<current>&c. Use &f&n/pms confirm&c para apagar a versão antiga.'\n" +
+            "      Not Supported: '&cA atualização baixada foi feita para o Spigot &f<apiversion>&c e você está usando o Spigot &f<current>&c. Se você prosseguir com a instalação dessa versão, o PlayMoreSounds vai parar de funcionar no seu servidor. Use &f&n/pms confirm&c para apagar a versão não suportada.'\n" +
+            "    Success: '&aPlayMoreSounds v<version> foi baixado com sucesso e será instalado na próxima vez que você reiniciar seu servidor.'\n" +
             "  Error:\n" +
             "    Default: '&cAlgo de errado ocorreu ao usar o atualizador.'\n" +
             "    Offline: '&cVocê está offline ou spigot.org caiu.'\n" +
@@ -1933,9 +1984,25 @@ public enum Configurations
             "    Player: '&a已将 &f<target>&a 的音效打开!'\n" +
             "\n" +
             "Update:\n" +
-            "  #Available: '&2PlayMoreSounds v<version> is available. Download the latest version on spigotmc.org.'\n" +
             "  Available: '&2PlayMoreSounds v<version> 新版本已可用，建议输入 &7/<label> update download&2 来下载新版本'\n" +
             "  Check: '&e检查更新...'\n" +
+            "  Download:\n" +
+            "    Checking: '&7Checking if an update is available for download...'\n" +
+            "    Confirmation:\n" +
+            "      Not Latest:\n" +
+            "        Deleted: '&aOlder downloaded version of PlayMoreSounds was deleted.'\n" +
+            "        Description: 'Delete the downloaded update with older version.'\n" +
+            "      Not Supported:\n" +
+            "        Deleted: '&aUnsupported downloaded version of PlayMoreSounds was deleted.'\n" +
+            "        Description: 'Delete the unsupported update.'\n" +
+            "    Deleted Downloaded: '&7A download of an update was already found. Deleting it and downloading again.'\n" +
+            "    Downloading:\n" +
+            "      Default: '&7An update was found and is being downloaded.'\n" +
+            "      Forcefully: '&7Downloading latest version available of PlayMoreSounds...'\n" +
+            "    Error:\n" +
+            "      Not Latest: '&cYou downloaded PlayMoreSounds version &f<downloaded>&c which is older than the current installed version: &f<current>&c. Type &f&n/pms confirm&c to delete the older version.'\n" +
+            "      Not Supported: '&cThe downloaded update was made for Spigot &f<apiversion>&c and you are currently using Spigot &f<current>&c. If you proceed to install this version, PlayMoreSounds will stop working on your server. Type &f&n/pms confirm&c to delete the unsupported version.'\n" +
+            "    Success: '&aPlayMoreSounds v<version> was downloaded successfully and will be installed the next time you restart your server.'\n" +
             "  Error:\n" +
             "    Default: '&c更新失败，请检查网络'\n" +
             "    Offline: '&c您当前未连接网络，或者您的防火墙拦截了联网请求，更新失败'\n" +
