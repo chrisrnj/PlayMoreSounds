@@ -1,6 +1,6 @@
 /*
  * PlayMoreSounds - A bukkit plugin that manages and plays sounds.
- * Copyright (C) 2021 Christiano Rangel
+ * Copyright (C) 2022 Christiano Rangel
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,6 +70,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+//TODO: Make so when you click on an addon in the Addon Management Inventory it uninstalls it.
+//TODO: Add change page button to Addon Management Inventory and Addon Install Inventory.
 @SuppressWarnings("deprecation")
 public final class AddonsInventory implements Listener
 {

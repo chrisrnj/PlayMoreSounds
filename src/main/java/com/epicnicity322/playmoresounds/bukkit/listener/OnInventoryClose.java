@@ -1,6 +1,6 @@
 /*
  * PlayMoreSounds - A bukkit plugin that manages and plays sounds.
- * Copyright (C) 2021 Christiano Rangel
+ * Copyright (C) 2022 Christiano Rangel
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -32,7 +31,6 @@ public final class OnInventoryClose extends PMSListener
         super(plugin);
     }
 
-
     @Override
     public @NotNull String getName()
     {
@@ -42,10 +40,6 @@ public final class OnInventoryClose extends PMSListener
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event)
     {
-        HumanEntity whoClosed = event.getPlayer();
-
-        if (whoClosed instanceof Player) {
-            getRichSound().play((Player) whoClosed);
-        }
+        getRichSound().play((Player) event.getPlayer());
     }
 }

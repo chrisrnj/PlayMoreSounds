@@ -1,6 +1,6 @@
 /*
  * PlayMoreSounds - A bukkit plugin that manages and plays sounds.
- * Copyright (C) 2021 Christiano Rangel
+ * Copyright (C) 2022 Christiano Rangel
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class PMSListener implements Listener
 {
-    private final @NotNull PlayMoreSounds plugin;
+    protected final @NotNull PlayMoreSounds plugin;
     private @Nullable PlayableRichSound richSound;
     private boolean loaded = false;
 

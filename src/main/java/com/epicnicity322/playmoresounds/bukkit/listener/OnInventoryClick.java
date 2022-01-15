@@ -1,6 +1,6 @@
 /*
  * PlayMoreSounds - A bukkit plugin that manages and plays sounds.
- * Copyright (C) 2021 Christiano Rangel
+ * Copyright (C) 2022 Christiano Rangel
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@ import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -39,13 +38,11 @@ import java.util.Map;
 
 public final class OnInventoryClick extends PMSListener
 {
-    private final @NotNull PlayMoreSounds plugin;
     private final @NotNull HashMap<String, PlayableRichSound> criteriaSounds = new HashMap<>();
 
     public OnInventoryClick(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
-        this.plugin = plugin;
     }
 
     @Override
@@ -89,37 +86,36 @@ public final class OnInventoryClick extends PMSListener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onInventoryClick(InventoryClickEvent event)
+    public void onEvent(InventoryClickEvent event)
     {
-        HumanEntity entity = event.getWhoClicked();
+        if (event.getClickedInventory() == null) return;
+
         ItemStack item = event.getCurrentItem();
 
-        if (item != null && entity instanceof Player) {
-            if (item.getType() == Material.AIR && event.getCursor() != null)
-                item = event.getCursor();
+        if (item == null) return;
+        if (item.getType() == Material.AIR && event.getCursor() != null)
+            item = event.getCursor();
 
-            Player player = (Player) entity;
-            PlayableRichSound sound = getRichSound();
-            String material = item.getType().name();
+        Player player = (Player) event.getWhoClicked();
+        PlayableRichSound defaultSound = getRichSound();
+        String material = item.getType().name();
 
-            for (Map.Entry<String, PlayableRichSound> criterion : criteriaSounds.entrySet()) {
-                if (OnEntityDamageByEntity.matchesCriterion(criterion.getKey(), material)) {
-                    PlayableRichSound criterionSound = criterion.getValue();
+        for (Map.Entry<String, PlayableRichSound> criterion : criteriaSounds.entrySet()) {
+            if (OnEntityDamageByEntity.matchesCriterion(criterion.getKey(), material)) {
+                PlayableRichSound criterionSound = criterion.getValue();
 
-                    if (!event.isCancelled() || !criterionSound.isCancellable()) {
-                        criterionSound.play(player);
+                if (!event.isCancelled() || !criterionSound.isCancellable()) {
+                    criterionSound.play(player);
 
-                        if (criterionSound.getSection().getBoolean("Prevent Other Sounds.Default Sound").orElse(false))
-                            sound = null;
-                        if (criterionSound.getSection().getBoolean("Prevent Other Sounds.Other Criteria").orElse(false))
-                            break;
-                    }
+                    if (criterionSound.getSection().getBoolean("Prevent Other Sounds.Default Sound").orElse(false))
+                        defaultSound = null;
+                    if (criterionSound.getSection().getBoolean("Prevent Other Sounds.Other Criteria").orElse(false))
+                        break;
                 }
             }
-
-            if (sound != null)
-                if (!event.isCancelled() || !sound.isCancellable())
-                    sound.play(player);
         }
+
+        if (defaultSound != null && (!event.isCancelled() || !defaultSound.isCancellable()))
+            defaultSound.play(player);
     }
 }
