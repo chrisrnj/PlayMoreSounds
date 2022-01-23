@@ -52,7 +52,7 @@ public final class AddonEventManager
         registeredLoadUnloadEvents.remove(event);
     }
 
-    protected static void callLoadUnloadEvent(PMSAddon addon)
+    static void callLoadUnloadEvent(PMSAddon addon)
     {
         for (AddonLoadUnloadEvent event : registeredLoadUnloadEvents)
             try {
