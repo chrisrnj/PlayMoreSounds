@@ -27,6 +27,7 @@ import com.epicnicity322.epicpluginlib.core.logger.ErrorHandler;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.epicpluginlib.core.util.PathUtils;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandLoader;
+import com.epicnicity322.playmoresounds.bukkit.inventory.ListInventory;
 import com.epicnicity322.playmoresounds.bukkit.listener.*;
 import com.epicnicity322.playmoresounds.bukkit.metrics.Metrics;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
@@ -212,6 +213,7 @@ public final class PlayMoreSounds extends JavaPlugin
         ListenerRegister.loadListeners();
         WorldTimeListener.load();
         UpdateManager.loadUpdater(instance);
+        ListInventory.refreshListInventories();
 
         synchronized (onReload) {
             for (Runnable runnable : onReload) {

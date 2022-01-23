@@ -19,14 +19,18 @@
 package com.epicnicity322.playmoresounds.bukkit.inventory;
 
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+import java.util.function.Consumer;
+
 public interface PMSInventory
 {
-    @NotNull PMSInventoryItem[] getItems();
-
     @NotNull Inventory getInventory();
+
+    @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> getButtons();
 
     void openInventory(@NotNull HumanEntity humanEntity);
 }
