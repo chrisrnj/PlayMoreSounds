@@ -21,14 +21,12 @@ package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
-import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.inventory.ListInventory;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
-import com.epicnicity322.yamlhandler.Configuration;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -45,9 +43,7 @@ import java.util.TreeSet;
 
 public final class ListSubCommand extends Command implements Helpable
 {
-    private static final @NotNull ConfigurationHolder config = Configurations.CONFIG.getConfigurationHolder();
     private static final @NotNull HashMap<Integer, HashMap<Integer, ArrayList<String>>> soundPagesCache = new HashMap<>();
-    private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
 
     static {
         // Clear cache on disable.
@@ -69,13 +65,13 @@ public final class ListSubCommand extends Command implements Helpable
     @Override
     public @NotNull CommandRunnable onHelp()
     {
-        return (label, sender, args) -> lang.send(sender, false, lang.get("Help.List").replace("<label>", label));
+        return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Help.List").replace("<label>", label));
     }
 
     @Override
     protected @Nullable CommandRunnable getNoPermissionRunnable()
     {
-        return (label, sender, args) -> lang.send(sender, lang.get("General.No Permission"));
+        return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
     // Using BaseComponent[] on HoverEvent is deprecated on newer versions of spigot but is necessary on older ones.
@@ -83,7 +79,9 @@ public final class ListSubCommand extends Command implements Helpable
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        boolean gui = sender instanceof Player && sender.hasPermission("playmoresounds.list.gui") && VersionUtils.hasPersistentData();
+        MessageSender lang = PlayMoreSounds.getLanguage();
+        boolean player = sender instanceof Player;
+        boolean gui = player && sender.hasPermission("playmoresounds.list.gui");
         int page = 1;
         String invalidArgs = lang.get("General.Invalid Arguments").replace("<label>", label).replace(
                 "<label2>", args[0]).replace("<args>", "[" + lang.get("List.Page")
@@ -99,58 +97,44 @@ public final class ListSubCommand extends Command implements Helpable
             }
 
             if (args.length > 2) {
-                if (args[2].equalsIgnoreCase("--gui")) {
-                    if (sender instanceof Player) {
-                        if (sender.hasPermission("playmoresounds.list.gui")) {
-                            if (VersionUtils.hasPersistentData()) {
-                                gui = true;
-                            } else {
-                                lang.send(sender, lang.get("List.Inventory.Error.Not Supported"));
-                                return;
-                            }
-                        } else {
-                            lang.send(sender, lang.get("General.No Permission"));
-                            return;
-                        }
-                    } else {
-                        lang.send(sender, lang.get("General.Not A Player"));
-                        return;
-                    }
-                } else {
+                if (!args[2].equalsIgnoreCase("--gui")) {
                     lang.send(sender, invalidArgs);
                     return;
                 }
+                if (!player) {
+                    lang.send(sender, lang.get("General.Not A Player"));
+                    return;
+                }
+                if (!sender.hasPermission("playmoresounds.list.gui")) {
+                    lang.send(sender, lang.get("General.No Permission"));
+                    return;
+                }
+                gui = true;
             }
         }
 
         if (gui) {
-            ListInventory listInventory = new ListInventory(page);
-            Player player = (Player) sender;
-
-            listInventory.openInventory(player);
+            ListInventory.getListInventory(page).openInventory((Player) sender);
         } else {
-            Configuration yamlConfig = ListSubCommand.config.getConfiguration();
-            HashMap<Integer, ArrayList<String>> soundPages;
-            int soundsPerPage = yamlConfig.getNumber("List.Default.Max Per Page").orElse(10).intValue();
+            int soundsPerPage = Configurations.CONFIG.getConfigurationHolder().getConfiguration().getNumber("List.Chat.Max Per Page").orElse(10).intValue();
 
             if (soundsPerPage < 1)
                 soundsPerPage = 1;
 
-            if (soundPagesCache.containsKey(soundsPerPage)) {
-                soundPages = soundPagesCache.get(soundsPerPage);
-            } else {
+            HashMap<Integer, ArrayList<String>> soundPages = soundPagesCache.get(soundsPerPage);
+            if (soundPages == null) {
                 soundPages = PMSHelper.splitIntoPages(new TreeSet<>(SoundType.getPresentSoundNames()), soundsPerPage);
 
                 soundPagesCache.put(soundsPerPage, soundPages);
             }
 
             if (page > soundPages.size()) {
-                lang.send(sender, lang.get("List.Error.Not Exists").replace("<page>",
+                lang.send(sender, lang.get("List.Chat.Error.Not Exists").replace("<page>",
                         Long.toString(page)).replace("<totalpages>", Integer.toString(soundPages.size())));
                 return;
             }
 
-            lang.send(sender, lang.get("List.Header").replace("<page>", Long.toString(page))
+            lang.send(sender, lang.get("List.Chat.Header").replace("<page>", Long.toString(page))
                     .replace("<totalpages>", Integer.toString(soundPages.size())));
 
             boolean alternatePrefix = false;
@@ -158,33 +142,33 @@ public final class ListSubCommand extends Command implements Helpable
             TextComponent text = new TextComponent("");
             StringBuilder data = new StringBuilder();
             ArrayList<String> soundList = soundPages.get(page);
+            String color = lang.get("List.Chat.Color", "&e");
+            String alternateColor = lang.get("List.Chat.Alternate Color", "&8");
+            String defaultSeparator = lang.get("List.Chat.Separator", ", ");
+            String tooltip = lang.get("List.Chat.Sound Tooltip").replace("&", "§");
 
             for (String sound : soundList) {
                 String prefix;
 
                 if (alternatePrefix)
-                    prefix = yamlConfig.getString("List.Default.Alternate Color").orElse("&8");
+                    prefix = alternateColor;
                 else
-                    prefix = yamlConfig.getString("List.Default.Color").orElse("&e");
+                    prefix = color;
 
-                String separator = yamlConfig.getString("List.Default.Separator").orElse(", ");
+                String separator = defaultSeparator;
 
                 if (count++ == soundList.size())
                     separator = "";
 
-                if (sender instanceof Player) {
-                    TextComponent fancySound = new TextComponent((prefix + sound).replace("&",
-                            "§"));
+                if (player) {
+                    TextComponent fancySound = new TextComponent((prefix + sound).replace("&", "§"));
 
                     if (VersionUtils.hasHoverContentApi())
-                        fancySound.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(lang
-                                .get("List.Sound Tooltip").replace("&", "§").replace("<sound>", sound))));
+                        fancySound.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(tooltip.replace("<sound>", sound))));
                     else
-                        fancySound.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(lang
-                                .get("List.Sound Tooltip").replace("&", "§").replace("<sound>", sound)).create()));
+                        fancySound.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(tooltip.replace("<sound>", sound)).create()));
 
-                    fancySound.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pms play " +
-                            sound + " " + sender.getName()));
+                    fancySound.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pms play " + sound + " " + sender.getName()));
 
                     text.addExtra(fancySound);
                     text.addExtra(separator.replace("&", "§"));
@@ -195,16 +179,15 @@ public final class ListSubCommand extends Command implements Helpable
                 alternatePrefix = !alternatePrefix;
             }
 
-            if (sender instanceof Player)
+            if (player)
                 ((Player) sender).spigot().sendMessage(text);
             else
                 lang.send(sender, false, data.toString());
 
             if (page != soundPages.size()) {
-                String footer = lang.get("List.Footer").replace("<label>", label).replace("<page>",
-                        Long.toString(page + 1));
+                String footer = lang.get("List.Chat.Footer").replace("<label>", label).replace("<page>", Long.toString(page + 1));
 
-                if (sender instanceof Player) {
+                if (player) {
                     TextComponent fancyFooter = new TextComponent(footer.replace("&", "§"));
 
                     fancyFooter.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pms list " + (page + 1)));
