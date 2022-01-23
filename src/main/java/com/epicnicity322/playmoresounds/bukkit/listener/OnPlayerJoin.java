@@ -42,7 +42,6 @@ import java.util.HashSet;
 public final class OnPlayerJoin implements Listener
 {
     static final @NotNull HashSet<RegionEnterEvent> playersInRegionWaitingToLoadResourcePack = new HashSet<>();
-    private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
     private static @Nullable PlayableRichSound firstJoin;
     private static @Nullable PlayableRichSound joinServer;
 
@@ -76,6 +75,7 @@ public final class OnPlayerJoin implements Listener
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event)
     {
+        MessageSender lang = PlayMoreSounds.getLanguage();
         Player player = event.getPlayer();
         Location location = player.getLocation();
 
@@ -86,7 +86,7 @@ public final class OnPlayerJoin implements Listener
 
         // Send update available message.
         if (UpdateManager.isUpdateAvailable() && player.hasPermission("playmoresounds.update.joinmessage"))
-            lang.send(player, "&2* &aPlayMoreSounds has a new update available!\n&2* &aDownload it using &7&n/pms update download&a command.");
+            lang.send(player, false, "&2* &aPlayMoreSounds has a new update available!\n&2* &aDownload it using &7&n/pms update download&a command.");
 
         Configuration config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
 
@@ -108,17 +108,15 @@ public final class OnPlayerJoin implements Listener
         });
 
         // Setting the player's resource pack.
-        if (VersionUtils.supportsResourcePacks()) {
-            try {
-                if (config.getBoolean("Resource Packs.Request").orElse(false))
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                        lang.send(player, lang.get("Resource Packs.Request Message"));
-                        config.getString("Resource Packs.URL").ifPresent(player::setResourcePack);
-                    }, 20);
-            } catch (Exception ex) {
-                PlayMoreSounds.getConsoleLogger().log(lang.get("Resource Packs.Error").replace("<player>", player.getName()));
-                ex.printStackTrace();
-            }
-        }
+        if (VersionUtils.supportsResourcePacks() && config.getBoolean("Resource Packs.Request").orElse(false))
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                try {
+                    lang.send(player, lang.get("Resource Packs.Request Message"));
+                    config.getString("Resource Packs.URL").ifPresent(player::setResourcePack);
+                } catch (Exception ex) {
+                    PlayMoreSounds.getConsoleLogger().log(lang.get("Resource Packs.Error").replace("<player>", player.getName()));
+                    ex.printStackTrace();
+                }
+            }, 20);
     }
 }
