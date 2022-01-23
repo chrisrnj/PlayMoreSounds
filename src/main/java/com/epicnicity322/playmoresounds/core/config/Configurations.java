@@ -463,60 +463,61 @@ public enum Configurations
             "\n" +
             "# Properties of \"/pms list\" command.\n" +
             "List:\n" +
-            "  Default:\n" +
-            "    Alternate Color: '&8'\n" +
-            "    Color: '&e'\n" +
-            "    Separator: '&f, '\n" +
+            "  # Properties for chat list.\n" +
+            "  Chat:\n" +
             "    Max Per Page: 10\n" +
-            "  # Properties of the sound list GUI.\n" +
+            "  # Properties for sound list GUI.\n" +
             "  Inventory:\n" +
-            "    Next Page Item:\n" +
-            "      Material: SPECTRAL_ARROW\n" +
-            "      Glowing: false\n" +
-            "    Stop Sound Item:\n" +
-            "      Material: BARRIER\n" +
-            "      Glowing: true\n" +
-            "    Previous Page Item:\n" +
-            "      Material: SPECTRAL_ARROW\n" +
-            "      Glowing: false\n" +
-            "    Sound Item:\n" +
-            "      # The item will be picked randomly from this list for each sound.\n" +
-            "      Material:\n" +
-            "      - MUSIC_DISC_13\n" +
-            "      - MUSIC_DISC_CAT\n" +
-            "      - MUSIC_DISC_CHIRP\n" +
-            "      - MUSIC_DISC_BLOCKS\n" +
-            "      - MUSIC_DISC_FAR\n" +
-            "      - MUSIC_DISC_MALL\n" +
-            "      - MUSIC_DISC_MELLOHI\n" +
-            "      - MUSIC_DISC_STAL\n" +
-            "      - MUSIC_DISC_STRAD\n" +
-            "      - MUSIC_DISC_WARD\n" +
-            "      - MUSIC_DISC_WAIT\n" +
-            "      Glowing: false\n" +
-            "    # How many rows of sounds should there be per page.\n" +
+            "    Items:\n" +
+            "      Next Page:\n" +
+            "        Material: SPECTRAL_ARROW\n" +
+            "        Glowing: false\n" +
+            "      Stop Sound:\n" +
+            "        Material: BARRIER\n" +
+            "        Glowing: true\n" +
+            "      Previous Page:\n" +
+            "        Material: SPECTRAL_ARROW\n" +
+            "        Glowing: false\n" +
+            "      Sound:\n" +
+            "        # The item will be picked sequentially from this list for each sound.\n" +
+            "        Material:\n" +
+            "        - MUSIC_DISC_13\n" +
+            "        - MUSIC_DISC_CAT\n" +
+            "        - MUSIC_DISC_CHIRP\n" +
+            "        - MUSIC_DISC_BLOCKS\n" +
+            "        - MUSIC_DISC_FAR\n" +
+            "        - MUSIC_DISC_MALL\n" +
+            "        - MUSIC_DISC_MELLOHI\n" +
+            "        - MUSIC_DISC_STAL\n" +
+            "        - MUSIC_DISC_STRAD\n" +
+            "        - MUSIC_DISC_WARD\n" +
+            "        - MUSIC_DISC_WAIT\n" +
+            "        Glowing: false\n" +
+            "    # How many rows of sounds should the inventory have per page.\n" +
             "    Rows Per Page: 4\n" +
             "\n" +
-            "# Configuration for addon management and installer inventories.\n" +
-            "Addons Inventory:\n" +
-            "  Addon Item:\n" +
-            "    Material: IRON_BLOCK\n" +
-            "    Glowing: false\n" +
-            "  Done Item:\n" +
-            "    Material: GREEN_WOOL\n" +
-            "    Glowing: false\n" +
-            "  Info Item:\n" +
-            "    Material: PAPER\n" +
-            "    Glowing: false\n" +
-            "  Install Item:\n" +
-            "    Material: EMERALD_BLOCK\n" +
-            "    Glowing: true\n" +
-            "  Next Page Item:\n" +
-            "    Material: ARROW\n" +
-            "    Glowing: false\n" +
-            "  Previous Page Item:\n" +
-            "    Material: ARROW\n" +
-            "    Glowing: false", StaticFields.version4_0_0),
+            "Addons:\n" +
+            "  # Configuration for addon management and installer inventories.\n" +
+            "  Inventory:\n" +
+            "    Items:\n" +
+            "      Addon:\n" +
+            "        Material: IRON_BLOCK\n" +
+            "        Glowing: false\n" +
+            "      Done:\n" +
+            "        Material: GREEN_WOOL\n" +
+            "        Glowing: false\n" +
+            "      Info:\n" +
+            "        Material: PAPER\n" +
+            "        Glowing: false\n" +
+            "      Install:\n" +
+            "        Material: EMERALD_BLOCK\n" +
+            "        Glowing: true\n" +
+            "      Next Page:\n" +
+            "        Material: ARROW\n" +
+            "        Glowing: false\n" +
+            "      Previous Page:\n" +
+            "        Material: ARROW\n" +
+            "        Glowing: false", StaticFields.version4_0_0),
     CUSTOM_DISCS(StaticFields.sounds.resolve("custom discs.yml"), "# Set a sound to play when a player clicks at a jukebox with a specific item.\n" +
             "#\n" +
             "# Warnings: \n" +
@@ -868,7 +869,8 @@ public enum Configurations
             "\n" +
             "Addons:\n" +
             "  Download:\n" +
-            "    Already Exists: '&7An addons zip was already downloaded before, deleting and downloading the latest one.'\n" +
+            //TODO: translate
+            "    Already Exists: '&7An addons zip was found and deleted from temp folder. Downloading latest one...'\n" +
             "    Error:\n" +
             "      Not Found: '&cAddons for PlayMoreSounds v<version> were not found.'\n" +
             "      Subtitle: '&7Something went wrong'\n" +
@@ -884,33 +886,46 @@ public enum Configurations
             "  Empty Title: '&c&lNo addons found'\n" +
             "  Error:\n" +
             "    Blocked: '&cAddons are currently being installed, wait until the installation process finishes to open the addon management inventory.'\n" +
+            "    Not Found: '&cAddon with the name &f<addon>&c was not found. Use &7&n/<label> addon list&c to list all addons.'\n" +
             "  Install:\n" +
             "    Error: '&cSomething went wrong while installing the addon &4<addon>&c.'\n" +
             "    Installed: '&7<addon>&7 was installed.'\n" +
             "    Success: '&aAddon <addon>&a was installed successfully, restart your server so it can be loaded.'\n" +
             "  Installer Title: '&2&lInstall Addons:'\n" +
-            "  Management Inventory:\n" +
-            "    Addon:\n" +
-            "      Display Name: '&a&l<name>'\n" +
-            "      Lore: >-\n" +
-            "        &7Author(s):&8 <authors>\n" +
-            "        <line>&7Description:&8 <description>\n" +
-            "        <line>&7Version:&8 <version>\n" +
-            "    Done:\n" +
-            "      Display Name: '&2&lDone'\n" +
-            "      Lore: '&7Click to exit.'\n" +
-            "    Info:\n" +
-            "      Display Name: '&d&lInfo'\n" +
-            "      Lore: '&7You have <addons> addons installed.'\n" +
-            "    Install:\n" +
-            "      Display Name: '&2&lInstall Addons'\n" +
-            "      Lore: ' &7Click to download latest addons from<line>&7PlayMoreSounds'' GitHub.'\n" +
-            "    Next Page:\n" +
-            "      Display Name: '&7&lNext Page'\n" +
-            "      Lore: '&7Click to go to page <to>.'\n" +
-            "    Previous Page:\n" +
-            "      Display Name: '&7&lPrevious Page'\n" +
-            "      Lore: '&7Click to go to page <to>.'\n" +
+            "  List:\n" +
+            "    Header: '&7Addons installed on PlayMoreSounds:'\n" +
+            "    Separator: '&f, '\n" +
+            "  Inventory:\n" +
+            "    Items:\n" +
+            "      Addon:\n" +
+            "        Display Name: '&a&l<name>'\n" +
+            "        Lore: >-\n" +
+            "          &7Author(s):&8 <authors>\n" +
+            "          <line>&7Description:&8 <description>\n" +
+            "          <line>&7Version:&8 <version>\n" +
+            "      Done:\n" +
+            "        Display Name: '&2&lDone'\n" +
+            "        Lore: '&7Click to exit.'\n" +
+            "      Info:\n" +
+            "        Display Name: '&d&lInfo'\n" +
+            "        Lore: '&7You have <addons> addons installed.'\n" +
+            "      Install:\n" +
+            "        Display Name: '&2&lInstall Addons'\n" +
+            "        Lore: ' &7Click to download latest addons from<line>&7PlayMoreSounds'' GitHub.'\n" +
+            "      Next Page:\n" +
+            "        Display Name: '&7&lNext Page'\n" +
+            "        Lore: '&7Click to go to page <to>.'\n" +
+            "      Previous Page:\n" +
+            "        Display Name: '&7&lPrevious Page'\n" +
+            "        Lore: '&7Click to go to page <to>.'\n" +
+            "  Start:\n" +
+            "    Error:\n" +
+            "      Already Started: '&cAddon <addon> was already started.'\n" +
+            "    Success: '&aAddon <addon> was started successfully.'\n" +
+            "  Stop:\n" +
+            "    Error:\n" +
+            "      Already Stopped: '&cAddon <addon> was already stopped.'\n" +
+            "    Success: '&aAddon <addon> was stopped successfully.'\n" +
             "  Title: '&9&lInstalled Addons:'\n" +
             "\n" +
             "Confirm:\n" +
@@ -989,28 +1004,31 @@ public enum Configurations
             "    &7 > Checks and downloads updates.\n" +
             "\n" +
             "List:\n" +
-            "  Error:\n" +
-            "    Not Exists: '&cThe page &7<page>&c doesn''t exist! Max: <totalpages>.'\n" +
-            "  Footer: '&f&l - &aView more sounds with \"&f/&n<label> list <page>&a\"'\n" +
-            "  Header: '&aList of available sounds [Page <page> of <totalpages>]:'\n" +
-            "  Inventory:\n" +
+            "  Chat:\n" +
+            "    Alternate Color: '&8'\n" +
+            "    Color: '&e'\n" +
             "    Error:\n" +
-            "      Not Supported: '&cSound list GUI only works for version 1.14+'\n" +
-            "    Next Page:\n" +
-            "      Display Name: '&7&lNext page'\n" +
-            "      Lore: ' Click to go to the next page.'\n" +
-            "    Previous Page:\n" +
-            "      Display Name: '&7&lPrevious page'\n" +
-            "      Lore: ' Click to go to the previous page.'\n" +
-            "    Sound:\n" +
-            "      Display Name: '&d&n<sound>'\n" +
-            "      Lore: ' Click to play this sound.'\n" +
-            "    Stop Sound:\n" +
-            "      Display Name: '&6&lStop Sounds'\n" +
-            "      Lore: ' Stop all currently playing sounds.'\n" +
+            "      Not Exists: '&cThe page &7<page>&c doesn''t exist! Max: <totalpages>.'\n" +
+            "    Footer: '&f&l - &aView more sounds with \"&f/&n<label> list <page>&a\"'\n" +
+            "    Header: '&aList of available sounds [Page <page> of <totalpages>]:'\n" +
+            "    Separator: '&f, '\n" +
+            "    Sound Tooltip: '&5Click me to play the sound &d<sound>'\n" +
+            "  Inventory:\n" +
+            "    Items:\n" +
+            "      Next Page:\n" +
+            "        Display Name: '&7&lNext page'\n" +
+            "        Lore: ' Click to go to the next page.'\n" +
+            "      Previous Page:\n" +
+            "        Display Name: '&7&lPrevious page'\n" +
+            "        Lore: ' Click to go to the previous page.'\n" +
+            "      Sound:\n" +
+            "        Display Name: '&d&n<sound>'\n" +
+            "        Lore: ' Click to play this sound.'\n" +
+            "      Stop Sound:\n" +
+            "        Display Name: '&6&lStop Sounds'\n" +
+            "        Lore: ' Stop all currently playing sounds.'\n" +
             "    Title: '&8List of sounds, page &c<page>&8 of &c<totalpages>&8'\n" +
             "  Page: page\n" +
-            "  Sound Tooltip: '&5Click me to play the sound &d<sound>'\n" +
             "\n" +
             "Play:\n" +
             "  Error:\n" +
