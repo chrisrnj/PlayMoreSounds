@@ -21,7 +21,6 @@ package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
-import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
 import com.epicnicity322.epicpluginlib.core.util.StringUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandUtils;
@@ -56,9 +55,7 @@ import java.util.stream.Collectors;
 public final class RegionSubCommand extends Command implements Helpable
 {
     private static final @NotNull Pattern allowedRegionNameChars = Pattern.compile("^[A-Za-z0-9_]+$");
-    private static final @NotNull ConfigurationHolder config = Configurations.CONFIG.getConfigurationHolder();
     private static final @NotNull AtomicInteger showingBorders = new AtomicInteger(0);
-    private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
     private final @NotNull PlayMoreSounds plugin;
 
     public RegionSubCommand(@NotNull PlayMoreSounds plugin)
@@ -69,7 +66,7 @@ public final class RegionSubCommand extends Command implements Helpable
     @Override
     public @NotNull CommandRunnable onHelp()
     {
-        return (label, sender, args) -> lang.send(sender, false, lang.get("Help.Region").replace("<label>", label));
+        return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Help.Region").replace("<label>", label));
     }
 
     @Override
@@ -99,13 +96,13 @@ public final class RegionSubCommand extends Command implements Helpable
     @Override
     protected @Nullable CommandRunnable getNoPermissionRunnable()
     {
-        return (label, sender, args) -> lang.send(sender, lang.get("General.No Permission"));
+        return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
     @Override
     protected @Nullable CommandRunnable getNotEnoughArgsRunnable()
     {
-        return (label, sender, args) -> lang.send(sender, lang.get("General.Invalid Arguments")
+        return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.Invalid Arguments")
                 .replace("<label>", label).replace("<label2>", args[0])
                 .replace("<args>", "<create|info|list|remove|rename|set|teleport|wand>"));
     }
@@ -113,6 +110,7 @@ public final class RegionSubCommand extends Command implements Helpable
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
+        MessageSender lang = PlayMoreSounds.getLanguage();
         switch (args[1].toLowerCase()) {
             case "create":
             case "new":
@@ -199,6 +197,7 @@ public final class RegionSubCommand extends Command implements Helpable
 
     private void create(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
+        MessageSender lang = PlayMoreSounds.getLanguage();
         UUID creator;
 
         if (sender instanceof Player)
@@ -218,7 +217,7 @@ public final class RegionSubCommand extends Command implements Helpable
         }
 
         String name;
-        Configuration config = RegionSubCommand.config.getConfiguration();
+        Configuration config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
 
         if (args.length > 2) {
             name = args[2];
@@ -329,6 +328,8 @@ public final class RegionSubCommand extends Command implements Helpable
 
     private void info(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
+        MessageSender lang = PlayMoreSounds.getLanguage();
+        Configuration config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
         Set<SoundRegion> regions;
 
         if (args.length > 2) {
@@ -365,7 +366,7 @@ public final class RegionSubCommand extends Command implements Helpable
 
         for (SoundRegion region : regions) {
             // Checking if particles should be sent.
-            if (VersionUtils.hasOffHand() && (sender instanceof Player) && showingBorders.get() < config.getConfiguration().getNumber("Sound Regions.Border.Max Showing Borders").orElse(30).intValue()) {
+            if (VersionUtils.hasOffHand() && (sender instanceof Player) && showingBorders.get() < config.getNumber("Sound Regions.Border.Max Showing Borders").orElse(30).intValue()) {
                 int count;
                 double r, g, b;
 
@@ -392,7 +393,7 @@ public final class RegionSubCommand extends Command implements Helpable
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     task.cancel();
                     showingBorders.decrementAndGet();
-                }, config.getConfiguration().getNumber("Sound Regions.Border.Showing Time").orElse(100).longValue());
+                }, config.getNumber("Sound Regions.Border.Showing Time").orElse(100).longValue());
             }
 
             lang.send(sender, lang.get("Region.Info.Header").replace("<name>", region.getName()));
@@ -406,6 +407,7 @@ public final class RegionSubCommand extends Command implements Helpable
 
     private void list(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
+        MessageSender lang = PlayMoreSounds.getLanguage();
         Set<SoundRegion> regions;
         String who;
 
@@ -498,6 +500,7 @@ public final class RegionSubCommand extends Command implements Helpable
 
     private void remove(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
+        MessageSender lang = PlayMoreSounds.getLanguage();
         if (args.length < 3) {
             lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", args[1] + " <name|uuid>"));
             return;
@@ -533,6 +536,7 @@ public final class RegionSubCommand extends Command implements Helpable
 
     private void rename(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
+        MessageSender lang = PlayMoreSounds.getLanguage();
         if (args.length < 4) {
             lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", args[1] + " <" + lang.get("Region.Region") + "> <" + lang.get("Region.Rename.New Name") + ">"));
             return;
@@ -567,7 +571,7 @@ public final class RegionSubCommand extends Command implements Helpable
             return;
         }
 
-        Configuration config = RegionSubCommand.config.getConfiguration();
+        Configuration config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
         int maxCharacters = config.getNumber("Sound Regions.Max Name Characters").orElse(20).intValue();
 
         if (newName.length() > maxCharacters) {
@@ -588,6 +592,7 @@ public final class RegionSubCommand extends Command implements Helpable
 
     private void set(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
+        MessageSender lang = PlayMoreSounds.getLanguage();
         if (args.length < 3) {
             lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", args[1] + " <p1|p2|description>"));
             return;
@@ -713,6 +718,7 @@ public final class RegionSubCommand extends Command implements Helpable
 
     private void teleport(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
+        MessageSender lang = PlayMoreSounds.getLanguage();
         if (!(sender instanceof Player)) {
             lang.send(sender, lang.get("General.Not A Player"));
             return;
@@ -736,6 +742,7 @@ public final class RegionSubCommand extends Command implements Helpable
 
     private void wand(@NotNull CommandSender sender)
     {
+        MessageSender lang = PlayMoreSounds.getLanguage();
         if (!(sender instanceof Player)) {
             lang.send(sender, lang.get("General.Not A Player"));
             return;

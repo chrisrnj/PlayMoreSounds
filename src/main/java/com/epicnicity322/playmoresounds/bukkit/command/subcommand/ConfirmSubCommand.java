@@ -35,7 +35,6 @@ import java.util.Map;
 public final class ConfirmSubCommand extends Command implements Helpable
 {
     private static final @NotNull HashMap<CommandSender, LinkedHashMap<Runnable, String>> pendingConfirmations = new HashMap<>();
-    private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
 
     public static void addPendingConfirmation(@NotNull CommandSender sender, @NotNull Runnable confirmation, @NotNull String description)
     {
@@ -50,7 +49,7 @@ public final class ConfirmSubCommand extends Command implements Helpable
     @Override
     public @NotNull CommandRunnable onHelp()
     {
-        return (label, sender, args) -> lang.send(sender, false, lang.get("Help.Confirm").replace("<label>", label));
+        return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Help.Confirm").replace("<label>", label));
     }
 
     @Override
@@ -68,12 +67,13 @@ public final class ConfirmSubCommand extends Command implements Helpable
     @Override
     protected @Nullable CommandRunnable getNoPermissionRunnable()
     {
-        return (label, sender, args) -> lang.send(sender, lang.get("General.No Permission"));
+        return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
+        MessageSender lang = PlayMoreSounds.getLanguage();
         LinkedHashMap<Runnable, String> confirmations = pendingConfirmations.get(sender);
 
         if (confirmations == null || confirmations.isEmpty()) {

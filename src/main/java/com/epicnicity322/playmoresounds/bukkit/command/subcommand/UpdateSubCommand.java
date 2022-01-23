@@ -68,7 +68,7 @@ public final class UpdateSubCommand extends Command implements Helpable
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
         if (args.length > 1 && args[1].equalsIgnoreCase("download")) {
-            if (args.length > 2 && args[2].equalsIgnoreCase("-force")) {
+            if (args.length > 2 && args[2].equalsIgnoreCase("--force")) {
                 lang.send(sender, lang.get("Update.Download.Downloading.Forcefully"));
                 download(sender);
                 return;

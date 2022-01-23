@@ -29,7 +29,6 @@ import org.jetbrains.annotations.Nullable;
 
 public final class HelpSubCommand extends Command implements Helpable
 {
-    private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
 
     @Override
     public @NotNull String getName()
@@ -46,18 +45,19 @@ public final class HelpSubCommand extends Command implements Helpable
     @Override
     public @NotNull CommandRunnable onHelp()
     {
-        return (label, sender, args) -> lang.send(sender, false, lang.get("Help.Help").replace("<label>", label));
+        return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Help.Help").replace("<label>", label));
     }
 
     @Override
     protected @Nullable CommandRunnable getNoPermissionRunnable()
     {
-        return (label, sender, args) -> lang.send(sender, lang.get("General.No Permission"));
+        return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
+        MessageSender lang = PlayMoreSounds.getLanguage();
         lang.send(sender, lang.get("Help.Header"));
 
         for (Command command : CommandLoader.getCommands()) {

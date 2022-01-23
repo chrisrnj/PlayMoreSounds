@@ -20,17 +20,19 @@ package com.epicnicity322.playmoresounds.bukkit.inventory;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.function.Consumer;
 
 @SuppressWarnings("deprecation")
-public final class ConfirmationInventory
+public final class ConfirmationInventory implements PMSInventory
 {
     private final @NotNull Inventory inventory;
-    private final @NotNull HashMap<Integer, Runnable> buttons = new HashMap<>(2);
+    private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>(2);
     private final @NotNull Runnable cancel;
 
     /**
@@ -46,19 +48,18 @@ public final class ConfirmationInventory
         if (title == null) title = "";
 
         inventory = Bukkit.createInventory(null, 27, title);
-        Runnable fixedConfirm = () -> {
-            inventory.close();
-            confirm.run();
-        };
-        this.cancel = () -> {
-            inventory.close();
-            cancel.run();
-        };
+        this.cancel = cancel;
 
         inventory.setItem(12, InventoryUtils.getItemStack("Confirm", "Confirm"));
-        buttons.put(12, fixedConfirm);
+        buttons.put(12, event -> {
+            inventory.close();
+            confirm.run();
+        });
         inventory.setItem(14, InventoryUtils.getItemStack("Confirm", "Cancel"));
-        buttons.put(14, this.cancel);
+        buttons.put(14, event -> {
+            inventory.close();
+            cancel.run();
+        });
     }
 
     /**
@@ -69,6 +70,18 @@ public final class ConfirmationInventory
      */
     public void openInventory(@NotNull HumanEntity player)
     {
-        InventoryUtils.openInventory(inventory, buttons, player, cancel);
+        InventoryUtils.openInventory(inventory, buttons, player, event -> cancel.run());
+    }
+
+    @Override
+    public @NotNull Inventory getInventory()
+    {
+        return inventory;
+    }
+
+    @Override
+    public @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> getButtons()
+    {
+        return buttons;
     }
 }

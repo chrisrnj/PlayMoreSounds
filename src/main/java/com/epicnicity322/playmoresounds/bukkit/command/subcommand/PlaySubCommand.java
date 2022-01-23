@@ -38,7 +38,6 @@ import java.util.Optional;
 
 public final class PlaySubCommand extends Command implements Helpable
 {
-    private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
     private static final @NotNull HashSet<String> soundTypes = new HashSet<>();
 
     static {
@@ -50,7 +49,7 @@ public final class PlaySubCommand extends Command implements Helpable
     @Override
     public @NotNull CommandRunnable onHelp()
     {
-        return (label, sender, args) -> lang.send(sender, false, lang.get("Help.Play").replace("<label>", label));
+        return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Help.Play").replace("<label>", label));
     }
 
     @Override
@@ -74,17 +73,18 @@ public final class PlaySubCommand extends Command implements Helpable
     @Override
     protected @Nullable CommandRunnable getNoPermissionRunnable()
     {
-        return (label, sender, args) -> lang.send(sender, lang.get("General.No Permission"));
+        return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
     @Override
     protected @Nullable CommandRunnable getNotEnoughArgsRunnable()
     {
-        return (label, sender, args) -> lang.send(sender, getInvalidArgsMessage(label, sender, args));
+        return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, getInvalidArgsMessage(label, sender, args));
     }
 
     private String getInvalidArgsMessage(String label, CommandSender sender, String[] args)
     {
+        MessageSender lang = PlayMoreSounds.getLanguage();
         return lang.get("General.Invalid Arguments").replace("<label>", label)
                 .replace("<label2>", args[0]).replace("<args>", "<" +
                         lang.get("Play.Sound") + "> " + (sender instanceof Player ? "[" + lang.get("General.Player")
@@ -95,6 +95,7 @@ public final class PlaySubCommand extends Command implements Helpable
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
+        MessageSender lang = PlayMoreSounds.getLanguage();
         HashSet<Player> targets = CommandUtils.getTargets(sender, args, 2,
                 getInvalidArgsMessage(label, sender, args), "playmoresounds.play.others");
 

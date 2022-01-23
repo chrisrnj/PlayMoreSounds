@@ -34,12 +34,10 @@ import java.util.HashSet;
 
 public final class DiscSubCommand extends Command implements Helpable
 {
-    private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
-
     @Override
     public @NotNull CommandRunnable onHelp()
     {
-        return (label, sender, args) -> lang.send(sender, false, lang.get("Help.Disc").replace("<label>", label));
+        return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Help.Disc").replace("<label>", label));
     }
 
     @Override
@@ -57,7 +55,7 @@ public final class DiscSubCommand extends Command implements Helpable
     @Override
     protected @Nullable CommandRunnable getNoPermissionRunnable()
     {
-        return (label, sender, args) -> lang.send(sender, lang.get("General.No Permission"));
+        return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
     @Override
@@ -68,6 +66,7 @@ public final class DiscSubCommand extends Command implements Helpable
 
     private String getInvalidArgsMessage(String label, CommandSender sender, String[] args)
     {
+        MessageSender lang = PlayMoreSounds.getLanguage();
         return lang.get("General.Invalid Arguments")
                 .replace("<label>", label).replace("<label2>", args[0])
                 .replace("<args>", "<" + lang.get("General.Id") + "> " +
@@ -77,6 +76,7 @@ public final class DiscSubCommand extends Command implements Helpable
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
+        MessageSender lang = PlayMoreSounds.getLanguage();
         String invalidArgsMessage = getInvalidArgsMessage(label, sender, args);
         HashSet<Player> targets = CommandUtils.getTargets(sender, args, 2, invalidArgsMessage,
                 "playmoresounds.disc.give.others");
