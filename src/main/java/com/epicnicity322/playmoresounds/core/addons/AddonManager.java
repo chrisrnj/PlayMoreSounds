@@ -181,6 +181,7 @@ public class AddonManager
         try {
             addon.onStart();
             addon.started = true;
+            addon.loaded = true;
             AddonEventManager.callLoadUnloadEvent(addon);
         } catch (Exception ex) {
             logger.log("&cException while starting the addon '" + name + "': " + ex.getMessage(), ConsoleLogger.Level.WARN);
