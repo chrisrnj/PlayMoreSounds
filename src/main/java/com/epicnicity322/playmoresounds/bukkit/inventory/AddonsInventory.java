@@ -22,34 +22,22 @@ import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.epicpluginlib.bukkit.reflection.ReflectionUtil;
 import com.epicnicity322.epicpluginlib.core.tools.Downloader;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
-import com.epicnicity322.epicpluginlib.core.util.ObjectUtils;
 import com.epicnicity322.epicpluginlib.core.util.PathUtils;
 import com.epicnicity322.epicpluginlib.core.util.ZipUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
 import com.epicnicity322.playmoresounds.core.addons.AddonDescription;
 import com.epicnicity322.playmoresounds.core.addons.PMSAddon;
-import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
-import com.epicnicity322.yamlhandler.Configuration;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONArray;
@@ -73,16 +61,14 @@ import java.util.stream.Stream;
 //TODO: Make so when you click on an addon in the Addon Management Inventory it uninstalls it.
 //TODO: Add change page button to Addon Management Inventory and Addon Install Inventory.
 @SuppressWarnings("deprecation")
-public final class AddonsInventory implements Listener
+public final class AddonsInventory implements PMSInventory
 {
     private static final @NotNull AtomicBoolean block = new AtomicBoolean(false);
-    private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
     private static final @NotNull Path tempFolder = PlayMoreSoundsCore.getFolder().resolve("Temp");
     private static final @NotNull Path tempAddonsZip = tempFolder.resolve("Addons.zip");
     private static final @NotNull Path tempAddonsFolder = tempFolder.resolve("Addons To Install");
-    private static final @NotNull BukkitScheduler scheduler = Bukkit.getScheduler();
-    private static final @NotNull HashSet<HumanEntity> allInventories = new HashSet<>();
     private static final boolean hasTitles;
+    private static final @NotNull HashSet<HumanEntity> allInventories = new HashSet<>();
     private static URL releasesURL;
 
     static {
@@ -94,31 +80,25 @@ public final class AddonsInventory implements Listener
 
         // Player#sendTitle(String, String, int, int, int) was added on Spigot v1.11.1
         hasTitles = ReflectionUtil.getMethod(Player.class, "sendTitle", String.class, String.class, int.class, int.class, int.class) != null;
-
-        PlayMoreSounds.onDisable(() -> {
-            allInventories.forEach(HumanEntity::closeInventory);
-            allInventories.clear();
-        });
     }
 
-    private final PlayMoreSounds plugin = PlayMoreSounds.getInstance();
     private final @NotNull Inventory inventory;
-    private final @NotNull HashSet<HumanEntity> openInventories = new HashSet<>();
-    private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>();
+    private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons;
     private final @NotNull HashMap<Integer, ArrayList<PMSAddon>> addonPages;
 
     public AddonsInventory()
     {
-        if (plugin == null)
-            throw new IllegalStateException("PlayMoreSounds is not loaded.");
+        if (PlayMoreSounds.getInstance() == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
         HashSet<PMSAddon> addons = PlayMoreSounds.getAddonManager().getAddons();
+        MessageSender lang = PlayMoreSounds.getLanguage();
 
         if (addons.isEmpty()) {
-            addonPages = new HashMap<>();
+            addonPages = new HashMap<>(0);
+            buttons = new HashMap<>(1);
             inventory = Bukkit.createInventory(null, 9, lang.getColored("Addons.Empty Title"));
 
-            inventory.setItem(4, getItemStack("Install"));
+            inventory.setItem(4, InventoryUtils.getItemStack("Addons.Inventory.Items", "Install"));
             buttons.put(4, event -> openInstallerInventory((Player) event.getWhoClicked()));
             InventoryUtils.fillWithGlass(inventory, 0, 8);
         } else {
@@ -127,17 +107,17 @@ public final class AddonsInventory implements Listener
 
             if (size > 54) size = 54;
 
+            buttons = new HashMap<>(1 + size - 18);
             inventory = Bukkit.createInventory(null, size, lang.getColored("Addons.Title"));
 
-            ItemStack info = getItemStack("Info");
+            ItemStack info = InventoryUtils.getItemStack("Addons.Inventory.Items", "Info");
             ItemMeta infoMeta = info.getItemMeta();
             infoMeta.setLore(Arrays.asList(lang.getColored("Addons.Management Inventory.Info.Lore").replace("<addons>", Integer.toString(addons.size())).split("<line>")));
             info.setItemMeta(infoMeta);
 
             inventory.setItem(0, info);
-            inventory.setItem(8, getItemStack("Install"));
+            inventory.setItem(8, InventoryUtils.getItemStack("Addons.Inventory.Items", "Install"));
             buttons.put(8, event -> openInstallerInventory((Player) event.getWhoClicked()));
-
             fillAddons();
         }
     }
@@ -165,6 +145,8 @@ public final class AddonsInventory implements Listener
         allInventories.forEach(HumanEntity::closeInventory);
 
         new Thread(() -> {
+            MessageSender lang = PlayMoreSounds.getLanguage();
+
             try {
                 downloadAddons(player, true);
                 ZipUtils.extractZip(tempAddonsZip, tempAddonsFolder);
@@ -194,22 +176,22 @@ public final class AddonsInventory implements Listener
     private static void downloadAddons(@NotNull Player player, boolean latest) throws Exception
     {
         BukkitTask repeatingTitle = null;
+        MessageSender lang = PlayMoreSounds.getLanguage();
 
         try {
-            if (!Files.notExists(tempFolder)) {
-                if (Files.exists(tempAddonsZip)) lang.send(player, lang.get("Addons.Download.Already Exists"));
-
-                // Cleaning all junk files from temp.
-                PathUtils.deleteAll(tempFolder);
+            if (Files.notExists(tempFolder)) {
+                Files.createDirectories(tempFolder);
+            } else {
+                if (Files.deleteIfExists(tempAddonsZip)) {
+                    lang.send(player, lang.get("Addons.Download.Already Exists"));
+                }
             }
-
-            Files.createDirectories(tempFolder);
 
             JSONObject releaseData = null;
 
             // Getting the github release information.
             if (hasTitles)
-                repeatingTitle = scheduler.runTaskTimer(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Title"), lang.getColored("Addons.Download.Info"), 5, 10, 5), 0, 25);
+                repeatingTitle = Bukkit.getScheduler().runTaskTimer(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Title"), lang.getColored("Addons.Download.Info"), 5, 10, 5), 0, 25);
             try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                 Downloader downloader = new Downloader(releasesURL, baos);
                 downloader.run();
@@ -217,7 +199,7 @@ public final class AddonsInventory implements Listener
                 if (downloader.getResult() != Downloader.Result.SUCCESS) {
                     if (hasTitles) {
                         repeatingTitle.cancel();
-                        scheduler.runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
+                        Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
                     }
                     throw downloader.getException();
                 }
@@ -239,7 +221,7 @@ public final class AddonsInventory implements Listener
                     if (releaseData == null) {
                         if (hasTitles) {
                             repeatingTitle.cancel();
-                            scheduler.runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
+                            Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
                         }
                         lang.send(player, lang.get("Addons.Download.Error.Not Found").replace("<version>", PlayMoreSoundsVersion.version));
                         throw new NullPointerException();
@@ -253,7 +235,7 @@ public final class AddonsInventory implements Listener
 
             if (addonsDownloadURL == null) {
                 if (hasTitles) {
-                    scheduler.runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
+                    Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
                 }
                 lang.send(player, lang.get("Addons.Download.Error.Not Found").replace("<version>", PlayMoreSoundsVersion.version));
                 throw new NullPointerException();
@@ -261,7 +243,7 @@ public final class AddonsInventory implements Listener
 
             // Downloading addons zip to PlayMoreSounds data folder.
             if (hasTitles)
-                repeatingTitle = scheduler.runTaskTimer(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Title"), lang.getColored("Addons.Download.Files"), 5, 10, 5), 0, 25);
+                repeatingTitle = Bukkit.getScheduler().runTaskTimer(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Title"), lang.getColored("Addons.Download.Files"), 5, 10, 5), 0, 25);
             try (FileOutputStream fos = new FileOutputStream(tempAddonsZip.toFile())) {
                 Downloader downloader = new Downloader(new URL(addonsDownloadURL), fos);
                 downloader.run();
@@ -269,14 +251,14 @@ public final class AddonsInventory implements Listener
                 if (downloader.getResult() != Downloader.Result.SUCCESS) {
                     if (hasTitles) {
                         repeatingTitle.cancel();
-                        scheduler.runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
+                        Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
                     }
                     throw downloader.getException();
                 }
 
                 if (hasTitles) {
                     repeatingTitle.cancel();
-                    scheduler.runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Success.Title"), lang.getColored("Addons.Download.Success.Subtitle"), 10, 20, 10));
+                    Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Success.Title"), lang.getColored("Addons.Download.Success.Subtitle"), 10, 20, 10));
                 }
             }
         } finally {
@@ -294,24 +276,6 @@ public final class AddonsInventory implements Listener
         return new Version(PathUtils.read(tempAddonsFolder.resolve(".version"))).compareTo(PlayMoreSoundsVersion.getVersion()) > 0;
     }
 
-    private static @NotNull ItemStack getItemStack(String name)
-    {
-        Configuration config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
-        ItemStack itemStack = new ItemStack(ObjectUtils.getOrDefault(Material.matchMaterial(config.getString("Addons Inventory." + name + " Item.Material").orElse("")), Material.STONE));
-        ItemMeta itemMeta = itemStack.getItemMeta();
-
-        itemMeta.setDisplayName(lang.getColored("Addons.Management Inventory." + name + ".Display Name"));
-        itemMeta.setLore(Arrays.asList(lang.getColored("Addons.Management Inventory." + name + ".Lore").split("<line>")));
-
-        if (config.getBoolean("Addons Inventory." + name + " Item.Glowing").orElse(false))
-            itemMeta.addEnchant(Enchantment.DURABILITY, 1, true);
-        if (VersionUtils.hasItemFlags())
-            itemMeta.addItemFlags(ItemFlag.values());
-
-        itemStack.setItemMeta(itemMeta);
-        return itemStack;
-    }
-
     private void fillAddons()
     {
         ArrayList<PMSAddon> addons = addonPages.get(1);
@@ -322,11 +286,11 @@ public final class AddonsInventory implements Listener
 
         for (PMSAddon addon : addons) {
             AddonDescription description = addon.getDescription();
-            ItemStack addonItem = getItemStack("Addon");
+            ItemStack addonItem = InventoryUtils.getItemStack("Addons.Inventory.Items", "Addon");
             ItemMeta meta = addonItem.getItemMeta();
 
-            meta.setDisplayName(lang.getColored("Addons.Management Inventory.Addon.Display Name").replace("<name>", addon.toString()));
-            meta.setLore(Arrays.asList(lang.getColored("Addons.Management Inventory.Addon.Lore").replace("<description>", description.getDescription()).replace("<authors>", description.getAuthors().toString()).replace("<version>", description.getVersion().getVersion()).split("<line>")));
+            meta.setDisplayName(PlayMoreSounds.getLanguage().getColored("Addons.Management Inventory.Addon.Display Name").replace("<name>", addon.toString()));
+            meta.setLore(Arrays.asList(PlayMoreSounds.getLanguage().getColored("Addons.Management Inventory.Addon.Lore").replace("<description>", description.getDescription()).replace("<authors>", description.getAuthors().toString()).replace("<version>", description.getVersion().getVersion()).split("<line>")));
             addonItem.setItemMeta(meta);
 
             inventory.setItem(slot++, addonItem);
@@ -337,61 +301,38 @@ public final class AddonsInventory implements Listener
 
     public void openInventory(@NotNull HumanEntity humanEntity)
     {
+        MessageSender lang = PlayMoreSounds.getLanguage();
+
         if (block.get()) {
             lang.send(humanEntity, lang.get("Addons.Error.Blocked"));
             return;
         }
 
-        humanEntity.openInventory(inventory);
-
-        synchronized (this) {
-            openInventories.add(humanEntity);
-            allInventories.add(humanEntity);
-        }
-
-        Bukkit.getPluginManager().registerEvents(this, PlayMoreSounds.getInstance());
+        allInventories.add(humanEntity);
+        InventoryUtils.openInventory(inventory, buttons, humanEntity);
     }
 
-    @EventHandler
-    public void onInventoryClose(InventoryCloseEvent event)
+    @Override
+    public @NotNull Inventory getInventory()
     {
-        openInventories.remove(event.getPlayer());
-        allInventories.remove(event.getPlayer());
-
-        if (openInventories.isEmpty())
-            HandlerList.unregisterAll(this);
+        return inventory;
     }
 
-    @EventHandler
-    public void onInventoryClick(InventoryClickEvent event)
+    @Override
+    public @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> getButtons()
     {
-        HumanEntity humanEntity = event.getWhoClicked();
-
-        if (!openInventories.contains(humanEntity)) {
-            return;
-        }
-
-        event.setCancelled(true);
-
-        Consumer<InventoryClickEvent> action = buttons.get(event.getSlot());
-
-        if (action != null) {
-            Bukkit.getScheduler().runTask(plugin, () -> action.accept(event));
-        }
+        return buttons;
     }
 
-    private static final class AddonInstallerInventory implements Listener
+    private static final class AddonInstallerInventory
     {
         private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>();
         private final @NotNull HashMap<Integer, ArrayList<Path>> addonPages;
         private final @NotNull LinkedHashMap<Path, List<String>> addons;
-        private final @NotNull HumanEntity humanEntity;
         private final @NotNull Inventory inventory;
 
         private AddonInstallerInventory(@NotNull HumanEntity humanEntity) throws IOException
         {
-            this.humanEntity = humanEntity;
-
             addons = new LinkedHashMap<>();
 
             // Getting addon descriptions.
@@ -408,26 +349,37 @@ public final class AddonsInventory implements Listener
 
             if (size > 54) size = 54;
 
-            inventory = Bukkit.createInventory(humanEntity, size, lang.getColored("Addons.Installer Title"));
+            inventory = Bukkit.createInventory(humanEntity, size, PlayMoreSounds.getLanguage().getColored("Addons.Installer Title"));
 
-            inventory.setItem(size - 5, AddonsInventory.getItemStack("Done"));
+            inventory.setItem(size - 5, InventoryUtils.getItemStack("Addons.Inventory.Items", "Done"));
             buttons.put(size - 5, event -> event.getWhoClicked().closeInventory());
             fillAddons();
-            Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> humanEntity.openInventory(inventory));
+            Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> InventoryUtils.openInventory(inventory, buttons, humanEntity, event -> {
+                block.set(false);
 
-            synchronized (allInventories) {
-                allInventories.add(humanEntity);
-            }
+                try {
+                    Files.deleteIfExists(tempAddonsZip);
+                    PathUtils.deleteAll(tempAddonsFolder);
 
-            Bukkit.getPluginManager().registerEvents(this, PlayMoreSounds.getInstance());
+                    try (Stream<Path> files = Files.list(tempFolder)) {
+                        // Checking if temp folder is empty before deleting.
+                        if (!files.findAny().isPresent()) {
+                            Files.delete(tempFolder);
+                        }
+                    }
+                } catch (Exception e) {
+                    PlayMoreSoundsCore.getErrorHandler().report(e, "Temp Folder Delete Exception:");
+                }
+            }));
         }
 
         private void fillAddons()
         {
+            MessageSender lang = PlayMoreSounds.getLanguage();
             int slot = -1;
 
             for (Path addon : addonPages.get(1)) {
-                ItemStack addonItem = new ItemStack(getItemStack("Addon"));
+                ItemStack addonItem = InventoryUtils.getItemStack("Addons.Inventory.Items", "Addon");
                 ItemMeta meta = addonItem.getItemMeta();
 
                 meta.setDisplayName(lang.getColored("Addons.Management Inventory.Addon.Display Name").replace("<name>", addon.getFileName().toString()));
@@ -459,37 +411,6 @@ public final class AddonsInventory implements Listener
             }
 
             InventoryUtils.fillWithGlass(inventory, inventory.getSize() - 9, inventory.getSize() - 1);
-        }
-
-        @EventHandler
-        private void onInventoryClose(InventoryCloseEvent event)
-        {
-            if (event.getPlayer().equals(humanEntity)) {
-                allInventories.remove(humanEntity);
-                block.set(false);
-
-                try {
-                    PathUtils.deleteAll(tempFolder);
-                } catch (IOException e) {
-                    PlayMoreSoundsCore.getErrorHandler().report(e, "Temp Folder Delete Exception:");
-                }
-
-                HandlerList.unregisterAll(this);
-            }
-        }
-
-        @EventHandler
-        public void onInventoryClick(InventoryClickEvent event)
-        {
-            if (event.getWhoClicked().equals(humanEntity)) {
-                event.setCancelled(true);
-
-                Consumer<InventoryClickEvent> action = buttons.get(event.getSlot());
-
-                if (action != null) {
-                    Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> action.accept(event));
-                }
-            }
         }
     }
 }
