@@ -117,8 +117,6 @@ public final class OnRegionEnterLeave extends PMSListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onRegionEnter(RegionEnterEvent event)
     {
-        if (OnPlayerJoin.playersInRegionWaitingToLoadResourcePack.contains(event)) return;
-
         Player player = event.getPlayer();
         ConfigurationSection regions = Configurations.REGIONS.getConfigurationHolder().getConfiguration()
                 .getConfigurationSection("PlayMoreSounds");

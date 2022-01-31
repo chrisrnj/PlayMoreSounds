@@ -220,6 +220,7 @@ public final class PlayMoreSounds extends JavaPlugin
         WorldTimeListener.load();
         UpdateManager.loadUpdater(instance);
         ListInventory.refreshListInventories();
+        OnPlayerResourcePackStatus.load(instance);
 
         if (onReload == null) return exceptions;
 
@@ -285,7 +286,7 @@ public final class PlayMoreSounds extends JavaPlugin
             PluginManager pluginManager = Bukkit.getPluginManager();
 
             if (VersionUtils.supportsResourcePacks()) {
-                pluginManager.registerEvents(new OnPlayerResourcePackStatus(), this);
+                OnPlayerResourcePackStatus.load(this);
             }
 
             // Registering region wand tool listener.

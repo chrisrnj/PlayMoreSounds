@@ -19,50 +19,98 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.region.events.RegionEnterEvent;
-import com.epicnicity322.playmoresounds.bukkit.util.ListenerRegister;
+import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
+import java.util.HashMap;
 
 public final class OnPlayerResourcePackStatus implements Listener
 {
+    private static final OnPlayerResourcePackStatus instance = new OnPlayerResourcePackStatus();
+    private static boolean loaded = false;
+    private static @Nullable HashMap<Player, Runnable> waitingUntilResourcePackStatus;
+
+    private OnPlayerResourcePackStatus()
+    {
+    }
+
+    public static synchronized void load(@NotNull PlayMoreSounds plugin)
+    {
+        if (VersionUtils.supportsResourcePacks() && Configurations.CONFIG.getConfigurationHolder().getConfiguration().getBoolean("Resource Packs.Request").orElse(false)) {
+            if (!loaded) {
+                Bukkit.getPluginManager().registerEvents(instance, plugin);
+                loaded = true;
+            }
+        } else {
+            if (loaded) {
+                HandlerList.unregisterAll(instance);
+                loaded = false;
+            }
+        }
+    }
+
+    public static synchronized void waitUntilResourcePackStatus(@NotNull Player player, @NotNull Runnable onAccept)
+    {
+        if (waitingUntilResourcePackStatus == null) {
+            waitingUntilResourcePackStatus = new HashMap<>();
+        } else {
+            Runnable previousOnAccept = waitingUntilResourcePackStatus.get(player);
+
+            if (previousOnAccept != null) {
+                Runnable newOnAccept = onAccept;
+                onAccept = () -> {
+                    previousOnAccept.run();
+                    newOnAccept.run();
+                };
+            }
+        }
+        waitingUntilResourcePackStatus.put(player, onAccept);
+    }
+
+    private static synchronized Runnable removeWaiting(Player player)
+    {
+        if (waitingUntilResourcePackStatus == null) return null;
+
+        try {
+            return waitingUntilResourcePackStatus.remove(player);
+        } finally {
+            if (waitingUntilResourcePackStatus.isEmpty()) waitingUntilResourcePackStatus = null;
+        }
+    }
+
+    @SuppressWarnings("deprecation")
     @EventHandler
     public void onPlayerResourcePackStatus(PlayerResourcePackStatusEvent event)
     {
+        PlayerResourcePackStatusEvent.Status status = event.getStatus();
+
+        if (status == PlayerResourcePackStatusEvent.Status.ACCEPTED) return;
+
+        Player player = event.getPlayer();
+        Runnable runnable = removeWaiting(player);
+
+        if (runnable != null) {
+            try {
+                runnable.run();
+            } catch (Throwable t) {
+                PlayMoreSoundsCore.getErrorHandler().report(t, "Player Status Resource Runnable Error");
+            }
+        }
+
         Configuration config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
 
-        if (config.getBoolean("Resource Packs.Request").orElse(false)) {
-            PlayerResourcePackStatusEvent.Status status = event.getStatus();
-            Player player = event.getPlayer();
-
-            if (status == PlayerResourcePackStatusEvent.Status.SUCCESSFULLY_LOADED) {
-                OnRegionEnterLeave regionListener = (OnRegionEnterLeave) ListenerRegister.getListeners().stream().filter(listener -> listener.getName().equals("Region Enter|Region Leave")).findFirst().orElseThrow(NullPointerException::new);
-                HashSet<RegionEnterEvent> removedRegionEvents = new HashSet<>();
-
-                OnPlayerJoin.playersInRegionWaitingToLoadResourcePack.removeIf(regionEvent -> {
-                    if (player.equals(regionEvent.getPlayer())) {
-                        removedRegionEvents.add(regionEvent);
-                        return true;
-                    }
-
-                    return false;
-                });
-
-                for (RegionEnterEvent regionEvent : removedRegionEvents) {
-                    regionListener.onRegionEnter(regionEvent);
-                }
-            } else if (status != PlayerResourcePackStatusEvent.Status.ACCEPTED && config.getBoolean("Resource Packs.Force.Enabled").orElse(false)) {
-                if (status == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD && !config.getBoolean("Resource Packs.Force.Even If Download Fail").orElse(false))
-                    return;
-
-                player.kickPlayer(PlayMoreSounds.getLanguage().getColored("Resource Packs.Kick Message"));
-            }
+        if (config.getBoolean("Resource Packs.Force.Enabled").orElse(false) && (status == PlayerResourcePackStatusEvent.Status.DECLINED || (config.getBoolean("Resource Packs.Force.Even If Download Fail").orElse(false) || status != PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD))) {
+            player.kickPlayer(PlayMoreSounds.getLanguage().getColored("Resource Packs.Kick Message"));
         }
     }
 }
