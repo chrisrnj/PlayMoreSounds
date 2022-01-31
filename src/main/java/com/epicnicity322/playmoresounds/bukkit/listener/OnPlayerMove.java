@@ -81,7 +81,7 @@ public final class OnPlayerMove implements Listener
         }
     }
 
-    static void checkBiomeEnterLeaveSounds(Cancellable event, Player player, Location from, Location to)
+    static void checkBiomeEnterLeaveSounds(Cancellable event, Player player, Location from, Location to, boolean checkDifferent)
     {
         // Playing sounds for biomes.yml.
         Configuration biomesConfiguration = biomes.getConfiguration();
@@ -90,7 +90,7 @@ public final class OnPlayerMove implements Listener
             Biome fromBiome = from.getBlock().getBiome();
             Biome toBiome = to.getBlock().getBiome();
 
-            if (fromBiome != toBiome) {
+            if (!checkDifferent || fromBiome != toBiome) {
                 soundsToStop.entrySet().removeIf(entry -> {
                     String key = entry.getKey();
 
@@ -112,7 +112,7 @@ public final class OnPlayerMove implements Listener
                 }
 
                 ConfigurationSection loop = biomesConfiguration.getConfigurationSection(to.getWorld().getName() + '.' + toBiome.name() + ".Loop");
-                ConfigurationSection leave = biomesConfiguration.getConfigurationSection(from.getWorld().getName() + '.' + fromBiome.name() + ".Leave");
+                ConfigurationSection leave = checkDifferent ? biomesConfiguration.getConfigurationSection(from.getWorld().getName() + '.' + fromBiome.name() + ".Leave") : null;
                 boolean playEnterSound = true;
 
                 if (loop != null) {
@@ -193,7 +193,7 @@ public final class OnPlayerMove implements Listener
             if (!event.isCancelled())
                 callRegionEnterLeaveEvents(event, player, from, to);
 
-            checkBiomeEnterLeaveSounds(event, player, from, to);
+            checkBiomeEnterLeaveSounds(event, player, from, to, true);
         }
     }
 }

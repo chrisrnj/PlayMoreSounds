@@ -21,6 +21,7 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
+import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionEnterEvent;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
@@ -31,17 +32,26 @@ import com.epicnicity322.yamlhandler.Configuration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-
 public final class OnPlayerJoin implements Listener
 {
-    static final @NotNull HashSet<RegionEnterEvent> playersInRegionWaitingToLoadResourcePack = new HashSet<>();
+    private static final @NotNull Cancellable cancellableDummy = new Cancellable()
+    {
+        @Override public boolean isCancelled()
+        {
+            return false;
+        }
+
+        @Override public void setCancelled(boolean cancel)
+        {
+        }
+    };
     private static @Nullable PlayableRichSound firstJoin;
     private static @Nullable PlayableRichSound joinServer;
 
@@ -94,18 +104,33 @@ public final class OnPlayerJoin implements Listener
         if (config.getBoolean("Enable Sounds On Login").orElse(false))
             SoundManager.toggleSoundsState(player, true);
 
-        // Getting all regions in the location.
-        RegionManager.getRegions().stream().filter(region -> region.isInside(location)).forEach(region -> {
+        // Calling region enter event.
+        for (SoundRegion region : RegionManager.getRegions()) {
+            if (!region.isInside(location)) continue;
+
             RegionEnterEvent regionEnterEvent = new RegionEnterEvent(region, player, location, location);
 
-            // Checking if event should be added to playersInRegionWaitingToLoadResourcePack.
+            // Checking if event should be played only when player accepts resource pack.
             if (config.getBoolean("Resource Packs.Request").orElse(false)) {
-                playersInRegionWaitingToLoadResourcePack.add(regionEnterEvent);
+                OnPlayerResourcePackStatus.waitUntilResourcePackStatus(player, () -> Bukkit.getPluginManager().callEvent(regionEnterEvent));
+            } else {
+                Bukkit.getPluginManager().callEvent(regionEnterEvent);
             }
+        }
 
-            // Calling the event.
-            Bukkit.getPluginManager().callEvent(regionEnterEvent);
-        });
+        // Calling biome enter event.
+        String biome = location.getBlock().getBiome().name();
+        String world = location.getWorld().getName();
+        Configuration biomesConfig = Configurations.BIOMES.getConfigurationHolder().getConfiguration();
+
+        if (biomesConfig.getBoolean(world + "." + biome + "." + "Enter.Enabled").orElse(false) || biomesConfig.getBoolean(world + "." + biome + "." + "Loop.Enabled").orElse(false)) {
+            // Checking if event should be played only when player accepts resource pack.
+            if (config.getBoolean("Resource Packs.Request").orElse(false)) {
+                OnPlayerResourcePackStatus.waitUntilResourcePackStatus(player, () -> OnPlayerMove.checkBiomeEnterLeaveSounds(cancellableDummy, player, location, location, false));
+            } else {
+                OnPlayerMove.checkBiomeEnterLeaveSounds(cancellableDummy, player, location, location, false);
+            }
+        }
 
         // Setting the player's resource pack.
         if (VersionUtils.supportsResourcePacks() && config.getBoolean("Resource Packs.Request").orElse(false))

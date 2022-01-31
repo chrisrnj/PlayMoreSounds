@@ -76,7 +76,7 @@ public final class OnPlayerTeleport implements Listener
         if (!event.isCancelled())
             OnPlayerMove.callRegionEnterLeaveEvents(event, player, from, to);
 
-        OnPlayerMove.checkBiomeEnterLeaveSounds(event, player, from, to);
+        OnPlayerMove.checkBiomeEnterLeaveSounds(event, player, from, to, true);
 
         if (event.getCause() != PlayerTeleportEvent.TeleportCause.COMMAND) return;
 
