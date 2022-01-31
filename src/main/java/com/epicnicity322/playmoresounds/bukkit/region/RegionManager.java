@@ -46,12 +46,13 @@ import java.util.stream.Stream;
 
 public final class RegionManager
 {
+    //TODO: Fix this mess
     private static final @NotNull YamlConfigurationLoader loader = new YamlConfigurationLoader();
     private static final @NotNull Path regionsFolder = PlayMoreSoundsCore.getFolder().resolve("Data").resolve("Regions");
     private static final @NotNull Runnable regionUpdater;
     private static final @NotNull Runnable wandUpdater;
     private static final @NotNull HashSet<SoundRegion> regions = new HashSet<>();
-    private static @NotNull Set<SoundRegion> unmodifiableRegions = new HashSet<>();
+    private static @NotNull Set<SoundRegion> unmodifiableRegions = Collections.unmodifiableSet(new HashSet<>());
     private static ItemStack wand;
 
     static {
@@ -123,6 +124,17 @@ public final class RegionManager
     public static @NotNull Set<SoundRegion> getRegions()
     {
         return unmodifiableRegions;
+    }
+
+    public static @NotNull HashSet<SoundRegion> getRegions(@NotNull Location location)
+    {
+        HashSet<SoundRegion> regionsInLocation = new HashSet<>();
+
+        for (SoundRegion region : regions) {
+            if (region.isInside(location)) regionsInLocation.add(region);
+        }
+
+        return regionsInLocation;
     }
 
     /**
