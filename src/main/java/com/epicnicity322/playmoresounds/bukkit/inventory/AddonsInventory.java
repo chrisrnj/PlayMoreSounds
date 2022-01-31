@@ -25,6 +25,7 @@ import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.epicpluginlib.core.util.PathUtils;
 import com.epicnicity322.epicpluginlib.core.util.ZipUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.bukkit.command.subcommand.AddonsSubCommand;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
 import com.epicnicity322.playmoresounds.core.addons.AddonDescription;
@@ -58,7 +59,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-//TODO: Make so when you click on an addon in the Addon Management Inventory it uninstalls it.
 //TODO: Add change page button to Addon Management Inventory and Addon Install Inventory.
 @SuppressWarnings("deprecation")
 public final class AddonsInventory implements PMSInventory
@@ -96,9 +96,9 @@ public final class AddonsInventory implements PMSInventory
         if (addons.isEmpty()) {
             addonPages = new HashMap<>(0);
             buttons = new HashMap<>(1);
-            inventory = Bukkit.createInventory(null, 9, lang.getColored("Addons.Empty Title"));
+            inventory = Bukkit.createInventory(null, 9, lang.getColored("Addons.Inventory.Title.Empty"));
 
-            inventory.setItem(4, InventoryUtils.getItemStack("Addons.Inventory.Items", "Install"));
+            inventory.setItem(4, InventoryUtils.getItemStack("Addons.Inventory.Items.Install"));
             buttons.put(4, event -> openInstallerInventory((Player) event.getWhoClicked()));
             InventoryUtils.fillWithGlass(inventory, 0, 8);
         } else {
@@ -107,18 +107,19 @@ public final class AddonsInventory implements PMSInventory
 
             if (size > 54) size = 54;
 
-            buttons = new HashMap<>(1 + size - 18);
-            inventory = Bukkit.createInventory(null, size, lang.getColored("Addons.Title"));
+            buttons = new HashMap<>(1 + addons.size());
+            inventory = Bukkit.createInventory(null, size, lang.getColored("Addons.Inventory.Title.Default"));
 
-            ItemStack info = InventoryUtils.getItemStack("Addons.Inventory.Items", "Info");
+            ItemStack info = InventoryUtils.getItemStack("Addons.Inventory.Items.Info");
             ItemMeta infoMeta = info.getItemMeta();
-            infoMeta.setLore(Arrays.asList(lang.getColored("Addons.Management Inventory.Info.Lore").replace("<addons>", Integer.toString(addons.size())).split("<line>")));
+            infoMeta.setLore(Arrays.asList(lang.getColored("Addons.Inventory.Items.Info.Lore").replace("<addons>", Integer.toString(addons.size())).split("<line>")));
             info.setItemMeta(infoMeta);
 
             inventory.setItem(0, info);
-            inventory.setItem(8, InventoryUtils.getItemStack("Addons.Inventory.Items", "Install"));
+            inventory.setItem(8, InventoryUtils.getItemStack("Addons.Inventory.Items.Install"));
             buttons.put(8, event -> openInstallerInventory((Player) event.getWhoClicked()));
             fillAddons();
+            InventoryUtils.fillWithGlass(inventory, 9, 17);
         }
     }
 
@@ -191,7 +192,7 @@ public final class AddonsInventory implements PMSInventory
 
             // Getting the github release information.
             if (hasTitles)
-                repeatingTitle = Bukkit.getScheduler().runTaskTimer(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Title"), lang.getColored("Addons.Download.Info"), 5, 10, 5), 0, 25);
+                repeatingTitle = Bukkit.getScheduler().runTaskTimer(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Downloading.Title"), lang.getColored("Addons.Download.Downloading.Subtitle.Info"), 5, 10, 5), 0, 25);
             try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                 Downloader downloader = new Downloader(releasesURL, baos);
                 downloader.run();
@@ -243,7 +244,7 @@ public final class AddonsInventory implements PMSInventory
 
             // Downloading addons zip to PlayMoreSounds data folder.
             if (hasTitles)
-                repeatingTitle = Bukkit.getScheduler().runTaskTimer(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Title"), lang.getColored("Addons.Download.Files"), 5, 10, 5), 0, 25);
+                repeatingTitle = Bukkit.getScheduler().runTaskTimer(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Downloading.Title"), lang.getColored("Addons.Download.Downloading.Subtitle.Files"), 5, 10, 5), 0, 25);
             try (FileOutputStream fos = new FileOutputStream(tempAddonsZip.toFile())) {
                 Downloader downloader = new Downloader(new URL(addonsDownloadURL), fos);
                 downloader.run();
@@ -276,27 +277,113 @@ public final class AddonsInventory implements PMSInventory
         return new Version(PathUtils.read(tempAddonsFolder.resolve(".version"))).compareTo(PlayMoreSoundsVersion.getVersion()) > 0;
     }
 
+    private static String lastColor(String last)
+    {
+        String lore = PlayMoreSounds.getLanguage().getColored("Addons.Inventory.Items.Addon.Lore");
+        int index = lore.lastIndexOf(last) - 1;
+        if (index < 0) return "";
+        return ChatColor.getLastColors(lore.substring(0, index));
+    }
+
+    private static String breakLore(String lore, int maxInFirstLine, String color)
+    {
+        StringBuilder builder = new StringBuilder();
+
+        if (lore.length() > maxInFirstLine) {
+            builder.append(lore, 0, maxInFirstLine).append('-');
+
+            String rest = lore.substring(maxInFirstLine);
+            int count = 0;
+            while (rest.length() != 0) {
+                //Max of three lines.
+                if (++count == 3) {
+                    // Forgive and append anyways if the rest is just 5 characters. Otherwise,
+                    //appending "..." to the end to inform that there's more string and not enough space.
+                    if (rest.length() < 5) {
+                        builder = new StringBuilder(builder.substring(0, builder.length() - 1));
+                        builder.append(rest);
+                    } else {
+                        builder = new StringBuilder(builder.substring(0, builder.length() - 3));
+                        builder.append("...");
+                    }
+                    break;
+                }
+
+                builder.append("<line>").append(color);
+
+                if (rest.length() > 35) {
+                    builder.append(rest, 0, 35).append(builder.toString().endsWith(" ") ? ' ' : '-');
+                    rest = rest.substring(35);
+                } else {
+                    builder.append(rest);
+                    rest = "";
+                }
+            }
+        } else {
+            builder.append(lore);
+        }
+
+        return builder.toString();
+    }
+
     private void fillAddons()
     {
         ArrayList<PMSAddon> addons = addonPages.get(1);
+        MessageSender lang = PlayMoreSounds.getLanguage();
 
         if (addons == null) return;
 
         int slot = 18;
 
         for (PMSAddon addon : addons) {
+            if (slot > 54) break;
+            boolean toBeUninstalled = AddonsSubCommand.ADDONS_TO_UNINSTALL.contains(addon);
             AddonDescription description = addon.getDescription();
-            ItemStack addonItem = InventoryUtils.getItemStack("Addons.Inventory.Items", "Addon");
+            ItemStack addonItem = InventoryUtils.getItemStack("Addons.Inventory.Items.Addon");
             ItemMeta meta = addonItem.getItemMeta();
+            String name = addon.getDescription().getName();
 
-            meta.setDisplayName(PlayMoreSounds.getLanguage().getColored("Addons.Management Inventory.Addon.Display Name").replace("<name>", addon.toString()));
-            meta.setLore(Arrays.asList(PlayMoreSounds.getLanguage().getColored("Addons.Management Inventory.Addon.Lore").replace("<description>", description.getDescription()).replace("<authors>", description.getAuthors().toString()).replace("<version>", description.getVersion().getVersion()).split("<line>")));
+            meta.setDisplayName(lang.getColored("Addons.Inventory.Items.Addon.Display Name").replace("<name>", name));
+            meta.setLore(Arrays.asList(lang.getColored(toBeUninstalled ? "Addons.Inventory.Items.Addon.To be uninstalled lore" : "Addons.Inventory.Items.Addon.Lore").replace("<description>", breakLore(description.getDescription(), 22, lastColor("<description>"))).replace("<authors>", breakLore(description.getAuthors().toString(), 24, lastColor("<authors>"))).replace("<version>", breakLore(description.getVersion().getVersion(), 26, lastColor("<version>"))).split("<line>")));
             addonItem.setItemMeta(meta);
 
-            inventory.setItem(slot++, addonItem);
-        }
+            inventory.setItem(slot, addonItem);
 
-        InventoryUtils.fillWithGlass(inventory, 9, 17);
+            if (toBeUninstalled) {
+                buttons.put(slot, event -> {
+                    AddonsSubCommand.ADDONS_TO_UNINSTALL.remove(addon);
+                    event.getWhoClicked().closeInventory();
+                    lang.send(event.getWhoClicked(), lang.get("Addons.Uninstall.Cancel").replace("<addon>", name));
+                });
+            } else {
+                buttons.put(slot, event -> {
+                    HumanEntity player = event.getWhoClicked();
+                    HashSet<String> dependants = new HashSet<>();
+
+                    for (PMSAddon a : PlayMoreSounds.getAddonManager().getAddons()) {
+                        if (a.getDescription().getRequiredAddons().contains(name)) {
+                            dependants.add(a.getDescription().getName());
+                        }
+                    }
+
+                    if (!dependants.isEmpty()) {
+                        player.closeInventory();
+                        lang.send(player, lang.get(dependants.size() == 1 ? "Addons.Uninstall.Error.Dependants.Singular" : "Addons.Uninstall.Error.Dependants.Plural").replace("<dependants>", dependants.toString()).replace("<addon>", name));
+                        return;
+                    }
+
+                    new ConfirmationInventory(
+                            lang.getColored("Addons.Uninstall.Confirmation.Title").replace("<addon>", name),
+                            () -> {
+                                AddonsSubCommand.ADDONS_TO_UNINSTALL.add(addon);
+                                lang.send(player, lang.get("Addons.Uninstall.Success").replace("<addon>", name));
+                                //Closing for all viewers since the addon item needs to be changed.
+                                inventory.close();
+                            }, null).openInventory(player);
+                });
+            }
+            slot++;
+        }
     }
 
     public void openInventory(@NotNull HumanEntity humanEntity)
@@ -349,9 +436,9 @@ public final class AddonsInventory implements PMSInventory
 
             if (size > 54) size = 54;
 
-            inventory = Bukkit.createInventory(humanEntity, size, PlayMoreSounds.getLanguage().getColored("Addons.Installer Title"));
+            inventory = Bukkit.createInventory(humanEntity, size, PlayMoreSounds.getLanguage().getColored("Addons.Inventory.Title.Installer"));
 
-            inventory.setItem(size - 5, InventoryUtils.getItemStack("Addons.Inventory.Items", "Done"));
+            inventory.setItem(size - 5, InventoryUtils.getItemStack("Addons.Inventory.Items.Done"));
             buttons.put(size - 5, event -> event.getWhoClicked().closeInventory());
             fillAddons();
             Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> InventoryUtils.openInventory(inventory, buttons, humanEntity, event -> {
@@ -379,10 +466,10 @@ public final class AddonsInventory implements PMSInventory
             int slot = -1;
 
             for (Path addon : addonPages.get(1)) {
-                ItemStack addonItem = InventoryUtils.getItemStack("Addons.Inventory.Items", "Addon");
+                ItemStack addonItem = InventoryUtils.getItemStack("Addons.Inventory.Items.Addon");
                 ItemMeta meta = addonItem.getItemMeta();
 
-                meta.setDisplayName(lang.getColored("Addons.Management Inventory.Addon.Display Name").replace("<name>", addon.getFileName().toString()));
+                meta.setDisplayName(lang.getColored("Addons.Inventory.Items.Addon.Display Name").replace("<name>", addon.getFileName().toString()));
                 meta.setLore(addons.get(addon));
                 addonItem.setItemMeta(meta);
 
