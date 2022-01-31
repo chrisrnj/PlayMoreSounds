@@ -517,6 +517,16 @@ public enum Configurations
             "        Glowing: false\n" +
             "      Previous Page:\n" +
             "        Material: ARROW\n" +
+            "        Glowing: false\n" +
+            "\n" +
+            "Confirm:\n" +
+            "  Inventory:\n" +
+            "    Items:\n" +
+            "      Cancel:\n" +
+            "        Material: RED_WOOL\n" +
+            "        Glowing: false\n" +
+            "      Confirm:\n" +
+            "        Material: GREEN_WOOL\n" +
             "        Glowing: false", StaticFields.version4_0_0),
     CUSTOM_DISCS(StaticFields.sounds.resolve("custom discs.yml"), "# Set a sound to play when a player clicks at a jukebox with a specific item.\n" +
             "#\n" +
@@ -869,21 +879,21 @@ public enum Configurations
             "\n" +
             "Addons:\n" +
             "  Download:\n" +
-            //TODO: translate
-            "    Already Exists: '&7An addons zip was found and deleted from temp folder. Downloading latest one...'\n" +
             "    Error:\n" +
             "      Not Found: '&cAddons for PlayMoreSounds v<version> were not found.'\n" +
             "      Subtitle: '&7Something went wrong'\n" +
             "      Title: '&4&lError'\n" +
             "      Unknown: '&cAn unknown error occurred when downloading addons.'\n" +
-            "    Files: '&6Addons files...'\n" +
-            "    Info: '&6Info about addons...'\n" +
+            "    Downloading:\n" +
+            "      Already Exists: '&7An addons zip was found and deleted from temp folder. Downloading latest one...'\n" +
+            "      Subtitle:\n" +
+            "        Files: '&6Addons files...'\n" +
+            "        Info: '&6Info about addons...'\n" +
+            "      Title: '&cDownloading'\n" +
+            "      Unsupported Version: '&7The latest addons were downloaded, but they don''t support the PlayMoreSounds version you''re running, trying to download addons made for the current PlayMoreSounds version...'\n" +
             "    Success:\n" +
             "      Subtitle: '&7Latest addons were downloaded'\n" +
             "      Title: '&2Success'\n" +
-            "    Title: '&cDownloading'\n" +
-            "    Unsupported Version: '&7The latest addons were downloaded, but it seems that they don''t support the current PlayMoreSounds version you''re running, downloading addons made for this version...'\n" +
-            "  Empty Title: '&c&lNo addons found'\n" +
             "  Error:\n" +
             "    Blocked: '&cAddons are currently being installed, wait until the installation process finishes to open the addon management inventory.'\n" +
             "    Not Found: '&cAddon with the name &f<addon>&c was not found. Use &7&n/<label> addon list&c to list all addons.'\n" +
@@ -891,11 +901,11 @@ public enum Configurations
             "    Error: '&cSomething went wrong while installing the addon &4<addon>&c.'\n" +
             "    Installed: '&7<addon>&7 was installed.'\n" +
             "    Success: '&aAddon <addon>&a was installed successfully, restart your server so it can be loaded.'\n" +
-            "  Installer Title: '&2&lInstall Addons:'\n" +
-            "  List:\n" +
-            "    Header: '&7Addons installed on PlayMoreSounds:'\n" +
-            "    Separator: '&f, '\n" +
             "  Inventory:\n" +
+            "    Title:\n" +
+            "      Default: '&9&lInstalled Addons:'\n" +
+            "      Empty: '&c&lNo addons found'\n" +
+            "      Installer: '&2&lInstall Addons:'\n" +
             "    Items:\n" +
             "      Addon:\n" +
             "        Display Name: '&a&l<name>'\n" +
@@ -903,6 +913,14 @@ public enum Configurations
             "          &7Author(s):&8 <authors>\n" +
             "          <line>&7Description:&8 <description>\n" +
             "          <line>&7Version:&8 <version>\n" +
+            "          <line>&cClick to &4&n&luninstall&c.\n" +
+            "        #This is the lore that will show up on addons that are confirmed to be uninstalled when the server stops.\n" +
+            "        #Since the addon is already being uninstalled, last line should say that when clicking it will \"cancel the uninstallation\".\n" +
+            "        To be uninstalled lore: >-\n" +
+            "          &7Author(s):&8 <authors>\n" +
+            "          <line>&7Description:&8 <description>\n" +
+            "          <line>&7Version:&8 <version>\n" +
+            "          <line>&fClick to &7&n&lcancel uninstallation&f.\n" +
             "      Done:\n" +
             "        Display Name: '&2&lDone'\n" +
             "        Lore: '&7Click to exit.'\n" +
@@ -918,6 +936,9 @@ public enum Configurations
             "      Previous Page:\n" +
             "        Display Name: '&7&lPrevious Page'\n" +
             "        Lore: '&7Click to go to page <to>.'\n" +
+            "  List:\n" +
+            "    Header: '&7Addons installed for PlayMoreSounds:'\n" +
+            "    Separator: '&f, '\n" +
             "  Start:\n" +
             "    Error:\n" +
             "      Already Started: '&cAddon <addon> was already started.'\n" +
@@ -926,11 +947,29 @@ public enum Configurations
             "    Error:\n" +
             "      Already Stopped: '&cAddon <addon> was already stopped.'\n" +
             "    Success: '&aAddon <addon> was stopped successfully.'\n" +
-            "  Title: '&9&lInstalled Addons:'\n" +
+            "  Uninstall:\n" +
+            "    Cancel: '&aAddon <addon> &7&nwill no longer&a be uninstalled.'\n" +
+            "    Confirmation:\n" +
+            "      Chat: '&7Type &f/<label> confirm&7 to confirm uninstallation of <addon> addon.'\n" +
+            "      Description: 'Uninstall <addon> addon.'\n" +
+            "      Title: '&9&lUninstall &9<addon>&l?'\n" +
+            "    Error:\n" +
+            "      Dependants:\n" +
+            "        Plural: '&cAddon <addon> can''t be uninstalled because it''s a dependency of the addons &f<dependants>&c. Uninstall those addons before this one.'\n" +
+            "        Singular: '&cAddon <addon> can''t be uninstalled because it''s a dependency of the addon &f<dependants>&c. Uninstall that addon before this one.'\n" +
+            "    Success: '&aAddon <addon> &4&nwill be&a uninstalled when the server stops or restarts.'\n" +
             "\n" +
             "Confirm:\n" +
             "  Error:\n" +
             "    Nothing Pending: '&cThere is nothing pending to confirm.'\n" +
+            "  Inventory:\n" +
+            "    Items:\n" +
+            "      Cancel:\n" +
+            "        Display Name: '&4&lCancel'\n" +
+            "        Lore: '&cClick to cancel operation.'\n" +
+            "      Confirm:\n" +
+            "        Display Name: '&2&lConfirm'\n" +
+            "        Lore: '&aClick to confirm operation.'\n" +
             "  List:\n" +
             "    Confirmation: ' &f<id> &7- <description>'\n" +
             "    Header: '&8List of pending confirmations:'\n" +

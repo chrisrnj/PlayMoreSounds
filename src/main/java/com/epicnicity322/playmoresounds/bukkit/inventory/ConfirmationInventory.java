@@ -33,7 +33,6 @@ public final class ConfirmationInventory implements PMSInventory
 {
     private final @NotNull Inventory inventory;
     private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>(2);
-    private final @NotNull Runnable cancel;
 
     /**
      * Creates a inventory that can be used to confirm an action.
@@ -41,24 +40,23 @@ public final class ConfirmationInventory implements PMSInventory
      *
      * @param title   The title, usually what the user is confirming, or null for no title.
      * @param confirm The runnable that will run when the users click confirm button.
-     * @param cancel  The runnable that will run when the user click cancel button or closes the inventory.
+     * @param cancel  The runnable that will run when the user click cancel button.
      */
     public ConfirmationInventory(@Nullable String title, @NotNull Runnable confirm, @Nullable Runnable cancel)
     {
         if (title == null) title = "";
 
         inventory = Bukkit.createInventory(null, 27, title);
-        this.cancel = cancel;
 
-        inventory.setItem(12, InventoryUtils.getItemStack("Confirm", "Confirm"));
+        inventory.setItem(12, InventoryUtils.getItemStack("Confirm.Inventory.Items.Confirm"));
         buttons.put(12, event -> {
             inventory.close();
             confirm.run();
         });
-        inventory.setItem(14, InventoryUtils.getItemStack("Confirm", "Cancel"));
+        inventory.setItem(14, InventoryUtils.getItemStack("Confirm.Inventory.Items.Cancel"));
         buttons.put(14, event -> {
             inventory.close();
-            cancel.run();
+            if (cancel != null) cancel.run();
         });
     }
 
@@ -70,7 +68,7 @@ public final class ConfirmationInventory implements PMSInventory
      */
     public void openInventory(@NotNull HumanEntity player)
     {
-        InventoryUtils.openInventory(inventory, buttons, player, event -> cancel.run());
+        InventoryUtils.openInventory(inventory, buttons, player);
     }
 
     @Override

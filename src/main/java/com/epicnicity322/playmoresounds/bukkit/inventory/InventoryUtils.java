@@ -135,16 +135,16 @@ public final class InventoryUtils
         }
     }
 
-    public static @NotNull ItemStack getItemStack(@NotNull String configPrefix, @NotNull String name)
+    public static @NotNull ItemStack getItemStack(@NotNull String configPath)
     {
         Configuration config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
-        ItemStack itemStack = new ItemStack(ObjectUtils.getOrDefault(Material.matchMaterial(config.getString(configPrefix + "." + name + ".Material").orElse("STONE")), Material.STONE));
+        ItemStack itemStack = new ItemStack(ObjectUtils.getOrDefault(Material.matchMaterial(config.getString(configPath + ".Material").orElse("STONE")), Material.STONE));
         ItemMeta itemMeta = itemStack.getItemMeta();
 
-        itemMeta.setDisplayName(PlayMoreSounds.getLanguage().getColored(configPrefix + "." + name + ".Display Name"));
-        itemMeta.setLore(Arrays.asList(PlayMoreSounds.getLanguage().getColored(configPrefix + "." + name + ".Lore").split("<line>")));
+        itemMeta.setDisplayName(PlayMoreSounds.getLanguage().getColored(configPath + ".Display Name"));
+        itemMeta.setLore(Arrays.asList(PlayMoreSounds.getLanguage().getColored(configPath + ".Lore").split("<line>")));
 
-        if (config.getBoolean(configPrefix + "." + name + " Item.Glowing").orElse(false))
+        if (config.getBoolean(configPath + ".Glowing").orElse(false))
             itemMeta.addEnchant(Enchantment.DURABILITY, 1, true);
         if (VersionUtils.hasItemFlags())
             itemMeta.addItemFlags(ItemFlag.values());

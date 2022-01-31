@@ -46,7 +46,6 @@ import java.util.function.Consumer;
 public final class ListInventory implements PMSInventory
 {
     private static final @NotNull ArrayList<ListInventory> listInvetories = new ArrayList<>();
-    private static final @NotNull String configPrefix = "List.Inventory.Items";
     private final @NotNull Inventory inventory;
     private final int page;
     private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>();
@@ -82,21 +81,21 @@ public final class ListInventory implements PMSInventory
                 .replace("<totalpages>", Integer.toString(soundPages.size())));
 
         if (page > 1) {
-            inventory.setItem(0, InventoryUtils.getItemStack(configPrefix, "Previous Page"));
+            inventory.setItem(0, InventoryUtils.getItemStack("List.Inventory.Items.Previous Page"));
             buttons.put(0, event -> getListInventory(this.page - 1).openInventory(event.getWhoClicked()));
         }
 
-        inventory.setItem(4, InventoryUtils.getItemStack(configPrefix, "Stop Sound"));
+        inventory.setItem(4, InventoryUtils.getItemStack("List.Inventory.Items.Stop Sound"));
         buttons.put(4, event -> SoundManager.stopSounds((Player) event.getWhoClicked(), null, 0));
 
         if (page != soundPages.size()) {
-            inventory.setItem(8, InventoryUtils.getItemStack(configPrefix, "Next Page"));
+            inventory.setItem(8, InventoryUtils.getItemStack("List.Inventory.Items.Next Page"));
             buttons.put(8, event -> getListInventory(this.page + 1).openInventory(event.getWhoClicked()));
         }
 
         InventoryUtils.fillWithGlass(inventory, 9, count);
 
-        ArrayList<String> soundMaterials = config.getCollection(configPrefix + ".Sound.Material", Object::toString);
+        ArrayList<String> soundMaterials = config.getCollection("List.Inventory.Items.Sound.Material", Object::toString);
         if (soundMaterials.size() == 0)
             soundMaterials = Configurations.CONFIG.getConfigurationHolder().getDefaultConfiguration().getCollection("List.Inventory.Sound Item.Material", Object::toString);
         Iterator<String> soundMaterialsIterator = getIterator(soundMaterials, page);
@@ -107,10 +106,10 @@ public final class ListInventory implements PMSInventory
             ItemStack soundItem = new ItemStack(ObjectUtils.getOrDefault(Material.matchMaterial(soundMaterialsIterator.next()), Material.STONE));
             ItemMeta soundItemMeta = soundItem.getItemMeta();
 
-            soundItemMeta.setDisplayName(lang.getColored(configPrefix + ".Sound.Display Name").replace("<sound>", sound.name()));
-            soundItemMeta.setLore(Arrays.asList(lang.getColored(configPrefix + ".Sound.Lore").split("<line>")));
+            soundItemMeta.setDisplayName(lang.getColored("List.Inventory.Items.Sound.Display Name").replace("<sound>", sound.name()));
+            soundItemMeta.setLore(Arrays.asList(lang.getColored("List.Inventory.Items.Sound.Lore").split("<line>")));
 
-            if (config.getBoolean(configPrefix + ".Sound.Glowing").orElse(false))
+            if (config.getBoolean("List.Inventory.Items.Sound.Glowing").orElse(false))
                 soundItemMeta.addEnchant(Enchantment.DURABILITY, 1, true);
             if (VersionUtils.hasItemFlags())
                 soundItemMeta.addItemFlags(ItemFlag.values());
