@@ -19,6 +19,8 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
+import com.epicnicity322.epicpluginlib.bukkit.reflection.ReflectionUtil;
+import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
@@ -29,6 +31,7 @@ import com.epicnicity322.playmoresounds.bukkit.util.UpdateManager;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
+import com.google.common.io.BaseEncoding;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -54,6 +57,9 @@ public final class OnPlayerJoin implements Listener
     };
     private static @Nullable PlayableRichSound firstJoin;
     private static @Nullable PlayableRichSound joinServer;
+    private static final boolean hasFancyResourcePackMessage = ReflectionUtil.getMethod(Player.class, "setResourcePack", String.class, byte[].class, String.class) != null;
+    private static final boolean hasResourcePackHash = ReflectionUtil.getMethod(Player.class, "setResourcePack", String.class, byte[].class) != null;
+    private static byte[] resourcePackHash;
 
     static {
         Runnable soundUpdater = () -> {
@@ -68,6 +74,24 @@ public final class OnPlayerJoin implements Listener
                 joinServer = new PlayableRichSound(sounds.getConfigurationSection("Join Server"));
             else
                 joinServer = null;
+
+            Configuration config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
+
+            if (hasResourcePackHash && config.getBoolean("Resource Packs.Request").orElse(false) && !config.getString("Resource Packs.URL").orElse("").isEmpty()) {
+                String hexadecimalHash = config.getString("Resource Packs.Hash").orElse("");
+
+                if (hexadecimalHash.length() != 40) {
+                    PlayMoreSounds.getConsoleLogger().log("The provided resource pack hash is invalid.", ConsoleLogger.Level.WARN);
+                } else {
+                    try {
+                        // A little rant: Why the hell bukkit uses byte[] as parameter for Player#setResourcePack just so they encode the bytes again, the packet for
+                        //sending resource packs use String for the hash, so why shouldn't the bukkit method do as well?
+                        resourcePackHash = BaseEncoding.base16().decode(hexadecimalHash);
+                    } catch (IllegalArgumentException e) {
+                        PlayMoreSounds.getConsoleLogger().log("The provided resource pack hash is invalid.", ConsoleLogger.Level.WARN);
+                    }
+                }
+            }
         };
 
         // Not running it immediately because PlayableRichSound requires PlayMoreSounds loaded if delay > 0.
@@ -132,16 +156,26 @@ public final class OnPlayerJoin implements Listener
             }
         }
 
+        String url = config.getString("Resource Packs.URL").orElse("");
+
         // Setting the player's resource pack.
-        if (VersionUtils.supportsResourcePacks() && config.getBoolean("Resource Packs.Request").orElse(false))
+        if (VersionUtils.supportsResourcePacks() && config.getBoolean("Resource Packs.Request").orElse(false) && !url.isEmpty())
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 try {
-                    lang.send(player, lang.get("Resource Packs.Request Message"));
-                    config.getString("Resource Packs.URL").ifPresent(player::setResourcePack);
+                    if (hasFancyResourcePackMessage) {
+                        player.setResourcePack(url, resourcePackHash, lang.getColored("Resource Packs.Request Message"));
+                    } else {
+                        lang.send(player, false, lang.get("Resource Packs.Request Message"));
+
+                        if (hasResourcePackHash)
+                            player.setResourcePack(url, resourcePackHash);
+                        else
+                            player.setResourcePack(url);
+                    }
                 } catch (Exception ex) {
                     PlayMoreSounds.getConsoleLogger().log(lang.get("Resource Packs.Error").replace("<player>", player.getName()));
                     ex.printStackTrace();
                 }
-            }, 20);
+            }, 3);
     }
 }

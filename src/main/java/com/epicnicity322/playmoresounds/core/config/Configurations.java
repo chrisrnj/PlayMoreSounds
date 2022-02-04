@@ -414,11 +414,20 @@ public enum Configurations
             "  Request: false\n" +
             "  # The URL of the resource pack. Must be a direct link.\n" +
             "  URL: ''\n" +
+            "  # The sha1 hash sum of the resource pack. This is optional, but it makes so players download the resource only the first\n" +
+            "  #time they join the server, increasing resource pack load time.\n" +
+            "  # To generate a sha1 hash sum, drop your pack at http://onlinemd5.com/ and select \"SHA1\" then paste the checksum here.\n" +
+            "  Hash: ''\n" +
             "  # If a player denies the download, this player will be kicked immediately.\n" +
+            "  # Players with the permission 'playmoresounds.resourcepacker.force.bypass' will be able to join even if Force is enabled.\n" +
             "  Force:\n" +
-            "    Enabled: false\n" +
+            "    Enabled: true\n" +
             "    # Should the player be kicked even if the download of the resource pack is accepted but fails?\n" +
-            "    Even If Download Fail: false\n" +
+            "    Even If Download Fail: true\n" +
+            "    # Admins online will be prompted to type \"/pms confirm\" to allow this player to join without a resource pack\n" +
+            "    #in case the player is trying to join but failing to download the resource pack multiple times.\n" +
+            "    # Only admins with the permission 'playmoresounds.resourcepacker.administrator' will be able to do this.\n" +
+            "    Alert Fail: true\n" +
             "\n" +
             "# Sound Regions configuration:\n" +
             "Sound Regions:\n" +
@@ -951,7 +960,7 @@ public enum Configurations
             "    Cancel: '&aAddon <addon> &7&nwill no longer&a be uninstalled.'\n" +
             "    Confirmation:\n" +
             "      Chat: '&7Type &f/<label> confirm&7 to confirm uninstallation of <addon> addon.'\n" +
-            "      Description: 'Uninstall <addon> addon.'\n" +
+            "      Description: 'Uninstall <addon> addon'\n" +
             "      Title: '&9&lUninstall &9<addon>&l?'\n" +
             "    Error:\n" +
             "      Dependants:\n" +
@@ -1157,7 +1166,13 @@ public enum Configurations
             "\n" +
             "Resource Packs:\n" +
             "  Error: '&cSomething went wrong while requesting <player> to download the resource pack. Please try another URL.'\n" +
-            "  Kick Message: '&cYou must be using the resource pack to play on this server.'\n" +
+            "  Download Failed:\n" +
+            "    Failed: '&cResource Pack download failed. If you want this server''s full experience, please re-join to try the download again. If this error persists, please contact an administrator.'\n" +
+            "    Administrator: '&cThe player <player> tried to join but failed to download the resource pack. Type &7&n/pms confirm&c to allow this player to join without a resource pack.'\n" +
+            "    Confirmation: 'Allow <player> to join'\n" +
+            "  Kick Message:\n" +
+            "    Declined: '&cYou must accept the resource pack to play on this server.'\n" +
+            "    Download Fail: '&cSomething went wrong while downloading the resource pack. Please try joining again.'\n" +
             "  Request Message: '&ePlease download the resource pack to continue.'\n" +
             "\n" +
             "Stop Sound:\n" +
