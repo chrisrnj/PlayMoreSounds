@@ -55,10 +55,10 @@ public final class OnPlayerJoin implements Listener
         {
         }
     };
-    private static @Nullable PlayableRichSound firstJoin;
-    private static @Nullable PlayableRichSound joinServer;
     private static final boolean hasFancyResourcePackMessage = ReflectionUtil.getMethod(Player.class, "setResourcePack", String.class, byte[].class, String.class) != null;
     private static final boolean hasResourcePackHash = ReflectionUtil.getMethod(Player.class, "setResourcePack", String.class, byte[].class) != null;
+    private static @Nullable PlayableRichSound firstJoin;
+    private static @Nullable PlayableRichSound joinServer;
     private static byte[] resourcePackHash;
 
     static {
@@ -106,6 +106,7 @@ public final class OnPlayerJoin implements Listener
         this.plugin = plugin;
     }
 
+    @SuppressWarnings("deprecation")
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event)
     {
