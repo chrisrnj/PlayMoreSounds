@@ -20,6 +20,7 @@ package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
 
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
+import com.epicnicity322.epicpluginlib.bukkit.command.TabCompleteRunnable;
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandUtils;
@@ -38,14 +39,6 @@ import java.util.Optional;
 
 public final class PlaySubCommand extends Command implements Helpable
 {
-    private static final @NotNull HashSet<String> soundTypes = new HashSet<>();
-
-    static {
-        for (SoundType type : SoundType.values()) {
-            soundTypes.add(type.name());
-        }
-    }
-
     @Override
     public @NotNull CommandRunnable onHelp()
     {
@@ -82,6 +75,25 @@ public final class PlaySubCommand extends Command implements Helpable
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, getInvalidArgsMessage(label, sender, args));
     }
 
+    @Override
+    protected @Nullable TabCompleteRunnable getTabCompleteRunnable()
+    {
+        return (possibleCompletions, label, sender, args) -> {
+            switch (args.length) {
+                case 2:
+                    for (String soundType : SoundType.getPresentSoundNames()) {
+                        if (soundType.startsWith(args[1].toUpperCase(Locale.ROOT))) {
+                            possibleCompletions.add(soundType);
+                        }
+                    }
+                    break;
+                case 3:
+                    CommandUtils.addTargetTabCompletion(possibleCompletions, args[2], sender, "playmoresounds.play.others");
+                    break;
+            }
+        };
+    }
+
     private String getInvalidArgsMessage(String label, CommandSender sender, String[] args)
     {
         MessageSender lang = PlayMoreSounds.getLanguage();
@@ -104,7 +116,7 @@ public final class PlaySubCommand extends Command implements Helpable
 
         String sound = args[1];
 
-        if (soundTypes.contains(sound.toUpperCase(Locale.ROOT))) {
+        if (SoundType.getPresentSoundNames().contains(sound.toUpperCase(Locale.ROOT))) {
             SoundType type = SoundType.valueOf(sound.toUpperCase(Locale.ROOT));
             Optional<String> versionSound = type.getSound();
 

@@ -28,13 +28,14 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public final class CommandUtils
 {
-    private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
+    private static final @NotNull List<String> targetAllArgs = Arrays.asList("*", "all", "everybody", "everyone", "online");
+    private static final @NotNull List<String> targetSelfArgs = Arrays.asList("i", "me", "myself", "self");
+    private static final @NotNull ArrayList<String> targetArgs = targetAllArgs.stream().collect(Collectors.toCollection(() -> new ArrayList<>(targetSelfArgs)));
 
     private CommandUtils()
     {
@@ -55,6 +56,7 @@ public final class CommandUtils
                                              @NotNull String invalidArgsMsgToConsole, @NotNull String permissionOthers)
     {
         HashSet<Player> targets = new HashSet<>();
+        MessageSender lang = PlayMoreSounds.getLanguage();
 
         if (args.length <= targetPosition) {
             if (sender instanceof Player) {
@@ -67,11 +69,11 @@ public final class CommandUtils
             String target = args[targetPosition];
 
             switch (target.toLowerCase()) {
+                case "*":
                 case "all":
                 case "everybody":
                 case "everyone":
                 case "online":
-                case "*":
                     if (sender.hasPermission(permissionOthers)) {
                         Collection<? extends Player> online = UniversalVersionMethods.getOnlinePlayers();
 
@@ -87,9 +89,10 @@ public final class CommandUtils
                     }
                     break;
 
-                case "self":
+                case "i":
                 case "me":
                 case "myself":
+                case "self":
                     if (sender instanceof Player) {
                         targets.add((Player) sender);
                     } else {
@@ -121,8 +124,7 @@ public final class CommandUtils
                             Player player = Bukkit.getPlayer(name);
 
                             if (player == null) {
-                                lang.send(sender, lang.get("General.Player Not Found").replace(
-                                        "<player>", name));
+                                lang.send(sender, lang.get("General.Player Not Found").replace("<player>", name));
                                 return null;
                             }
 
@@ -160,6 +162,8 @@ public final class CommandUtils
      */
     public static String getWho(@NotNull Set<Player> players, @NotNull CommandSender sender)
     {
+        MessageSender lang = PlayMoreSounds.getLanguage();
+
         if (players.size() == 1) {
             Player theOne = players.iterator().next();
 
@@ -187,5 +191,26 @@ public final class CommandUtils
         }
 
         return names.toString();
+    }
+
+    public static void addTargetTabCompletion(@NotNull ArrayList<String> possibleCompletions, @NotNull String argument, @NotNull CommandSender sender, @NotNull String permissionOthers)
+    {
+        List<String> list;
+
+        if (sender.hasPermission(permissionOthers)) {
+            list = new ArrayList<>(targetArgs);
+
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                list.add(player.getName());
+            }
+        } else {
+            list = new ArrayList<>(targetSelfArgs);
+            if (sender instanceof Player) list.add(sender.getName());
+        }
+
+        for (String selfArg : list) {
+            if (selfArg.toLowerCase(Locale.ROOT).startsWith(argument.toLowerCase(Locale.ROOT)))
+                possibleCompletions.add(selfArg);
+        }
     }
 }
