@@ -46,9 +46,17 @@ public enum SoundCategory
                 this.spongeValue = (org.spongepowered.api.effect.sound.SoundCategory) SoundCategories.class.getField(spongeValue).get(null);
             } catch (Exception ignored) {
             }
-        } else if (PlayMoreSoundsCore.getPlatform() == PlayMoreSoundsCore.Platform.BUKKIT && StaticFields.hasSoundCategory) {
+        } else if (PlayMoreSoundsCore.getPlatform() == PlayMoreSoundsCore.Platform.BUKKIT && StaticFields.bukkitSoundCategories) {
             this.bukkitValue = org.bukkit.SoundCategory.valueOf(bukkitValue);
         }
+    }
+
+    /**
+     * @return Whether the current platform has sound categories available.
+     */
+    public static boolean hasSoundCategories()
+    {
+        return StaticFields.bukkitSoundCategories || PlayMoreSoundsCore.getPlatform() == PlayMoreSoundsCore.Platform.SPONGE;
     }
 
     public @Nullable org.bukkit.SoundCategory asBukkit()
@@ -63,14 +71,19 @@ public enum SoundCategory
 
     private static final class StaticFields
     {
-        private static boolean hasSoundCategory = false;
+        private static final boolean bukkitSoundCategories;
 
         static {
+            boolean bukkitSoundCategories1;
+
             try {
                 Class.forName("org.bukkit.SoundCategory");
-                hasSoundCategory = true;
+                bukkitSoundCategories1 = true;
             } catch (ClassNotFoundException ignored) {
+                bukkitSoundCategories1 = false;
             }
+
+            bukkitSoundCategories = bukkitSoundCategories1;
         }
     }
 }

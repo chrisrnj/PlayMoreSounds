@@ -22,6 +22,7 @@ import com.epicnicity322.epicpluginlib.core.logger.ErrorHandler;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.epicpluginlib.core.util.PathUtils;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
+import com.epicnicity322.playmoresounds.core.sound.SoundCategory;
 import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,30 +40,29 @@ public final class PlayMoreSoundsCore
     private static final @NotNull Path folder;
     private static final @NotNull ErrorHandler errorHandler;
     private static final @NotNull Version serverVersion;
-    private static @NotNull Platform platform;
+    private static final @NotNull Platform platform;
 
     static {
-        try {
-            Class.forName("org.bukkit.Bukkit");
-
-            platform = Platform.BUKKIT;
-        } catch (ClassNotFoundException e) {
-            platform = Platform.SPONGE;
-        }
+        platform = hasClass("org.bukkit.Bukkit") ? Platform.BUKKIT : (hasClass("org.spongepowered.api.Sponge") ? Platform.SPONGE : Platform.UNKNOWN);
 
         if (platform == Platform.BUKKIT) {
             folder = Paths.get("plugins").resolve("PlayMoreSounds");
             serverVersion = VersionUtils.getBukkitVersion();
         } else {
             folder = Paths.get("config").resolve("playmoresounds");
-            serverVersion = com.epicnicity322.playmoresounds.sponge.util.VersionUtils.getSpongeVersion();
+
+            if (platform == Platform.SPONGE) {
+                serverVersion = com.epicnicity322.playmoresounds.sponge.util.VersionUtils.getSpongeVersion();
+            } else {
+                serverVersion = new Version("0.0");
+            }
         }
 
         if (Files.notExists(folder)) {
             try {
                 Files.createDirectories(folder);
             } catch (IOException e) {
-                System.out.println("Something went wrong while creating PlayMoreSounds data folder, the plugin must be disabled immediately.");
+                System.err.println("Something went wrong while creating PlayMoreSounds data folder, the plugin must be disabled immediately.");
                 e.printStackTrace();
             }
         }
@@ -70,7 +70,7 @@ public final class PlayMoreSoundsCore
         // Removing error reports if the server was reloaded
         if (Objects.equals(System.getProperty("PlayMoreSounds Enabled"), "true")) {
             System.out.println("PlayMoreSounds NOTICE: A reload was detected and since PlayMoreSounds does not support reloads, all PlayMoreSounds errors thrown from now on will not be logged.");
-            errorHandler = new UselessErrorHandler(folder, "PlayMoreSounds", PlayMoreSoundsVersion.version,
+            errorHandler = new DummyErrorHandler(folder, "PlayMoreSounds", PlayMoreSoundsVersion.version,
                     Collections.singleton("Epicnicity322"), "https://github.com/Epicnicity322/PlayMoreSounds/");
         } else {
             errorHandler = new ErrorHandler(folder, "PlayMoreSounds", PlayMoreSoundsVersion.version,
@@ -83,14 +83,25 @@ public final class PlayMoreSoundsCore
         Path availableSounds = folder.resolve("available sounds.txt");
         StringBuilder data = new StringBuilder();
 
-        data.append("A list of sounds available in this minecraft version.\n")
+        data.append("A list of sounds").append(SoundCategory.hasSoundCategories() ? " and sound categories" : "").append(" available in this minecraft version.\n")
                 .append("This file is not a configuration and any information stored here is not used anywhere in the plugin.\n")
-                .append("This file is restored everytime the server starts.\n")
-                .append("\n")
-                .append("List of sounds available in your minecraft version:\n");
+                .append("This file is restored everytime the server starts.\n");
 
-        for (String sound : SoundType.getPresentSoundNames())
+        if (SoundCategory.hasSoundCategories()) {
+            data.append("\n").append("Sound categories are available for this version:\n");
+
+            for (SoundCategory category : SoundCategory.values()) {
+                data.append("\n- ").append(category.name());
+            }
+
+            data.append("\n");
+        }
+
+        data.append("\n").append(SoundType.getPresentSoundNames().size()).append(" sounds available for version ").append(serverVersion).append(":\n");
+
+        for (String sound : SoundType.getPresentSoundNames()) {
             data.append("\n- ").append(sound);
+        }
 
         try {
             Files.deleteIfExists(availableSounds);
@@ -132,15 +143,26 @@ public final class PlayMoreSoundsCore
         return errorHandler;
     }
 
+    private static boolean hasClass(String className)
+    {
+        try {
+            Class.forName(className);
+            return true;
+        } catch (ClassNotFoundException ignored) {
+            return false;
+        }
+    }
+
     public enum Platform
     {
         BUKKIT,
-        SPONGE
+        SPONGE,
+        UNKNOWN
     }
 
-    private static final class UselessErrorHandler extends ErrorHandler
+    private static final class DummyErrorHandler extends ErrorHandler
     {
-        public UselessErrorHandler(@NotNull Path errorFolder, @NotNull String pluginName, @NotNull String pluginVersion, @NotNull Collection<String> authors, @Nullable String website)
+        public DummyErrorHandler(@NotNull Path errorFolder, @NotNull String pluginName, @NotNull String pluginVersion, @NotNull Collection<String> authors, @Nullable String website)
         {
             super(errorFolder, pluginName, pluginVersion, authors, website);
         }
