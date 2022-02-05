@@ -2,7 +2,7 @@ Changes with * at the start are the ones that are currently under development, t
 
 Changelog:
 *- Add sound list when you try to tab complete /pms play command.
-*- Add sound categories to 'available sounds.txt'
+- Add sound categories to 'available sounds.txt'
 *- Add pages to help command.
 - Add "/pms update download [-force]" command to allow downloads of new updates through api.spiGET.org.
 - Add 1.18 sounds that were missing.
