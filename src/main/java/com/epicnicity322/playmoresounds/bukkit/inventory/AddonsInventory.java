@@ -378,7 +378,7 @@ public final class AddonsInventory implements PMSInventory
                                 AddonsSubCommand.ADDONS_TO_UNINSTALL.add(addon);
                                 lang.send(player, lang.get("Addons.Uninstall.Success").replace("<addon>", name));
                                 //Closing for all viewers since the addon item needs to be changed.
-                                inventory.close();
+                                InventoryUtils.closeInventory(inventory);
                             }, null).openInventory(player);
                 });
             }

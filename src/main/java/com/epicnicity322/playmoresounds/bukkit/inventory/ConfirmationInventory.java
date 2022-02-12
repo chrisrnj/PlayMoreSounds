@@ -50,12 +50,12 @@ public final class ConfirmationInventory implements PMSInventory
 
         inventory.setItem(12, InventoryUtils.getItemStack("Confirm.Inventory.Items.Confirm"));
         buttons.put(12, event -> {
-            inventory.close();
+            InventoryUtils.closeInventory(inventory);
             confirm.run();
         });
         inventory.setItem(14, InventoryUtils.getItemStack("Confirm.Inventory.Items.Cancel"));
         buttons.put(14, event -> {
-            inventory.close();
+            InventoryUtils.closeInventory(inventory);
             if (cancel != null) cancel.run();
         });
     }

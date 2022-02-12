@@ -49,6 +49,7 @@ import java.util.function.Consumer;
 @SuppressWarnings("deprecation")
 public final class InventoryUtils
 {
+    private static final boolean hasInventoryCloseMethod;
     private static final @NotNull Material glassPanel;
     private static final @NotNull HashMap<HumanEntity, HashMap<Integer, Consumer<InventoryClickEvent>>> openInventories = new HashMap<>();
     private static final @NotNull HashMap<HumanEntity, Consumer<InventoryCloseEvent>> onClose = new HashMap<>();
@@ -95,6 +96,16 @@ public final class InventoryUtils
     };
 
     static {
+        boolean notFinalHasInventoryCloseMethod = false;
+
+        try {
+            Inventory.class.getMethod("close");
+            notFinalHasInventoryCloseMethod = true;
+        } catch (NoSuchMethodException ignored) {
+        }
+
+        hasInventoryCloseMethod = notFinalHasInventoryCloseMethod;
+
         if (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.13")) < 0) {
             glassPanel = Material.valueOf("THIN_GLASS");
         } else {
@@ -210,5 +221,15 @@ public final class InventoryUtils
 
         openInventories.put(player, buttons);
         InventoryUtils.onClose.put(player, onClose);
+    }
+
+    public static void closeInventory(@NotNull Inventory inventory)
+    {
+        if (hasInventoryCloseMethod)
+            inventory.close();
+        else
+            for (HumanEntity viewer : inventory.getViewers()) {
+                viewer.closeInventory();
+            }
     }
 }
