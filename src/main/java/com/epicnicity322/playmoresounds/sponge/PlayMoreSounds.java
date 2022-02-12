@@ -34,7 +34,6 @@ import com.epicnicity322.playmoresounds.core.util.LoadableHashSet;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import com.epicnicity322.playmoresounds.sponge.metrics.Metrics;
 import com.google.inject.Inject;
-import org.bukkit.plugin.UnknownDependencyException;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.event.Listener;
@@ -73,7 +72,7 @@ public final class PlayMoreSounds
     static {
         // Checking if EpicPluginLib is outdated.
         if (EpicPluginLib.version.compareTo(new Version("2.2")) < 0) {
-            throw new UnknownDependencyException("You are running an old version of EpicPluginLib, make sure you are using 2.2 or similar.");
+            throw new IllegalStateException("You are running an old version of EpicPluginLib, make sure you are using 2.2 or similar.");
         }
 
         language.addLanguage("EN_US", Configurations.LANGUAGE_EN_US.getConfigurationHolder());
@@ -162,9 +161,9 @@ public final class PlayMoreSounds
         for (Runnable runnable : onReloadRunnables) {
             try {
                 runnable.run();
-            } catch (Throwable e) {
+            } catch (Throwable t) {
                 logger.log("&cAn unknown error occurred on PlayMoreSounds reload.");
-                PlayMoreSoundsCore.getErrorHandler().report(e, "PMS Reloading Error (Unknown):");
+                PlayMoreSoundsCore.getErrorHandler().report(t, "PMS Reloading Error (Unknown):");
             }
         }
     }
@@ -221,11 +220,11 @@ public final class PlayMoreSounds
             PlayMoreSoundsCore.getErrorHandler().report(e, "PMSLoadingError (Unknown):");
         } finally {
             if (success) {
-                logger.log("&6============================================");
-                logger.log("&a PlayMoreSounds is not fully functional on");
-                logger.log("&asponge yet.");
+                logger.log("&6========================================");
+                logger.log("&a PlayMoreSounds is not fully functional");
+                logger.log("&aon sponge yet.");
                 logger.log("&a " + SoundType.getPresentSoundTypes().size() + " sounds available on " + PlayMoreSoundsCore.getServerVersion());
-                logger.log("&6============================================");
+                logger.log("&6========================================");
 
                 if (metricsConfigManager.collectionState(container) == Tristate.TRUE)
                     logger.log("&ePlayMoreSounds is using bStats as metrics collector.");
@@ -249,19 +248,20 @@ public final class PlayMoreSounds
 
                 addonManager.startAddons(StartTime.END);
             } else {
-                logger.log("&6============================================", ConsoleLogger.Level.ERROR);
-                logger.log("&cSomething went wrong while loading PMS", ConsoleLogger.Level.ERROR);
-                logger.log("&cMake sure you read messages before reporting", ConsoleLogger.Level.ERROR);
-                logger.log("&6============================================", ConsoleLogger.Level.ERROR);
+                logger.log("&6========================================", ConsoleLogger.Level.ERROR);
+                logger.log("&c Something went wrong while loading PMS", ConsoleLogger.Level.ERROR);
+                logger.log("&c Make sure you read messages before", ConsoleLogger.Level.ERROR);
+                logger.log("&creporting.", ConsoleLogger.Level.ERROR);
+                logger.log("&6========================================", ConsoleLogger.Level.ERROR);
                 logger.log("&4Error log generated on data folder.", ConsoleLogger.Level.WARN);
             }
 
             for (Runnable runnable : onEnableRunnables) {
                 try {
                     runnable.run();
-                } catch (Exception e) {
+                } catch (Throwable t) {
                     logger.log("&cAn unknown error occurred on PlayMoreSounds startup.");
-                    errorHandler.report(e, "PMS Loading Error (Unknown):");
+                    errorHandler.report(t, "PMS Loading Error (Unknown):");
                 }
             }
 
@@ -286,9 +286,9 @@ public final class PlayMoreSounds
         for (Runnable runnable : onDisableRunnables) {
             try {
                 runnable.run();
-            } catch (Exception e) {
+            } catch (Throwable t) {
                 logger.log("&cAn unknown error occurred on PlayMoreSounds shutdown.");
-                errorHandler.report(e, "PMS Unloading Error (Unknown):");
+                errorHandler.report(t, "PMS Unloading Error (Unknown):");
             }
         }
 
