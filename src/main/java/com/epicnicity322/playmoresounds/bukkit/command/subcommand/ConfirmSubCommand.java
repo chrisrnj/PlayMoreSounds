@@ -34,16 +34,14 @@ import java.util.Map;
 
 public final class ConfirmSubCommand extends Command implements Helpable
 {
-    private static final @NotNull HashMap<CommandSender, LinkedHashMap<Runnable, String>> pendingConfirmations = new HashMap<>();
+    private static @Nullable HashMap<CommandSender, LinkedHashMap<Runnable, String>> pendingConfirmations;
 
     public static void addPendingConfirmation(@NotNull CommandSender sender, @NotNull Runnable confirmation, @NotNull String description)
     {
-        LinkedHashMap<Runnable, String> confirmations = pendingConfirmations.get(sender);
-
-        if (confirmations == null) confirmations = new LinkedHashMap<>();
+        if (pendingConfirmations == null) pendingConfirmations = new HashMap<>();
+        LinkedHashMap<Runnable, String> confirmations = pendingConfirmations.computeIfAbsent(sender, k -> new LinkedHashMap<>());
 
         confirmations.put(confirmation, description);
-        pendingConfirmations.put(sender, confirmations);
     }
 
     @Override
@@ -74,14 +72,14 @@ public final class ConfirmSubCommand extends Command implements Helpable
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
         MessageSender lang = PlayMoreSounds.getLanguage();
-        LinkedHashMap<Runnable, String> confirmations = pendingConfirmations.get(sender);
+        LinkedHashMap<Runnable, String> confirmations;
 
-        if (confirmations == null || confirmations.isEmpty()) {
+        if (pendingConfirmations == null || (confirmations = pendingConfirmations.get(sender)) == null || confirmations.isEmpty()) {
             lang.send(sender, lang.get("Confirm.Error.Nothing Pending"));
             return;
         }
 
-        long id = 1;
+        int id = 1;
 
         if (args.length > 1) {
             if (args[1].equalsIgnoreCase("list")) {
@@ -93,23 +91,33 @@ public final class ConfirmSubCommand extends Command implements Helpable
 
                 return;
             } else if (StringUtils.isNumeric(args[1])) {
-                id = Long.parseLong(args[1]);
+                id = Integer.parseInt(args[1]);
             } else {
                 lang.send(sender, lang.get("General.Invalid Arguments")
                         .replace("<label>", label).replace("<label2>", args[0])
-                        .replace("<args>", "[list|id]"));
+                        .replace("<args>", "[list|<" + lang.get("General.Id") + ">]"));
                 return;
             }
         }
 
-        long l = 1;
+        if (id < 0) {
+            lang.send(sender, lang.get("Confirmation.Error.Not Found").replace("<id>", args[1]).replace("<label>", label));
+            return;
+        }
+
+        int i = 1;
 
         for (Runnable runnable : new LinkedHashSet<>(confirmations.keySet())) {
-            if (l++ == id) {
+            if (i++ == id) {
                 runnable.run();
                 confirmations.remove(runnable);
+                i = 0;
                 break;
             }
+        }
+
+        if (i != 0) {
+            lang.send(sender, lang.get("Confirmation.Error.Not Found").replace("<id>", args[1]).replace("<label>", label));
         }
     }
 }
