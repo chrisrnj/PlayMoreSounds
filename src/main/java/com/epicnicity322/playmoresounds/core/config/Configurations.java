@@ -536,7 +536,7 @@ public enum Configurations
             "        Glowing: false\n" +
             "      Confirm:\n" +
             "        Material: GREEN_WOOL\n" +
-            "        Glowing: false", StaticFields.version4_0_0),
+            "        Glowing: false", StaticFields.version4_1_2),
     CUSTOM_DISCS(StaticFields.sounds.resolve("custom discs.yml"), "# Set a sound to play when a player clicks at a jukebox with a specific item.\n" +
             "#\n" +
             "# Warnings: \n" +
@@ -971,6 +971,7 @@ public enum Configurations
             "Confirm:\n" +
             "  Error:\n" +
             "    Nothing Pending: '&cThere is nothing pending to confirm.'\n" +
+            "    Not Found: '&cA confirmation with id &7<id>&c was not found. Use &7&n/<label> list&c to see confirmations available.'\n" +
             "  Inventory:\n" +
             "    Items:\n" +
             "      Cancel:\n" +
@@ -1025,7 +1026,8 @@ public enum Configurations
             "  Disc: |-\n" +
             "    &e/<label> disc <id> [target]\n" +
             "    &7 > Gives a configured custom disc.\n" +
-            "  Header: 'List of PlayMoreSounds commands:'\n" +
+            "  Footer: 'View more commands with &7&n/<label> help <next>'\n" +
+            "  Header: 'List of PlayMoreSounds commands (Page <page> of <totalPages>):'\n" +
             "  Help: |-\n" +
             "    &e/<label> help\n" +
             "    &7 > Shows the description of commands.\n" +
@@ -1219,7 +1221,7 @@ public enum Configurations
             "    Default: '&cSomething went wrong while using updater.'\n" +
             "    Offline: '&cYou are offline or spigotmc.org is down.'\n" +
             "    Timeout: '&cTook too long to establish a connection.'\n" +
-            "  Not Available: '&eNo updates available.'", StaticFields.version4_0_0),
+            "  Not Available: '&eNo updates available.'", StaticFields.version4_1_2),
     LANGUAGE_ES_LA(StaticFields.lang.resolve("Language ES-LA.yml"), "#Idioma ES-LA\n" +
             "Version: '" + PlayMoreSoundsVersion.version + "'\n" +
             "\n" +
@@ -1504,7 +1506,7 @@ public enum Configurations
             "    Default: '&cAlgo salió mal al usar el actualizador.'\n" +
             "    Offline: '&cEstá desconectado o spigot.org está caído.'\n" +
             "    Timeout: '&cTomó demasiado tiempo para establecer una conexión.'\n" +
-            "  Not Available: '&eNo hay actualizaciones disponibles.'", StaticFields.version4_0_0),
+            "  Not Available: '&eNo hay actualizaciones disponibles.'", StaticFields.version4_1_2),
     LANGUAGE_PT_BR(StaticFields.lang.resolve("Language PT-BR.yml"), "#Linguagem PT-BR\n" +
             "Version: '" + PlayMoreSoundsVersion.version + "'\n" +
             "\n" +
@@ -1636,8 +1638,6 @@ public enum Configurations
             "  Footer: '&f&l - &aVeja mais sons com \"&f/&n<label> list <page>&a\"'\n" +
             "  Header: '&aLista de sons disponíveis [Página <page> de <totalpages>]:'\n" +
             "  Inventory:\n" +
-            "    Error:\n" +
-            "      Not Supported: '&cA GUI de lista de sons só funciona na versão 1.14+'\n" +
             "    Next Page:\n" +
             "      Display Name: '&7&lPróxima página'\n" +
             "      Lore: ' Clique para ir à próxima página.'\n" +
@@ -1789,61 +1789,106 @@ public enum Configurations
             "    Default: '&cAlgo de errado ocorreu ao usar o atualizador.'\n" +
             "    Offline: '&cVocê está offline ou spigot.org caiu.'\n" +
             "    Timeout: '&cLevou tempo demais para estabelecer uma conexão.'\n" +
-            "  Not Available: '&eNenhuma atualização disponível.'", StaticFields.version4_0_0),
+            "  Not Available: '&eNenhuma atualização disponível.'", StaticFields.version4_1_2),
     LANGUAGE_ZH_CN(StaticFields.lang.resolve("Language ZH-CN.yml"), "#语言ZH-CN\n" +
+            "#语言ZH-CN\n" +
             "#译者：秋风残叶\n" +
             "Version: '" + PlayMoreSoundsVersion.version + "'\n" +
             "\n" +
             "Addons:\n" +
             "  Download:\n" +
-            "    Already Exists: '&7An addons zip was already downloaded before, deleting and downloading the latest one.'\n" +
             "    Error:\n" +
-            "      Not Found: '&cAddons for PlayMoreSounds v<version> were not found.'\n" +
-            "      Subtitle: '&7Something went wrong'\n" +
-            "      Title: '&4&lError'\n" +
-            "      Unknown: '&cAn unknown error occurred when downloading addons.'\n" +
-            "    Files: '&6Addons files...'\n" +
-            "    Info: '&6Info about addons...'\n" +
+            "      Not Found: '&cPlayMoreSounds v<version> 的附属未找到'\n" +
+            "      Subtitle: '&7出现错误'\n" +
+            "      Title: '&4&l警告！'\n" +
+            "      Unknown: '&c下载附属包时出现未知错误！'\n" +
+            "    Downloading:\n" +
+            "      Already Exists: '&7已找到一个附属包，将其从临时文件夹中删除并下载最新版本...'\n" +
+            "      Subtitle:\n" +
+            "        Files: '&6附属文件...'\n" +
+            "        Info: '&6附属信息...'\n" +
+            "      Title: '&c下载中'\n" +
+            "      Unsupported Version: '&7最新版本附属已经下载，但貌似并不支持你当前版本的 PlayMoreSounds ，尝试下载适用你当前版本的附属...'\n" +
             "    Success:\n" +
-            "      Subtitle: '&7Latest addons were downloaded'\n" +
-            "      Title: '&2Success'\n" +
-            "    Title: '&cDownloading'\n" +
-            "    Unsupported Version: '&7The latest addons were downloaded, but it seems that they don''t support the current PlayMoreSounds version you''re running, downloading addons made for this version...'\n" +
-            "  Empty Title: '&c&lNo addons found'\n" +
+            "      Subtitle: '&7最新版附属已下载'\n" +
+            "      Title: '&2成功'\n" +
             "  Error:\n" +
-            "    Blocked: '&cAddons are currently being installed, wait until the installation process finishes to open the addon management inventory.'\n" +
+            "    Blocked: '&c附属正在安装, 请等待安装结束以打开附属管理菜单'\n" +
+            "    Not Found: '&c附属 &f<addon>&c 未找到，请使用 &7&n/<label> addon list&c 列出所有可用附属'\n" +
             "  Install:\n" +
-            "    Error: '&cSomething went wrong while installing the addon &4<addon>&c.'\n" +
-            "    Installed: '&7<addon>&7 was installed.'\n" +
-            "    Success: '&aAddon <addon>&a was installed successfully, restart your server so it can be loaded.'\n" +
-            "  Installer Title: '&2&lInstall Addons:'\n" +
-            "  Management Inventory:\n" +
-            "    Addon:\n" +
-            "      Display Name: '&a&l<name>'\n" +
-            "      Lore: >-\n" +
-            "        &7Author(s):&8 <authors>\n" +
-            "        <line>&7Description:&8 <description>\n" +
-            "        <line>&7Version:&8 <version>\n" +
-            "    Done:\n" +
-            "      Display Name: '&2&lDone'\n" +
-            "      Lore: '&7Click to exit.'\n" +
-            "    Info:\n" +
-            "      Display Name: '&d&lInfo'\n" +
-            "      Lore: '&7You have <addons> addons installed.'\n" +
-            "    Install:\n" +
-            "      Display Name: '&2&lInstall Addons'\n" +
-            "      Lore: ' &7Click to download latest addons from<line>&7PlayMoreSounds'' GitHub.'\n" +
-            "    Next Page:\n" +
-            "      Display Name: '&7&lNext Page'\n" +
-            "      Lore: '&7Click to go to page <to>.'\n" +
-            "    Previous Page:\n" +
-            "      Display Name: '&7&lPrevious Page'\n" +
-            "      Lore: '&7Click to go to page <to>.'\n" +
-            "  Title: '&9&lInstalled Addons:'\n" +
+            "    Error: '&c安装附属 &4<addon>&c 时出现未知错误.'\n" +
+            "    Installed: '&7<addon>&7 已安装'\n" +
+            "    Success: '&a附属 <addon>&a 已成功安装，请重启服务器'\n" +
+            "  Inventory:\n" +
+            "    Title:\n" +
+            "      Default: '&9&l已安装附属:'\n" +
+            "      Empty: '&c&l未找到附属'\n" +
+            "      Installer: '&2&l安装附属:'\n" +
+            "    Items:\n" +
+            "      Addon:\n" +
+            "        Display Name: '&a&l<name>'\n" +
+            "        Lore: >-\n" +
+            "          &7作者:&8 <authors>\n" +
+            "          <line>&7描述:&8 <description>\n" +
+            "          <line>&7版本:&8 <version>\n" +
+            "          <line>&c点击将其&4&n&l卸载&c.\n" +
+            "        # 当某个附属已确认即将卸载（关服时将被卸载）该按钮上显示的信息\n" +
+            "        # 可点击取消卸载\n" +
+            "        To be uninstalled lore: >-\n" +
+            "          &7作者:&8 <authors>\n" +
+            "          <line>&7描述:&8 <description>\n" +
+            "          <line>&7版本:&8 <version>\n" +
+            "          <line>&f点击&7&n&l取消卸载&f.\n" +
+            "      Done:\n" +
+            "        Display Name: '&2&l完成'\n" +
+            "        Lore: '&7点击退出'\n" +
+            "      Info:\n" +
+            "        Display Name: '&d&l信息'\n" +
+            "        Lore: '&7已安装 <addons> 附属'\n" +
+            "      Install:\n" +
+            "        Display Name: '&2&l安装附属'\n" +
+            "        Lore: ' &7点击此处从<line>&7PlayMoreSounds'' 的GitHub上下载最新附属'\n" +
+            "      Next Page:\n" +
+            "        Display Name: '&7&l下一页'\n" +
+            "        Lore: '&7点击传送至页 <to>.'\n" +
+            "      Previous Page:\n" +
+            "        Display Name: '&7&l上一页'\n" +
+            "        Lore: '&7点击传送至页 <to>.'\n" +
+            "  List:\n" +
+            "    Header: '&7PlayMoreSounds 已安装附属:'\n" +
+            "    Separator: '&f, '\n" +
+            "  Start:\n" +
+            "    Error:\n" +
+            "      Already Started: '&c附属 <addon> 已启用'\n" +
+            "    Success: '&a附属 <addon> 已成功启用'\n" +
+            "  Stop:\n" +
+            "    Error:\n" +
+            "      Already Stopped: '&c附属 <addon> 已停用'\n" +
+            "    Success: '&a附属 <addon> 已成功停用'\n" +
+            "  Uninstall:\n" +
+            "    Cancel: '&a附属 <addon> &7&n的卸载&a已被取消'\n" +
+            "    Confirmation:\n" +
+            "      Chat: '&7请输入 &f/<label> confirm&7 确认卸载 <addon> 附属'\n" +
+            "      Description: '卸载 <addon> 附属'\n" +
+            "      Title: '&9&l卸载 &9<addon>&l?'\n" +
+            "    Error:\n" +
+            "      Dependants:\n" +
+            "        Plural: '&c附属 <addon> 无法被卸载，因为其为附属 &f<dependants>&c 的前置，你需要首先把这些附属卸载掉'\n" +
+            "        Singular: '&c附属 <addon> 无法被卸载，因为其为附属 &f<dependants>&c 的前置，你需要首先把这个附属卸载掉'\n" +
+            "    Success: '&a附属 <addon> &4&n在下次关服重启时将被卸载'\n" +
             "\n" +
             "Confirm:\n" +
             "  Error:\n" +
             "    Nothing Pending: '&c无待确认项目'\n" +
+            "    Not Found: '&cID为 &7<id>&c 的确认信息未找到，请输入 &7&n/<label> list&c 查看所有可用确认信息'\n" +
+            "  Inventory:\n" +
+            "    Items:\n" +
+            "      Cancel:\n" +
+            "        Display Name: '&4&l取消'\n" +
+            "        Lore: '&c点击取消'\n" +
+            "      Confirm:\n" +
+            "        Display Name: '&2&l确认'\n" +
+            "        Lore: '&a点击确认'\n" +
             "  List:\n" +
             "    Confirmation: ' &f<id> &7- <description>'\n" +
             "    Header: '&8待确认列表:'\n" +
@@ -1880,7 +1925,7 @@ public enum Configurations
             "Help:\n" +
             "  Addons: |-\n" +
             "    &e/<label> addons\n" +
-            "    &7 > Opens a GUI that helps you install addons.\n" +
+            "    &7 > 打开GUI并显示附属安装相关信息\n" +
             "  Check: |-\n" +
             "    &e/<label> check [目标]\n" +
             "    &7 > 检查声音的开启/关闭状态\n" +
@@ -1890,7 +1935,8 @@ public enum Configurations
             "  Disc: |-\n" +
             "    &e/<label> disc <ID> [目标]\n" +
             "    &7 > 提供配置的自定义光盘\n" +
-            "  Header: '指令列表:'\n" +
+            "  Footer: '查看更多帮助请输入 &7&n/<label> help <next>'\n" +
+            "  Header: 'PlayMoreSounds 指令列表 (页 <page> / <totalPages>):'\n" +
             "  Help: |-\n" +
             "    &e/<label> help [指令]\n" +
             "    &7 > 指令描述\n" +
@@ -1917,13 +1963,16 @@ public enum Configurations
             "    &7 > 点击下载更新\n" +
             "\n" +
             "List:\n" +
-            "  Error:\n" +
-            "    Not Exists: '&c页码 &7<page>&c 不存在，最大页码: <totalpages>.'\n" +
-            "  Footer: '&f&l - &a查看更多音效请使用 \"&f/&n<label> list <page>&a\"'\n" +
-            "  Header: '&a所有可用音效列表 [页 <page> / <totalpages>]:'\n" +
-            "  Inventory:\n" +
+            "  Chat:\n" +
+            "    Alternate Color: '&8'\n" +
+            "    Color: '&e'\n" +
             "    Error:\n" +
-            "      Not Supported: '&c声音列表菜单只在MC 1.14+ 可用'\n" +
+            "      Not Exists: '&c页码 &7<page>&c 不存在，最大页码: <totalpages>.'\n" +
+            "    Footer: '&f&l - &a查看更多音效请使用 \"&f/&n<label> list <page>&a\"'\n" +
+            "    Header: '&a所有可用音效列表 [页 <page> / <totalpages>]:'\n" +
+            "    Separator: '&f, '\n" +
+            "    Sound Tooltip: '&5点击播放 &d<sound>'\n" +
+            "  Inventory:\n" +
             "    Next Page:\n" +
             "      Display Name: '&7&l下一页'\n" +
             "      Lore: ' 点击翻页'\n" +
@@ -1938,14 +1987,13 @@ public enum Configurations
             "      Lore: ' 停止当前播放'\n" +
             "    Title: '&8音效列表 页 &c<page>&8 / &c<totalpages>&8'\n" +
             "  Page: 页\n" +
-            "  Sound Tooltip: '&5点击播放 &d<sound>'\n" +
             "\n" +
             "Play:\n" +
             "  Error:\n" +
-            "    Invalid Sound: '&cThe value \"&7<sound>&c\" has invalid sound characters.'\n" +
+            "    Invalid Sound: '&c声音名 \"&7<sound>&c\" 名称不合法'\n" +
             "    Not A Section: '&c文件 &7<file>&c &c里的设置项 \"&7<section>&c\" 不是一个合法音效名称'\n" +
             "    Unauthorized: '&c无法打开此文件夹'\n" +
-            "    Unavailable: '&cThe sound <sound> is not available in this minecraft version.'\n" +
+            "    Unavailable: '&c声音名 <sound> 不适用于当前Minecraft版本'\n" +
             "  Pitch: 音调\n" +
             "  Sound: 音效\n" +
             "  Success:\n" +
@@ -2032,7 +2080,13 @@ public enum Configurations
             "\n" +
             "Resource Packs:\n" +
             "  Error: '&c请求 <player> 下载材质包时出现错误'\n" +
-            "  Kick Message: '&c你必须下载材质包才能进服游戏'\n" +
+            "  Download Failed:\n" +
+            "    Failed: '&c材质包下载失败，想体验本服务器全部玩法请尝试重新登录并重新下载该材质包，若还是无法下载，请联系服务器管理员。'\n" +
+            "    Administrator: '&c玩家 <player> 尝试进入服务器但下载材质包失败，可输入 &7&n/pms confirm&c 来让玩家跳过材质包下载环节进入服务器'\n" +
+            "    Confirmation: '允许 <player> 进服'\n" +
+            "  Kick Message:\n" +
+            "    Declined: '&c你必须下载材质包才能进服游戏'\n" +
+            "    Download Fail: '&c材质包下载失败，请尝试重新登录'\n" +
             "  Request Message: '&e请下载材质包后继续'\n" +
             "\n" +
             "Stop Sound:\n" +
@@ -2059,27 +2113,27 @@ public enum Configurations
             "  Available: '&2PlayMoreSounds v<version> 新版本已可用，建议输入 &7/<label> update download&2 来下载新版本'\n" +
             "  Check: '&e检查更新...'\n" +
             "  Download:\n" +
-            "    Checking: '&7Checking if an update is available for download...'\n" +
+            "    Checking: '&7检查插件更新...'\n" +
             "    Confirmation:\n" +
             "      Not Latest:\n" +
-            "        Deleted: '&aOlder downloaded version of PlayMoreSounds was deleted.'\n" +
-            "        Description: 'Delete the downloaded update with older version.'\n" +
+            "        Deleted: '&a旧下载版本的 PlayMoreSounds 已删除'\n" +
+            "        Description: '删除旧版本的插件更新下载文件'\n" +
             "      Not Supported:\n" +
-            "        Deleted: '&aUnsupported downloaded version of PlayMoreSounds was deleted.'\n" +
-            "        Description: 'Delete the unsupported update.'\n" +
-            "    Deleted Downloaded: '&7A download of an update was already found. Deleting it and downloading again.'\n" +
+            "        Deleted: '&a不支持版本的 PlayMoreSounds 已删除'\n" +
+            "        Description: '删除不支持版本的插件更新下载文件'\n" +
+            "    Deleted Downloaded: '&7已找到一个已下载的更新，正在删除它并重新下载'\n" +
             "    Downloading:\n" +
-            "      Default: '&7An update was found and is being downloaded.'\n" +
-            "      Forcefully: '&7Downloading latest version available of PlayMoreSounds...'\n" +
+            "      Default: '&7插件更新可用，正在下载...'\n" +
+            "      Forcefully: '&7正在下载最新版本的 PlayMoreSounds...'\n" +
             "    Error:\n" +
-            "      Not Latest: '&cYou downloaded PlayMoreSounds version &f<downloaded>&c which is older than the current installed version: &f<current>&c. Type &f&n/pms confirm&c to delete the older version.'\n" +
-            "      Not Supported: '&cThe downloaded update was made for Spigot &f<apiversion>&c and you are currently using Spigot &f<current>&c. If you proceed to install this version, PlayMoreSounds will stop working on your server. Type &f&n/pms confirm&c to delete the unsupported version.'\n" +
-            "    Success: '&aPlayMoreSounds v<version> was downloaded successfully and will be installed the next time you restart your server.'\n" +
+            "      Not Latest: '&c你已下载的 PlayMoreSounds 插件版本 &f<downloaded>&c 比当前安装的版本: &f<current>&c 还要旧，请输入 &f&n/pms confirm&c 将此旧版本删除'\n" +
+            "      Not Supported: '&c你已下载的插件版本是为 Spigot &f<apiversion>&c 准备的，而你运行的是 Spigot &f<current>&c. 如果你坚持安装, PlayMoreSounds 将停止运行，请输入 &f&n/pms confirm&c 来将不支持版本的插件删除'\n" +
+            "    Success: '&aPlayMoreSounds v<version> 已成功下载，将在下次关服重启时自动安装'\n" +
             "  Error:\n" +
             "    Default: '&c更新失败，请检查网络'\n" +
             "    Offline: '&c您当前未连接网络，或者您的防火墙拦截了联网请求，更新失败'\n" +
             "    Timeout: '&c连接超时，请检查网络'\n" +
-            "  Not Available: '&e没有可用更新'", StaticFields.version4_0_0),
+            "  Not Available: '&e没有可用更新'", StaticFields.version4_1_2),
     REGIONS(StaticFields.sounds.resolve("regions.yml"), "# Set a sound to play when you enter, exit or stand on a specific region.\n" +
             "#\n" +
             "# Sample:\n" +
@@ -2653,5 +2707,6 @@ public enum Configurations
         private static final @NotNull Version version3_2_0 = new Version("3.2.0");
         private static final @NotNull Version version3_3_0 = new Version("3.3.0");
         private static final @NotNull Version version4_0_0 = new Version("4.0.0");
+        private static final @NotNull Version version4_1_2 = new Version("4.1.2");
     }
 }
