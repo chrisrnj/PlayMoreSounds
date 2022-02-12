@@ -24,7 +24,7 @@ import org.spongepowered.api.Sponge;
 
 public final class VersionUtils
 {
-    private static final @NotNull Version spongeVersion = new Version(Sponge.getPlatform().getMinecraftVersion().getName());
+    private static final @NotNull Version spongeVersion = new Version(Sponge.platform().minecraftVersion().name());
 
     /**
      * @return The minecraft version sponge is currently running on.

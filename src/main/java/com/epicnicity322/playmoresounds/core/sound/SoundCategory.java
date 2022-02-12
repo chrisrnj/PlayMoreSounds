@@ -19,9 +19,9 @@
 package com.epicnicity322.playmoresounds.core.sound;
 
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
+import net.kyori.adventure.sound.Sound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.api.effect.sound.SoundCategories;
 
 public enum SoundCategory
 {
@@ -36,14 +36,14 @@ public enum SoundCategory
     VOICE("VOICE", "VOICE"),
     WEATHER("WEATHER", "WEATHER");
 
-    private @Nullable org.spongepowered.api.effect.sound.SoundCategory spongeValue;
+    private @Nullable Sound.Source spongeValue;
     private @Nullable org.bukkit.SoundCategory bukkitValue;
 
     SoundCategory(@NotNull String spongeValue, @NotNull String bukkitValue)
     {
         if (PlayMoreSoundsCore.getPlatform() == PlayMoreSoundsCore.Platform.SPONGE) {
             try {
-                this.spongeValue = (org.spongepowered.api.effect.sound.SoundCategory) SoundCategories.class.getField(spongeValue).get(null);
+                this.spongeValue = (Sound.Source) Sound.Source.class.getField(spongeValue).get(null);
             } catch (Exception ignored) {
             }
         } else if (PlayMoreSoundsCore.getPlatform() == PlayMoreSoundsCore.Platform.BUKKIT && StaticFields.bukkitSoundCategories) {
@@ -64,7 +64,7 @@ public enum SoundCategory
         return bukkitValue;
     }
 
-    public @Nullable org.spongepowered.api.effect.sound.SoundCategory asSponge()
+    public @Nullable Sound.Source asSponge()
     {
         return spongeValue;
     }
