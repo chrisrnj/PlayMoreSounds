@@ -82,8 +82,8 @@ public final class PlayMoreSounds extends JavaPlugin
 
     static {
         // Checking if EpicPluginLib is outdated.
-        if (EpicPluginLib.version.compareTo(new Version("2.1")) < 0) {
-            throw new UnknownDependencyException("You are running an old version of EpicPluginLib, make sure you are using 2.1 or similar.");
+        if (EpicPluginLib.version.compareTo(new Version("2.2")) < 0) {
+            throw new UnknownDependencyException("You are running an old version of EpicPluginLib, make sure you are using 2.2 or similar.");
         }
 
         PlayMoreSoundsCore.getErrorHandler().setLogger(logger);
