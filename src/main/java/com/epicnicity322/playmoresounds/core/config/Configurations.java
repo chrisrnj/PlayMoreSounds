@@ -884,6 +884,7 @@ public enum Configurations
             "\n" +
             "Version: '" + PlayMoreSoundsVersion.version + "'", StaticFields.version3_3_0),
     LANGUAGE_EN_US(StaticFields.lang.resolve("Language EN-US.yml"), "#Language EN-US\n" +
+            "#By Epicnicity322\n" +
             "Version: '" + PlayMoreSoundsVersion.version + "'\n" +
             "\n" +
             "Addons:\n" +
@@ -923,8 +924,6 @@ public enum Configurations
             "          <line>&7Description:&8 <description>\n" +
             "          <line>&7Version:&8 <version>\n" +
             "          <line>&cClick to &4&n&luninstall&c.\n" +
-            "        #This is the lore that will show up on addons that are confirmed to be uninstalled when the server stops.\n" +
-            "        #Since the addon is already being uninstalled, last line should say that when clicking it will \"cancel the uninstallation\".\n" +
             "        To be uninstalled lore: >-\n" +
             "          &7Author(s):&8 <authors>\n" +
             "          <line>&7Description:&8 <description>\n" +
@@ -1027,7 +1026,7 @@ public enum Configurations
             "    &e/<label> disc <id> [target]\n" +
             "    &7 > Gives a configured custom disc.\n" +
             "  Footer: 'View more commands with &7&n/<label> help <next>'\n" +
-            "  Header: 'List of PlayMoreSounds commands (Page <page> of <totalPages>):'\n" +
+            "  Header: 'PlayMoreSounds commands (Page <page> of <totalPages>):'\n" +
             "  Help: |-\n" +
             "    &e/<label> help\n" +
             "    &7 > Shows the description of commands.\n" +
@@ -1062,7 +1061,7 @@ public enum Configurations
             "    Footer: '&f&l - &aView more sounds with \"&f/&n<label> list <page>&a\"'\n" +
             "    Header: '&aList of available sounds [Page <page> of <totalpages>]:'\n" +
             "    Separator: '&f, '\n" +
-            "    Sound Tooltip: '&5Click me to play the sound &d<sound>'\n" +
+            "    Sound Tooltip: '&5Click to play the sound &d<sound>'\n" +
             "  Inventory:\n" +
             "    Items:\n" +
             "      Next Page:\n" +
@@ -1223,58 +1222,101 @@ public enum Configurations
             "    Timeout: '&cTook too long to establish a connection.'\n" +
             "  Not Available: '&eNo updates available.'", StaticFields.version4_1_2),
     LANGUAGE_ES_LA(StaticFields.lang.resolve("Language ES-LA.yml"), "#Idioma ES-LA\n" +
+            "#Traductor: Epicnicity322\n" +
             "Version: '" + PlayMoreSoundsVersion.version + "'\n" +
             "\n" +
             "Addons:\n" +
             "  Download:\n" +
-            "    Already Exists: '&7Ya se ha descargado un zip de addons antes, eliminando y descargando el más reciente.'\n" +
             "    Error:\n" +
             "      Not Found: '&cNo se encontraron addons para PlayMoreSounds v<version>.'\n" +
             "      Subtitle: '&7Algo salió mal'\n" +
             "      Title: '&4&lError'\n" +
             "      Unknown: '&cSe produjo un error desconocido al descargar addons.'\n" +
-            "    Files: '&6Archivos de addons...'\n" +
-            "    Info: '&6Información de addons...'\n" +
+            "    Downloading:\n" +
+            "      Already Exists: '&7Ya se ha descargado un zip de addons antes, eliminando y descargando el más reciente.'\n" +
+            "      Subtitle:\n" +
+            "        Files: '&6Archivos de addons...'\n" +
+            "        Info: '&6Información de addons...'\n" +
+            "      Title: '&cDescargando'\n" +
+            "      Unsupported Version: '&7Se han descargado los últimos addons, pero parece que no son compatibles con la versión actual de PlayMoreSounds, descargando addons hechos para la versión actual...'\n" +
             "    Success:\n" +
             "      Subtitle: '&7Últimos addons descargados'\n" +
             "      Title: '&2Éxito'\n" +
-            "    Title: '&cDescargando'\n" +
-            "    Unsupported Version: '&7Se han descargado los últimos addons, pero parece que no son compatibles con la versión actual de PlayMoreSounds, descargando addons hechos para la versión actual...'\n" +
-            "  Empty Title: '&c&lAddons no encontrados'\n" +
             "  Error:\n" +
             "    Blocked: '&cSe están instalando addons, espere hasta que finalice el proceso de instalación antes de abrir el inventario de administración de addons.'\n" +
+            "    Not Found: '&cAddon llamado &f<addon>&c no encontrado. Use &7&n/<label> addon list&c para enumerar todos los addons.'\n" +
             "  Install:\n" +
             "    Error: '&cAlgo salió mal al instalar el addon &4<addon>&c.'\n" +
             "    Installed: '&7<addon>&7 fue instalado.'\n" +
             "    Success: '&aAddon <addon>&a se ha instalado correctamente, reinicie su servidor para que se cargue.'\n" +
-            "  Installer Title: '&2&lInstalar Addons:'\n" +
-            "  Management Inventory:\n" +
-            "    Addon:\n" +
-            "      Display Name: '&a&l<name>'\n" +
-            "      Lore: >-\n" +
-            "        &7Autor(es):&8 <authors>\n" +
-            "        <line>&7Descripción:&8 <description>\n" +
-            "        <line>&7Versión:&8 <version>\n" +
-            "    Done:\n" +
-            "      Display Name: '&2&lHecho'\n" +
-            "      Lore: '&7Haga clic para salir.'\n" +
-            "    Info:\n" +
-            "      Display Name: '&d&lInformación'\n" +
-            "      Lore: '&7Tiene <addons> addons instalados.'\n" +
-            "    Install:\n" +
-            "      Display Name: '&2&lInstalar Addons'\n" +
-            "      Lore: ' &7Haga clic para descargar los últimos addons<line>de GitHub de PlayMoreSounds.'\n" +
-            "    Next Page:\n" +
-            "      Display Name: '&7&lPágina Siguiente'\n" +
-            "      Lore: '&7Haga clic para ir a la página <to>.'\n" +
-            "    Previous Page:\n" +
-            "      Display Name: '&7&lPágina Anterior'\n" +
-            "      Lore: '&7Haga clic para ir a la página <to>.'\n" +
-            "  Title: '&9&lAddons Instalados:'\n" +
+            "  Inventory:\n" +
+            "    Title:\n" +
+            "      Default: '&9&lAddons Instalados:'\n" +
+            "      Empty: '&c&lAddons no encontrados'\n" +
+            "      Installer: '&2&lInstalar Addons:'\n" +
+            "    Items:\n" +
+            "      Addon:\n" +
+            "        Display Name: '&a&l<name>'\n" +
+            "        Lore: >-\n" +
+            "          &7Autor(es):&8 <authors>\n" +
+            "          <line>&7Descripción:&8 <description>\n" +
+            "          <line>&7Versión:&8 <version>\n" +
+            "          <line>&cHaga clic para &4&n&ldesinstalar&c.\n" +
+            "        To be uninstalled lore: >-\n" +
+            "          &7Autor(es):&8 <authors>\n" +
+            "          <line>&7Descripción:&8 <description>\n" +
+            "          <line>&7Versión:&8 <version>\n" +
+            "          <line>&fHaga clic para &7&n&lcancelar la desinstalación&f.\n" +
+            "      Done:\n" +
+            "        Display Name: '&2&lHecho'\n" +
+            "        Lore: '&7Haga clic para salir.'\n" +
+            "      Info:\n" +
+            "        Display Name: '&d&lInformación'\n" +
+            "        Lore: '&7Tiene <addons> addons instalados.'\n" +
+            "      Install:\n" +
+            "        Display Name: '&2&lInstalar Addons'\n" +
+            "        Lore: ' &7Haga clic para descargar los últimos addons<line>de GitHub de PlayMoreSounds.'\n" +
+            "      Next Page:\n" +
+            "        Display Name: '&7&lPágina Siguiente'\n" +
+            "        Lore: '&7Haga clic para ir a la página <to>.'\n" +
+            "      Previous Page:\n" +
+            "        Display Name: '&7&lPágina Anterior'\n" +
+            "        Lore: '&7Haga clic para ir a la página <to>.'\n" +
+            "  List:\n" +
+            "    Header: '&7Addons instalados en PlayMoreSounds:'\n" +
+            "    Separator: '&f, '\n" +
+            "  Start:\n" +
+            "    Error:\n" +
+            "      Already Started: '&cAddon <addon> ya se ha iniciado.'\n" +
+            "    Success: '&aAddon <addon> inició con éxito.'\n" +
+            "  Stop:\n" +
+            "    Error:\n" +
+            "      Already Stopped: '&cAddon <addon> ya ha sido detenido.'\n" +
+            "    Success: '&aAddon <addon> se detuvo con éxito.'\n" +
+            "  Uninstall:\n" +
+            "    Cancel: '&aAddon <addon> &7&nya no&a se desinstalará.'\n" +
+            "    Confirmation:\n" +
+            "      Chat: '&Escriba &f/<label> confirm&7 para confirmar la desinstalación del addon <addon>.'\n" +
+            "      Description: 'Desinstalar addon <addon>'\n" +
+            "      Title: '&9&l¿Desinstalar &9<addon>&l?'\n" +
+            "    Error:\n" +
+            "      Dependants:\n" +
+            "        Plural: '&cAddon <addon> no se puede desinstalar porque es una dependencia de los addons &f<dependants>&c. Desinstale esos complementos antes de este.'\n" +
+            "        Singular: '&cAddon <addon> no se puede desinstalar porque es una dependencia del addon &f<dependants>&c. Desinstala ese complemento antes de este.'\n" +
+            "    Success: '&aAddon <addon> &4&nserá&a desinstalado cuando el servidor se apaga o se reinicia.'\n" +
             "\n" +
             "Confirm:\n" +
             "  Error:\n" +
             "    Nothing Pending: '&cNo hay nada pendiente de confirmar.'\n" +
+            "    Not Found: '&cNo se encontró una confirmación con id &7<id>&c. Use &7&n/<label> list&c para ver las confirmaciones pendientes.'\n" +
+            "  Inventory:\n" +
+            "    Items:\n" +
+            "      Cancel:\n" +
+            "        Display Name: '&4&lCancelar'\n" +
+            "        Lore: '&cHaga clic para cancelar la operación.'\n" +
+            "      Confirm:\n" +
+            "        Display Name: '&2&lConfirmar'\n" +
+            "        Lore: '&aHaga clic para confirmar la operación.'\n" +
             "  List:\n" +
             "    Confirmation: ' &f<id> &7- <description>'\n" +
             "    Header: '&8Lista de confirmaciones pendientes:'\n" +
@@ -1321,7 +1363,8 @@ public enum Configurations
             "  Disc: |-\n" +
             "    &e/<label> disc <id> [objetivo]\n" +
             "    &7 > Da un disco personalizado configurado.\n" +
-            "  Header: 'Lista de comandos de PlayMoreSounds:'\n" +
+            "  Footer: 'Ver más comandos con &7&n/<label> help <next>'\n" +
+            "  Header: 'Comandos de PlayMoreSounds (Página <page> de <totalPages>):'\n" +
             "  Help: |-\n" +
             "    &e/<label> help [comando]\n" +
             "    &7 > Muestra la descripción de los comandos.\n" +
@@ -1348,28 +1391,31 @@ public enum Configurations
             "    &7 > Comprueba y descarga actualizaciones.\n" +
             "\n" +
             "List:\n" +
-            "  Error:\n" +
-            "    Not Exists: '&c¡La página &7<page>&c no existe! Max: <totalpages>.'\n" +
-            "  Footer: '&f&l - &aVer más sonidos con \"&f/&n<label> list <page>&a\"'\n" +
-            "  Header: '&aLista de sonidos disponibles [Página <page> de <totalpages>]:'\n" +
-            "  Inventory:\n" +
+            "  Chat:\n" +
+            "    Alternate Color: '&8'\n" +
+            "    Color: '&e'\n" +
             "    Error:\n" +
-            "      Not Supported: '&cLa GUI de la lista de sonidos solo funciona en la versión 1.14+'\n" +
-            "    Next Page:\n" +
-            "      Display Name: '&7&lPágina siguiente'\n" +
-            "      Lore: ' Haga clic para ir a la página siguiente.'\n" +
-            "    Previous Page:\n" +
-            "      Display Name: '&7&lPágina anterior'\n" +
-            "      Lore: ' Haga clic para volver a la página anterior.'\n" +
-            "    Sound:\n" +
-            "      Display Name: '&d&n<sound>'\n" +
-            "      Lore: ' Haga clic para reproducir ese sonido.'\n" +
-            "    Stop Sound:\n" +
-            "      Display Name: '&6&lDetener Sonidos'\n" +
-            "      Lore: ' Detiene todos los sonidos que se<line> están reproduciendo actualmente.'\n" +
+            "      Not Exists: '&c¡La página &7<page>&c no existe! Max: <totalpages>.'\n" +
+            "    Footer: '&f&l - &aVer más sonidos con \"&f/&n<label> list <page>&a\"'\n" +
+            "    Header: '&aLista de sonidos disponibles [Página <page> de <totalpages>]:'\n" +
+            "    Separator: '&f, '\n" +
+            "    Sound Tooltip: '&5Haz clic para reproducir<line> el sonido &d<sound>'\n" +
+            "  Inventory:\n" +
+            "    Items:\n" +
+            "      Next Page:\n" +
+            "        Display Name: '&7&lPágina siguiente'\n" +
+            "        Lore: ' Haga clic para ir a la página siguiente.'\n" +
+            "      Previous Page:\n" +
+            "        Display Name: '&7&lPágina anterior'\n" +
+            "        Lore: ' Haga clic para volver a la página anterior.'\n" +
+            "      Sound:\n" +
+            "        Display Name: '&d&n<sound>'\n" +
+            "        Lore: ' Haga clic para reproducir ese sonido.'\n" +
+            "      Stop Sound:\n" +
+            "        Display Name: '&6&lDetener Sonidos'\n" +
+            "        Lore: ' Detiene todos los sonidos que se<line> están reproduciendo actualmente.'\n" +
             "    Title: '&8Lista de sonidos, página &c<page>&8 de &c<totalpages>&8'\n" +
             "  Page: página\n" +
-            "  Sound Tooltip: '&5Haz clic en mí para reproducir<line> el sonido &d<sound>'\n" +
             "\n" +
             "Play:\n" +
             "  Error:\n" +
@@ -1459,7 +1505,13 @@ public enum Configurations
             "\n" +
             "Resource Packs:\n" +
             "  Error: '&cAlgo salió mal al preguntarle al jugador <player> que descargue el paquete de texturas. Por favor, intente con otra URL.'\n" +
-            "  Kick Message: '&cDebes estar usando una textura para jugar en ese servidor.'\n" +
+            "  Download Failed:\n" +
+            "    Failed: '&cLa descarga de la textura falló. Si desea la experiencia completa de este servidor, vuelva a iniciar sesión para intentar la descarga nuevamente. Si el error persiste, póngase en contacto con un administrador.'\n" +
+            "    Administrator: '&cEl jugador <player> intentó unirse pero no pudo descargar la textura. Escriba &7&n/pms confirm&c para permitir que este jugador se una sin una textura.'\n" +
+            "    Confirmation: 'Permitir que <player> se una'\n" +
+            "  Kick Message:\n" +
+            "    Declined: '&cDebes estar usando una textura para jugar en ese servidor.'\n" +
+            "    Download Fail: '&cAlgo salió mal al descargar la textura. Intente descargar iniciando sesión nuevamente.'\n" +
             "  Request Message: '&eDescargue la textura para continuar.'\n" +
             "\n" +
             "Stop Sound:\n" +
@@ -1494,72 +1546,115 @@ public enum Configurations
             "      Not Supported:\n" +
             "        Deleted: '&aLa actualización no compatible de PlayMoreSounds fue eliminada.'\n" +
             "        Description: 'Eliminar la actualización no compatible.'\n" +
-            "    Deleted Downloaded: '&7'\n" +
+            "    Deleted Downloaded: '&7Ya se encontró una descarga de una actualización. Borrándolo y volviendo a descargar.'\n" +
             "    Downloading:\n" +
-            "      Default: '&7Uma atualização foi encontrada e está sendo baixada.'\n" +
-            "      Forcefully: '&7Baixando a versão mais recente do PlayMoreSounds...'\n" +
+            "      Default: '&7Se ha encontrado una actualización y se está descargando.'\n" +
+            "      Forcefully: '&7Descargando la última versión de PlayMoreSounds...'\n" +
             "    Error:\n" +
-            "      Not Latest: '&cVocê baixou o PlayMoreSounds versão &f<downloaded>&c que é mais antigo que a versão atualmente instalada: &f<current>&c. Use &f&n/pms confirm&c para apagar a versão antiga.'\n" +
-            "      Not Supported: '&cA atualização baixada foi feita para o Spigot &f<apiversion>&c e você está usando o Spigot &f<current>&c. Se você prosseguir com a instalação dessa versão, o PlayMoreSounds vai parar de funcionar no seu servidor. Use &f&n/pms confirm&c para apagar a versão não suportada.'\n" +
-            "    Success: '&aPlayMoreSounds v<version> foi baixado com sucesso e será instalado na próxima vez que você reiniciar seu servidor.'\n" +
+            "      Not Latest: '&cHa descargado PlayMoreSounds de versión &f<downloaded>&c, que es anterior a la versión instalada actualmente: &f<current>&c. Use &f&n/pms confirm&c para eliminar la versión anterior.'\n" +
+            "      Not Supported: '&cLa actualización descargada fue desarrollada para Spigot &f<apiversion>&c y estás usando &f<current>&c. Si continúa con la instalación de esta versión, PlayMoreSounds dejará de funcionar en su servidor. Use &f&n/pms confirm&c para eliminar la versión no compatible.'\n" +
+            "    Success: '&aPlayMoreSounds v<version> se ha descargado con éxito y se instalará la próxima vez que reinicie su servidor.'\n" +
             "  Error:\n" +
             "    Default: '&cAlgo salió mal al usar el actualizador.'\n" +
             "    Offline: '&cEstá desconectado o spigot.org está caído.'\n" +
             "    Timeout: '&cTomó demasiado tiempo para establecer una conexión.'\n" +
             "  Not Available: '&eNo hay actualizaciones disponibles.'", StaticFields.version4_1_2),
     LANGUAGE_PT_BR(StaticFields.lang.resolve("Language PT-BR.yml"), "#Linguagem PT-BR\n" +
+            "#Tradutor: Epicnicity322\n" +
             "Version: '" + PlayMoreSoundsVersion.version + "'\n" +
             "\n" +
             "Addons:\n" +
             "  Download:\n" +
-            "    Already Exists: '&7Um zip de addons já foi baixado anteriormente, deletando e baixando o mais recente.'\n" +
             "    Error:\n" +
             "      Not Found: '&cAddons para PlayMoreSounds v<version> não foram encontrados.'\n" +
             "      Subtitle: '&7Aconteceu algo de errado'\n" +
             "      Title: '&4&lErro'\n" +
             "      Unknown: '&cUm erro desconhecido ocorreu ao baixar os addons.'\n" +
-            "    Files: '&6Arquivos de addons...'\n" +
-            "    Info: '&6Informação de addons...'\n" +
+            "    Downloading:\n" +
+            "      Already Exists: '&7Um zip de addons já foi baixado anteriormente, deletando e baixando o mais recente.'\n" +
+            "      Subtitle:\n" +
+            "        Files: '&6Arquivos de addons...'\n" +
+            "        Info: '&6Informação de addons...'\n" +
+            "      Title: '&cBaixando'\n" +
+            "      Unsupported Version: '&7Os addons mais recentes foram baixados, mas parece que eles não suportam a versão atual do PlayMoreSounds, baixando addons feitos para a versão atual...'\n" +
             "    Success:\n" +
             "      Subtitle: '&7Addons mais recentes baixados'\n" +
             "      Title: '&2Sucesso'\n" +
-            "    Title: '&cBaixando'\n" +
-            "    Unsupported Version: '&7Os addons mais recentes foram baixados, mas parece que eles não suportam a versão atual do PlayMoreSounds, baixando addons feitos para a versão atual...'\n" +
-            "  Empty Title: '&c&lAddons não encontrados'\n" +
             "  Error:\n" +
             "    Blocked: '&cAddons estão sendo instalados, espere até que o processo de instalação termine antes de abrir o inventário de gerenciamento de addons.'\n" +
+            "    Not Found: '&cAddon de nome &f<addon>&c não foi encontrado. Use &7&n/<label> addon list&c para listar todos os addons.'\n" +
             "  Install:\n" +
             "    Error: '&cAlgo de errado ocorreu ao instalar o addon &4<addon>&c.'\n" +
             "    Installed: '&7<addon>&7 foi instalado.'\n" +
-            "    Success: '&aAddon <addon>&a foi instalado com sucesso, reinicie seu servidor para que ele seja carregado.'\n" +
-            "  Installer Title: '&2&lInstalar Addons:'\n" +
-            "  Management Inventory:\n" +
-            "    Addon:\n" +
-            "      Display Name: '&a&l<name>'\n" +
-            "      Lore: >-\n" +
-            "        &7Autor(es):&8 <authors>\n" +
-            "        <line>&7Descrição:&8 <description>\n" +
-            "        <line>&7Versão:&8 <version>\n" +
-            "    Done:\n" +
-            "      Display Name: '&2&lPronto'\n" +
-            "      Lore: '&7Clique para sair.'\n" +
-            "    Info:\n" +
-            "      Display Name: '&d&lInformação'\n" +
-            "      Lore: '&7Você tem <addons> addons instalados.'\n" +
-            "    Install:\n" +
-            "      Display Name: '&2&lInstalar Addons'\n" +
-            "      Lore: ' &7Clique para baixar os addons mais recentes do<line>&7GitHub do PlayMoreSounds.'\n" +
-            "    Next Page:\n" +
-            "      Display Name: '&7&lPróxima Página'\n" +
-            "      Lore: '&7Clique para ir à página <to>.'\n" +
-            "    Previous Page:\n" +
-            "      Display Name: '&7&lPágina Anterior'\n" +
-            "      Lore: '&7Clique para ir à página <to>.'\n" +
-            "  Title: '&9&lAddons Instalados:'\n" +
+            "    Success: '&aAddon <addon>&a foi instalado com sucesso, reinicie seu servidor para que seja carregado.'\n" +
+            "  Inventory:\n" +
+            "    Title:\n" +
+            "      Default: '&9&lAddons Instalados:'\n" +
+            "      Empty: '&c&lAddons não encontrados'\n" +
+            "      Installer: '&2&lInstalar Addons:'\n" +
+            "    Items:\n" +
+            "      Addon:\n" +
+            "        Display Name: '&a&l<name>'\n" +
+            "        Lore: >-\n" +
+            "          &7Autor(es):&8 <authors>\n" +
+            "          <line>&7Descrição:&8 <description>\n" +
+            "          <line>&7Versão:&8 <version>\n" +
+            "          <line>&cClique para &4&n&ldesinstalar&c.\n" +
+            "        To be uninstalled lore: >-\n" +
+            "          &7Autor(es):&8 <authors>\n" +
+            "          <line>&7Descrição:&8 <description>\n" +
+            "          <line>&7Versão:&8 <version>\n" +
+            "          <line>&fClique para &7&n&lcancelar desinstalação&f.\n" +
+            "      Done:\n" +
+            "        Display Name: '&2&lPronto'\n" +
+            "        Lore: '&7Clique para sair.'\n" +
+            "      Info:\n" +
+            "        Display Name: '&d&lInformação'\n" +
+            "        Lore: '&7Você tem <addons> addons instalados.'\n" +
+            "      Install:\n" +
+            "        Display Name: '&2&lInstalar Addons'\n" +
+            "        Lore: ' &7Clique para baixar os addons mais recentes do<line>&7GitHub do PlayMoreSounds.'\n" +
+            "      Next Page:\n" +
+            "        Display Name: '&7&lPróxima Página'\n" +
+            "        Lore: '&7Clique para ir à página <to>.'\n" +
+            "      Previous Page:\n" +
+            "        Display Name: '&7&lPágina Anterior'\n" +
+            "        Lore: '&7Clique para ir à página <to>.'\n" +
+            "  List:\n" +
+            "    Header: '&7Addons instalados no PlayMoreSounds:'\n" +
+            "    Separator: '&f, '\n" +
+            "  Start:\n" +
+            "    Error:\n" +
+            "      Already Started: '&cAddon <addon> já foi iniciado.'\n" +
+            "    Success: '&aAddon <addon> foi iniciado com sucesso.'\n" +
+            "  Stop:\n" +
+            "    Error:\n" +
+            "      Already Stopped: '&cAddon <addon> já foi parado.'\n" +
+            "    Success: '&aAddon <addon> foi parado com sucesso.'\n" +
+            "  Uninstall:\n" +
+            "    Cancel: '&aAddon <addon> &7&nnão vai mais&a ser desinstalado.'\n" +
+            "    Confirmation:\n" +
+            "      Chat: '&7Digite &f/<label> confirm&7 para confirmar desinstalação do addon <addon>.'\n" +
+            "      Description: 'Desinstalar addon <addon>'\n" +
+            "      Title: '&9&lDesinstalar &9<addon>&l?'\n" +
+            "    Error:\n" +
+            "      Dependants:\n" +
+            "        Plural: '&cAddon <addon> não pode ser desinstalado porque é uma dependência dos addons &f<dependants>&c. Desinstale esses addons antes deste.'\n" +
+            "        Singular: '&cAddon <addon> não pode ser desinstalado porque é uma dependência do addon &f<dependants>&c. Desinstale esse addon antes deste.'\n" +
+            "    Success: '&aAddon <addon> &4&nvai ser&a desinstalado quando o servidor desligar ou reiniciar.'\n" +
             "\n" +
             "Confirm:\n" +
             "  Error:\n" +
             "    Nothing Pending: '&cNão há nada pendente para confirmar.'\n" +
+            "    Not Found: '&cUma confirmação de id &7<id>&c não foi encontrada. Use &7&n/<label> list&c para ver confirmações pendentes.'\n" +
+            "  Inventory:\n" +
+            "    Items:\n" +
+            "      Cancel:\n" +
+            "        Display Name: '&4&lCancelar'\n" +
+            "        Lore: '&cClique para cancelar a operação.'\n" +
+            "      Confirm:\n" +
+            "        Display Name: '&2&lConfirmar'\n" +
+            "        Lore: '&aClique para confirmar a operação.'\n" +
             "  List:\n" +
             "    Confirmation: ' &f<id> &7- <description>'\n" +
             "    Header: '&8Lista de confirmações pendentes:'\n" +
@@ -1606,7 +1701,8 @@ public enum Configurations
             "  Disc: |-\n" +
             "    &e/<label> disc <id> [objetivo]\n" +
             "    &7 > Da um disco personalizado configurado.\n" +
-            "  Header: 'Lista de comandos do PlayMoreSounds:'\n" +
+            "  Footer: 'Veja mais comandos com &7&n/<label> help <next>'\n" +
+            "  Header: 'Comandos do PlayMoreSounds (Página <page> de <totalPages>):'\n" +
             "  Help: |-\n" +
             "    &e/<label> help [comando]\n" +
             "    &7 > Mostra a descrição de comandos\n" +
@@ -1633,26 +1729,31 @@ public enum Configurations
             "    &7 > Verifica e baixa atualizações.\n" +
             "\n" +
             "List:\n" +
-            "  Error:\n" +
-            "    Not Exists: '&cA página &7<page>&c não existe! Max: <totalpages>.'\n" +
-            "  Footer: '&f&l - &aVeja mais sons com \"&f/&n<label> list <page>&a\"'\n" +
-            "  Header: '&aLista de sons disponíveis [Página <page> de <totalpages>]:'\n" +
+            "  Chat:\n" +
+            "    Alternate Color: '&8'\n" +
+            "    Color: '&e'\n" +
+            "    Error:\n" +
+            "      Not Exists: '&cA página &7<page>&c não existe! Max: <totalpages>.'\n" +
+            "    Footer: '&f&l - &aVeja mais sons com \"&f/&n<label> list <page>&a\"'\n" +
+            "    Header: '&aLista de sons disponíveis [Página <page> de <totalpages>]:'\n" +
+            "    Separator: '&f, '\n" +
+            "    Sound Tooltip: '&5Clique para tocar o som &d<sound>'\n" +
             "  Inventory:\n" +
-            "    Next Page:\n" +
-            "      Display Name: '&7&lPróxima página'\n" +
-            "      Lore: ' Clique para ir à próxima página.'\n" +
-            "    Previous Page:\n" +
-            "      Display Name: '&7&lPágina anterior'\n" +
-            "      Lore: ' Clique para voltar à página anterior.'\n" +
-            "    Sound:\n" +
-            "      Display Name: '&d&n<sound>'\n" +
-            "      Lore: ' Clique para tocar esse som.'\n" +
-            "    Stop Sound:\n" +
-            "      Display Name: '&6&lParar Sons'\n" +
-            "      Lore: ' Parar todos sons tocando no momento.'\n" +
+            "    Items:\n" +
+            "      Next Page:\n" +
+            "        Display Name: '&7&lPróxima página'\n" +
+            "        Lore: ' Clique para ir à próxima página.'\n" +
+            "      Previous Page:\n" +
+            "        Display Name: '&7&lPágina anterior'\n" +
+            "        Lore: ' Clique para voltar à página anterior.'\n" +
+            "      Sound:\n" +
+            "        Display Name: '&d&n<sound>'\n" +
+            "        Lore: ' Clique para tocar esse som.'\n" +
+            "      Stop Sound:\n" +
+            "        Display Name: '&6&lParar Sons'\n" +
+            "        Lore: ' Parar todos sons tocando no momento.'\n" +
             "    Title: '&8Lista de sons, página &c<page>&8 de &c<totalpages>&8'\n" +
             "  Page: página\n" +
-            "  Sound Tooltip: '&5Clique em mim para tocar o som &d<sound>'\n" +
             "\n" +
             "Play:\n" +
             "  Error:\n" +
@@ -1742,7 +1843,13 @@ public enum Configurations
             "\n" +
             "Resource Packs:\n" +
             "  Error: '&cAlgo de errado ocorreu ao pedir o jogador <player> para baixar o pacote de texturas. Por favor tente outra URL.'\n" +
-            "  Kick Message: '&cVocê deve aceitar a textura para jogar nesse servidor.'\n" +
+            "  Download Failed:\n" +
+            "    Failed: '&cDownload de textura falhou. Se você deseja a experiência completa deste servidor, entre novamente para tentar o download novamente. Se o erro persistir, entre em contato com um administrador.'\n" +
+            "    Administrator: '&cO jogador <player> tentou entrar mas falhou ao baixar a textura. Digite &7&n/pms confirm&c para permitir esse jogador entrar sem uma textura.'\n" +
+            "    Confirmation: 'Permitir jogador <player> entrar'\n" +
+            "  Kick Message:\n" +
+            "    Declined: '&cVocê deve aceitar a textura para jogar nesse servidor.'\n" +
+            "    Download Fail: '&cAlgo de errado ocorreu ao baixar a textura. Por favor tente baixar entrando novamente.'\n" +
             "  Request Message: '&ePor favor baixe a textura para continuar.'\n" +
             "\n" +
             "Stop Sound:\n" +
@@ -1791,7 +1898,6 @@ public enum Configurations
             "    Timeout: '&cLevou tempo demais para estabelecer uma conexão.'\n" +
             "  Not Available: '&eNenhuma atualização disponível.'", StaticFields.version4_1_2),
     LANGUAGE_ZH_CN(StaticFields.lang.resolve("Language ZH-CN.yml"), "#语言ZH-CN\n" +
-            "#语言ZH-CN\n" +
             "#译者：秋风残叶\n" +
             "Version: '" + PlayMoreSoundsVersion.version + "'\n" +
             "\n" +
@@ -1832,8 +1938,6 @@ public enum Configurations
             "          <line>&7描述:&8 <description>\n" +
             "          <line>&7版本:&8 <version>\n" +
             "          <line>&c点击将其&4&n&l卸载&c.\n" +
-            "        # 当某个附属已确认即将卸载（关服时将被卸载）该按钮上显示的信息\n" +
-            "        # 可点击取消卸载\n" +
             "        To be uninstalled lore: >-\n" +
             "          &7作者:&8 <authors>\n" +
             "          <line>&7描述:&8 <description>\n" +
@@ -1866,7 +1970,7 @@ public enum Configurations
             "      Already Stopped: '&c附属 <addon> 已停用'\n" +
             "    Success: '&a附属 <addon> 已成功停用'\n" +
             "  Uninstall:\n" +
-            "    Cancel: '&a附属 <addon> &7&n的卸载&a已被取消'\n" +
+            "    Cancel: '&a附属 <addon> 的卸载已被取消'\n" +
             "    Confirmation:\n" +
             "      Chat: '&7请输入 &f/<label> confirm&7 确认卸载 <addon> 附属'\n" +
             "      Description: '卸载 <addon> 附属'\n" +
@@ -1875,7 +1979,7 @@ public enum Configurations
             "      Dependants:\n" +
             "        Plural: '&c附属 <addon> 无法被卸载，因为其为附属 &f<dependants>&c 的前置，你需要首先把这些附属卸载掉'\n" +
             "        Singular: '&c附属 <addon> 无法被卸载，因为其为附属 &f<dependants>&c 的前置，你需要首先把这个附属卸载掉'\n" +
-            "    Success: '&a附属 <addon> &4&n在下次关服重启时将被卸载'\n" +
+            "    Success: '&a附属 <addon> 在下次关服重启时将被卸载'\n" +
             "\n" +
             "Confirm:\n" +
             "  Error:\n" +
@@ -1973,18 +2077,19 @@ public enum Configurations
             "    Separator: '&f, '\n" +
             "    Sound Tooltip: '&5点击播放 &d<sound>'\n" +
             "  Inventory:\n" +
-            "    Next Page:\n" +
-            "      Display Name: '&7&l下一页'\n" +
-            "      Lore: ' 点击翻页'\n" +
-            "    Previous Page:\n" +
-            "      Display Name: '&7&l上一页'\n" +
-            "      Lore: ' 点击翻页'\n" +
-            "    Sound:\n" +
-            "      Display Name: '&d&n<sound>'\n" +
-            "      Lore: ' 点击播放'\n" +
-            "    Stop Sound:\n" +
-            "      Display Name: '&6&l停止音效'\n" +
-            "      Lore: ' 停止当前播放'\n" +
+            "    Items:\n" +
+            "      Next Page:\n" +
+            "        Display Name: '&7&l下一页'\n" +
+            "        Lore: ' 点击翻页'\n" +
+            "      Previous Page:\n" +
+            "        Display Name: '&7&l上一页'\n" +
+            "        Lore: ' 点击翻页'\n" +
+            "      Sound:\n" +
+            "        Display Name: '&d&n<sound>'\n" +
+            "        Lore: ' 点击播放'\n" +
+            "      Stop Sound:\n" +
+            "        Display Name: '&6&l停止音效'\n" +
+            "        Lore: ' 停止当前播放'\n" +
             "    Title: '&8音效列表 页 &c<page>&8 / &c<totalpages>&8'\n" +
             "  Page: 页\n" +
             "\n" +
@@ -2069,10 +2174,6 @@ public enum Configurations
             "    Error:\n" +
             "      Config: '&c配置文件没有设定完成，无法获得区域选择工具，请检查配置文件'\n" +
             "    Success: '&6区域选择工具: 左键点击选择第一个点，右键选择第二个点'\n" +
-            "\n" +
-            "Relative Location Setter:\n" +
-            "  Sound Source: '&2&n声音来源'\n" +
-            "  Final Location: '&4&n最終地點'\n" +
             "\n" +
             "Reload:\n" +
             "  Error: '&c加载配置时出现错误，更多音效插件已强制关闭，请检查配置'\n" +
