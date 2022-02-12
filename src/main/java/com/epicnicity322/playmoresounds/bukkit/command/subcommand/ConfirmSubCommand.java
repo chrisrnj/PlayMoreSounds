@@ -91,7 +91,11 @@ public final class ConfirmSubCommand extends Command implements Helpable
 
                 return;
             } else if (StringUtils.isNumeric(args[1])) {
-                id = Integer.parseInt(args[1]);
+                try {
+                    id = Integer.parseInt(args[1]);
+                } catch (NumberFormatException e) {
+                    lang.send(sender, lang.get("General.Not A Number").replace("<number>", args[1]));
+                }
             } else {
                 lang.send(sender, lang.get("General.Invalid Arguments")
                         .replace("<label>", label).replace("<label2>", args[0])
@@ -101,7 +105,7 @@ public final class ConfirmSubCommand extends Command implements Helpable
         }
 
         if (id < 0) {
-            lang.send(sender, lang.get("Confirmation.Error.Not Found").replace("<id>", args[1]).replace("<label>", label));
+            lang.send(sender, lang.get("Confirm.Error.Not Found").replace("<id>", args[1]).replace("<label>", label));
             return;
         }
 
@@ -117,7 +121,7 @@ public final class ConfirmSubCommand extends Command implements Helpable
         }
 
         if (i != 0) {
-            lang.send(sender, lang.get("Confirmation.Error.Not Found").replace("<id>", args[1]).replace("<label>", label));
+            lang.send(sender, lang.get("Confirm.Error.Not Found").replace("<id>", args[1]).replace("<label>", label));
         }
     }
 }

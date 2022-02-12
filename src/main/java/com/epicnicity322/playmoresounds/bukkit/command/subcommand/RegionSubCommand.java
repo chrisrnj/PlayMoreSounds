@@ -468,9 +468,9 @@ public final class RegionSubCommand extends Command implements Helpable
         int page = 1;
 
         if (args.length > 3) {
-            if (StringUtils.isNumeric(args[3])) {
+            try {
                 page = Integer.parseInt(args[3]);
-            } else {
+            } catch (NumberFormatException e) {
                 lang.send(sender, lang.get("General.Not A Number").replace("<number>", args[3]));
                 return;
             }
