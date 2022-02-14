@@ -100,7 +100,7 @@ public class AddonManager
                                 addons.put(description, jar);
                                 addonNames.add(name);
                             } else {
-                                logger.log("&cAddon " + addon + " could not be loaded because it depends on the plugin(s): " + description.getRequiredPlugins(), ConsoleLogger.Level.WARN);
+                                logger.log("&c" + addon + " could not be loaded because it depends on the plugin(s): " + description.getRequiredPlugins(), ConsoleLogger.Level.WARN);
                             }
                         }
                     }
@@ -116,7 +116,8 @@ public class AddonManager
         // Removing addons that are missing dependencies.
         addons.keySet().removeIf(description -> {
             if (!addonNames.containsAll(description.getRequiredAddons())) {
-                logger.log("&cAddon " + description.getName() + " could not be loaded because it depends on the other addon(s): " + description.getRequiredAddons(), ConsoleLogger.Level.WARN);
+                String name = description.getName();
+                logger.log("&c" + (name.toLowerCase().contains("addon") ? name : name + " addon") + " could not be loaded because it depends on the other addon(s): " + description.getRequiredAddons(), ConsoleLogger.Level.WARN);
                 addonNames.remove(description.getName());
                 return true;
             }
@@ -133,7 +134,7 @@ public class AddonManager
             } catch (InvalidAddonException e) {
                 logger.log("&c" + e.getMessage(), ConsoleLogger.Level.WARN);
             } catch (Exception e) {
-                logger.log("&cException while initializing " + name + " addon. Please contact the addon author(s): " + description.getAuthors(), ConsoleLogger.Level.WARN);
+                logger.log("&cException while initializing " + (name.toLowerCase().contains("addon") ? name : name + " addon") + ". Please contact the addon author(s): " + description.getAuthors(), ConsoleLogger.Level.WARN);
                 PlayMoreSoundsCore.getErrorHandler().report(e, "Addon Author(s): " + description.getAuthors() + "\nPath: " + jar.toAbsolutePath() + "\nInstantiate main class exception:");
             }
         });
