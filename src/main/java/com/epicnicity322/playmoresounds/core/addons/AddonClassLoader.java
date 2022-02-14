@@ -61,21 +61,13 @@ public final class AddonClassLoader extends URLClassLoader
     }
 
     /**
-     * Removes all cached classes from the specified {@link PMSAddon}.
+     * Removes all cached classes from the specified {@link AddonClassLoader}.
      *
-     * @param addon The addon to remove caches.
+     * @param classLoader The class loader to remove caches.
      */
-    static void clearCaches(@NotNull PMSAddon addon)
+    static void clearCaches(@NotNull AddonClassLoader classLoader)
     {
-        cacheClasses.entrySet().removeIf(entry -> {
-            Class<?> clazz = entry.getValue();
-
-            if (!(clazz.getClassLoader() instanceof AddonClassLoader)) return false;
-
-            AddonClassLoader classLoader = (AddonClassLoader) clazz.getClassLoader();
-
-            return classLoader.getAddon() == addon;
-        });
+        cacheClasses.entrySet().removeIf(entry -> entry.getValue().getClassLoader() == classLoader);
     }
 
     /**

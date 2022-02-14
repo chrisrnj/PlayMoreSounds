@@ -87,7 +87,7 @@ public class AddonManager
 
                     // Checking if an addon with the same name was registered before.
                     if (addonNames.contains(name)) {
-                        logger.log("&eTwo addons with the name '" + name + "' were found, only registering the first one.", ConsoleLogger.Level.WARN);
+                        logger.log("&eTwo addons with the name '" + name + "' were found, only registering the first found.", ConsoleLogger.Level.WARN);
                     } else {
                         String addon = name.toLowerCase().contains("addon") ? name : name + " addon";
 
@@ -100,7 +100,7 @@ public class AddonManager
                                 addons.put(description, jar);
                                 addonNames.add(name);
                             } else {
-                                logger.log("&c" + addon + " depends on the plugin(s): " + description.getRequiredPlugins(), ConsoleLogger.Level.WARN);
+                                logger.log("&cAddon " + addon + " could not be loaded because it depends on the plugin(s): " + description.getRequiredPlugins(), ConsoleLogger.Level.WARN);
                             }
                         }
                     }
@@ -116,7 +116,7 @@ public class AddonManager
         // Removing addons that are missing dependencies.
         addons.keySet().removeIf(description -> {
             if (!addonNames.containsAll(description.getRequiredAddons())) {
-                logger.log("&c" + description.getName() + " depends on the other addon(s): " + description.getRequiredAddons(), ConsoleLogger.Level.WARN);
+                logger.log("&cAddon " + description.getName() + " could not be loaded because it depends on the other addon(s): " + description.getRequiredAddons(), ConsoleLogger.Level.WARN);
                 addonNames.remove(description.getName());
                 return true;
             }
@@ -146,19 +146,11 @@ public class AddonManager
      */
     public void startAddons(@NotNull StartTime startTime)
     {
-        if (!addonClassLoaders.isEmpty()) {
-            HashSet<PMSAddon> toStart = new HashSet<>();
+        if (addonClassLoaders.isEmpty()) return;
 
-            for (PMSAddon addon : getAddons())
-                if (!addon.started && !addon.stopped && addon.getDescription().getStartTime() == startTime)
-                    toStart.add(addon);
-
-            if (!toStart.isEmpty())
-                new Thread(() -> {
-                    for (PMSAddon addon : toStart)
-                        callOnStart(addon);
-                }, "PMSAddon Runner").start();
-        }
+        for (PMSAddon addon : getAddons())
+            if (addon.getDescription().getStartTime() == startTime && !addon.started && !addon.stopped)
+                callOnStart(addon);
     }
 
     /**
@@ -190,29 +182,27 @@ public class AddonManager
     }
 
     /**
-     * Stops the registered addons on PMSAddon Stopper thread.
+     * Stops all registered addons.
      */
     public void stopAddons()
     {
-        if (!addonClassLoaders.isEmpty()) {
-            new Thread(() -> {
-                for (PMSAddon addon : getAddons())
-                    if (addon.started && !addon.stopped)
-                        callOnStop(addon);
+        if (addonClassLoaders.isEmpty()) return;
 
-                AddonClassLoader.clearCaches();
-            }, "PMSAddon Stopper").start();
-        }
+        for (PMSAddon addon : getAddons())
+            if (addon.started && !addon.stopped)
+                callOnStop(addon);
+
+        AddonClassLoader.clearCaches();
     }
 
     /**
-     * Stops the specified addon if it was not stopped yet on the main thread.
+     * Stops the specified addon if it was not stopped yet.
      */
     public void stopAddon(@NotNull PMSAddon addon)
     {
         if (addon.started && !addon.stopped) {
             callOnStop(addon);
-            AddonClassLoader.clearCaches(addon);
+            AddonClassLoader.clearCaches(addon.getClassLoader());
         }
     }
 
@@ -235,7 +225,7 @@ public class AddonManager
             addon.loaded = false;
             AddonEventManager.callLoadUnloadEvent(addon);
         } catch (IOException e) {
-            logger.log("&cUnable to close '" + addon + "' addon class loader.");
+            logger.log("&cUnable to close '" + addon + "' addon class loader.", ConsoleLogger.Level.ERROR);
             PlayMoreSoundsCore.getErrorHandler().report(e, "Path: " + addon.getJar() + "\nAddonClassLoader close exception:");
         }
     }
