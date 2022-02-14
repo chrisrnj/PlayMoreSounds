@@ -1,9 +1,6 @@
-Changes with * at the start are the ones that are currently under development, the rest is already added.
-
 Changelog:
 - Add sound list when you try to tab complete /pms play command.
 - Add sound categories to 'available sounds.txt'
-*- Add pages to help command.
 - Add "/pms update download [-force]" command to allow downloads of new updates through api.spiGET.org.
 - Add 1.18 sounds that were missing.
 - Add way of uninstalling addons through Addon Management Inventory or the command /pms addons uninstall <addon>.
@@ -16,6 +13,7 @@ Changelog:
   - You can specify a hash to improve resource pack loading.
   - Players with permission 'playmoresounds.resourcepacker.force.bypass' will be able to decline even when Force is on.
   - The message will be different if resource pack failed to download.
+- Made addons start and stop on main thread to fix some synchronization issues.
 - Made Custom Discs feature an addon due to low usage on bStats. Use /pms addons to download the addon and use this feature again.
 - Made biome sounds take login event into account.
 - Made so Addons and List GUIs use the same way of handling inventories. This means List GUI is now compatible with all versions, has better performance and less bugs.
