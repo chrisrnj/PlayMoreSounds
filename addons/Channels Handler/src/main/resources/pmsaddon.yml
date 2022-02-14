@@ -1,0 +1,6 @@
+Authors: [ Epicnicity322 ]
+Description: Library that helps other addons play sounds for players chatting in specific channels in channels.yml.
+Main Class: com.epicnicity322.channelshandler.ChannelsHandlerAddon
+Name: Channels Handler
+Start Time: BEFORE_CONFIGURATIONS
+Version: '${project.version}'
