@@ -1,7 +1,7 @@
 Changes with * at the start are the ones that are currently under development, the rest is already added.
 
 Changelog:
-*- Add sound list when you try to tab complete /pms play command.
+- Add sound list when you try to tab complete /pms play command.
 - Add sound categories to 'available sounds.txt'
 *- Add pages to help command.
 - Add "/pms update download [-force]" command to allow downloads of new updates through api.spiGET.org.
@@ -9,17 +9,18 @@ Changelog:
 - Add way of uninstalling addons through Addon Management Inventory or the command /pms addons uninstall <addon>.
 - Addons descriptions will break lines if the description is too long in Addon Management Inventory.
 - Considerably lower memory usage by instantiating things only when using them, instead of eating all memory when the plugin loads.
+- Improve performance considerably when checking for region wand when the player left or right clicks.
 - Improve resource packer feature:
   - If a player is trying to join and constantly failing to download the resource pack (when Force is on), admins with the permission 'playmoresounds.resourcepacker.administrator' will be prompted to type "/pms confirm" to allow this player to join without a resource pack.
   - In supported versions, the "accept resource pack" message will be shown in the prompt rather than chat. Also removed PlayMoreSounds prefix from this message.
   - You can specify a hash to improve resource pack loading.
   - Players with permission 'playmoresounds.resourcepacker.force.bypass' will be able to decline even when Force is on.
   - The message will be different if resource pack failed to download.
-*- Made Custom Discs feature an addon due to low usage on bStats. Use /pms addons to download the addon and use this feature again.
+- Made Custom Discs feature an addon due to low usage on bStats. Use /pms addons to download the addon and use this feature again.
 - Made biome sounds take login event into account.
 - Made so Addons and List GUIs use the same way of handling inventories. This means List GUI is now compatible with all versions, has better performance and less bugs.
 - Made so when you type region removal command multiple times, the confirmation will no longer repeat on "/pms confirm list".
 - Made update checker reload on /pms reload, plus huge changes and simplification of update checker.
 - Renamed multiple configuration keys for List and Addon GUIs.
 - Rewrote "wait for resource pack accept/decline before playing custom sound" code, also add support for biome sounds. This also fixes minecraft sounds not playing at login in case the player declines the resource pack.
-*- Update chinese language.
+- Update chinese language thanks to AndyYu.
