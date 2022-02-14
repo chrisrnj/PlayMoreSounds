@@ -16,13 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
+package com.epicnicity322.customdiscs;
 
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandUtils;
+import com.epicnicity322.playmoresounds.bukkit.command.subcommand.Helpable;
 import com.epicnicity322.playmoresounds.bukkit.listener.OnPlayerInteract;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -32,8 +33,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 
-public final class DiscSubCommand extends Command implements Helpable
+public final class DiscCommand extends Command implements Helpable
 {
+    private static final @NotNull String[] aliases = new String[]{"discs", "customdiscs"};
+
     @Override
     public @NotNull CommandRunnable onHelp()
     {
@@ -49,17 +52,17 @@ public final class DiscSubCommand extends Command implements Helpable
     @Override
     public @Nullable String[] getAliases()
     {
-        return new String[]{"musicdisc"};
+        return aliases;
     }
 
     @Override
-    protected @Nullable CommandRunnable getNoPermissionRunnable()
+    protected @NotNull CommandRunnable getNoPermissionRunnable()
     {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
     @Override
-    public @Nullable String getPermission()
+    public @NotNull String getPermission()
     {
         return "playmoresounds.disc.give";
     }
@@ -89,7 +92,7 @@ public final class DiscSubCommand extends Command implements Helpable
             return;
         }
 
-        ItemStack disc = OnPlayerInteract.getCustomDisc(args[1]);
+        ItemStack disc = CustomDiscs.getCustomDisc(args[1]);
 
         if (disc == null) {
             lang.send(sender, lang.get("Disc.Error.Not Found").replace("<id>", args[1]));

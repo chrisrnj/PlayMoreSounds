@@ -537,62 +537,6 @@ public enum Configurations
             "      Confirm:\n" +
             "        Material: GREEN_WOOL\n" +
             "        Glowing: false", StaticFields.version4_1_2),
-    CUSTOM_DISCS(StaticFields.sounds.resolve("custom discs.yml"), "# Set a sound to play when a player clicks at a jukebox with a specific item.\n" +
-            "#\n" +
-            "# Warnings: \n" +
-            "#   >> You must be on version 1.14+!\n" +
-            "#   >> Players must have the permission 'playmoresounds.disc.use'.\n" +
-            "#   >> Delayed sounds will not stop when the disc is removed.\n" +
-            "#   >> For performance reasons, the sound will only play if you have only 1 disc in your hand.\n" +
-            "#   >> When the disc is removed the sound will only stop for the player who removed it,\n" +
-            "#   meaning if the sound has a radius the sound will not be stopped to the players in\n" +
-            "#   the radius.\n" +
-            "#\n" +
-            "# To set a sound, just create a configuration section with an id and set the item name,\n" +
-            "# material and lore or just copy the sample.\n" +
-            "# Item material list: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html\n" +
-            "#\n" +
-            "# Usage In-Game: \n" +
-            "#   Get the disc with the command '/pms disc <id>'\n" +
-            "#   Click on a jukebox with one of the discs that you set here to play the sound.\n" +
-            "#\n" +
-            "# Sample:\n" +
-            "# (Take a note that this is a sample and the sounds and items may not be available on\n" +
-            "# your MC version.)\n" +
-            "#\n" +
-            "#PLING_DISC: # This is the ID of the custom disc. Here I named this disc PLING_DISC. Disc IDs can not have spaces.\n" +
-            "#  Enabled: true\n" +
-            "#  Item:\n" +
-            "#    Material: GOLDEN_APPLE # The material of the custom disc item.\n" +
-            "#    Name: '&2&lPling Disc' # The name of the custom disc item.\n" +
-            "#    Lore: 'Different pitched pling sounds!' # The lore of the custom disc item. Use <line> to break a line.\n" +
-            "#    Glowing: true # If this disc should glow.\n" +
-            "#  Sounds: # The sounds to play when a player uses this disc.\n" +
-            "#    '0':\n" +
-            "#      Delay: 0\n" +
-            "#      Options:\n" +
-            "#        Radius: 20.0\n" +
-            "#      Pitch: 1.0\n" +
-            "#      Sound: BLOCK_NOTE_BLOCK_PLING\n" +
-            "#      Volume: 10.0\n" +
-            "#    '1':\n" +
-            "#      Delay: 20\n" +
-            "#      Options:\n" +
-            "#        Radius: 20.0\n" +
-            "#      Pitch: 2.0\n" +
-            "#      Sound: BLOCK_NOTE_BLOCK_PLING\n" +
-            "#      Volume: 10.0\n" +
-            "#    '2':\n" +
-            "#      Delay: 40\n" +
-            "#      Options:\n" +
-            "#        Radius: 20.0\n" +
-            "#      Pitch: 0.0\n" +
-            "#      Sound: BLOCK_NOTE_BLOCK_PLING\n" +
-            "#      Volume: 10.0\n" +
-            "#\n" +
-            "# More information about sounds on sounds.yml\n" +
-            "\n" +
-            "Version: '" + PlayMoreSoundsVersion.version + "'", StaticFields.version3_3_0),
     DEATH_TYPES(StaticFields.sounds.resolve("death types.yml"), "# Set a sound to play when a player die for a specific cause of death.\n" +
             "# Warning >> This setting only works for 1.14+!\n" +
             "#\n" +
