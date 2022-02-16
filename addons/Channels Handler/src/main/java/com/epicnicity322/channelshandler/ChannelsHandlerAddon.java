@@ -18,22 +18,115 @@
 package com.epicnicity322.channelshandler;
 
 import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
+import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
+import com.epicnicity322.playmoresounds.core.addons.AddonDescription;
 import com.epicnicity322.playmoresounds.core.addons.PMSAddon;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 
-public final class ChannelsHandlerAddon extends PMSAddon
-{
-    //TODO: Create channels.yml with documentation of how to set sounds for specific channels, also a notice for 'Hook Mode' and how it replaces Player Chat sound and adds compatibility to 'chat words' feature.
+public final class ChannelsHandlerAddon extends PMSAddon {
     public static final ConfigurationHolder CHANNELS_CONFIG = new ConfigurationHolder(Configurations.BIOMES.getConfigurationHolder().getPath().getParent().resolve("channels.yml"),
-            "");
+            "# Play sounds when players talk in specific channels.\n" +
+                    "\n" +
+                    "# This file is generated and managed by the addon 'Channels Handler'. Other addons may hook to add\n" +
+                    "#compatibility to channel based chat plugins.\n" +
+                    "# You can install official hooking addons through the command '/pms addons'\n" +
+                    "\n" +
+                    "# >> Sound Example:\n" +
+                    "\n" +
+                    "VentureChat: # The name of the plugin you are hooking to, in this example VentureChat. Make sure you\n" +
+                    "#have the addon to add compatibility to it installed, or this won't work.\n" +
+                    "  global: # The channel name you want to play a sound when talking. This is case sensitive.\n" +
+                    "    Cancellable: true\n" +
+                    "    Enabled: true\n" +
+                    "    Sounds:\n" +
+                    "      '1':\n" +
+                    "        Options:\n" +
+                    "          # Since this is global channel, it's best to leave radius at -1.\n" +
+                    "          Radius: -1.0\n" +
+                    "        Sound: ENTITY_CHICKEN_EGG\n" +
+                    "    # You can set a word that when said in this channel, a sound will play.\n" +
+                    "    Chat Words:\n" +
+                    "      pling: # The word to play a sound.\n" +
+                    "        Prevent Other Sounds:\n" +
+                    "          # Prevents the sound above from playing. This way only the chat word sound plays.\n" +
+                    "          Chat Sound: true\n" +
+                    "          # If you add more than one chat word, like I did below, this makes so when the player says\n" +
+                    "          #both words 'pling' and 'bass', only this pling sound plays instead of both sounds.\n" +
+                    "          Other Chat Words: true\n" +
+                    "        Sounds:\n" +
+                    "          '1':\n" +
+                    "            Options:\n" +
+                    "              Radius: -1.0\n" +
+                    "            Sound: BLOCK_NOTE_BLOCK_PLING\n" +
+                    "      bass: # Have as many words as you want, just create a section for each word.\n" +
+                    "        Prevent Other Sounds:\n" +
+                    "          Chat Sound: true\n" +
+                    "        Sounds:\n" +
+                    "          '1':\n" +
+                    "            Options:\n" +
+                    "              Radius: -1.0\n" +
+                    "            Sound: BLOCK_NOTE_BLOCK_BASS\n" +
+                    "\n" +
+                    "  local: # Local channel has a distance where messages can be seen.\n" +
+                    "    Cancellable: true\n" +
+                    "    Enabled: true\n" +
+                    "    Sounds:\n" +
+                    "      '1':\n" +
+                    "        Options:\n" +
+                    "          # Make sure to put the right radius in blocks of the channel here.\n" +
+                    "          Radius: 40.0\n" +
+                    "        Sound: ENTITY_CHICKEN_EGG\n" +
+                    "    Chat Words:\n" +
+                    "      boo:\n" +
+                    "        Sounds:\n" +
+                    "          '1':\n" +
+                    "            Options:\n" +
+                    "              Radius: 40.0\n" +
+                    "            Sound: ENTITY_GHAST_SCREAM\n" +
+                    "\n" +
+                    "  admin: # Admin channel can only be seen by administrators online.\n" +
+                    "    Cancellable: true\n" +
+                    "    Enabled: true\n" +
+                    "    Sounds:\n" +
+                    "      '1':\n" +
+                    "        Options:\n" +
+                    "          # This sound will only be heard by admins.\n" +
+                    "          Permission To Listen: 'venturechat.admin'\n" +
+                    "          Radius: -1.0\n" +
+                    "        Sound: BLOCK_NOTE_BLOCK_BASS\n" +
+                    "        Pitch: 0.0\n" +
+                    "    Chat Words:\n" +
+                    "      keep your eyes on:\n" +
+                    "        Sounds:\n" +
+                    "          '1':\n" +
+                    "            Options:\n" +
+                    "              Permission To Listen: 'venturechat.admin'\n" +
+                    "              Radius: -1.0\n" +
+                    "            Sound: ENTITY_GOAT_SCREAMING_AMBIENT\n" +
+                    "\n" +
+                    "# You can find more information about how to configure sounds in sounds.yml.\n" +
+                    "\n" +
+                    "Version: '" + PlayMoreSoundsVersion.version + "'");
 
     @Override
-    protected void onStart()
-    {
-        Configurations.getConfigurationLoader().registerConfiguration(CHANNELS_CONFIG, new Version("4.1.2"), PlayMoreSoundsVersion.getVersion());
-        PlayMoreSounds.getConsoleLogger().log("&eChannels configuration was registered.");
+    protected void onStart() {
+        Configurations.getConfigurationLoader().registerConfiguration(CHANNELS_CONFIG, null, PlayMoreSoundsVersion.getVersion());
+        int dependingAddons = 0;
+
+        for (PMSAddon addon : PlayMoreSounds.getAddonManager().getAddons()) {
+            AddonDescription description = addon.getDescription();
+
+            if (description.getAddonHooks().contains("Channels Handler") || description.getRequiredAddons().contains("Channels Handler"))
+                ++dependingAddons;
+        }
+
+        if (dependingAddons == 0) {
+            PlayMoreSounds.getConsoleLogger().log("&4Channels configuration was registered, but no depending addons were found.", ConsoleLogger.Level.WARN);
+        } else {
+            PlayMoreSounds.getConsoleLogger().log("&eChannels configuration was registered. " + dependingAddons + " depending addon" + (dependingAddons == 1 ? "" : "s") + " were found.");
+        }
     }
 }
