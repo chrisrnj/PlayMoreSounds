@@ -1,5 +1,4 @@
 /*
- * PlayMoreSounds - A bukkit plugin that manages and plays sounds.
  * Copyright (C) 2022 Christiano Rangel
  *
  * This program is free software: you can redistribute it and/or modify
