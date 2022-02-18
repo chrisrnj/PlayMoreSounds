@@ -138,9 +138,9 @@ public final class ChannelsHandlerAddon extends PMSAddon {
         }
 
         if (dependingAddons == 0) {
-            PlayMoreSounds.getConsoleLogger().log("&4Channels configuration was registered, but no depending addons were found.", ConsoleLogger.Level.WARN);
+            PlayMoreSounds.getConsoleLogger().log("[Channels Handler] &4Channels configuration was registered, but no depending addons were found.", ConsoleLogger.Level.WARN);
         } else {
-            PlayMoreSounds.getConsoleLogger().log("&eChannels configuration was registered. " + dependingAddons + " depending addon" + (dependingAddons == 1 ? " was" : "s were") + " found.");
+            PlayMoreSounds.getConsoleLogger().log("[Channels Handler] &eChannels configuration was registered. " + dependingAddons + " depending addon" + (dependingAddons == 1 ? " was" : "s were") + " found.");
         }
     }
 }
