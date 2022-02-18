@@ -1,0 +1,7 @@
+Authors: [ Epicnicity322 ]
+Description: Allows you to set different sounds for players chatting in different channels.
+Main Class: com.epicnicity322.venturechathook.VentureChatHook
+Name: VentureChat Hook
+Required Addons: [ Channels Handler ]
+Required Plugins: [ VentureChat ]
+Version: '${project.version}'
