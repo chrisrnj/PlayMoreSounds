@@ -19,7 +19,6 @@ package com.epicnicity322.channelshandler;
 
 import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
 import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
-import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
 import com.epicnicity322.playmoresounds.core.addons.AddonDescription;
@@ -38,10 +37,11 @@ public final class ChannelsHandlerAddon extends PMSAddon {
                     "\n" +
                     "VentureChat: # The name of the plugin you are hooking to, in this example VentureChat. Make sure you\n" +
                     "#have the addon to add compatibility to it installed, or this won't work.\n" +
-                    "  global: # The channel name you want to play a sound when talking. This is case sensitive.\n" +
-                    "    Cancellable: true\n" +
+                    "  Global: # The channel name you want to play a sound when talking. This is case sensitive.\n" +
                     "    Enabled: true\n" +
-                    "    Sounds:\n" +
+                    "    Prevent For Muted: true # Prevents this channel's sound for playing for muted players.\n" +
+                    "    Cancellable: true\n" +
+                    "    Sounds: # The sounds that will play when people talk on this channel.\n" +
                     "      '1':\n" +
                     "        Options:\n" +
                     "          # Since this is global channel, it's best to leave radius at -1.\n" +
@@ -50,6 +50,9 @@ public final class ChannelsHandlerAddon extends PMSAddon {
                     "    # You can set a word that when said in this channel, a sound will play.\n" +
                     "    Chat Words:\n" +
                     "      pling: # The word to play a sound.\n" +
+                    "        Enabled: true\n" +
+                    "        Prevent For Muted: true\n" +
+                    "        Cancellable: true\n" +
                     "        Prevent Other Sounds:\n" +
                     "          # Prevents the sound above from playing. This way only the chat word sound plays.\n" +
                     "          Chat Sound: true\n" +
@@ -62,6 +65,9 @@ public final class ChannelsHandlerAddon extends PMSAddon {
                     "              Radius: -1.0\n" +
                     "            Sound: BLOCK_NOTE_BLOCK_PLING\n" +
                     "      bass: # Have as many words as you want, just create a section for each word.\n" +
+                    "        Enabled: true\n" +
+                    "        Prevent For Muted: true\n" +
+                    "        Cancellable: true\n" +
                     "        Prevent Other Sounds:\n" +
                     "          Chat Sound: true\n" +
                     "        Sounds:\n" +
@@ -70,40 +76,48 @@ public final class ChannelsHandlerAddon extends PMSAddon {
                     "              Radius: -1.0\n" +
                     "            Sound: BLOCK_NOTE_BLOCK_BASS\n" +
                     "\n" +
-                    "  local: # Local channel has a distance where messages can be seen.\n" +
-                    "    Cancellable: true\n" +
+                    "  Local: # Local channel has a distance where messages can be seen.\n" +
                     "    Enabled: true\n" +
+                    "    Prevent For Muted: true\n" +
+                    "    Cancellable: true\n" +
                     "    Sounds:\n" +
                     "      '1':\n" +
                     "        Options:\n" +
                     "          # Make sure to put the right radius in blocks of the channel here.\n" +
-                    "          Radius: 40.0\n" +
+                    "          Radius: 230.0\n" +
                     "        Sound: ENTITY_CHICKEN_EGG\n" +
                     "    Chat Words:\n" +
                     "      boo:\n" +
+                    "        Enabled: true\n" +
+                    "        Prevent For Muted: true\n" +
+                    "        Cancellable: true\n" +
                     "        Sounds:\n" +
                     "          '1':\n" +
                     "            Options:\n" +
                     "              Radius: 40.0\n" +
                     "            Sound: ENTITY_GHAST_SCREAM\n" +
                     "\n" +
-                    "  admin: # Admin channel can only be seen by administrators online.\n" +
-                    "    Cancellable: true\n" +
+                    "  Staff: # Staff channel can only be seen by the staff online.\n" +
                     "    Enabled: true\n" +
+                    "    Prevent For Muted: true\n" +
+                    "    Cancellable: true\n" +
                     "    Sounds:\n" +
                     "      '1':\n" +
                     "        Options:\n" +
-                    "          # This sound will only be heard by admins.\n" +
-                    "          Permission To Listen: 'venturechat.admin'\n" +
+                    "          # This sound will only be heard by staff.\n" +
+                    "          Permission To Listen: 'venturechat.staff'\n" +
                     "          Radius: -1.0\n" +
                     "        Sound: BLOCK_NOTE_BLOCK_BASS\n" +
                     "        Pitch: 0.0\n" +
                     "    Chat Words:\n" +
                     "      keep your eyes on:\n" +
+                    "        Enabled: true\n" +
+                    "        Prevent For Muted: true\n" +
+                    "        Cancellable: true\n" +
                     "        Sounds:\n" +
                     "          '1':\n" +
                     "            Options:\n" +
-                    "              Permission To Listen: 'venturechat.admin'\n" +
+                    "              Permission To Listen: 'venturechat.staff'\n" +
                     "              Radius: -1.0\n" +
                     "            Sound: ENTITY_GOAT_SCREAMING_AMBIENT\n" +
                     "\n" +
@@ -126,7 +140,7 @@ public final class ChannelsHandlerAddon extends PMSAddon {
         if (dependingAddons == 0) {
             PlayMoreSounds.getConsoleLogger().log("&4Channels configuration was registered, but no depending addons were found.", ConsoleLogger.Level.WARN);
         } else {
-            PlayMoreSounds.getConsoleLogger().log("&eChannels configuration was registered. " + dependingAddons + " depending addon" + (dependingAddons == 1 ? "" : "s") + " were found.");
+            PlayMoreSounds.getConsoleLogger().log("&eChannels configuration was registered. " + dependingAddons + " depending addon" + (dependingAddons == 1 ? " was" : "s were") + " found.");
         }
     }
 }
