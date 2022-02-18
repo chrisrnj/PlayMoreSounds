@@ -19,10 +19,14 @@ package com.epicnicity322.channelshandler;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.events.PlaySoundEvent;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -30,8 +34,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
@@ -44,6 +50,7 @@ public class ChannelsHandler {
     protected final @NotNull AtomicBoolean listenerRegistered = new AtomicBoolean(false);
     private final @NotNull String pluginName;
     private final @NotNull Listener listener;
+    private final @Nullable Listener mutedCheckerListener;
 
     /**
      * Creates a channels handler that you can use to play sounds when a player says something in a specific channel.
@@ -58,10 +65,64 @@ public class ChannelsHandler {
      *
      * @param pluginName The name of the channel based chat plugin you are trying to add compatibility to.
      * @param listener   The listener that should be registered when sounds for this plugin are enabled.
+     * @see #ChannelsHandler(String, Listener, MutedChecker)
      */
     public ChannelsHandler(@NotNull String pluginName, @NotNull Listener listener) {
+        this(pluginName, listener, null);
+    }
+
+    /**
+     * Creates a channels handler that you can use to play sounds when a player says something in a specific channel.
+     * <p>
+     * Make sure to call the method {@link #onChat(Player, String, String)} when chat event for the plugin you are adding
+     * compatibility to is called. You don't need to call the method using bukkit runnable on main thread (in case the
+     * event is async), because this class is thread safe.
+     * <p>
+     * {@link #reloadListener()} is automatically called when you instance this, allowing the listener to be registered
+     * if any sound for this plugin is enabled in channels.yml. A runnable that calls {@link #reloadListener()} is added
+     * for {@link PlayMoreSounds#onReload(Runnable)} when you instance this as well.
+     * <p>
+     * You can provide a {@link MutedChecker} that has a boolean that will be used to determine if the channel sound
+     * should be played or not. Use it to return if a player has the channel muted or not. This will only work if the
+     * user has 'Prevent for muted' boolean true in channels configuration.
+     *
+     * @param pluginName   The name of the channel based chat plugin you are trying to add compatibility to.
+     * @param listener     The listener that should be registered when sounds for this plugin are enabled.
+     * @param mutedChecker The checker to see if the sound should not play in case the player has the channel muted.
+     */
+    public ChannelsHandler(@NotNull String pluginName, @NotNull Listener listener, @Nullable MutedChecker mutedChecker) {
         this.pluginName = pluginName;
         this.listener = listener;
+        if (mutedChecker == null)
+            mutedCheckerListener = null;
+        else
+            mutedCheckerListener = new Listener() {
+                @EventHandler(priority = EventPriority.LOWEST)
+                public void onPlaySound(PlaySoundEvent event) {
+                    PlayableSound sound = event.getSound();
+                    ConfigurationSection section = sound.getSection();
+
+                    if (section == null || section.getParent() == null) return;
+
+                    Optional<Path> configPath = section.getRoot().getFilePath();
+
+                    if (!configPath.isPresent() || !configPath.get().equals(ChannelsHandlerAddon.CHANNELS_CONFIG.getPath()))
+                        return;
+
+                    String sectionPath = section.getPath();
+
+                    if (!sectionPath.substring(0, sectionPath.indexOf(section.getSectionSeparator())).equals(pluginName))
+                        return;
+
+                    String channel = sectionPath.substring(sectionPath.indexOf(section.getSectionSeparator()) + 1);
+                    channel = channel.substring(0, channel.indexOf(section.getSectionSeparator()));
+
+                    if (section.getParent().getParent().getBoolean("Prevent For Muted").orElse(false)
+                            && mutedChecker.isMuted(channel, event.getPlayer())) {
+                        event.setCancelled(true);
+                    }
+                }
+            };
 
         reloadListener();
         PlayMoreSounds.onReload(this::reloadListener);
@@ -106,10 +167,16 @@ public class ChannelsHandler {
         if (channelSounds.isEmpty()) {
             if (listenerRegistered.getAndSet(false)) {
                 HandlerList.unregisterAll(listener);
+                if (mutedCheckerListener != null) {
+                    HandlerList.unregisterAll(mutedCheckerListener);
+                }
             }
         } else {
             if (!listenerRegistered.getAndSet(true)) {
                 Bukkit.getPluginManager().registerEvents(listener, PlayMoreSounds.getInstance());
+                if (mutedCheckerListener != null) {
+                    Bukkit.getPluginManager().registerEvents(mutedCheckerListener, PlayMoreSounds.getInstance());
+                }
             }
         }
     }
@@ -143,6 +210,7 @@ public class ChannelsHandler {
      * @param isCancelled If the event is cancelled. Sometimes the user wants to play the sound even if the event is cancelled.
      */
     public void onChat(@NotNull Player chatter, @NotNull String channel, @NotNull String message, boolean isCancelled) {
+        boolean mainThread = Bukkit.isPrimaryThread();
         ChannelSound channelSound = channelSounds.get(channel);
         if (channelSound == null) return;
         boolean playChannelSound = channelSound.channelSound != null && (!isCancelled || !channelSound.channelSound.isCancellable());
@@ -153,8 +221,10 @@ public class ChannelsHandler {
                 if (isCancelled && chatWordSound.isCancellable()) continue;
                 if (!chatWord.getKey().matcher(message).matches()) continue;
 
-                synchronized (Bukkit.class) {
+                if (mainThread) {
                     chatWordSound.play(chatter);
+                } else {
+                    Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> chatWordSound.play(chatter));
                 }
 
                 if (chatWordSound.getSection().getBoolean("Prevent Other Sounds.Chat Sound").orElse(false))
@@ -163,8 +233,10 @@ public class ChannelsHandler {
             }
 
         if (playChannelSound) {
-            synchronized (Bukkit.class) {
+            if (mainThread) {
                 channelSound.channelSound.play(chatter);
+            } else {
+                Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> channelSound.channelSound.play(chatter));
             }
         }
     }
@@ -173,9 +245,21 @@ public class ChannelsHandler {
         private final @Nullable PlayableRichSound channelSound;
         private final @Nullable HashMap<Pattern, PlayableRichSound> chatWords;
 
-        public ChannelSound(@Nullable PlayableRichSound channelSound, @Nullable HashMap<Pattern, PlayableRichSound> chatWords) {
+        private ChannelSound(@Nullable PlayableRichSound channelSound, @Nullable HashMap<Pattern, PlayableRichSound> chatWords) {
             this.channelSound = channelSound;
             this.chatWords = chatWords;
         }
+    }
+
+    public static abstract class MutedChecker {
+        /**
+         * Check if the player has a channel muted. This will be called before playing the sound for this channel. Use
+         * it to check if the player has messages muted for this channel.
+         *
+         * @param channelName The name of the channel that will play a sound.
+         * @param player      The player that the channel sound will be played to.
+         * @return If the channel sound should be played or not.
+         */
+        protected abstract boolean isMuted(@NotNull String channelName, @NotNull Player player);
     }
 }
