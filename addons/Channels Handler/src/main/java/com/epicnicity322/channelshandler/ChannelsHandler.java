@@ -17,6 +17,7 @@
 
 package com.epicnicity322.channelshandler;
 
+import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
@@ -151,13 +152,25 @@ public class ChannelsHandler {
                         ConfigurationSection chatWordSection = (ConfigurationSection) chatWord.getValue();
 
                         if (chatWordSection.getBoolean("Enabled").orElse(false)) {
-                            if (chatWordSounds == null) chatWordSounds = new HashMap<>();
-                            chatWordSounds.put(Pattern.compile(".*\\b" + Pattern.quote(chatWord.getKey().toLowerCase()) + "\\b.*"), new PlayableRichSound(chatWordSection));
+                            try {
+                                PlayableRichSound chatWordSound = new PlayableRichSound(chatWordSection);
+                                if (chatWordSounds == null) chatWordSounds = new HashMap<>();
+                                chatWordSounds.put(Pattern.compile(".*\\b" + Pattern.quote(chatWord.getKey().toLowerCase()) + "\\b.*"), chatWordSound);
+                            } catch (IllegalArgumentException ignored) {
+                                PlayMoreSounds.getConsoleLogger().log("[Channels Handler] The chat word sound '" + chatWord.getKey() + "' for the channel '" + channel.getKey() + "' is an invalid sound, so it was ignored.", ConsoleLogger.Level.WARN);
+                            }
                         }
                     }
                 }
 
-                PlayableRichSound channelSound = channelSection.getBoolean("Enabled").orElse(false) ? new PlayableRichSound(channelSection) : null;
+                PlayableRichSound channelSound = null;
+
+                try {
+                    channelSound = channelSection.getBoolean("Enabled").orElse(false) ? new PlayableRichSound(channelSection) : null;
+                } catch (IllegalArgumentException ignored) {
+                    PlayMoreSounds.getConsoleLogger().log("[Channels Handler] The channel '" + channel.getKey() + "' has an invalid sound, so " + (chatWordSounds == null ? "it was ignored." : "only the chat words sounds were registered."), ConsoleLogger.Level.WARN);
+                }
+
                 if (channelSound != null || chatWordSounds != null)
                     channelSounds.put(channel.getKey(), new ChannelSound(channelSound, chatWordSounds));
             }
