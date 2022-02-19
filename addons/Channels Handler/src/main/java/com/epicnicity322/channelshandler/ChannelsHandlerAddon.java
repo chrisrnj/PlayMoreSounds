@@ -39,7 +39,9 @@ public final class ChannelsHandlerAddon extends PMSAddon {
                     "#have the addon to add compatibility to it installed, or this won't work.\n" +
                     "  Global: # The channel name you want to play a sound when talking. This is case sensitive.\n" +
                     "    Enabled: true\n" +
-                    "    Prevent For Muted: true # Prevents this channel's sound for playing for muted players.\n" +
+					"    # Prevents this channel's sound for playing for players that are ignoring this channel.\n" +
+					"    # Not to be confused to players that were muted by staff for misbehaving.\n" +
+                    "    Prevent For Muted: true\n" +
                     "    Cancellable: true\n" +
                     "    Sounds: # The sounds that will play when people talk on this channel.\n" +
                     "      '1':\n" +
@@ -94,8 +96,17 @@ public final class ChannelsHandlerAddon extends PMSAddon {
                     "        Sounds:\n" +
                     "          '1':\n" +
                     "            Options:\n" +
-                    "              Radius: 40.0\n" +
+                    "              Radius: 230.0\n" +
                     "            Sound: ENTITY_GHAST_SCREAM\n" +
+					"      can you hear me: # Only radius 30 to play for players nearby.\n" +
+                    "        Enabled: true\n" +
+                    "        Prevent For Muted: true\n" +
+                    "        Cancellable: true\n" +
+                    "        Sounds:\n" +
+                    "          '1':\n" +
+                    "            Options:\n" +
+                    "              Radius: 30.0\n" +
+                    "            Sound: ENTITY_VILLAGER_TRADE\n" +
                     "\n" +
                     "  Staff: # Staff channel can only be seen by the staff online.\n" +
                     "    Enabled: true\n" +
