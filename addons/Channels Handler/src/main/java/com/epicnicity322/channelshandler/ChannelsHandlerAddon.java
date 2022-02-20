@@ -39,9 +39,6 @@ public final class ChannelsHandlerAddon extends PMSAddon {
                     "#have the addon to add compatibility to it installed, or this won't work.\n" +
                     "  Global: # The channel name you want to play a sound when talking. This is case sensitive.\n" +
                     "    Enabled: true\n" +
-					"    # Prevents this channel's sound for playing for players that are ignoring this channel.\n" +
-					"    # Not to be confused to players that were muted by staff for misbehaving.\n" +
-                    "    Prevent For Muted: true\n" +
                     "    Cancellable: true\n" +
                     "    Sounds: # The sounds that will play when people talk on this channel.\n" +
                     "      '1':\n" +
@@ -53,7 +50,6 @@ public final class ChannelsHandlerAddon extends PMSAddon {
                     "    Chat Words:\n" +
                     "      pling: # The word to play a sound.\n" +
                     "        Enabled: true\n" +
-                    "        Prevent For Muted: true\n" +
                     "        Cancellable: true\n" +
                     "        Prevent Other Sounds:\n" +
                     "          # Prevents the sound above from playing. This way only the chat word sound plays.\n" +
@@ -68,7 +64,6 @@ public final class ChannelsHandlerAddon extends PMSAddon {
                     "            Sound: BLOCK_NOTE_BLOCK_PLING\n" +
                     "      bass: # Have as many words as you want, just create a section for each word.\n" +
                     "        Enabled: true\n" +
-                    "        Prevent For Muted: true\n" +
                     "        Cancellable: true\n" +
                     "        Prevent Other Sounds:\n" +
                     "          Chat Sound: true\n" +
@@ -80,7 +75,6 @@ public final class ChannelsHandlerAddon extends PMSAddon {
                     "\n" +
                     "  Local: # Local channel has a distance where messages can be seen.\n" +
                     "    Enabled: true\n" +
-                    "    Prevent For Muted: true\n" +
                     "    Cancellable: true\n" +
                     "    Sounds:\n" +
                     "      '1':\n" +
@@ -91,16 +85,14 @@ public final class ChannelsHandlerAddon extends PMSAddon {
                     "    Chat Words:\n" +
                     "      boo:\n" +
                     "        Enabled: true\n" +
-                    "        Prevent For Muted: true\n" +
                     "        Cancellable: true\n" +
                     "        Sounds:\n" +
                     "          '1':\n" +
                     "            Options:\n" +
                     "              Radius: 230.0\n" +
                     "            Sound: ENTITY_GHAST_SCREAM\n" +
-					"      can you hear me: # Only radius 30 to play for players nearby.\n" +
+                    "      can you hear me: # Only radius 30 to play for players nearby.\n" +
                     "        Enabled: true\n" +
-                    "        Prevent For Muted: true\n" +
                     "        Cancellable: true\n" +
                     "        Sounds:\n" +
                     "          '1':\n" +
@@ -110,7 +102,6 @@ public final class ChannelsHandlerAddon extends PMSAddon {
                     "\n" +
                     "  Staff: # Staff channel can only be seen by the staff online.\n" +
                     "    Enabled: true\n" +
-                    "    Prevent For Muted: true\n" +
                     "    Cancellable: true\n" +
                     "    Sounds:\n" +
                     "      '1':\n" +
@@ -123,7 +114,6 @@ public final class ChannelsHandlerAddon extends PMSAddon {
                     "    Chat Words:\n" +
                     "      keep your eyes on:\n" +
                     "        Enabled: true\n" +
-                    "        Prevent For Muted: true\n" +
                     "        Cancellable: true\n" +
                     "        Sounds:\n" +
                     "          '1':\n" +
@@ -131,6 +121,9 @@ public final class ChannelsHandlerAddon extends PMSAddon {
                     "              Permission To Listen: 'venturechat.staff'\n" +
                     "              Radius: -1.0\n" +
                     "            Sound: ENTITY_GOAT_SCREAMING_AMBIENT\n" +
+                    "\n" +
+                    "# Channels Handler also makes sure not to play the sound to those players who are not listening to a\n" +
+                    "#channel or have another player blocked.\n" +
                     "\n" +
                     "# You can find more information about how to configure sounds in sounds.yml.\n" +
                     "\n" +

@@ -51,7 +51,7 @@ public class ChannelsHandler {
     protected final @NotNull AtomicBoolean listenerRegistered = new AtomicBoolean(false);
     private final @NotNull String pluginName;
     private final @NotNull Listener listener;
-    private final @Nullable Listener mutedCheckerListener;
+    private final @Nullable Listener soundPreventerListener;
 
     /**
      * Creates a channels handler that you can use to play sounds when a player says something in a specific channel.
@@ -66,7 +66,7 @@ public class ChannelsHandler {
      *
      * @param pluginName The name of the channel based chat plugin you are trying to add compatibility to.
      * @param listener   The listener that should be registered when sounds for this plugin are enabled.
-     * @see #ChannelsHandler(String, Listener, MutedChecker)
+     * @see #ChannelsHandler(String, Listener, ChannelSoundPreventer)
      */
     public ChannelsHandler(@NotNull String pluginName, @NotNull Listener listener) {
         this(pluginName, listener, null);
@@ -83,27 +83,27 @@ public class ChannelsHandler {
      * if any sound for this plugin is enabled in channels.yml. A runnable that calls {@link #reloadListener()} is added
      * for {@link PlayMoreSounds#onReload(Runnable)} when you instance this as well.
      * <p>
-     * You can provide a {@link MutedChecker} that has a boolean that will be used to determine if the channel sound
-     * should be played or not. Use it to return if a player has the channel muted or not. This will only work if the
-     * user has 'Prevent for muted' boolean true in channels configuration.
+     * You can provide a {@link ChannelSoundPreventer} that has a boolean that will be used to determine if the channel
+     * sound should be played to the message receiver.
      *
-     * @param pluginName   The name of the channel based chat plugin you are trying to add compatibility to.
-     * @param listener     The listener that should be registered when sounds for this plugin are enabled.
-     * @param mutedChecker The checker to see if the sound should not play in case the player has the channel muted.
+     * @param pluginName            The name of the channel based chat plugin you are trying to add compatibility to.
+     * @param listener              The listener that should be registered when sounds for this plugin are enabled.
+     * @param channelSoundPreventer The checker to see if the sound should not play to the message receiver.
+     * @see ChannelSoundPreventer#preventReceivingSound(Player, Player, String)
      */
-    public ChannelsHandler(@NotNull String pluginName, @NotNull Listener listener, @Nullable MutedChecker mutedChecker) {
+    public ChannelsHandler(@NotNull String pluginName, @NotNull Listener listener, @Nullable ChannelsHandler.ChannelSoundPreventer channelSoundPreventer) {
         this.pluginName = pluginName;
         this.listener = listener;
-        if (mutedChecker == null)
-            mutedCheckerListener = null;
+        if (channelSoundPreventer == null)
+            soundPreventerListener = null;
         else
-            mutedCheckerListener = new Listener() {
+            soundPreventerListener = new Listener() {
                 @EventHandler(priority = EventPriority.LOWEST)
                 public void onPlaySound(PlaySoundEvent event) {
                     PlayableSound sound = event.getSound();
                     ConfigurationSection section = sound.getSection();
 
-                    if (section == null || section.getParent() == null) return;
+                    if (event.getSourcePlayer() == null || section == null || section.getParent() == null) return;
 
                     Optional<Path> configPath = section.getRoot().getFilePath();
 
@@ -118,8 +118,8 @@ public class ChannelsHandler {
                     String channel = sectionPath.substring(sectionPath.indexOf(section.getSectionSeparator()) + 1);
                     channel = channel.substring(0, channel.indexOf(section.getSectionSeparator()));
 
-                    if (section.getParent().getParent().getBoolean("Prevent For Muted").orElse(false)
-                            && mutedChecker.isMuted(channel, event.getPlayer())) {
+                    if (section.getParent().getParent().getBoolean("Prevent Sounds Of Non Seeing Messages").orElse(false)
+                            && channelSoundPreventer.preventReceivingSound(event.getSourcePlayer(), event.getPlayer(), channel)) {
                         event.setCancelled(true);
                     }
                 }
@@ -180,15 +180,15 @@ public class ChannelsHandler {
         if (channelSounds.isEmpty()) {
             if (listenerRegistered.getAndSet(false)) {
                 HandlerList.unregisterAll(listener);
-                if (mutedCheckerListener != null) {
-                    HandlerList.unregisterAll(mutedCheckerListener);
+                if (soundPreventerListener != null) {
+                    HandlerList.unregisterAll(soundPreventerListener);
                 }
             }
         } else {
             if (!listenerRegistered.getAndSet(true)) {
                 Bukkit.getPluginManager().registerEvents(listener, PlayMoreSounds.getInstance());
-                if (mutedCheckerListener != null) {
-                    Bukkit.getPluginManager().registerEvents(mutedCheckerListener, PlayMoreSounds.getInstance());
+                if (soundPreventerListener != null) {
+                    Bukkit.getPluginManager().registerEvents(soundPreventerListener, PlayMoreSounds.getInstance());
                 }
             }
         }
@@ -264,15 +264,21 @@ public class ChannelsHandler {
         }
     }
 
-    public static abstract class MutedChecker {
+    public static abstract class ChannelSoundPreventer {
         /**
-         * Check if the player has a channel muted. This will be called before playing the sound for this channel. Use
-         * it to check if the player has messages muted for this channel.
+         * A boolean which value is used to prevent a player from receiving a sound channel sound. You can use this, for
+         * example, to prevent players from receiving sounds from players talking in channels they have ignored, or
+         * maybe if they have the chatter ignored and won't be seeing the chatter's message. The receiver and chatter
+         * can be the same player in some cases.
+         * <p>
+         * This will be called in {@link PlaySoundEvent} and set the event cancelled in case this returns true. This will
+         * only be effective if 'Prevent Sounds Of Non Seeing Messages' in channels configuration is enabled.
          *
-         * @param channelName The name of the channel that will play a sound.
-         * @param player      The player that the channel sound will be played to.
-         * @return If the channel sound should be played or not.
+         * @param receiver The receiver of the channel sound.
+         * @param chatter  The chatter who sent the message.
+         * @param channel  The channel that the message was sent.
+         * @return If the sound should be prevented from playing to the receiver.
          */
-        protected abstract boolean isMuted(@NotNull String channelName, @NotNull Player player);
+        protected abstract boolean preventReceivingSound(@NotNull Player receiver, @NotNull Player chatter, @NotNull String channel);
     }
 }
