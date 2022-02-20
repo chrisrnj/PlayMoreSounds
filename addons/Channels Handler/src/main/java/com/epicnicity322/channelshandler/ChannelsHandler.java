@@ -111,15 +111,15 @@ public class ChannelsHandler {
                         return;
 
                     String sectionPath = section.getPath();
+                    char separator = section.getSectionSeparator();
 
-                    if (!sectionPath.substring(0, sectionPath.indexOf(section.getSectionSeparator())).equals(pluginName))
+                    if (!sectionPath.substring(0, sectionPath.indexOf(separator)).equals(pluginName))
                         return;
 
-                    String channel = sectionPath.substring(sectionPath.indexOf(section.getSectionSeparator()) + 1);
-                    channel = channel.substring(0, channel.indexOf(section.getSectionSeparator()));
+                    String channel = sectionPath.substring(sectionPath.indexOf(separator) + 1);
+                    channel = channel.substring(0, channel.indexOf(separator));
 
-                    if (section.getParent().getParent().getBoolean("Prevent Sounds Of Non Seeing Messages").orElse(false)
-                            && channelSoundPreventer.preventReceivingSound(event.getSourcePlayer(), event.getPlayer(), channel)) {
+                    if (channelSoundPreventer.preventReceivingSound(event.getSourcePlayer(), event.getPlayer(), channel)) {
                         event.setCancelled(true);
                     }
                 }
@@ -271,8 +271,7 @@ public class ChannelsHandler {
          * maybe if they have the chatter ignored and won't be seeing the chatter's message. The receiver and chatter
          * can be the same player in some cases.
          * <p>
-         * This will be called in {@link PlaySoundEvent} and set the event cancelled in case this returns true. This will
-         * only be effective if 'Prevent Sounds Of Non Seeing Messages' in channels configuration is enabled.
+         * This will be called in {@link PlaySoundEvent} and set the event cancelled in case this returns true.
          *
          * @param receiver The receiver of the channel sound.
          * @param chatter  The chatter who sent the message.
