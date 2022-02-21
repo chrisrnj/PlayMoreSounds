@@ -22,6 +22,7 @@ import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.core.addons.PMSAddon;
 import mineverse.Aust1n46.chat.api.MineverseChatAPI;
+import mineverse.Aust1n46.chat.api.MineverseChatPlayer;
 import mineverse.Aust1n46.chat.api.events.VentureChatEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -40,10 +41,11 @@ public final class VentureChatHook extends PMSAddon implements Listener {
             return;
         }
 
-        handler = new ChannelsHandler("VentureChat", this, new ChannelsHandler.MutedChecker() {
+        handler = new ChannelsHandler("VentureChat", this, new ChannelsHandler.ChannelSoundPreventer() {
             @Override
-            protected boolean isMuted(@NotNull String channel, @NotNull Player chatter) {
-                return MineverseChatAPI.getMineverseChatPlayer(chatter).isListening(channel);
+            protected boolean preventReceivingSound(@NotNull Player receiver, @NotNull Player chatter, @NotNull String channel) {
+                MineverseChatPlayer mcp = MineverseChatAPI.getMineverseChatPlayer(receiver);
+                return !mcp.isListening(channel) || mcp.getIgnores().contains(chatter.getUniqueId());
             }
         });
     }
