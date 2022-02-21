@@ -45,7 +45,7 @@ public final class ChannelsHandlerAddon extends PMSAddon {
                     "        Options:\n" +
                     "          # Since this is global channel, it's best to leave radius at -1.\n" +
                     "          Radius: -1.0\n" +
-                    "        Sound: ENTITY_CHICKEN_EGG\n" +
+                    "        Sound: ENTITY_ITEM_PICKUP\n" +
                     "    # You can set a word that when said in this channel, a sound will play.\n" +
                     "    Chat Words:\n" +
                     "      pling: # The word to play a sound.\n" +
@@ -81,7 +81,7 @@ public final class ChannelsHandlerAddon extends PMSAddon {
                     "        Options:\n" +
                     "          # Make sure to put the right radius in blocks of the channel here.\n" +
                     "          Radius: 230.0\n" +
-                    "        Sound: ENTITY_CHICKEN_EGG\n" +
+                    "        Sound: ENTITY_ITEM_PICKUP\n" +
                     "    Chat Words:\n" +
                     "      boo:\n" +
                     "        Enabled: true\n" +
@@ -91,7 +91,7 @@ public final class ChannelsHandlerAddon extends PMSAddon {
                     "            Options:\n" +
                     "              Radius: 230.0\n" +
                     "            Sound: ENTITY_GHAST_SCREAM\n" +
-                    "      can you hear me: # Only radius 30 to play for players nearby.\n" +
+                    "      can you hear me: # A useful sound so players can know if they are near each other.\n" +
                     "        Enabled: true\n" +
                     "        Cancellable: true\n" +
                     "        Sounds:\n" +
