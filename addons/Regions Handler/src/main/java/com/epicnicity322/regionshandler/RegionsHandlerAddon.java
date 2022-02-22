@@ -20,8 +20,7 @@ package com.epicnicity322.regionshandler;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.core.addons.PMSAddon;
 
-public final class RegionsHandlerAddon extends PMSAddon
-{
+public final class RegionsHandlerAddon extends PMSAddon {
     static boolean NBS_SONG_PLAYER = false;
 
     @Override

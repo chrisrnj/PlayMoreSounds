@@ -25,7 +25,9 @@ import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RegionsHandler {
@@ -75,16 +78,45 @@ public class RegionsHandler {
         reloadListener();
         PlayMoreSounds.onReload(this::reloadListener);
         // Stopping all looping region sounds
-        PlayMoreSounds.onDisable(() -> {
-           loopingRegions.forEach((key,runnable) -> {
-               if (!runnable.isCancelled()) runnable.cancel();
-           });
-        });
+        PlayMoreSounds.onDisable(() -> loopingRegions.forEach((key, runnable) -> {
+            if (!runnable.isCancelled()) runnable.cancel();
+        }));
     }
 
     public void reloadListener() {
         regionSounds.clear();
-        //TODO: update regionSounds
+        Configuration regions = Configurations.REGIONS.getConfigurationHolder().getConfiguration();
+        Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+        ConfigurationSection pluginSection = regions.getConfigurationSection(pluginName);
+
+        if (pluginSection != null) {
+            for (Map.Entry<String, Object> node : pluginSection.getNodes().entrySet()) {
+                if (!(node.getValue() instanceof ConfigurationSection)) continue;
+                ConfigurationSection regionSection = (ConfigurationSection) node.getValue();
+
+                if (regionSection.getBoolean("Enter.Enabled").orElse(false)) {
+                    regionSounds.put("Enter." + node.getKey(), new PlayableRichSound(regionSection.getConfigurationSection("Enter")));
+                }
+                if (regionSection.getBoolean("Leave.Enabled").orElse(false)) {
+                    regionSounds.put("Leave." + node.getKey(), new PlayableRichSound(regionSection.getConfigurationSection("Leave")));
+                }
+                if (regionSection.getBoolean("Loop.Enabled").orElse(false)) {
+                    regionSounds.put("Loop." + node.getKey(), new PlayableRichSound(regionSection.getConfigurationSection("Loop")));
+                }
+            }
+        }
+
+        boolean shouldRegister = !regionSounds.isEmpty() || sounds.getBoolean("Region Enter.Enabled").orElse(false) || sounds.getBoolean("Region Leave.Enabled").orElse(false);
+
+        if (shouldRegister) {
+            if (!listenerRegistered.getAndSet(true)) {
+                Bukkit.getPluginManager().registerEvents(listener, PlayMoreSounds.getInstance());
+            }
+        } else {
+            if (listenerRegistered.getAndSet(false)) {
+                HandlerList.unregisterAll(listener);
+            }
+        }
         //TODO: check if player has resource pack loaded before playing sound.
     }
 
