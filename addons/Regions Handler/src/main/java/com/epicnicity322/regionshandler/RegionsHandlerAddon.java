@@ -17,11 +17,15 @@
 
 package com.epicnicity322.regionshandler;
 
+import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.core.addons.PMSAddon;
 
-/**
- * Just so PlayMoreSounds addon loader loads these classes
- */
-public class Main extends PMSAddon
+public final class RegionsHandlerAddon extends PMSAddon
 {
+    static boolean NBS_SONG_PLAYER = false;
+
+    @Override
+    protected void onStart() {
+        NBS_SONG_PLAYER = PlayMoreSounds.getAddonManager().getAddons().stream().anyMatch(addon -> addon.getDescription().getName().equals("NBS Song Player"));
+    }
 }
