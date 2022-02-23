@@ -19,16 +19,21 @@ package com.epicnicity322.regionshandler;
 
 import com.epicnicity322.nbssongplayer.NBSSongPlayer;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.bukkit.listener.OnPlayerResourcePackStatus;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
+import com.epicnicity322.playmoresounds.bukkit.sound.events.PlayRichSoundEvent;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -69,11 +74,49 @@ public class RegionsHandler {
     private final @NotNull InsideChecker insideChecker;
     private final @NotNull HashMap<String, PlayableRichSound> regionSounds = new HashMap<>();
     private final @NotNull HashMap<String, BukkitRunnable> loopingRegions = new HashMap<>();
+    private final @Nullable Listener resourcePackWaiter;
 
     public RegionsHandler(@NotNull String pluginName, @NotNull Listener listener, @NotNull InsideChecker insideChecker) {
         this.pluginName = pluginName;
         this.listener = listener;
         this.insideChecker = insideChecker;
+
+        if (Configurations.CONFIG.getConfigurationHolder().getConfiguration().getBoolean("Resource Packs.Request").orElse(false)) {
+            resourcePackWaiter = new Listener() {
+                private final @NotNull HashMap<Player, HashSet<PlayableRichSound>> toPrevent = new HashMap<>();
+
+                @EventHandler
+                public void onPlayerJoin(PlayerJoinEvent event) {
+                    Player player = event.getPlayer();
+                    boolean added = false;
+
+                    for (Map.Entry<String, PlayableRichSound> regionSound : regionSounds.entrySet()) {
+                        String key = regionSound.getKey();
+
+                        if ((key.startsWith("Loop.") || key.startsWith("Enter.")) && insideChecker.isPlayerInside(player, key.substring(key.indexOf('.') + 1))) {
+                            toPrevent.computeIfAbsent(player, k -> new HashSet<>()).add(regionSound.getValue());
+                            if (!added) added = true;
+                        }
+                    }
+
+                    if (added)
+                        OnPlayerResourcePackStatus.waitUntilResourcePackStatus(player, () -> toPrevent.remove(player).forEach(sound -> sound.play(player)));
+                }
+
+                @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+                public void onPlayRichSound(PlayRichSoundEvent event) {
+                    Player player = event.getPlayer();
+                    if (player == null) return;
+                    HashSet<PlayableRichSound> soundsToPrevent = toPrevent.get(player);
+                    if (soundsToPrevent == null) return;
+                    if (soundsToPrevent.contains(event.getRichSound())) {
+                        event.setCancelled(true);
+                    }
+                }
+            };
+        } else {
+            resourcePackWaiter = null;
+        }
 
         reloadListener();
         PlayMoreSounds.onReload(this::reloadListener);
@@ -112,12 +155,17 @@ public class RegionsHandler {
             if (!listenerRegistered.getAndSet(true)) {
                 Bukkit.getPluginManager().registerEvents(listener, PlayMoreSounds.getInstance());
             }
+            if (resourcePackWaiter != null) {
+                Bukkit.getPluginManager().registerEvents(resourcePackWaiter, PlayMoreSounds.getInstance());
+            }
         } else {
             if (listenerRegistered.getAndSet(false)) {
                 HandlerList.unregisterAll(listener);
             }
+            if (resourcePackWaiter != null) {
+                HandlerList.unregisterAll(resourcePackWaiter);
+            }
         }
-        //TODO: check if player has resource pack loaded before playing sound.
     }
 
     public void onEnter(@NotNull Player player, @NotNull String regionId) {
