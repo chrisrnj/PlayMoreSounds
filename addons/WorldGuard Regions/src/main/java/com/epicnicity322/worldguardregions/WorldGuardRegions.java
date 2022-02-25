@@ -17,209 +17,164 @@
 
 package com.epicnicity322.worldguardregions;
 
+import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.core.addons.PMSAddon;
-import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.regionshandler.RegionsHandler;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
 
-public class WorldGuardRegions extends PMSAddon implements Listener
-{
-    private static final @NotNull HashSet<WGRegionEnterEvent> playersInRegionWaitingToLoadResourcePack = new HashSet<>();
+public class WorldGuardRegions extends PMSAddon implements Listener {
+    private static final @NotNull HashMap<World, com.sk89q.worldedit.world.World> cachedWorlds = new HashMap<>();
     private static RegionContainer container;
     private RegionsHandler handler;
 
     @Override
-    protected void onStart()
-    {
+    protected void onStart() {
         container = WorldGuard.getInstance().getPlatform().getRegionContainer();
-        handler = new RegionsHandler("WorldGuard", this);
-    }
+        handler = new RegionsHandler("WorldGuard", this, new RegionsHandler.InsideChecker() {
+            @Override
+            protected boolean isPlayerInside(@NotNull Player player, @NotNull String regionId) {
+                RegionManager manager = getManager(player.getWorld());
+                if (manager == null) return false;
+                ProtectedRegion region = manager.getRegion(regionId);
+                if (region == null) return false;
+                Location loc = player.getLocation();
 
-    @EventHandler
-    public void onPlayerMove(PlayerMoveEvent event)
-    {
-        Location from = event.getFrom();
-        Location to = event.getTo();
-
-        if (from.getBlockX() != to.getBlockX() || from.getBlockY() != to.getBlockY() || from.getBlockZ() != to.getBlockZ()) {
-            RegionManager manager = container.get(BukkitAdapter.adapt(from.getWorld()));
-            Player player = event.getPlayer();
-
-            if (manager != null)
-                for (ProtectedRegion region : manager.getRegions().values()) {
-                    boolean isInFrom = region.contains(from.getBlockX(), from.getBlockY(), from.getBlockZ());
-                    boolean isInTo = region.contains(to.getBlockX(), to.getBlockY(), to.getBlockZ());
-
-                    if (isInFrom & !isInTo)
-                        handler.onLeave(player, region.getId(), event);
-                    else if (!isInFrom & isInTo)
-                        enter(player, region, from.getWorld());
-                }
-        }
-    }
-
-    @EventHandler
-    public void onPlayerTeleport(PlayerTeleportEvent event)
-    {
-        Location from = event.getFrom();
-        Location to = event.getTo();
-        Player player = event.getPlayer();
-
-        try {
-            if (from.getWorld() == to.getWorld()) {
-                Collection<ProtectedRegion> regions = container.get(BukkitAdapter.adapt(from.getWorld())).getRegions().values();
-
-                for (ProtectedRegion region : regions) {
-                    boolean isInFrom = region.contains(from.getBlockX(), from.getBlockY(), from.getBlockZ());
-                    boolean isInTo = region.contains(to.getBlockX(), to.getBlockY(), to.getBlockZ());
-
-                    if (isInFrom & !isInTo)
-                        handler.onLeave(player, region.getId(), event);
-                    else if (!isInFrom & isInTo)
-                        enter(player, region, from.getWorld());
-                }
-            } else {
-                HashMap<ProtectedRegion, World> regions = new HashMap<>();
-
-                container.get(BukkitAdapter.adapt(from.getWorld())).getRegions().values().forEach(region -> regions.put(region, from.getWorld()));
-                container.get(BukkitAdapter.adapt(to.getWorld())).getRegions().values().forEach(region -> regions.put(region, to.getWorld()));
-
-                for (Map.Entry<ProtectedRegion, World> regionAndWorld : regions.entrySet()) {
-                    ProtectedRegion region = regionAndWorld.getKey();
-                    boolean isInFrom = regionAndWorld.getValue().equals(from.getWorld()) && region.contains(from.getBlockX(), from.getBlockY(), from.getBlockZ());
-                    boolean isInTo = regionAndWorld.getValue().equals(to.getWorld()) && region.contains(to.getBlockX(), to.getBlockY(), to.getBlockZ());
-
-                    if (isInFrom & !isInTo)
-                        handler.onLeave(player, region.getId(), event);
-                    else if (!isInFrom & isInTo)
-                        enter(player, region, regionAndWorld.getValue());
-                }
+                return region.contains(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
             }
-        } catch (NullPointerException ignored) {
+        });
+    }
+
+    private @Nullable RegionManager getManager(World world) {
+        com.sk89q.worldedit.world.World weWorld = cachedWorlds.get(world);
+
+        if (weWorld == null) {
+            weWorld = BukkitAdapter.adapt(world);
+            cachedWorlds.put(world, weWorld);
         }
+
+        return container.get(weWorld);
     }
 
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event)
-    {
-        Location location = event.getPlayer().getLocation();
-        World world = location.getWorld();
-        RegionManager manager = container.get(BukkitAdapter.adapt(world));
-        Player player = event.getPlayer();
+    public void onPlayerMove(PlayerMoveEvent event) {
+        Location from = event.getFrom();
+        Location to = event.getTo();
 
-        if (manager != null)
-            for (ProtectedRegion region : manager.getRegions().values())
-                if (region.contains(location.getBlockX(), location.getBlockY(), location.getBlockZ())) {
-                    WGRegionEnterEvent regionEvent = new WGRegionEnterEvent(player, region, world);
-
-                    // Checking if event should be added to playersInRegionWaitingToLoadResourcePack.
-                    if (Configurations.CONFIG.getConfigurationHolder().getConfiguration().getBoolean("Resource Packs.Request").orElse(false)) {
-                        playersInRegionWaitingToLoadResourcePack.add(regionEvent);
-                    }
-
-                    enter(regionEvent);
-                }
-    }
-
-    @EventHandler
-    public void onPlayerLeave(PlayerQuitEvent event)
-    {
-        Location location = event.getPlayer().getLocation();
-        RegionManager manager = container.get(BukkitAdapter.adapt(location.getWorld()));
-        Player player = event.getPlayer();
-
-        if (manager != null)
-            for (ProtectedRegion region : manager.getRegions().values())
-                if (region.contains(location.getBlockX(), location.getBlockY(), location.getBlockZ()))
-                    handler.onLeave(player, region.getId(), null);
-    }
-
-    @EventHandler
-    public void onPlayerResourcePackStatus(PlayerResourcePackStatusEvent event)
-    {
-        if (!Configurations.CONFIG.getConfigurationHolder().getConfiguration().getBoolean("Resource Packs.Request").orElse(false)) {
+        if (to == null) return;
+        if (from.getBlockX() == to.getBlockX() && from.getBlockY() == to.getBlockY() && from.getBlockZ() == to.getBlockZ())
             return;
+
+        RegionManager manager = getManager(from.getWorld());
+
+        if (manager == null) return;
+
+        for (ProtectedRegion region : manager.getRegions().values()) {
+            Player player = event.getPlayer();
+            boolean isInFrom = region.contains(from.getBlockX(), from.getBlockY(), from.getBlockZ());
+            boolean isInTo = region.contains(to.getBlockX(), to.getBlockY(), to.getBlockZ());
+
+            if (isInFrom & !isInTo)
+                handler.onLeave(player, region.getId(), event.isCancelled());
+            else if (!isInFrom & isInTo)
+                handler.onEnter(player, region.getId(), event.isCancelled());
         }
+    }
 
-        PlayerResourcePackStatusEvent.Status status = event.getStatus();
+    private void delay(Runnable runnable) {
+        Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), runnable, 1);
+    }
+
+    @EventHandler
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        Location from = event.getFrom();
+        Location to = event.getTo();
+
+        if (to == null) return;
+
+        World fromWorld = from.getWorld();
+        World toWorld = to.getWorld();
         Player player = event.getPlayer();
+        boolean cancelled = event.isCancelled();
 
-        if (status == PlayerResourcePackStatusEvent.Status.SUCCESSFULLY_LOADED) {
-            HashSet<WGRegionEnterEvent> removedRegionEvents = new HashSet<>();
+        if (fromWorld == toWorld) {
+            RegionManager manager = getManager(fromWorld);
+            if (manager == null) return;
 
-            playersInRegionWaitingToLoadResourcePack.removeIf(regionEvent -> {
-                if (player.equals(regionEvent.player)) {
-                    removedRegionEvents.add(regionEvent);
-                    return true;
+            for (ProtectedRegion region : manager.getRegions().values()) {
+                boolean isInFrom = region.contains(from.getBlockX(), from.getBlockY(), from.getBlockZ());
+                boolean isInTo = region.contains(to.getBlockX(), to.getBlockY(), to.getBlockZ());
+
+                if (isInFrom & !isInTo)
+                    delay(() -> handler.onLeave(player, region.getId(), cancelled));
+                else if (!isInFrom & isInTo)
+                    delay(() -> handler.onEnter(player, region.getId(), cancelled));
+            }
+        } else {
+            RegionManager fromManager = getManager(fromWorld);
+
+            if (fromManager != null) {
+                for (ProtectedRegion fromRegion : fromManager.getRegions().values()) {
+                    if (fromRegion.contains(from.getBlockX(), from.getBlockY(), from.getBlockZ())) {
+                        delay(() -> handler.onLeave(player, fromRegion.getId(), cancelled));
+                    }
                 }
+            }
 
-                return false;
-            });
+            RegionManager toManager = getManager(toWorld);
 
-            for (WGRegionEnterEvent regionEvent : removedRegionEvents) {
-                enter(regionEvent);
+            if (toManager != null) {
+                for (ProtectedRegion toRegion : toManager.getRegions().values()) {
+                    if (toRegion.contains(to.getBlockX(), to.getBlockY(), to.getBlockZ())) {
+                        delay(() -> handler.onEnter(player, toRegion.getId(), cancelled));
+                    }
+                }
             }
         }
     }
 
-    private void enter(WGRegionEnterEvent event)
-    {
-        if (playersInRegionWaitingToLoadResourcePack.contains(event)) return;
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        Location loc = player.getLocation();
+        RegionManager manager = getManager(loc.getWorld());
 
-        enter(event.player, event.region, event.regionWorld);
+        if (manager == null) return;
+        for (ProtectedRegion region : manager.getRegions().values()) {
+            if (region.contains(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ())) {
+                handler.onEnter(player, region.getId());
+            }
+        }
     }
 
-    private void enter(Player player, ProtectedRegion region, World regionWorld)
-    {
-        handler.onEnter(player, region.getId(), () -> {
-            Location loc = player.getLocation();
-            RegionManager updatedManager = container.get(BukkitAdapter.adapt(regionWorld));
+    @EventHandler
+    public void onPlayerLeave(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        Location loc = player.getLocation();
+        RegionManager manager = getManager(loc.getWorld());
 
-            return !region.contains(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()) ||
-                    !loc.getWorld().equals(regionWorld) || !player.isOnline() || updatedManager == null ||
-                    !updatedManager.hasRegion(region.getId());
-        }, null);
-    }
-
-    private static class WGRegionEnterEvent
-    {
-        private final @NotNull Player player;
-        private final @NotNull ProtectedRegion region;
-        private final @NotNull World regionWorld;
-
-        public WGRegionEnterEvent(@NotNull Player player, @NotNull ProtectedRegion region, @NotNull World regionWorld)
-        {
-            this.player = player;
-            this.region = region;
-            this.regionWorld = regionWorld;
-        }
-
-        @Override
-        public boolean equals(Object o)
-        {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            WGRegionEnterEvent that = (WGRegionEnterEvent) o;
-            return player.equals(that.player) && region.equals(that.region) && regionWorld.equals(that.regionWorld);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return Objects.hash(player, region, regionWorld);
+        if (manager == null) return;
+        for (ProtectedRegion region : manager.getRegions().values()) {
+            if (region.contains(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ())) {
+                handler.onLeave(player, region.getId());
+            }
         }
     }
 }
