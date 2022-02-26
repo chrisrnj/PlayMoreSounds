@@ -46,7 +46,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class WorldGuardRegions extends PMSAddon implements Listener {
+public final class WorldGuardRegions extends PMSAddon implements Listener {
     private static final @NotNull HashMap<World, com.sk89q.worldedit.world.World> cachedWorlds = new HashMap<>();
     private static RegionContainer container;
     private static RegionsHandler handler;
