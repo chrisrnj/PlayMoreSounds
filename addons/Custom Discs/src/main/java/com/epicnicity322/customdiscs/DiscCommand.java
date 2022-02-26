@@ -39,7 +39,7 @@ public final class DiscCommand extends Command implements Helpable
     @Override
     public @NotNull CommandRunnable onHelp()
     {
-        return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Help.Disc").replace("<label>", label));
+        return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Custom Discs.Help").replace("<label>", label));
     }
 
     @Override
@@ -94,13 +94,13 @@ public final class DiscCommand extends Command implements Helpable
         ItemStack disc = CustomDiscs.getCustomDisc(args[1]);
 
         if (disc == null) {
-            lang.send(sender, lang.get("Disc.Error.Not Found").replace("<id>", args[1]));
+            lang.send(sender, lang.get("Custom Discs.Error.Not Found").replace("<id>", args[1]));
             return;
         }
 
         for (Player player : targets)
             player.getInventory().addItem(disc);
 
-        lang.send(sender, lang.get("Disc.Success").replace("<id>", args[1]).replace("<target>", CommandUtils.getWho(targets, sender)));
+        lang.send(sender, lang.get("Custom Discs.Success").replace("<id>", args[1]).replace("<target>", CommandUtils.getWho(targets, sender)));
     }
 }
