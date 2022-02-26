@@ -20,9 +20,12 @@ package com.epicnicity322.customdiscs;
 import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
 import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
+import com.epicnicity322.epicpluginlib.core.util.PathUtils;
+import com.epicnicity322.nbssongplayer.NBSSongPlayer;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandLoader;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
 import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
@@ -52,8 +55,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public final class CustomDiscs extends PMSAddon
-{
+public final class CustomDiscs extends PMSAddon {
     public static final @NotNull ConfigurationHolder CUSTOM_DISCS_CONFIG = new ConfigurationHolder(Configurations.BIOMES.getConfigurationHolder().getPath().getParent().resolve("custom discs.yml"), "# Set a sound to play when a player clicks at a jukebox with a specific item.\n" +
             "#\n" +
             "# Warnings: \n" +
@@ -76,37 +78,37 @@ public final class CustomDiscs extends PMSAddon
             "# Sample:\n" +
             "# (Take a note that this is a sample and the sounds and items may not be available on\n" +
             "# your MC version.)\n" +
-            "#\n" +
-            "#PLING_DISC: # This is the ID of the custom disc. Here I named this disc PLING_DISC. Disc IDs can not have spaces.\n" +
-            "#  Enabled: true\n" +
-            "#  Item:\n" +
-            "#    Material: GOLDEN_APPLE # The material of the custom disc item.\n" +
-            "#    Name: '&2&lPling Disc' # The name of the custom disc item.\n" +
-            "#    Lore: 'Different pitched pling sounds!' # The lore of the custom disc item. Use <line> to break a line.\n" +
-            "#    Glowing: true # If this disc should glow.\n" +
-            "#  Sounds: # The sounds to play when a player uses this disc.\n" +
-            "#    '0':\n" +
-            "#      Delay: 0\n" +
-            "#      Options:\n" +
-            "#        Radius: 20.0\n" +
-            "#      Pitch: 1.0\n" +
-            "#      Sound: BLOCK_NOTE_BLOCK_PLING\n" +
-            "#      Volume: 10.0\n" +
-            "#    '1':\n" +
-            "#      Delay: 20\n" +
-            "#      Options:\n" +
-            "#        Radius: 20.0\n" +
-            "#      Pitch: 2.0\n" +
-            "#      Sound: BLOCK_NOTE_BLOCK_PLING\n" +
-            "#      Volume: 10.0\n" +
-            "#    '2':\n" +
-            "#      Delay: 40\n" +
-            "#      Options:\n" +
-            "#        Radius: 20.0\n" +
-            "#      Pitch: 0.0\n" +
-            "#      Sound: BLOCK_NOTE_BLOCK_PLING\n" +
-            "#      Volume: 10.0\n" +
-            "#\n" +
+            "\n" +
+            "PLING_DISC: # This is the ID of the custom disc. Here I named this disc PLING_DISC. Disc IDs can not have spaces.\n" +
+            "  Enabled: true\n" +
+            "  Item:\n" +
+            "    Material: GOLDEN_APPLE # The material of the custom disc item.\n" +
+            "    Name: '&2&lPling Disc' # The name of the custom disc item.\n" +
+            "    Lore: 'Different pitched pling sounds!' # The lore of the custom disc item. Use <line> to break a line.\n" +
+            "    Glowing: true # If this disc should glow.\n" +
+            "  Sounds: # The sounds to play when a player uses this disc.\n" +
+            "    '0':\n" +
+            "      Delay: 0\n" +
+            "      Options:\n" +
+            "        Radius: 20.0\n" +
+            "      Pitch: 1.0\n" +
+            "      Sound: BLOCK_NOTE_BLOCK_PLING\n" +
+            "      Volume: 10.0\n" +
+            "    '1':\n" +
+            "      Delay: 20\n" +
+            "      Options:\n" +
+            "        Radius: 20.0\n" +
+            "      Pitch: 2.0\n" +
+            "      Sound: BLOCK_NOTE_BLOCK_PLING\n" +
+            "      Volume: 10.0\n" +
+            "    '2':\n" +
+            "      Delay: 40\n" +
+            "      Options:\n" +
+            "        Radius: 20.0\n" +
+            "      Pitch: 0.0\n" +
+            "      Sound: BLOCK_NOTE_BLOCK_PLING\n" +
+            "      Volume: 10.0\n" +
+            "\n" +
             "# More information about sounds on sounds.yml\n" +
             "\n" +
             "Version: '" + PlayMoreSoundsVersion.version + "'");
@@ -114,11 +116,10 @@ public final class CustomDiscs extends PMSAddon
     private static final @NotNull HashMap<String, ItemStack> customDiscs = new HashMap<>();
     private static final @NotNull HashMap<ItemStack, PlayableRichSound> customDiscsSounds = new HashMap<>();
     private static final @NotNull NamespacedKey customDiscNBT = new NamespacedKey(PlayMoreSounds.getInstance(), "customdisc");
-    private static final @NotNull Listener listener = new Listener()
-    {
+    private static boolean NBS_SONG_PLAYER = false;
+    private static final @NotNull Listener listener = new Listener() {
         @EventHandler(priority = EventPriority.NORMAL)
-        public void onPlayerInteract(PlayerInteractEvent event)
-        {
+        public void onPlayerInteract(PlayerInteractEvent event) {
             if ((event.getAction() != Action.LEFT_CLICK_BLOCK && event.getAction() != Action.RIGHT_CLICK_BLOCK) || event.useInteractedBlock() == Event.Result.DENY)
                 return;
 
@@ -139,15 +140,15 @@ public final class CustomDiscs extends PMSAddon
             // Getting the currently playing sound on the jukebox by their id, null if no custom disc sound is playing.
             ItemStack currentlyPlayingDisc = customDiscs.get(jukeboxContainer.get(customDiscNBT, PersistentDataType.STRING));
 
-            event.setUseItemInHand(Event.Result.DENY);
-            event.setUseInteractedBlock(Event.Result.DENY);
-
             // Checking if there's a currently playing disc that should be ejected.
             if (currentlyPlayingDisc == null) {
                 // Checking if player has a custom disc in hand that should be played.
                 PlayableRichSound customDiscSound = customDiscsSounds.get(itemInHand);
 
                 if (customDiscSound == null) return;
+
+                event.setUseItemInHand(Event.Result.DENY);
+                event.setUseInteractedBlock(Event.Result.DENY);
 
                 // Removing the disc from player inventory.
                 if (player.getGameMode() != GameMode.CREATIVE)
@@ -158,12 +159,25 @@ public final class CustomDiscs extends PMSAddon
                 jukebox.update();
                 customDiscSound.play(player, clickedLocation);
             } else {
+                event.setUseItemInHand(Event.Result.DENY);
+                event.setUseInteractedBlock(Event.Result.DENY);
+
                 // Ejecting disc and stopping the playing sounds.
                 HashSet<String> sounds = new HashSet<>();
 
                 // Getting sounds to stop and stopping them.
-                customDiscsSounds.get(currentlyPlayingDisc).getChildSounds().forEach(sound -> sounds.add(sound.getSound()));
-                SoundManager.stopSounds(player, sounds, 0);
+                for (PlayableSound sound : customDiscsSounds.get(currentlyPlayingDisc).getChildSounds()) {
+                    String soundName = sound.getSound();
+
+                    if (NBS_SONG_PLAYER && soundName.startsWith("nbs:")) {
+                        NBSSongPlayer.stop(player, soundName.substring(4));
+                    } else {
+                        sounds.add(soundName);
+                    }
+                }
+
+                if (!sounds.isEmpty())
+                    SoundManager.stopSounds(player, sounds, 0);
 
                 // Removing the data of the custom disc and dropping it.
                 jukeboxContainer.remove(customDiscNBT);
@@ -173,8 +187,7 @@ public final class CustomDiscs extends PMSAddon
         }
     };
 
-    public static void reload()
-    {
+    public static void reload() {
         if (!VersionUtils.hasPersistentData())
             throw new UnsupportedOperationException("Custom Discs is not compatible with versions lower than 1.14");
 
@@ -196,7 +209,7 @@ public final class CustomDiscs extends PMSAddon
                 Material discMaterial = Material.matchMaterial(disc.getString("Item.Material").orElse("").toUpperCase());
 
                 if (discMaterial == null || discMaterial.isAir()) {
-                    PlayMoreSounds.getConsoleLogger().log("Disc with id " + id + " in custom discs configuration has an invalid material.", ConsoleLogger.Level.WARN);
+                    PlayMoreSounds.getConsoleLogger().log("[Custom Discs] Disc with id " + id + " in custom discs configuration has an invalid material.", ConsoleLogger.Level.WARN);
                     continue;
                 }
 
@@ -231,13 +244,12 @@ public final class CustomDiscs extends PMSAddon
     }
 
     /**
-     * Gets a custom disc set on {@link Configurations#CUSTOM_DISCS} by the ID.
+     * Gets a custom disc set on {@link #CUSTOM_DISCS_CONFIG} by the ID.
      *
      * @param id The id of the custom disc.
      * @return The custom disc item or null if the disc was not found or is not loaded.
      */
-    public static @Nullable ItemStack getCustomDisc(@NotNull String id)
-    {
+    public static @Nullable ItemStack getCustomDisc(@NotNull String id) {
         ItemStack item = customDiscs.get(id);
 
         if (item == null)
@@ -247,22 +259,76 @@ public final class CustomDiscs extends PMSAddon
     }
 
     @Override
-    protected void onStart()
-    {
+    protected void onStart() {
         if (!VersionUtils.hasPersistentData()) {
-            PlayMoreSounds.getConsoleLogger().log("Custom Discs addon is not compatible with versions lower than 1.14.", ConsoleLogger.Level.ERROR);
+            PlayMoreSounds.getConsoleLogger().log("[Custom Discs] Custom Discs addon is not compatible with versions lower than 1.14.", ConsoleLogger.Level.ERROR);
             return;
         }
+
         Configurations.getConfigurationLoader().registerConfiguration(CUSTOM_DISCS_CONFIG, new Version("3.3.0"), PlayMoreSoundsVersion.getVersion());
-        PlayMoreSounds.getConsoleLogger().log("&eCustom Discs configuration was registered.");
+        PlayMoreSounds.getConsoleLogger().log("[Custom Discs] &eCustom Discs configuration was registered.");
         CommandLoader.addCommand(new DiscCommand());
 
         // Running when server has fully started.
         Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> {
+            for (Configurations language : Configurations.values()) {
+                if (!language.name().startsWith("LANGUAGE") || language.getConfigurationHolder().getConfiguration().contains("Custom Discs"))
+                    continue;
+                String data = "";
+
+                switch (language) {
+                    case LANGUAGE_EN_US:
+                        data = "\n\nCustom Discs:\n" +
+                                "  Error:\n" +
+                                "    Not Found: '&cA disc with the ID \"&7<id>&c\" was not found.'\n" +
+                                "  Help: |-\n" +
+                                "    &e/<label> disc <id> [target]\n" +
+                                "    &7 > Gives a configured custom disc.\n" +
+                                "  Success: '&7Giving the disc &f<id>&7 to &f<target>&7.'";
+                        break;
+                    case LANGUAGE_ES_LA:
+                        data = "\n\nCustom Discs:\n" +
+                                "  Error:\n" +
+                                "    Not Found: '&cNo se encontró un disco con el ID \"&7<id>&c\".'\n" +
+                                "  Help: |-\n" +
+                                "    &e/<label> disc <id> [objetivo]\n" +
+                                "    &7 > Da un disco personalizado configurado.\n" +
+                                "  Success: '&7Dando el disco &f<id>&7 a &f<target>&7.'";
+                        break;
+                    case LANGUAGE_PT_BR:
+                        data = "\n\nCustom Discs:\n" +
+                                "  Error:\n" +
+                                "    Not Found: '&cNão foi encontrado um disco com o ID \"&7<id>&c\".'\n" +
+                                "  Help: |-\n" +
+                                "    &e/<label> disc <id> [alvo]\n" +
+                                "    &7 > Da um disco customizado da configuração.\n" +
+                                "  Success: '&7Dando o disco &f<id>&7 a &f<target>&7.'";
+                        break;
+                    case LANGUAGE_ZH_CN:
+                        data = "\n\nCustom Discs:\n" +
+                                "  Error:\n" +
+                                "    Not Found: '&c找不到ID为 \"&7<id>&c\" 的光盘'\n" +
+                                "  Help: |-\n" +
+                                "    &e/<label> disc <ID> [目标]\n" +
+                                "    &7 > 提供配置的自定义光盘\n" +
+                                "  Success: '&7将光盘 &f<id>&7 赋予 &f<target>'";
+                        break;
+                }
+
+                try {
+                    PathUtils.write(data, language.getConfigurationHolder().getPath());
+                    PlayMoreSounds.getConsoleLogger().log("[Custom Discs] &eAdded Custom Discs language keys to " + language.name() + ".");
+                } catch (Exception ignored) {
+                }
+            }
+
+            Configurations.getConfigurationLoader().loadConfigurations();
+
+            NBS_SONG_PLAYER = PlayMoreSounds.getAddonManager().getAddons().stream().anyMatch(addon -> addon.getDescription().getName().equals("NBS Song Player"));
             reload();
             PlayMoreSounds.onReload(CustomDiscs::reload);
 
-            PlayMoreSounds.getConsoleLogger().log("&aCustom Discs was enabled successfully.");
+            PlayMoreSounds.getConsoleLogger().log("[Custom Discs] &aCustom Discs was enabled successfully.");
         });
     }
 }
