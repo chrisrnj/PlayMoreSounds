@@ -165,9 +165,7 @@ public class RegionsHandler {
 
             if (previousRunnable != null && !previousRunnable.isCancelled()) previousRunnable.cancel();
 
-            if (loopSection.getBoolean("Prevent Other Sounds.Default Sound").orElse(false))
-                playDefaultSound = false;
-            if (loopSection.getBoolean("Prevent Other Sounds.Enter Sound").orElse(false))
+            if (loopSection.getBoolean("Prevent Default Sound").orElse(false))
                 playEnterSound = false;
         }
 
@@ -248,7 +246,8 @@ public class RegionsHandler {
     private final class JoinListener implements Listener {
         private final @NotNull HashMap<UUID, HashSet<PlayableRichSound>> toPrevent = new HashMap<>();
 
-        @EventHandler
+        // If you use a plugin that calls "RegionEnterEvent" on PlayerLoginEvent this won't work.
+        @EventHandler(priority = EventPriority.LOWEST)
         public void onPlayerJoin(PlayerJoinEvent event) {
             Player player = event.getPlayer();
             boolean added = false;
