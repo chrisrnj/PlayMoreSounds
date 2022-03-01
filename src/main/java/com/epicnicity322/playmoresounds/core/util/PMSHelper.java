@@ -27,10 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public final class PMSHelper
@@ -45,6 +42,14 @@ public final class PMSHelper
     {
     }
 
+    /**
+     * Checks if any section in a config has the boolean Enabled set to true. This method is meant to be used in configs
+     * that have only sound sections. If a node is not a section, it is ignored.
+     *
+     * @param configuration The configuration to check.
+     * @param prefix        If the config has some main section for sounds, define it here.
+     * @return Whether the config has any sound enabled.
+     */
     public static boolean anySoundEnabled(@NotNull Configuration configuration, @Nullable String prefix)
     {
         if (prefix == null) {
@@ -60,7 +65,7 @@ public final class PMSHelper
                 String key = node.getKey();
                 Object value = node.getValue();
 
-                if (value != null && value.equals(true) && key.startsWith(prefix) && key.substring(prefix.length()).equals(".Enabled")) {
+                if (Objects.equals(true, value) && key.equals(prefix + ".Enabled")) {
                     return true;
                 }
             }
@@ -69,6 +74,12 @@ public final class PMSHelper
         return false;
     }
 
+    /**
+     * Generated a random string with characters A-Za-z0-9.
+     *
+     * @param length The length the random string should be.
+     * @return The random string with random characters.
+     */
     public static @NotNull String getRandomString(int length)
     {
         StringBuilder builder = new StringBuilder(length);
@@ -79,6 +90,9 @@ public final class PMSHelper
         return builder.toString();
     }
 
+    /**
+     * @return True if Halloween Event is enabled and today is halloween.
+     */
     public static boolean halloweenEvent()
     {
         LocalDateTime now = LocalDateTime.now();
@@ -86,6 +100,9 @@ public final class PMSHelper
         return now.getMonth() == Month.OCTOBER && now.getDayOfMonth() == 31 && Configurations.CONFIG.getConfigurationHolder().getConfiguration().getBoolean("Halloween Event").orElse(false);
     }
 
+    /**
+     * @return True if today is christmas
+     */
     public static boolean isChristmas()
     {
         LocalDateTime now = LocalDateTime.now();
@@ -93,32 +110,57 @@ public final class PMSHelper
         return now.getMonth() == Month.DECEMBER && now.getDayOfMonth() == 25;
     }
 
-    public static <T> @NotNull HashMap<Integer, ArrayList<T>> splitIntoPages(@NotNull Collection<T> collection,
-                                                                             int maxPerPage)
+    /**
+     * Splits a collection into a {@link HashMap} having the key as the page number, and value as a list that have the
+     * size of maxPerPage.
+     * <p>
+     * If you use a empty collection or set maxPerPage to a value lower than or equal to 0, a map with one page will be
+     * returned, but this page will have no entries.
+     *
+     * @param collection The collection to split.
+     * @param maxPerPage The amount you want each page to have.
+     * @param <T>        The type of the collection to split.
+     * @return The map consisting of the pages.
+     */
+    public static <T> @NotNull HashMap<Integer, ArrayList<T>> splitIntoPages(@NotNull Collection<T> collection, int maxPerPage)
     {
-        HashMap<Integer, ArrayList<T>> pages = new HashMap<>();
+        if (collection.isEmpty() || maxPerPage <= 0) {
+            // Return 1 page with no entries.
+            HashMap<Integer, ArrayList<T>> emptyPage = new HashMap<>(1);
+            emptyPage.put(1, new ArrayList<>(0));
+            return emptyPage;
+        }
 
-        if (collection.isEmpty())
-            return pages;
+        // pageAmount must always round up.
+        int pageAmount = (int) Math.ceil(collection.size() / (double) maxPerPage);
+        HashMap<Integer, ArrayList<T>> pages = new HashMap<>(pageAmount);
 
-        int l = 0;
+        int count = 0;
         int page = 1;
-        ArrayList<T> list = new ArrayList<>();
+        ArrayList<T> list = new ArrayList<>(maxPerPage);
 
         for (T t : collection) {
             list.add(t);
 
-            if (++l == maxPerPage) {
+            if (++count == maxPerPage) {
                 pages.put(page++, list);
-                list = new ArrayList<>();
-                l = 0;
+                list = new ArrayList<>(maxPerPage);
+                count = 0;
             }
         }
 
-        pages.put(page, list);
+        if (!list.isEmpty()) pages.put(page, list);
+
         return pages;
     }
 
+    /**
+     * Repeats a char the specified amount of times.
+     *
+     * @param repeat The char to be repeated.
+     * @param times  The times to repeat the char.
+     * @return A string consisting of only the char repeated the amount of specified times.
+     */
     public static @NotNull String repeatChar(char repeat, long times)
     {
         StringBuilder builder = new StringBuilder();
@@ -131,9 +173,9 @@ public final class PMSHelper
     }
 
     /**
-     * Tests if this is a valid namespaced key. Namespaced keys have a namespace and a key, they are separated by a colon,
+     * Tests if the string is a valid namespaced key. Namespaced keys have a namespace and a key, they are separated by a colon,
      * e.g: minecraft:test. The namespace must have only [a-z0-9_.-] characters and the key [a-z0-9/._-] characters, both
-     * cannot be empty. If you only input a key and not namespace, only the key is tested.
+     * cannot be empty. If you use a string without a colon, the characters for key are tested.
      *
      * @param namespacedKey The namespaced key to test.
      * @return If the argument is a valid namespaced key.
@@ -150,6 +192,6 @@ public final class PMSHelper
         String namespace = namespacedKey.substring(0, colon);
         String key = namespacedKey.substring(colon + 1);
 
-        return !namespace.isEmpty() && !key.isEmpty() && namespace.length() + key.length() + 1 <= 256 && !invalidNamespaceCharacters.matcher(namespace).find() && !invalidKeyCharacters.matcher(key).find();
+        return !namespace.isEmpty() && !key.isEmpty() && (namespace.length() + key.length() + 1) <= 256 && !invalidNamespaceCharacters.matcher(namespace).find() && !invalidKeyCharacters.matcher(key).find();
     }
 }
