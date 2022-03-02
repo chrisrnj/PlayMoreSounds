@@ -1,24 +1,38 @@
-Changelog:
-- Add sound list when you try to tab complete /pms play command.
-- Add sound categories to 'available sounds.txt'
-- Add "/pms update download [-force]" command to allow downloads of new updates through api.spiGET.org.
-- Add 1.18 sounds that were missing.
-- Add way of uninstalling addons through Addon Management Inventory or the command /pms addons uninstall <addon>.
-- Addons descriptions will break lines if the description is too long in Addon Management Inventory.
-- Considerably lower memory usage by instantiating things only when using them, instead of eating all memory when the plugin loads.
-- Improve performance considerably when checking for region wand when the player left or right clicks.
-- Improve resource packer feature:
-  - If a player is trying to join and constantly failing to download the resource pack (when Force is on), admins with the permission 'playmoresounds.resourcepacker.administrator' will be prompted to type "/pms confirm" to allow this player to join without a resource pack.
-  - In supported versions, the "accept resource pack" message will be shown in the prompt rather than chat. Also removed PlayMoreSounds prefix from this message.
-  - You can specify a hash to improve resource pack loading.
-  - Players with permission 'playmoresounds.resourcepacker.force.bypass' will be able to decline even when Force is on.
-  - The message will be different if resource pack failed to download.
-- Made addons start and stop on main thread to fix some synchronization issues.
-- Made Custom Discs feature an addon due to low usage on bStats. Use /pms addons to download the addon and use this feature again.
-- Made biome sounds take login event into account.
-- Made so Addons and List GUIs use the same way of handling inventories. This means List GUI is now compatible with all versions, has better performance and less bugs.
-- Made so when you type region removal command multiple times, the confirmation will no longer repeat on "/pms confirm list".
-- Made update checker reload on /pms reload, plus huge changes and simplification of update checker.
-- Renamed multiple configuration keys for List and Addon GUIs.
-- Rewrote "wait for resource pack accept/decline before playing custom sound" code, also add support for biome sounds. This also fixes minecraft sounds not playing at login in case the player declines the resource pack.
-- Update chinese language thanks to AndyYu.
+Changes with * at the start are the ones that are currently under development, the rest is already added.
+
+This version only works with java 17! And it was meant to be run on minecraft 1.18 or newer, all previous measures to
+support lower versions were removed in order to achieve better performance.
+The plugin might work as low as 1.16, but errors are not logged because the minimum supported version is 1.18.
+
+All classes in the plugin were taken a look at and changed, in order to use java 17 features and fix bugs found on the way.
+
+General sound playing improvements:
+- Spectators and players with invisibility effect were not able to hear sounds. Now they can hear all sounds, but the sounds are treated as if you set the Radius option to 0.
+*- Add error messages when a configuration sound has an invalid namespaced key, previously an ugly error would be thrown to console.
+- Players will be cached when checking for toggle state, previously the plugin would access the player persistent data everytime it played a sound.
+- Improve sound playing performance significantly by removing support to versions lower than 1.10 and 1.7, which had their own way of playing sounds. Also by removing some unused features, check Removals below.
+
+Death sounds improvements:
+- Last death cause will only be recorded in case any sound in 'death types.yml' is enabled, which previously was recorded on every hit.
+- Player Kill and Player Killed will play even when 'Player Death' or 'death types' sounds are disabled, which previously wouldn't.
+
+Addon Updates:
+- Changed the Regions Handler code SEVERELY: Now all region sounds are cached on load saving performance when playing them, plus the wait for resource pack load before playing sounds was generalized in this addon.
+This is a really recommended update for WorldGuard Regions, it improves performance significantly.
+- Create RedProtect Regions addon: Since regions handler had a big update, I decided to update this addon too, which previously was abandoned.
+- Created VentureChat Hook, UltimateChat Hook and EssentialsChat Hook addons: They can hook into these plugins and play different sounds for each channel.
+*- Created Extra Options addon: This addon brings some extras to the Options section in a sound, like Relative Location that was removed.
+You can install or update addons through the command /pms addons.
+
+Regions:
+*- Native region sounds were changed severely to keep up with Regions Handler and cache region sounds on load.
+
+Removals:
+- Removed Relative Location option: This option would make some impact on performance even when you didn't use it, so it was removed because the majority of users don't use it.
+- Removed World Black List feature: This feature showed absolutely no use in bStats, so it was removed to save performance.
+- Removed PrePlaySoundEvent: This event was called before the sound had parsed the Permission Required, and since it has no use in current addons it was removed to save performance.
+*Both Relative Location and World Black List features are available in the Extra Options addon.
+
+What to expect of 5.0:
+- Several classes will be renamed.
+- A proper stop sound method will be added to the Playable interface, so sounds with delay can be stopped before they're played.
