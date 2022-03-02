@@ -25,8 +25,15 @@ This is a really recommended update for WorldGuard Regions, it improves performa
 You can install or update addons through the command /pms addons.
 
 Regions:
-*- Native region sounds were changed severely to keep up with Regions Handler and cache region sounds on load.
+- Native region sounds were changed severely to keep up with Regions Handler and cache region sounds on load.
 - Players were able to set a description on 'create' command, even if they didn't have permission 'playmoresounds.region.description'.
+
+Sound Events:
+- Removed checks to prevent listeners from being registered in older versions.
+- Events will be more precise when checking if a sound is enabled.
+- Cache world time triggers sounds on load instead of getting it everytime.
+- Fix weather sounds giving errors if you disable one of the two sounds.
+- Fix flight sounds giving errors if you disable one of the two sounds.
 
 Removals:
 - Removed Relative Location option: This option would make some impact on performance even when you didn't use it, so it was removed because the majority of users don't use it.
@@ -37,4 +44,5 @@ Removals:
 
 What to expect of 5.0:
 - Several classes will be renamed.
+- The folders and configurations will be renamed.
 - A proper stop sound method will be added to the Playable interface, so sounds with delay can be stopped before they're played.
