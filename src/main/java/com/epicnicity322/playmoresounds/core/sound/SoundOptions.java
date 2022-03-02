@@ -22,8 +22,6 @@ import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 public class SoundOptions
@@ -32,8 +30,6 @@ public class SoundOptions
     private @Nullable String permissionToListen;
     private @Nullable String permissionRequired;
     private double radius;
-    private double radiusSquared;
-    private @NotNull Map<Direction, Double> relativeLocation = new HashMap<>();
 
     /**
      * {@link SoundOptions} is used to get the Options of a {@link Sound} more easily.
@@ -43,24 +39,20 @@ public class SoundOptions
      * @param permissionRequired The permission the player needs to play this sound.
      * @param radius             A radius of blocks the sound will be heard. Set 0 to play to only the player, -1 to all
      *                           players online, -2 to all players in the {@link org.bukkit.World}.
-     * @param relativeLocation   The location in blocks to be added to the final sound playing location, in relation to
-     *                           where the player is looking.
      */
     public SoundOptions(boolean ignoresDisabled, @Nullable String permissionToListen, @Nullable String permissionRequired,
-                        double radius, @Nullable Map<Direction, Double> relativeLocation)
+                        double radius)
     {
         setIgnoresDisabled(ignoresDisabled);
         setPermissionToListen(permissionToListen);
         setPermissionRequired(permissionRequired);
         setRadius(radius);
-        setRelativeLocation(relativeLocation);
     }
 
     /**
      * Create a {@link SoundOptions} based on a configuration section. In PlayMoreSounds this section is named 'Options',
      * it can have the following keys: Permission Required, Permission To Listen, Radius, Ignores Disabled,
-     * Relative Location.FRONT_BACK, Relative Location.LEFT_RIGHT, Relative Location.UP_DOWN. All of them are optional,
-     * see with more details what key does what on PlayMoreSounds wiki.
+     * All of them are optional, see with more details what key does what on PlayMoreSounds wiki.
      *
      * @param section The section where the options are.
      */
@@ -69,19 +61,7 @@ public class SoundOptions
         setPermissionRequired(section.getString("Permission Required").orElse(null));
         setPermissionToListen(section.getString("Permission To Listen").orElse(null));
         setRadius(section.getNumber("Radius").orElse(0).doubleValue());
-
         ignoresDisabled = section.getBoolean("Ignores Disabled").orElse(false);
-
-        ConfigurationSection relativeLoc = section.getConfigurationSection("Relative Location");
-
-        if (relativeLoc != null) {
-            for (String s : relativeLoc.getNodes().keySet()) {
-                try {
-                    relativeLocation.put(Direction.valueOf(s.toUpperCase()), relativeLoc.getNumber(s).orElse(0).doubleValue());
-                } catch (IllegalArgumentException ignored) {
-                }
-            }
-        }
     }
 
     /**
@@ -157,40 +137,11 @@ public class SoundOptions
     public void setRadius(double radius)
     {
         this.radius = radius;
-        radiusSquared = radius > 0 ? radius * radius : radius;
-    }
-
-    /**
-     * The value of {@link #getRadius()}, but squared. Useful to calculate radius.
-     *
-     * @return The radius squared.
-     */
-    public double getRadiusSquared()
-    {
-        return radiusSquared;
-    }
-
-    /**
-     * Gets the Relative Location option as HashMap.
-     *
-     * @return The distance to add to the final sound location relative to where the player is looking.
-     */
-    public @NotNull Map<Direction, Double> getRelativeLocation()
-    {
-        return relativeLocation;
-    }
-
-    public void setRelativeLocation(@Nullable Map<Direction, Double> relativePositions)
-    {
-        if (relativePositions == null)
-            this.relativeLocation = new HashMap<>();
-        else
-            this.relativeLocation = relativePositions;
     }
 
     /**
      * If a {@link SoundOptions} contains the same values of {@link #ignoresDisabled()}, {@link #getRadius()},
-     * {@link #getPermissionToListen()}, {@link #getPermissionRequired()} and {@link #getRelativeLocation()}.
+     * {@link #getPermissionToListen()} and {@link #getPermissionRequired()}.
      *
      * @param o The {@link SoundOptions} to compare.
      * @return If the {@link SoundOptions} has the same values as this one.
@@ -199,21 +150,18 @@ public class SoundOptions
     public boolean equals(@Nullable Object o)
     {
         if (this == o) return true;
-        if (!(o instanceof SoundOptions)) return false;
-
-        SoundOptions options = (SoundOptions) o;
+        if (!(o instanceof SoundOptions options)) return false;
 
         return ignoresDisabled() == options.ignoresDisabled() &&
                 Double.compare(options.getRadius(), getRadius()) == 0 &&
                 Objects.equals(getPermissionToListen(), options.getPermissionToListen()) &&
-                Objects.equals(getPermissionRequired(), options.getPermissionRequired()) &&
-                getRelativeLocation().equals(options.getRelativeLocation());
+                Objects.equals(getPermissionRequired(), options.getPermissionRequired());
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(ignoresDisabled(), getPermissionToListen(), getPermissionRequired(), getRadius(), getRelativeLocation());
+        return Objects.hash(ignoresDisabled(), getPermissionToListen(), getPermissionRequired(), getRadius());
     }
 
     @Override
@@ -224,14 +172,6 @@ public class SoundOptions
                 ", permissionToListen='" + permissionToListen + '\'' +
                 ", permissionRequired='" + permissionRequired + '\'' +
                 ", radius=" + radius +
-                ", relativeLocation=" + relativeLocation +
                 '}';
-    }
-
-    public enum Direction
-    {
-        FRONT_BACK,
-        LEFT_RIGHT,
-        UP_DOWN
     }
 }
