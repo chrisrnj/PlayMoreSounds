@@ -20,13 +20,10 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
-import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
-import com.epicnicity322.yamlhandler.Configuration;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -35,28 +32,34 @@ import org.jetbrains.annotations.NotNull;
 public final class OnPlayerRespawn extends PMSListener
 {
     private final @NotNull PlayMoreSounds plugin;
+    private final @NotNull NamespacedKey lastDamageKey;
+    private final @NotNull NamespacedKey killerUUIDKey;
 
     public OnPlayerRespawn(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
         this.plugin = plugin;
+        lastDamageKey = new NamespacedKey(plugin, "last_damage");
+        killerUUIDKey = new NamespacedKey(plugin, "killer_uuid");
     }
 
     @Override
     public void load()
     {
-        Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+        var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
 
-        boolean respawnEnabled = sounds.getBoolean("Respawn.Enabled").orElse(false);
-        boolean playerKillKilledEnabled = VersionUtils.hasPersistentData() && sounds.getBoolean("Player Kill.Enabled").orElse(false) || sounds.getBoolean("Player Killer.Enabled").orElse(false);
-        boolean deathTypeEnabled = VersionUtils.hasPersistentData() && PMSHelper.anySoundEnabled(Configurations.DEATH_TYPES.getConfigurationHolder().getConfiguration(), null);
+        boolean respawnEnabled = sounds.getBoolean(getName() + ".Enabled").orElse(false);
+        boolean playerKillKilledEnabled = sounds.getBoolean("Player Kill.Enabled").orElse(false) || sounds.getBoolean("Player Killer.Enabled").orElse(false);
+        boolean deathTypeEnabled = PMSHelper.anySoundEnabled(Configurations.DEATH_TYPES.getConfigurationHolder().getConfiguration(), null);
+
+        if (respawnEnabled) {
+            setRichSound(new PlayableRichSound(sounds.getConfigurationSection(getName())));
+        } else {
+            setRichSound(null);
+        }
 
         if (respawnEnabled || playerKillKilledEnabled || deathTypeEnabled) {
             if (!isLoaded()) {
-                if (respawnEnabled) {
-                    setRichSound(new PlayableRichSound(sounds.getConfigurationSection("Respawn")));
-                }
-
                 Bukkit.getPluginManager().registerEvents(this, plugin);
                 setLoaded(true);
             }
@@ -77,12 +80,10 @@ public final class OnPlayerRespawn extends PMSListener
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event)
     {
-        Player player = event.getPlayer();
+        var player = event.getPlayer();
 
-        if (VersionUtils.hasPersistentData()) {
-            player.getPersistentDataContainer().remove(new NamespacedKey(plugin, "last_damage"));
-            player.getPersistentDataContainer().remove(new NamespacedKey(plugin, "killer_uuid"));
-        }
+        player.getPersistentDataContainer().remove(lastDamageKey);
+        player.getPersistentDataContainer().remove(killerUUIDKey);
 
         if (getRichSound() != null)
             getRichSound().play(player);
