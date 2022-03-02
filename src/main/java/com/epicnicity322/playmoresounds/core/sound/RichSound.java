@@ -50,7 +50,7 @@ public abstract class RichSound<T extends Sound>
         cancellable = section.getBoolean("Cancellable").orElse(false);
         childSounds = new HashSet<>();
 
-        ConfigurationSection sounds = section.getConfigurationSection("Sounds");
+        var sounds = section.getConfigurationSection("Sounds");
 
         if (sounds != null) {
             for (String childSound : sounds.getNodes().keySet()) {
@@ -98,10 +98,7 @@ public abstract class RichSound<T extends Sound>
 
     public void setChildSounds(@Nullable Collection<T> childSounds)
     {
-        if (childSounds == null)
-            this.childSounds = new HashSet<>();
-        else
-            this.childSounds = childSounds;
+        this.childSounds = Objects.requireNonNullElseGet(childSounds, HashSet::new);
     }
 
     @Override

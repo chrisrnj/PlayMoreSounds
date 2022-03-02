@@ -118,7 +118,7 @@ public class Sound
     {
         Optional<String> sound = soundType.getSound();
 
-        if (!sound.isPresent())
+        if (sound.isEmpty())
             throw new UnsupportedOperationException("SoundType is not present on this minecraft version.");
 
         this.sound = sound.get();
@@ -179,11 +179,7 @@ public class Sound
      */
     public void setCategory(@Nullable SoundCategory category)
     {
-        if (category == null) {
-            this.category = SoundCategory.MASTER;
-        } else {
-            this.category = category;
-        }
+        this.category = Objects.requireNonNullElse(category, SoundCategory.MASTER);
     }
 
     /**
@@ -249,10 +245,7 @@ public class Sound
      */
     public void setOptions(@Nullable SoundOptions options)
     {
-        if (options == null)
-            this.options = new SoundOptions(false, null, null, 0.0, null);
-        else
-            this.options = options;
+        this.options = Objects.requireNonNullElseGet(options, () -> new SoundOptions(false, null, null, 0.0));
     }
 
     @Override
@@ -288,9 +281,7 @@ public class Sound
     public boolean isSimilar(Object o)
     {
         if (this == o) return true;
-        if (!(o instanceof Sound)) return false;
-
-        Sound sound1 = (Sound) o;
+        if (!(o instanceof Sound sound1)) return false;
 
         return Float.compare(sound1.volume, volume) == 0 &&
                 Float.compare(sound1.pitch, pitch) == 0 &&

@@ -54,16 +54,16 @@ public final class PMSHelper
     {
         if (prefix == null) {
             for (Map.Entry<String, Object> node : configuration.getNodes().entrySet()) {
-                Object value = node.getValue();
+                var value = node.getValue();
 
-                if (value instanceof ConfigurationSection && ((ConfigurationSection) value).getBoolean("Enabled").orElse(false)) {
+                if (value instanceof ConfigurationSection section && section.getBoolean("Enabled").orElse(false)) {
                     return true;
                 }
             }
         } else {
             for (Map.Entry<String, Object> node : configuration.getAbsoluteNodes().entrySet()) {
-                String key = node.getKey();
-                Object value = node.getValue();
+                var key = node.getKey();
+                var value = node.getValue();
 
                 if (Objects.equals(true, value) && key.equals(prefix + ".Enabled")) {
                     return true;
@@ -95,7 +95,7 @@ public final class PMSHelper
      */
     public static boolean halloweenEvent()
     {
-        LocalDateTime now = LocalDateTime.now();
+        var now = LocalDateTime.now();
 
         return now.getMonth() == Month.OCTOBER && now.getDayOfMonth() == 31 && Configurations.CONFIG.getConfigurationHolder().getConfiguration().getBoolean("Halloween Event").orElse(false);
     }
@@ -105,7 +105,7 @@ public final class PMSHelper
      */
     public static boolean isChristmas()
     {
-        LocalDateTime now = LocalDateTime.now();
+        var now = LocalDateTime.now();
 
         return now.getMonth() == Month.DECEMBER && now.getDayOfMonth() == 25;
     }
@@ -126,18 +126,18 @@ public final class PMSHelper
     {
         if (collection.isEmpty() || maxPerPage <= 0) {
             // Return 1 page with no entries.
-            HashMap<Integer, ArrayList<T>> emptyPage = new HashMap<>(1);
+            var emptyPage = new HashMap<Integer, ArrayList<T>>(1);
             emptyPage.put(1, new ArrayList<>(0));
             return emptyPage;
         }
 
         // pageAmount must always round up.
         int pageAmount = (int) Math.ceil(collection.size() / (double) maxPerPage);
-        HashMap<Integer, ArrayList<T>> pages = new HashMap<>(pageAmount);
+        var pages = new HashMap<Integer, ArrayList<T>>(pageAmount);
 
         int count = 0;
         int page = 1;
-        ArrayList<T> list = new ArrayList<>(maxPerPage);
+        var list = new ArrayList<T>(maxPerPage);
 
         for (T t : collection) {
             list.add(t);
@@ -163,7 +163,7 @@ public final class PMSHelper
      */
     public static @NotNull String repeatChar(char repeat, long times)
     {
-        StringBuilder builder = new StringBuilder();
+        var builder = new StringBuilder();
 
         for (long l = 0; l < times; ++l) {
             builder.append(repeat);

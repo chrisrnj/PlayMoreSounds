@@ -26,8 +26,8 @@ public class Main
     {
         System.out.println("I am a bukkit/sponge dependent application!");
 
-        JFrame frame = new JFrame("Sorry");
-        JLabel textArea = new JLabel(" I am a bukkit/sponge dependent application!");
+        var frame = new JFrame("Sorry");
+        var textArea = new JLabel(" I am a bukkit/sponge dependent application!");
 
         frame.add(textArea);
         frame.setVisible(true);

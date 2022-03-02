@@ -18,8 +18,7 @@
 
 package com.epicnicity322.playmoresounds.bukkit.util;
 
-import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
-import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
+import com.epicnicity322.epicpluginlib.core.EpicPluginLib;
 import com.epicnicity322.epicpluginlib.core.tools.Downloader;
 import com.epicnicity322.epicpluginlib.core.tools.SpigotUpdateChecker;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
@@ -28,7 +27,6 @@ import com.epicnicity322.playmoresounds.bukkit.command.subcommand.ConfirmSubComm
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
-import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.YamlConfigurationLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -47,21 +45,19 @@ import java.util.jar.JarFile;
 
 public final class UpdateManager
 {
-    private static final @NotNull ConfigurationHolder config = Configurations.CONFIG.getConfigurationHolder();
-    private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
     private static final @NotNull AtomicBoolean updateAvailable = new AtomicBoolean(false);
     private static final @NotNull UUID deleteConfirmationUniqueId = UUID.randomUUID();
-    private static @Nullable BukkitTask updateCheckerTask;
     private static @Nullable Version latestVersion;
     private static URL spigetURL;
     private static @Nullable BukkitTask availableNotifierTask;
+    private static @Nullable BukkitTask updateCheckerTask;
     private static final @NotNull Runnable updateChecker = () -> {
         if (updateAvailable.get()) {
             if (updateCheckerTask != null) {
                 updateCheckerTask.cancel();
             }
         } else {
-            check(config.getConfiguration().getBoolean("Updater.Log").orElse(true) ? Bukkit.getConsoleSender() : null);
+            check(Configurations.CONFIG.getConfigurationHolder().getConfiguration().getBoolean("Updater.Log").orElse(true) ? Bukkit.getConsoleSender() : null);
         }
     };
 
@@ -97,10 +93,10 @@ public final class UpdateManager
 
     public static void loadUpdater(@NotNull PlayMoreSounds instance)
     {
-        Configuration yamlConfig = config.getConfiguration();
+        var config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
 
-        if (yamlConfig.getBoolean("Updater.Enabled").orElse(true)) {
-            long ticks = yamlConfig.getNumber("Updater.Period").orElse(144000).longValue();
+        if (config.getBoolean("Updater.Enabled").orElse(true)) {
+            long ticks = config.getNumber("Updater.Period").orElse(144000).longValue();
 
             if (updateCheckerTask != null) {
                 updateCheckerTask.cancel();
@@ -129,6 +125,7 @@ public final class UpdateManager
 
     public static void check(@Nullable CommandSender logReceiver)
     {
+        var lang = PlayMoreSounds.getLanguage();
         boolean log = logReceiver != null;
 
         if (updateAvailable.get()) {
@@ -150,22 +147,12 @@ public final class UpdateManager
                 setLatestVersion(latest);
 
                 if (log) {
-                    if (isUnsupported(latest)) {
-                        lang.send(logReceiver, "&4Version " + latest + " is available but your server does not support it. Update to Spigot 1.18 or disable updater on config to stop checking for updates.");
-                    } else {
-                        lang.send(logReceiver, lang.get("Update.Available").replace("<version>", UpdateManager.latestVersion.getVersion()).replace("<label>", "pms"));
-                    }
+                    lang.send(logReceiver, lang.get("Update.Available").replace("<version>", UpdateManager.latestVersion.getVersion()).replace("<label>", "pms"));
                 }
 
                 if (getAvailableNotifierTask() == null && PlayMoreSounds.getInstance() != null) {
                     setAvailableNotifierTask(Bukkit.getScheduler().runTaskTimerAsynchronously(PlayMoreSounds.getInstance(),
-                            () -> {
-                                if (isUnsupported(latest)) {
-                                    lang.send(logReceiver, "&4Version " + latest + " is available but your server does not support it. Update to Spigot 1.18 or disable updater on config to stop checking for updates.");
-                                } else {
-                                    PlayMoreSounds.getConsoleLogger().log("&2An update is available for PlayMoreSounds. Download it using &f/pms update download&2.");
-                                }
-                            }, log ? 36000 : 0, 36000));
+                            () -> PlayMoreSounds.getConsoleLogger().log("&2An update is available for PlayMoreSounds. Download it using &f/pms update download&2."), log ? 36000 : 0, 36000));
                 }
             } else {
                 if (log) {
@@ -175,17 +162,9 @@ public final class UpdateManager
         }, (error, exception) -> {
             if (log) {
                 switch (error) {
-                    case OFFLINE:
-                        lang.send(logReceiver, lang.get("Update.Error.Offline"));
-                        break;
-
-                    case TIMEOUT:
-                        lang.send(logReceiver, lang.get("Update.Error.Timeout"));
-                        break;
-
-                    case UNEXPECTED_ERROR:
-                        lang.send(logReceiver, lang.get("Update.Error.Default"));
-                        break;
+                    case OFFLINE -> lang.send(logReceiver, lang.get("Update.Error.Offline"));
+                    case TIMEOUT -> lang.send(logReceiver, lang.get("Update.Error.Timeout"));
+                    case UNEXPECTED_ERROR -> lang.send(logReceiver, lang.get("Update.Error.Default"));
                 }
             }
 
@@ -204,7 +183,8 @@ public final class UpdateManager
      */
     public static @Nullable String downloadLatest(@NotNull CommandSender sender, @NotNull PlayMoreSounds instance)
     {
-        File update = new File(Bukkit.getUpdateFolderFile(), instance.getFile().getName());
+        var lang = PlayMoreSounds.getLanguage();
+        var update = new File(Bukkit.getUpdateFolderFile(), instance.getFile().getName());
 
         try {
             Bukkit.getUpdateFolderFile().mkdirs();
@@ -226,25 +206,19 @@ public final class UpdateManager
 
             if (downloader.getResult() != Downloader.Result.SUCCESS) {
                 switch (downloader.getResult()) {
-                    case OFFLINE:
-                        lang.send(sender, lang.get("Update.Error.Offline"));
-                        break;
-
-                    case TIMEOUT:
-                        lang.send(sender, lang.get("Update.Error.Timeout"));
-                        break;
-
-                    case UNEXPECTED_ERROR:
+                    case OFFLINE -> lang.send(sender, lang.get("Update.Error.Offline"));
+                    case TIMEOUT -> lang.send(sender, lang.get("Update.Error.Timeout"));
+                    case UNEXPECTED_ERROR -> {
                         lang.send(sender, lang.get("Update.Error.Default"));
                         PlayMoreSoundsCore.getErrorHandler().report(downloader.getException(), "Unexpected Error Update Download:");
-                        break;
+                    }
                 }
                 return null;
             }
 
-            JarFile jarFile = new JarFile(update);
-            Configuration description = new YamlConfigurationLoader().load(new InputStreamReader(jarFile.getInputStream(jarFile.getJarEntry("plugin.yml"))));
-            Version bukkitVersion = VersionUtils.getBukkitVersion();
+            var jarFile = new JarFile(update);
+            var description = new YamlConfigurationLoader().load(new InputStreamReader(jarFile.getInputStream(jarFile.getJarEntry("plugin.yml"))));
+            var bukkitVersion = EpicPluginLib.Platform.getVersion();
             String fixedapiversion = description.getString("api-version").orElse(bukkitVersion.getVersion());
 
             if (fixedapiversion.equals("1.13")) fixedapiversion = bukkitVersion.getVersion();
@@ -285,10 +259,5 @@ public final class UpdateManager
             PlayMoreSoundsCore.getErrorHandler().report(e, "Download Update Exception:");
             return null;
         }
-    }
-
-    private static boolean isUnsupported(Version version)
-    {
-        return version.compareTo(new Version("4.2")) >= 0 && PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.18")) < 0;
     }
 }
