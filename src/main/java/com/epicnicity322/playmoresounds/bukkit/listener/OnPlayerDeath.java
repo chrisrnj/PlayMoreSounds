@@ -43,10 +43,10 @@ public final class OnPlayerDeath extends PMSListener
 {
     private final @NotNull HashMap<String, PlayableRichSound> specificDeaths = new HashMap<>();
     private final @NotNull PlayMoreSounds plugin;
-    private @Nullable PlayableRichSound playerKilled;
-    private @Nullable PlayableRichSound playerKill;
     private final @NotNull NamespacedKey lastDamageKey;
     private final @NotNull NamespacedKey killerUUIDKey;
+    private @Nullable PlayableRichSound playerKilled;
+    private @Nullable PlayableRichSound playerKill;
 
     public OnPlayerDeath(@NotNull PlayMoreSounds plugin)
     {

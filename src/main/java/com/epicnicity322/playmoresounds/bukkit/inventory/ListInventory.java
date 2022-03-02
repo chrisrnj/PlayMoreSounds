@@ -110,7 +110,8 @@ public final class ListInventory implements PMSInventory
 
             if (config.getBoolean("List.Inventory.Items.Sound.Glowing").orElse(false))
                 soundItemMeta.addEnchant(Enchantment.DURABILITY, 1, true);
-                soundItemMeta.addItemFlags(ItemFlag.values());
+
+            soundItemMeta.addItemFlags(ItemFlag.values());
 
             soundItem.setItemMeta(soundItemMeta);
             inventory.setItem(count, soundItem);
