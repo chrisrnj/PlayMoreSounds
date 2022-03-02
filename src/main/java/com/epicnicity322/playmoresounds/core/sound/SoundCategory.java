@@ -18,7 +18,7 @@
 
 package com.epicnicity322.playmoresounds.core.sound;
 
-import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
+import com.epicnicity322.epicpluginlib.core.EpicPluginLib;
 import net.kyori.adventure.sound.Sound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,12 +41,14 @@ public enum SoundCategory
 
     SoundCategory(@NotNull String spongeValue, @NotNull String bukkitValue)
     {
-        if (PlayMoreSoundsCore.getPlatform() == PlayMoreSoundsCore.Platform.SPONGE) {
+        var platform = EpicPluginLib.Platform.getPlatform();
+
+        if (platform == EpicPluginLib.Platform.SPONGE) {
             try {
                 this.spongeValue = (Sound.Source) Sound.Source.class.getField(spongeValue).get(null);
             } catch (Exception ignored) {
             }
-        } else if (PlayMoreSoundsCore.getPlatform() == PlayMoreSoundsCore.Platform.BUKKIT && StaticFields.bukkitSoundCategories) {
+        } else if (platform == EpicPluginLib.Platform.BUKKIT && StaticFields.bukkitSoundCategories) {
             this.bukkitValue = org.bukkit.SoundCategory.valueOf(bukkitValue);
         }
     }
@@ -56,7 +58,7 @@ public enum SoundCategory
      */
     public static boolean hasSoundCategories()
     {
-        return StaticFields.bukkitSoundCategories || PlayMoreSoundsCore.getPlatform() == PlayMoreSoundsCore.Platform.SPONGE;
+        return StaticFields.bukkitSoundCategories || EpicPluginLib.Platform.getPlatform() == EpicPluginLib.Platform.SPONGE;
     }
 
     public @Nullable org.bukkit.SoundCategory asBukkit()
