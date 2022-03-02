@@ -39,7 +39,7 @@ import java.util.UUID;
 public final class AddonsSubCommand extends Command implements Helpable
 {
     public static final @NotNull HashSet<PMSAddon> ADDONS_TO_UNINSTALL = new HashSet<>();
-    private static @Nullable HashMap<PMSAddon, UUID> uninstallConfirmationUUIDs;
+    private static @Nullable HashMap<String, UUID> uninstallConfirmationUUIDs;
 
     @Override
     public @NotNull String getName()
@@ -74,22 +74,19 @@ public final class AddonsSubCommand extends Command implements Helpable
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
 
         if (args.length > 1) {
             switch (args[1].toLowerCase(Locale.ROOT)) {
-                case "list":
+                case "list" -> {
                     if (!sender.hasPermission("playmoresounds.addons.list")) {
                         lang.send(sender, lang.get("General.No Permission"));
                         return;
                     }
-
                     lang.send(sender, lang.get("Addons.List.Header"));
-
                     HashSet<PMSAddon> addons = PlayMoreSounds.getAddonManager().getAddons();
                     StringBuilder data = new StringBuilder();
                     int count = 0;
-
                     for (PMSAddon addon : addons) {
                         data.append(addon.isLoaded() ? "&a" : "&c").append(addon.getDescription().getName());
 
@@ -97,10 +94,10 @@ public final class AddonsSubCommand extends Command implements Helpable
                             data.append(lang.get("Addons.List.Separator", "&f, "));
                         }
                     }
-
                     lang.send(sender, false, data.toString());
-                    break;
-                case "uninstall":
+                }
+
+                case "uninstall" -> {
                     if (!sender.hasPermission("playmoresounds.addons.uninstall")) {
                         lang.send(sender, lang.get("General.No Permission"));
                         return;
@@ -109,11 +106,10 @@ public final class AddonsSubCommand extends Command implements Helpable
                         lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", "uninstall <addon>"));
                         return;
                     }
-
                     uninstall(lang, label, sender, args);
-                    break;
+                }
                     /*
-                case "stop":
+                case "stop" -> {
                     if (!sender.hasPermission("playmoresounds.addons.stop")) {
                         lang.send(sender, lang.get("General.No Permission"));
                         return;
@@ -124,8 +120,9 @@ public final class AddonsSubCommand extends Command implements Helpable
                     }
 
                     stopOrStart(true, lang, label, sender, args);
-                    break;
-                case "start":
+                }
+
+                case "start" -> {
                     if (!sender.hasPermission("playmoresounds.addons.start")) {
                         lang.send(sender, lang.get("General.No Permission"));
                         return;
@@ -137,9 +134,9 @@ public final class AddonsSubCommand extends Command implements Helpable
 
                     stopOrStart(false, lang, label, sender, args);
                     break;
+                }
                      */
-                default:
-                    lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", "<list|uninstall>"));
+                default -> lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", "<list|uninstall>"));
             }
 
             return;
@@ -176,7 +173,7 @@ public final class AddonsSubCommand extends Command implements Helpable
         } else {
             PMSAddon addon = null;
 
-            for (PMSAddon a : PlayMoreSounds.getAddonManager().getAddons()) {
+            for (var a : PlayMoreSounds.getAddonManager().getAddons()) {
                 if (a.getDescription().getName().equals(addonName)) {
                     addon = a;
                     break;
@@ -190,23 +187,16 @@ public final class AddonsSubCommand extends Command implements Helpable
 
             if (uninstallConfirmationUUIDs == null) uninstallConfirmationUUIDs = new HashMap<>();
 
-            UUID uuid = uninstallConfirmationUUIDs.get(addon);
+            UUID uuid = uninstallConfirmationUUIDs.computeIfAbsent(addonName, k -> UUID.randomUUID());
+            final var finalAddon = addon;
 
-            if (uuid == null) {
-                UUID newUUID = UUID.randomUUID();
-
-                uninstallConfirmationUUIDs.put(addon, newUUID);
-                uuid = newUUID;
-            }
-
-            PMSAddon finalAddon = addon;
             ConfirmSubCommand.addPendingConfirmation(sender, new UniqueRunnable(uuid)
             {
                 @Override
                 public void run()
                 {
                     ADDONS_TO_UNINSTALL.add(finalAddon);
-                    uninstallConfirmationUUIDs.remove(finalAddon);
+                    uninstallConfirmationUUIDs.remove(addonName);
                     lang.send(sender, lang.get("Addons.Uninstall.Success").replace("<addon>", addonName));
                 }
             }, lang.get("Addons.Uninstall.Confirmation.Description").replace("<addon>", addonName));

@@ -20,16 +20,16 @@ package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
 
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
-import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
+import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandLoader;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class HelpSubCommand extends Command implements Helpable
 {
-
     @Override
     public @NotNull String getName()
     {
@@ -57,13 +57,19 @@ public final class HelpSubCommand extends Command implements Helpable
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
-        lang.send(sender, lang.get("Help.Header"));
+        var lang = PlayMoreSounds.getLanguage();
+        lang.send(sender, lang.get("Help.Header").replace("<page>", "1").replace("<totalpages>", "1"));
 
-        for (Command command : CommandLoader.getCommands()) {
+        for (var command : CommandLoader.getCommands()) {
             if (command instanceof Helpable) {
-                if (sender.hasPermission(command.getPermission()))
-                    ((Helpable) command).onHelp().run(label, sender, args);
+                if (sender.hasPermission(command.getPermission())) {
+                    try {
+                        ((Helpable) command).onHelp().run(label, sender, args);
+                    } catch (Throwable t) {
+                        PlayMoreSounds.getConsoleLogger().log("Something went wrong when trying to run onHelp for command: " + command.getName(), ConsoleLogger.Level.WARN);
+                        PlayMoreSoundsCore.getErrorHandler().report(t, "On Help for command " + command.getName() + ":");
+                    }
+                }
             }
         }
     }

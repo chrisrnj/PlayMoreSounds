@@ -20,7 +20,6 @@ package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
 
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
-import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.epicpluginlib.core.tools.SpigotUpdateChecker;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.util.UpdateManager;
@@ -32,7 +31,6 @@ import org.jetbrains.annotations.Nullable;
 
 public final class UpdateSubCommand extends Command implements Helpable
 {
-    private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
     private final @NotNull PlayMoreSounds instance;
 
     public UpdateSubCommand(@NotNull PlayMoreSounds instance)
@@ -49,7 +47,7 @@ public final class UpdateSubCommand extends Command implements Helpable
     @Override
     public @NotNull CommandRunnable onHelp()
     {
-        return (label, sender, args) -> lang.send(sender, false, lang.get("Help.Update").replace("<label>", label));
+        return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Help.Update").replace("<label>", label));
     }
 
     @Override
@@ -61,13 +59,14 @@ public final class UpdateSubCommand extends Command implements Helpable
     @Override
     protected @Nullable CommandRunnable getNoPermissionRunnable()
     {
-        return (label, sender, args) -> lang.send(sender, lang.get("General.No Permission"));
+        return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
         if (args.length > 1 && args[1].equalsIgnoreCase("download")) {
+            var lang = PlayMoreSounds.getLanguage();
             if (args.length > 2 && args[2].equalsIgnoreCase("--force")) {
                 lang.send(sender, lang.get("Update.Download.Downloading.Forcefully"));
                 download(sender);
@@ -94,18 +93,12 @@ public final class UpdateSubCommand extends Command implements Helpable
                 }
             }, (result, ex) -> {
                 switch (result) {
-                    case OFFLINE:
-                        lang.send(sender, lang.get("Update.Error.Offline"));
-                        break;
-
-                    case TIMEOUT:
-                        lang.send(sender, lang.get("Update.Error.Timeout"));
-                        break;
-
-                    case UNEXPECTED_ERROR:
+                    case OFFLINE -> lang.send(sender, lang.get("Update.Error.Offline"));
+                    case TIMEOUT -> lang.send(sender, lang.get("Update.Error.Timeout"));
+                    case UNEXPECTED_ERROR -> {
                         lang.send(sender, lang.get("Update.Error.Default"));
                         PlayMoreSoundsCore.getErrorHandler().report(ex, "Unexpected Error On Check Before Update Download:");
-                        break;
+                    }
                 }
             });
 
@@ -124,7 +117,7 @@ public final class UpdateSubCommand extends Command implements Helpable
                 String downloadedVersion = UpdateManager.downloadLatest(sender, instance);
 
                 if (downloadedVersion != null) {
-                    lang.send(sender, lang.get("Update.Download.Success").replace("<version>", downloadedVersion));
+                    PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("Update.Download.Success").replace("<version>", downloadedVersion));
                 }
             }
         }.start();

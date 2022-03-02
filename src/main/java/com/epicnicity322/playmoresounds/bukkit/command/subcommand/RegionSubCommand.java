@@ -20,7 +20,6 @@ package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
 
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
-import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.epicpluginlib.core.util.StringUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandUtils;
@@ -31,15 +30,12 @@ import com.epicnicity322.playmoresounds.bukkit.util.UniqueRunnable;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
-import com.epicnicity322.yamlhandler.Configuration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,12 +44,13 @@ import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public final class RegionSubCommand extends Command implements Helpable
 {
-    private static final @NotNull Pattern allowedRegionNameChars = Pattern.compile("^[A-Za-z0-9_]+$");
+    /**
+     * Borders are quite heavy on performance so there is a maximum amount of borders that can be shown at the same time.
+     */
     private static final @NotNull AtomicInteger showingBorders = new AtomicInteger(0);
     private final @NotNull PlayMoreSounds plugin;
 
@@ -62,153 +59,125 @@ public final class RegionSubCommand extends Command implements Helpable
         this.plugin = plugin;
     }
 
-    @Override
-    public @NotNull CommandRunnable onHelp()
+    @Override public @NotNull CommandRunnable onHelp()
     {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Help.Region").replace("<label>", label));
     }
 
-    @Override
-    public @NotNull String getName()
+    @Override public @NotNull String getName()
     {
         return "region";
     }
 
-    @Override
-    public @Nullable String[] getAliases()
+    @Override public @Nullable String[] getAliases()
     {
         return new String[]{"regions", "rg"};
     }
 
-    @Override
-    public @Nullable String getPermission()
+    @Override public @Nullable String getPermission()
     {
         return "playmoresounds.region";
     }
 
-    @Override
-    public int getMinArgsAmount()
+    @Override public int getMinArgsAmount()
     {
         return 2;
     }
 
-    @Override
-    protected @Nullable CommandRunnable getNoPermissionRunnable()
+    @Override protected @Nullable CommandRunnable getNoPermissionRunnable()
     {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
-    @Override
-    protected @Nullable CommandRunnable getNotEnoughArgsRunnable()
+    @Override protected @Nullable CommandRunnable getNotEnoughArgsRunnable()
     {
-        return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.Invalid Arguments")
-                .replace("<label>", label).replace("<label2>", args[0])
-                .replace("<args>", "<create|info|list|remove|rename|set|teleport|wand>"));
+        return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", "<create|info|list|remove|rename|set|teleport|wand>"));
     }
 
-    @Override
-    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
+    @Override public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
         switch (args[1].toLowerCase()) {
-            case "create":
-            case "new":
+            case "create", "new" -> {
                 if (!sender.hasPermission("playmoresounds.region.create")) {
                     lang.send(sender, lang.get("General.No Permission"));
                     return;
                 }
 
                 new Thread(() -> create(label, sender, args), "Region Builder").start();
-                break;
-            case "info":
-            case "description":
+            }
+            case "info", "description" -> {
                 if (!sender.hasPermission("playmoresounds.region.info")) {
                     lang.send(sender, lang.get("General.No Permission"));
                     return;
                 }
 
                 info(label, sender, args);
-                break;
-            case "list":
-            case "l":
+            }
+            case "list", "l" -> {
                 if (!sender.hasPermission("playmoresounds.region.list")) {
                     lang.send(sender, lang.get("General.No Permission"));
                     return;
                 }
 
                 list(label, sender, args);
-                break;
-            case "remove":
-            case "delete":
-            case "rm":
-            case "del":
+            }
+            case "remove", "delete", "rm", "del" -> {
                 if (!sender.hasPermission("playmoresounds.region.remove")) {
                     lang.send(sender, lang.get("General.No Permission"));
                     return;
                 }
 
                 remove(label, sender, args);
-                break;
-            case "rename":
-            case "newname":
-            case "setname":
-            case "rn":
+            }
+            case "rename", "newname", "setname", "rn" -> {
                 if (!sender.hasPermission("playmoresounds.region.rename")) {
                     lang.send(sender, lang.get("General.No Permission"));
                     return;
                 }
 
                 rename(label, sender, args);
-                break;
-            case "set":
+            }
+            case "set" -> {
                 if (!sender.hasPermission("playmoresounds.region.description") && !sender.hasPermission("playmoresounds.region.select.command")) {
                     lang.send(sender, lang.get("General.No Permission"));
                     return;
                 }
 
                 set(label, sender, args);
-                break;
-            case "teleport":
-            case "tp":
+            }
+            case "teleport", "tp" -> {
                 if (!sender.hasPermission("playmoresounds.region.teleport")) {
                     lang.send(sender, lang.get("General.No Permission"));
                     return;
                 }
 
                 teleport(label, sender, args);
-                break;
-            case "wand":
-            case "tool":
-            case "wandtool":
-            case "selectiontool":
+            }
+            case "wand", "tool", "wandtool", "selectiontool" -> {
                 if (!sender.hasPermission("playmoresounds.region.wand")) {
                     lang.send(sender, lang.get("General.No Permission"));
                     return;
                 }
 
                 wand(sender);
-                break;
-            default:
-                getNotEnoughArgsRunnable().run(label, sender, args);
-                break;
+            }
+            default -> getNotEnoughArgsRunnable().run(label, sender, args);
         }
     }
 
     private void create(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
         UUID creator;
 
-        if (sender instanceof Player)
-            creator = ((Player) sender).getUniqueId();
-        else
-            creator = null;
+        if (sender instanceof Player player) creator = player.getUniqueId();
+        else creator = null;
 
         Location[] selected = OnPlayerInteract.getSelectedDiagonals(creator);
 
         if (selected == null || selected[0] == null || selected[1] == null) {
-            lang.send(sender, lang.get("Region.Create.Error.Not Selected").replace("<label>", label)
-                    .replace("<label2>", args[0]));
+            lang.send(sender, lang.get("Region.Create.Error.Not Selected").replace("<label>", label).replace("<label2>", args[0]));
             return;
         } else if (!selected[0].getWorld().equals(selected[1].getWorld())) {
             lang.send(sender, lang.get("Region.Create.Error.Different Worlds"));
@@ -216,7 +185,7 @@ public final class RegionSubCommand extends Command implements Helpable
         }
 
         String name;
-        Configuration config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
+        var config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
 
         if (args.length > 2) {
             name = args[2];
@@ -225,8 +194,7 @@ public final class RegionSubCommand extends Command implements Helpable
                 lang.send(sender, lang.get("Region.Create.Error.Already Exists"));
                 return;
             }
-
-            if (!allowedRegionNameChars.matcher(name).matches()) {
+            if (!SoundRegion.ALLOWED_REGION_NAME_CHARS.matcher(name).matches()) {
                 lang.send(sender, lang.get("Region.Create.Error.Illegal Characters"));
                 return;
             }
@@ -237,22 +205,20 @@ public final class RegionSubCommand extends Command implements Helpable
                 lang.send(sender, lang.get("Region.Create.Error.Max Name Characters").replace("<max>", Integer.toString(maxCharacters)));
                 return;
             }
-        } else
-            name = PMSHelper.getRandomString(8);
+        } else name = PMSHelper.getRandomString(8);
 
         String description;
 
-        if (args.length > 3) {
+        if (args.length > 3 && sender.hasPermission("playmoresounds.region.description")) {
             StringBuilder builder = new StringBuilder();
 
             for (int i = 3; i < args.length; ++i)
                 builder.append(" ").append(args[i]);
 
             description = builder.toString().trim();
-        } else
-            description = lang.getColored("Region.Create.Default Description");
+        } else description = lang.getColored("Region.Create.Default Description");
 
-        SoundRegion region = new SoundRegion(name, selected[0], selected[1], creator, description);
+        var region = new SoundRegion(name, selected[0], selected[1], creator, description);
 
         // Checking if the player exceeds the max created regions specified on config.
         if (sender instanceof Player) {
@@ -270,8 +236,8 @@ public final class RegionSubCommand extends Command implements Helpable
 
         // Checking if the region area is bigger than the specified on config.
         if (!sender.hasPermission("playmoresounds.region.create.unlimited.area")) {
-            Location min = region.getMinDiagonal();
-            Location max = region.getMaxDiagonal();
+            var min = region.getMinDiagonal();
+            var max = region.getMaxDiagonal();
 
             long xSize = max.getBlockX() - min.getBlockX();
             long ySize = max.getBlockY() - min.getBlockY();
@@ -287,31 +253,24 @@ public final class RegionSubCommand extends Command implements Helpable
 
         // Checking if any block of the selected area is inside another already existing region.
         if (!sender.hasPermission("playmoresounds.region.select.overlap")) {
-            Location min = region.getMinDiagonal();
-            Location max = region.getMaxDiagonal();
-            UUID uuid = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
+            var min = region.getMinDiagonal();
+            var max = region.getMaxDiagonal();
 
             // Filtering so it can check only the regions that are on this world and the regions that are not owned by the sender.
-            Set<SoundRegion> regionsOnWorld = RegionManager.getRegions().stream().filter(otherRegion ->
-                    !Objects.equals(otherRegion.getCreator(), uuid) && otherRegion.getMaxDiagonal().getWorld().equals(max.getWorld())).collect(Collectors.toSet());
+            Set<SoundRegion> regionsOnWorld = RegionManager.getRegions().stream().filter(otherRegion -> !Objects.equals(otherRegion.getCreator(), creator) && otherRegion.getMaxDiagonal().getWorld().equals(max.getWorld())).collect(Collectors.toSet());
 
-            for (int x = min.getBlockX(); x <= max.getBlockX(); ++x) {
-                for (int y = min.getBlockY(); y <= max.getBlockY(); ++y) {
-                    for (int z = min.getBlockZ(); z <= max.getBlockZ(); ++z) {
+            for (int x = min.getBlockX(); x <= max.getBlockX(); ++x)
+                for (int y = min.getBlockY(); y <= max.getBlockY(); ++y)
+                    for (int z = min.getBlockZ(); z <= max.getBlockZ(); ++z)
                         for (SoundRegion otherRegion : regionsOnWorld) {
-                            Location otherMin = otherRegion.getMinDiagonal();
-                            Location otherMax = otherRegion.getMaxDiagonal();
+                            var otherMin = otherRegion.getMinDiagonal();
+                            var otherMax = otherRegion.getMaxDiagonal();
 
-                            if (x >= otherMin.getBlockX() && x <= otherMax.getBlockX() &
-                                    y >= otherMin.getBlockY() && y <= otherMax.getBlockY() &
-                                    z >= otherMin.getBlockZ() && z <= otherMax.getBlockZ()) {
+                            if (x >= otherMin.getBlockX() && x <= otherMax.getBlockX() & y >= otherMin.getBlockY() && y <= otherMax.getBlockY() & z >= otherMin.getBlockZ() && z <= otherMax.getBlockZ()) {
                                 lang.send(sender, lang.get("Region.Select.Error.Overlap"));
                                 return;
                             }
                         }
-                    }
-                }
-            }
         }
 
         try {
@@ -327,26 +286,23 @@ public final class RegionSubCommand extends Command implements Helpable
 
     private void info(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
-        Configuration config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
+        var lang = PlayMoreSounds.getLanguage();
+        var config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
         Set<SoundRegion> regions;
 
         if (args.length > 2) {
             regions = new HashSet<>();
-
-            SoundRegion region = getRegion(args[2], sender, null);
+            var region = getRegion(args[2], sender, null);
 
             if (region == null) {
-                lang.send(sender, lang.get("Region.General.Error.Not Found." + (args[2].contains("-") ? "UUID" : "Name"))
-                        .replace("<label>", label).replace("<label2>", args[0]));
+                lang.send(sender, lang.get("Region.General.Error.Not Found." + (args[2].contains("-") ? "UUID" : "Name")).replace("<label>", label).replace("<label2>", args[0]));
                 return;
             }
 
             regions.add(region);
         } else {
-            if (sender instanceof Player) {
-                Location location = ((Player) sender).getLocation();
-
+            if (sender instanceof Player player) {
+                var location = player.getLocation();
                 regions = RegionManager.getRegions().stream().filter(region -> region.isInside(location)).collect(Collectors.toSet());
 
                 if (regions.isEmpty()) {
@@ -354,14 +310,12 @@ public final class RegionSubCommand extends Command implements Helpable
                     return;
                 }
             } else {
-                lang.send(sender, lang.get("General.Invalid Arguments")
-                        .replace("<label>", label).replace("<label2>", args[0])
-                        .replace("<args>", args[1] + " <" + lang.get("Region.Region") + ">"));
+                lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", args[1] + " <" + lang.get("Region.Region") + ">"));
                 return;
             }
         }
 
-        Random random = new Random();
+        var random = new Random();
 
         for (SoundRegion region : regions) {
             // Checking if particles should be sent.
@@ -406,7 +360,7 @@ public final class RegionSubCommand extends Command implements Helpable
 
     private void list(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
         Set<SoundRegion> regions;
         String who;
 
@@ -416,8 +370,7 @@ public final class RegionSubCommand extends Command implements Helpable
             if (sender instanceof Player) {
                 targets = CommandUtils.getTargets(sender, args, 2, "", "playmoresounds.region.list.others");
 
-                if (targets == null)
-                    return;
+                if (targets == null) return;
 
                 who = CommandUtils.getWho(targets, sender);
             } else {
@@ -430,22 +383,19 @@ public final class RegionSubCommand extends Command implements Helpable
                 } else {
                     targets = CommandUtils.getTargets(sender, args, 2, "", "playmoresounds.region.list.others");
 
-                    if (targets == null)
-                        return;
+                    if (targets == null) return;
 
                     who = CommandUtils.getWho(targets, sender);
                 }
             }
 
-            HashSet<UUID> uuidTargets = new HashSet<>();
+            var uuidTargets = new HashSet<UUID>();
 
             targets.forEach(target -> uuidTargets.add(target.getUniqueId()));
 
             regions = RegionManager.getRegions().stream().filter(region -> {
-                if (targets.isEmpty())
-                    return region.getCreator() == null;
-                else
-                    return uuidTargets.contains(region.getCreator());
+                if (targets.isEmpty()) return region.getCreator() == null;
+                else return uuidTargets.contains(region.getCreator());
             }).collect(Collectors.toSet());
         } else {
             if (sender instanceof Player) {
@@ -475,8 +425,7 @@ public final class RegionSubCommand extends Command implements Helpable
             }
         }
 
-        if (page < 1)
-            page = 1;
+        if (page < 1) page = 1;
 
         HashMap<Integer, ArrayList<SoundRegion>> pages = PMSHelper.splitIntoPages(regions, 5);
 
@@ -499,28 +448,26 @@ public final class RegionSubCommand extends Command implements Helpable
 
     private void remove(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
         if (args.length < 3) {
             lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", args[1] + " <name|uuid>"));
             return;
         }
 
-        SoundRegion region = getRegion(args[2], sender, "playmoresounds.region.remove.others");
+        var region = getRegion(args[2], sender, "playmoresounds.region.remove.others");
 
         if (region == null) {
-            lang.send(sender, lang.get("Region.General.Error.Not Found." + (args[2].contains("-") ? "UUID" : "Name"))
-                    .replace("<label>", label).replace("<label2>", args[0]));
+            lang.send(sender, lang.get("Region.General.Error.Not Found." + (args[2].contains("-") ? "UUID" : "Name")).replace("<label>", label).replace("<label2>", args[0]));
             return;
         }
 
-        String name = region.getName();
+        var name = region.getName();
 
         lang.send(sender, lang.get("Region.Remove.Confirm").replace("<label>", label).replace("<region>", name));
 
         ConfirmSubCommand.addPendingConfirmation(sender, new UniqueRunnable(region.getId())
         {
-            @Override
-            public void run()
+            @Override public void run()
             {
                 try {
                     RegionManager.delete(region);
@@ -535,7 +482,7 @@ public final class RegionSubCommand extends Command implements Helpable
 
     private void rename(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
         if (args.length < 4) {
             lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", args[1] + " <" + lang.get("Region.Region") + "> <" + lang.get("Region.Rename.New Name") + ">"));
             return;
@@ -554,23 +501,22 @@ public final class RegionSubCommand extends Command implements Helpable
             return;
         }
 
-        SoundRegion region = getRegion(oldName, sender, "playmoresounds.region.rename.others");
+        var region = getRegion(oldName, sender, "playmoresounds.region.rename.others");
 
         if (region == null) {
-            lang.send(sender, lang.get("Region.General.Error.Not Found." + (oldName.contains("-") ? "UUID" : "Name"))
-                    .replace("<label>", label).replace("<label2>", args[0]));
+            lang.send(sender, lang.get("Region.General.Error.Not Found." + (oldName.contains("-") ? "UUID" : "Name")).replace("<label>", label).replace("<label2>", args[0]));
             return;
         }
 
         // Fixing case.
         oldName = region.getName();
 
-        if (!allowedRegionNameChars.matcher(newName).matches()) {
+        if (!SoundRegion.ALLOWED_REGION_NAME_CHARS.matcher(newName).matches()) {
             lang.send(sender, lang.get("Region.General.Error.Illegal Characters"));
             return;
         }
 
-        Configuration config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
+        var config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
         int maxCharacters = config.getNumber("Sound Regions.Max Name Characters").orElse(20).intValue();
 
         if (newName.length() > maxCharacters) {
@@ -591,19 +537,16 @@ public final class RegionSubCommand extends Command implements Helpable
 
     private void set(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
         if (args.length < 3) {
             lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", args[1] + " <p1|p2|description>"));
             return;
         }
 
-        boolean p1 = false;
+        final boolean p1;
 
         switch (args[2].toLowerCase()) {
-            case "description":
-            case "desc":
-            case "info":
-            case "information":
+            case "description", "desc", "info", "information" -> {
                 if (!sender.hasPermission("playmoresounds.region.description")) {
                     lang.send(sender, lang.get("General.No Permission"));
                     return;
@@ -614,57 +557,42 @@ public final class RegionSubCommand extends Command implements Helpable
                     return;
                 }
 
-                SoundRegion region = getRegion(args[3], sender, "playmoresounds.region.description.others");
+                var region = getRegion(args[3], sender, "playmoresounds.region.description.others");
 
                 if (region == null) {
-                    lang.send(sender, lang.get("Region.General.Error.Not Found." + (args[3].contains("-") ? "UUID" : "Name"))
-                            .replace("<label>", label).replace("<label2>", args[0]));
+                    lang.send(sender, lang.get("Region.General.Error.Not Found." + (args[3].contains("-") ? "UUID" : "Name")).replace("<label>", label).replace("<label2>", args[0]));
                     return;
                 }
 
-                StringBuilder description = new StringBuilder();
+                var descriptionBuilder = new StringBuilder();
 
                 for (int i = 4; i < args.length; ++i) {
-                    description.append(" ").append(args[i]);
+                    descriptionBuilder.append(" ").append(args[i]);
                 }
 
-                String string = description.substring(1);
+                var description = descriptionBuilder.substring(1);
 
-                if (string.length() > 100) {
+                if (description.length() > 100) {
                     lang.send(sender, lang.get("Region.Set.Description.Error.Max Characters"));
                     return;
                 }
 
-                region.setDescription(string);
+                region.setDescription(description);
                 try {
                     RegionManager.save(region);
-                    lang.send(sender, lang.get("Region.Set.Description.Success").replace("<region>", region.getName()).replace("<description>", string));
+                    lang.send(sender, lang.get("Region.Set.Description.Success").replace("<region>", region.getName()).replace("<description>", description));
                 } catch (Exception ex) {
                     lang.send(sender, lang.get("Region.General.Error.Save").replace("<region>", region.getName()));
                     PlayMoreSoundsCore.getErrorHandler().report(ex, region.getName() + " Region Save Error:");
                 }
-
                 return;
-            case "p1":
-            case "pone":
-            case "one":
-            case "position1":
-            case "positionone":
-            case "firstposition":
-            case "first":
-                p1 = true;
-                break;
-            case "p2":
-            case "ptwo":
-            case "two":
-            case "position2":
-            case "positiontwo":
-            case "secondposition":
-            case "second":
-                break;
-            default:
+            }
+            case "p1", "pone", "one", "position1", "positionone", "firstposition", "first" -> p1 = true;
+            case "p2", "ptwo", "two", "position2", "positiontwo", "secondposition", "second" -> p1 = false;
+            default -> {
                 lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", args[1] + " <p1|p2|description>"));
                 return;
+            }
         }
 
         if (!sender.hasPermission("playmoresounds.region.select.command")) {
@@ -675,31 +603,28 @@ public final class RegionSubCommand extends Command implements Helpable
         Location location;
 
         if (args.length < 7) {
-            if (sender instanceof Player) {
-                location = ((Player) sender).getLocation();
+            if (sender instanceof Player player) {
+                location = player.getLocation();
             } else {
                 lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", args[1] + " " + args[2] + " <" + lang.get("General.World") + "> <x> <y> <z>"));
                 return;
             }
         } else {
             try {
-                World world = Bukkit.getWorld(args[3]);
+                var world = Bukkit.getWorld(args[3]);
 
                 if (world == null) {
                     lang.send(sender, lang.get("Region.Set.Select.Error.Not A World").replace("<value>", args[3]));
                     return;
                 }
 
-                location = new Location(world, Integer.valueOf(args[4]).doubleValue(), Integer.valueOf(args[5]).doubleValue(), Integer.valueOf(args[6]).doubleValue());
+                location = new Location(world, Double.parseDouble(args[4]), Double.parseDouble(args[5]), Double.parseDouble(args[6]));
             } catch (NumberFormatException ex) {
-                String notNumber = "";
+                var notNumber = "";
 
-                if (!StringUtils.isNumeric(args[4]))
-                    notNumber = args[4];
-                if (!StringUtils.isNumeric(args[5]))
-                    notNumber = args[5];
-                if (!StringUtils.isNumeric(args[6]))
-                    notNumber = args[6];
+                if (!StringUtils.isNumeric(args[4])) notNumber = args[4];
+                else if (!StringUtils.isNumeric(args[5])) notNumber = args[5];
+                else if (!StringUtils.isNumeric(args[6])) notNumber = args[6];
 
                 lang.send(sender, lang.get("General.Not A Number").replace("<number>", notNumber));
                 return;
@@ -708,16 +633,12 @@ public final class RegionSubCommand extends Command implements Helpable
 
         UUID uuid = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
         OnPlayerInteract.selectDiagonal(uuid, location, p1);
-        lang.send(sender, lang.get("Region.Set.Select.Position." + (p1 ? "First" : "Second"))
-                .replace("<w>", location.getWorld().getName())
-                .replace("<x>", Integer.toString(location.getBlockX()))
-                .replace("<y>", Integer.toString(location.getBlockY()))
-                .replace("<z>", Integer.toString(location.getBlockZ())));
+        lang.send(sender, lang.get("Region.Set.Select.Position." + (p1 ? "First" : "Second")).replace("<w>", location.getWorld().getName()).replace("<x>", Integer.toString(location.getBlockX())).replace("<y>", Integer.toString(location.getBlockY())).replace("<z>", Integer.toString(location.getBlockZ())));
     }
 
     private void teleport(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
         if (!(sender instanceof Player)) {
             lang.send(sender, lang.get("General.Not A Player"));
             return;
@@ -727,11 +648,10 @@ public final class RegionSubCommand extends Command implements Helpable
             return;
         }
 
-        SoundRegion region = getRegion(args[2], sender, "playmoresounds.region.teleport.others");
+        var region = getRegion(args[2], sender, "playmoresounds.region.teleport.others");
 
         if (region == null) {
-            lang.send(sender, lang.get("Region.General.Error.Not Found." + (args[2].contains("-") ? "UUID" : "Name"))
-                    .replace("<label>", label).replace("<label2>", args[0]));
+            lang.send(sender, lang.get("Region.General.Error.Not Found." + (args[2].contains("-") ? "UUID" : "Name")).replace("<label>", label).replace("<label2>", args[0]));
             return;
         }
 
@@ -741,13 +661,13 @@ public final class RegionSubCommand extends Command implements Helpable
 
     private void wand(@NotNull CommandSender sender)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
         if (!(sender instanceof Player)) {
             lang.send(sender, lang.get("General.Not A Player"));
             return;
         }
 
-        ItemStack wand = RegionManager.getWand();
+        var wand = RegionManager.getWand();
 
         if (wand == null) {
             lang.send(sender, lang.get("Region.Wand.Error.Config"));
@@ -758,22 +678,32 @@ public final class RegionSubCommand extends Command implements Helpable
         lang.send(sender, lang.get("Region.Wand.Success"));
     }
 
-    private SoundRegion getRegion(String nameOrUUID, CommandSender sender, String permission)
+    /**
+     * Gets a region by its name or {@link UUID}.
+     *
+     * @param nameOrUUID The name or uuid of the region.
+     * @param sender     The owner of the region.
+     * @param permission The permission if this player is allowed to get other peoples regions.
+     * @return The region with this name or uuid, or null if not found.
+     */
+    private SoundRegion getRegion(@NotNull String nameOrUUID, @NotNull CommandSender sender, @Nullable String permission)
     {
-        SoundRegion region = null;
         UUID creator = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
+        if (creator == null) permission = null;
+        // Checking if nameOrUUID is an uuid since region names cannot contain '-'.
+        boolean checkUUID = nameOrUUID.contains("-");
 
-        for (SoundRegion soundRegion : RegionManager.getRegions()) {
-            if (permission == null || sender.hasPermission(permission) || Objects.equals(soundRegion.getCreator(), creator)) {
-                // Checking if nameOrUUID is an uuid since region names cannot contain '-'.
-                if (nameOrUUID.contains("-") ? soundRegion.getId().toString().equalsIgnoreCase(nameOrUUID)
-                        : soundRegion.getName().equalsIgnoreCase(nameOrUUID)) {
-                    region = soundRegion;
-                    break;
-                }
-            }
+        // Only players with the permission are allowed to get regions made by other players.
+        if (permission == null || sender.hasPermission(permission)) {
+            for (var rg : RegionManager.getRegions())
+                if (checkUUID ? rg.getId().toString().equalsIgnoreCase(nameOrUUID) : rg.getName().equalsIgnoreCase(nameOrUUID))
+                    return rg;
+        } else {
+            for (var rg : RegionManager.getRegions())
+                if (Objects.equals(rg.getCreator(), creator))
+                    if (checkUUID ? rg.getId().toString().equalsIgnoreCase(nameOrUUID) : rg.getName().equalsIgnoreCase(nameOrUUID))
+                        return rg;
         }
-
-        return region;
+        return null;
     }
 }

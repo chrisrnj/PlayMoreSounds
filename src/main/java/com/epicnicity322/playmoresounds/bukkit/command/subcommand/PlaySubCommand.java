@@ -21,7 +21,6 @@ package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
 import com.epicnicity322.epicpluginlib.bukkit.command.TabCompleteRunnable;
-import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandUtils;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
@@ -43,6 +42,12 @@ public final class PlaySubCommand extends Command implements Helpable
     public @NotNull CommandRunnable onHelp()
     {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Help.Play").replace("<label>", label));
+    }
+
+    @Override
+    public @Nullable String[] getAliases()
+    {
+        return new String[]{"playsound"};
     }
 
     @Override
@@ -79,24 +84,21 @@ public final class PlaySubCommand extends Command implements Helpable
     protected @Nullable TabCompleteRunnable getTabCompleteRunnable()
     {
         return (possibleCompletions, label, sender, args) -> {
-            switch (args.length) {
-                case 2:
-                    for (String soundType : SoundType.getPresentSoundNames()) {
-                        if (soundType.startsWith(args[1].toUpperCase(Locale.ROOT))) {
-                            possibleCompletions.add(soundType);
-                        }
+            if (args.length == 2) {
+                for (String soundType : SoundType.getPresentSoundNames()) {
+                    if (soundType.startsWith(args[1].toUpperCase(Locale.ROOT))) {
+                        possibleCompletions.add(soundType);
                     }
-                    break;
-                case 3:
-                    CommandUtils.addTargetTabCompletion(possibleCompletions, args[2], sender, "playmoresounds.play.others");
-                    break;
+                }
+            } else if (args.length == 3) {
+                CommandUtils.addTargetTabCompletion(possibleCompletions, args[2], sender, "playmoresounds.play.others");
             }
         };
     }
 
     private String getInvalidArgsMessage(String label, CommandSender sender, String[] args)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
         return lang.get("General.Invalid Arguments").replace("<label>", label)
                 .replace("<label2>", args[0]).replace("<args>", "<" +
                         lang.get("Play.Sound") + "> " + (sender instanceof Player ? "[" + lang.get("General.Player")
@@ -107,7 +109,7 @@ public final class PlaySubCommand extends Command implements Helpable
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
         HashSet<Player> targets = CommandUtils.getTargets(sender, args, 2,
                 getInvalidArgsMessage(label, sender, args), "playmoresounds.play.others");
 
@@ -152,10 +154,9 @@ public final class PlaySubCommand extends Command implements Helpable
                 }
         }
 
-        PlayableSound pmsSound = new PlayableSound(sound, SoundCategory.MASTER, volume, pitch, 0, null);
+        var pmsSound = new PlayableSound(sound, SoundCategory.MASTER, volume, pitch, 0, null);
 
-        for (Player player : targets)
-            pmsSound.play(player);
+        for (Player player : targets) pmsSound.play(player);
 
         lang.send(sender, lang.get("Play.Success.Default").replace("<sound>", sound).replace(
                 "<player>", who).replace("<volume>", Float.toString(volume)).replace(

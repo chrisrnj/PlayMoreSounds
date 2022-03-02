@@ -42,9 +42,8 @@ public final class ListSubCommand extends Command implements Helpable
     private static @NotNull HashMap<Integer, ArrayList<String>> chatSoundPages;
 
     static {
-        Runnable updater = () -> {
-            chatSoundPages = PMSHelper.splitIntoPages(SoundType.getPresentSoundNames(), Configurations.CONFIG.getConfigurationHolder().getConfiguration().getNumber("List.Chat.Max Per Page").orElse(10).intValue());
-        };
+        Runnable updater = () -> chatSoundPages = PMSHelper.splitIntoPages(SoundType.getPresentSoundNames(), Configurations.CONFIG.getConfigurationHolder().getConfiguration().getNumber("List.Chat.Max Per Page").orElse(10).intValue());
+
         updater.run();
         PlayMoreSounds.onEnable(updater);
         PlayMoreSounds.onReload(updater);
@@ -115,50 +114,38 @@ public final class ListSubCommand extends Command implements Helpable
         if (gui) {
             ListInventory.getListInventory(page).openInventory((Player) sender);
         } else {
-            int soundsPerPage = Configurations.CONFIG.getConfigurationHolder().getConfiguration().getNumber("List.Chat.Max Per Page").orElse(10).intValue();
-
-            if (soundsPerPage < 1)
-                soundsPerPage = 1;
-
-            HashMap<Integer, ArrayList<String>> soundPages = soundPagesCache.get(soundsPerPage);
-            if (soundPages == null) {
-                soundPages = PMSHelper.splitIntoPages(SoundType.getPresentSoundNames(), soundsPerPage);
-
-                soundPagesCache.put(soundsPerPage, soundPages);
-            }
-
-            if (page > soundPages.size()) {
+            if (page > chatSoundPages.size()) {
                 lang.send(sender, lang.get("List.Chat.Error.Not Exists").replace("<page>",
-                        Long.toString(page)).replace("<totalpages>", Integer.toString(soundPages.size())));
+                        Integer.toString(page)).replace("<totalpages>", Integer.toString(chatSoundPages.size())));
                 return;
             }
 
-            lang.send(sender, lang.get("List.Chat.Header").replace("<page>", Long.toString(page))
-                    .replace("<totalpages>", Integer.toString(soundPages.size())));
+            lang.send(sender, lang.get("List.Chat.Header").replace("<page>", Integer.toString(page))
+                    .replace("<totalpages>", Integer.toString(chatSoundPages.size())));
 
+            var color = lang.get("List.Chat.Color", "&e");
+            var alternateColor = lang.get("List.Chat.Alternate Color", "&8");
+            var defaultSeparator = lang.get("List.Chat.Separator", ", ");
+            var tooltip = lang.get("List.Chat.Sound Tooltip").replace("&", "§");
             boolean alternatePrefix = false;
-            int count = 1;
-            TextComponent text = new TextComponent("");
-            StringBuilder data = new StringBuilder();
-            ArrayList<String> soundList = soundPages.get(page);
-            String color = lang.get("List.Chat.Color", "&e");
-            String alternateColor = lang.get("List.Chat.Alternate Color", "&8");
-            String defaultSeparator = lang.get("List.Chat.Separator", ", ");
-            String tooltip = lang.get("List.Chat.Sound Tooltip").replace("&", "§");
 
-            for (String sound : soundList) {
+            var text = new TextComponent("");
+            var data = new StringBuilder();
+            ArrayList<String> soundList = chatSoundPages.get(page);
+
+            for (int i = 0; i < soundList.size(); ++i) {
+                String sound = soundList.get(i);
                 String prefix;
 
-                if (alternatePrefix)
+                if (alternatePrefix = !alternatePrefix) {
                     prefix = alternateColor;
-                else
+                } else {
                     prefix = color;
+                }
 
-                String separator = defaultSeparator;
+                String separator = i + 1 == soundList.size() ? "" : defaultSeparator;
 
-                if (count++ == soundList.size())
-                    separator = "";
-
+                // Players have fancy message sent on chat, with hover and click events.
                 if (player) {
                     TextComponent fancySound = new TextComponent((prefix + sound).replace("&", "§"));
 
@@ -170,8 +157,6 @@ public final class ListSubCommand extends Command implements Helpable
                 } else {
                     data.append(prefix).append(sound).append(separator);
                 }
-
-                alternatePrefix = !alternatePrefix;
             }
 
             if (player)
@@ -179,11 +164,11 @@ public final class ListSubCommand extends Command implements Helpable
             else
                 lang.send(sender, false, data.toString());
 
-            if (page != soundPages.size()) {
-                String footer = lang.get("List.Chat.Footer").replace("<label>", label).replace("<page>", Long.toString(page + 1));
+            if (page != chatSoundPages.size()) {
+                var footer = lang.get("List.Chat.Footer").replace("<label>", label).replace("<page>", Integer.toString(page + 1));
 
                 if (player) {
-                    TextComponent fancyFooter = new TextComponent(footer.replace("&", "§"));
+                    var fancyFooter = new TextComponent(footer.replace("&", "§"));
 
                     fancyFooter.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pms list " + (page + 1)));
                     ((Player) sender).spigot().sendMessage(fancyFooter);

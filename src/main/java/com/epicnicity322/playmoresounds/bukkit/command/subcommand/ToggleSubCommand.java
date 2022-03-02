@@ -20,7 +20,6 @@ package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
 
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
-import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandUtils;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
@@ -59,7 +58,7 @@ public final class ToggleSubCommand extends Command implements Helpable
 
     private String getInvalidArgsMessage(String label, CommandSender sender, String[] args)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
         return lang.get("General.Invalid Arguments")
                 .replace("<label>", label).replace("<label2>", args[0])
                 .replace("<args>", (sender instanceof Player ?
@@ -70,9 +69,9 @@ public final class ToggleSubCommand extends Command implements Helpable
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
         Boolean on = null;
-        String invalidArgsMessage = getInvalidArgsMessage(label, sender, args);
+        var invalidArgsMessage = getInvalidArgsMessage(label, sender, args);
         HashSet<Player> targets = CommandUtils.getTargets(sender, args, 1, invalidArgsMessage,
                 "playmoresounds.toggle.others");
 

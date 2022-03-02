@@ -20,9 +20,10 @@ package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
 
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
-import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
+import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.epicpluginlib.core.util.StringUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -71,7 +72,7 @@ public final class ConfirmSubCommand extends Command implements Helpable
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
         LinkedHashMap<Runnable, String> confirmations;
 
         if (pendingConfirmations == null || (confirmations = pendingConfirmations.get(sender)) == null || confirmations.isEmpty()) {
@@ -86,7 +87,7 @@ public final class ConfirmSubCommand extends Command implements Helpable
                 lang.send(sender, lang.get("Confirm.List.Header"));
 
                 for (Map.Entry<Runnable, String> confirmation : confirmations.entrySet())
-                    lang.send(sender, false, lang.get("Confirm.List.Confirmation").replace("<id>", Long.toString(id++))
+                    lang.send(sender, false, lang.get("Confirm.List.Confirmation").replace("<id>", Integer.toString(id++))
                             .replace("<description>", confirmation.getValue()));
 
                 return;
@@ -111,17 +112,22 @@ public final class ConfirmSubCommand extends Command implements Helpable
 
         int i = 1;
 
-        for (Runnable runnable : new LinkedHashSet<>(confirmations.keySet())) {
+        for (Map.Entry<Runnable, String> confirmation : new LinkedHashSet<>(confirmations.entrySet())) {
             if (i++ == id) {
-                runnable.run();
-                confirmations.remove(runnable);
-                i = 0;
-                break;
+                var r = confirmation.getKey();
+                var desc = confirmation.getValue();
+
+                try {
+                    r.run();
+                } catch (Throwable t) {
+                    PlayMoreSounds.getConsoleLogger().log("Something went wrong when trying to confirm \"" + desc + "\" for " + sender.getName() + ".", ConsoleLogger.Level.WARN);
+                    PlayMoreSoundsCore.getErrorHandler().report(t, "Confirm Description: \"" + desc + "\"\nOn Confirm for " + sender.getName() + " Error:");
+                }
+                confirmations.remove(r);
+                return;
             }
         }
 
-        if (i != 0) {
-            lang.send(sender, lang.get("Confirm.Error.Not Found").replace("<id>", args[1]).replace("<label>", label));
-        }
+        lang.send(sender, lang.get("Confirm.Error.Not Found").replace("<id>", args[1]).replace("<label>", label));
     }
 }

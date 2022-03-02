@@ -20,7 +20,6 @@ package com.epicnicity322.playmoresounds.bukkit.command;
 
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandManager;
-import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.subcommand.*;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
@@ -35,22 +34,14 @@ public final class CommandLoader
 
     static {
         PlayMoreSounds.onInstance(() -> {
-            PlayMoreSounds plugin = PlayMoreSounds.getInstance();
-            MessageSender lang = PlayMoreSounds.getLanguage();
+            var plugin = PlayMoreSounds.getInstance();
+            var lang = PlayMoreSounds.getLanguage();
 
             commands.add(new AddonsSubCommand());
             commands.add(new CheckSubCommand());
             commands.add(new ConfirmSubCommand());
             commands.add(new HelpSubCommand());
-            //commands.add(new FinderSubCommand());
-
-            // List command requires the server to run spigot.
-            try {
-                Class.forName("net.md_5.bungee.api.chat.BaseComponent");
-                commands.add(new ListSubCommand());
-            } catch (ClassNotFoundException ignored) {
-            }
-
+            commands.add(new ListSubCommand());
             commands.add(new PlaySubCommand());
             commands.add(new RegionSubCommand(plugin));
             commands.add(new ReloadSubCommand());

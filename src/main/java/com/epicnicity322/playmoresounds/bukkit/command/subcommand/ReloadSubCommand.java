@@ -20,7 +20,6 @@ package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
 
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
-import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
@@ -33,7 +32,6 @@ import java.util.Collection;
 
 public final class ReloadSubCommand extends Command implements Helpable
 {
-
     @Override
     public @NotNull CommandRunnable onHelp()
     {
@@ -67,7 +65,7 @@ public final class ReloadSubCommand extends Command implements Helpable
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
         Collection<Exception> exceptions = PlayMoreSounds.reload().values();
 
         if (exceptions.isEmpty()) {
@@ -79,7 +77,7 @@ public final class ReloadSubCommand extends Command implements Helpable
                 PlayMoreSounds.getConsoleLogger().log(lang.get("Reload.Error"), ConsoleLogger.Level.ERROR);
             }
 
-            for (Exception exception : exceptions) {
+            for (var exception : exceptions) {
                 PlayMoreSoundsCore.getErrorHandler().report(exception, "Reload Config Exception:");
             }
         }

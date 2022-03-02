@@ -26,6 +26,7 @@ You can install or update addons through the command /pms addons.
 
 Regions:
 *- Native region sounds were changed severely to keep up with Regions Handler and cache region sounds on load.
+- Players were able to set a description on 'create' command, even if they didn't have permission 'playmoresounds.region.description'.
 
 Removals:
 - Removed Relative Location option: This option would make some impact on performance even when you didn't use it, so it was removed because the majority of users don't use it.
