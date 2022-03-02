@@ -18,12 +18,12 @@
 
 package com.epicnicity322.playmoresounds.core.config;
 
+import com.epicnicity322.epicpluginlib.core.EpicPluginLib;
 import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
 import com.epicnicity322.epicpluginlib.core.config.ConfigurationLoader;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
-import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,8 +39,6 @@ public enum Configurations
             "# Biome list: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/Biome.html\n" +
             "#\n" +
             "# Sample:\n" +
-            "# (Take a note that this is a sample and the sounds and biomes may not be available on your MC\n" +
-            "# version.)\n" +
             "#\n" +
             "#world: # The world name, replace 'world' with the name of the world you want to play the sound.\n" +
             "#  PLAINS: # The biome name.\n" +
@@ -58,10 +56,6 @@ public enum Configurations
             "#            Permission Required: ''\n" +
             "#            Permission To Listen: ''\n" +
             "#            Radius: 0.0\n" +
-            "#            Relative Location:\n" +
-            "#              FRONT_BACK: 0.0\n" +
-            "#              LEFT_RIGHT: 0.0\n" +
-            "#              UP_DOWN: 0.0\n" +
             "#          Pitch: 1.0\n" +
             "#          Sound: BLOCK_NOTE_BLOCK_PLING\n" +
             "#          Volume: 10.0\n" +
@@ -77,10 +71,6 @@ public enum Configurations
             "#            Permission Required: ''\n" +
             "#            Permission To Listen: ''\n" +
             "#            Radius: 0.0\n" +
-            "#            Relative Location:\n" +
-            "#              FRONT_BACK: 0.0\n" +
-            "#              LEFT_RIGHT: 0.0\n" +
-            "#              UP_DOWN: 0.0\n" +
             "#          Pitch: 1.0\n" +
             "#          Sound: BLOCK_NOTE_BLOCK_BASS\n" +
             "#          Volume: 10.0\n" +
@@ -102,10 +92,6 @@ public enum Configurations
             "#            Permission Required: ''\n" +
             "#            Permission To Listen: ''\n" +
             "#            Radius: 0.0\n" +
-            "#            Relative Location:\n" +
-            "#              FRONT_BACK: 0.0\n" +
-            "#              LEFT_RIGHT: 0.0\n" +
-            "#              UP_DOWN: 0.0\n" +
             "#          Pitch: 1.0\n" +
             "#          Sound: BLOCK_NOTE_BLOCK_BASS\n" +
             "#          Volume: 10.0\n" +
@@ -403,9 +389,6 @@ public enum Configurations
 //            "# All playing sounds will be logged to console with their location.\n" +
 //            "Debug: false\n" +
 //            "\n" +
-            "# Should the sounds disabled by \"/pms toggle\" be re-enabled on login?\n" +
-            "Enable Sounds On Login: false\n" +
-            "\n" +
             "# A simple halloween event, disable if you find it annoying.\n" +
             "Halloween Event: true\n" +
             "\n" +
@@ -538,15 +521,12 @@ public enum Configurations
             "        Material: GREEN_WOOL\n" +
             "        Glowing: false", StaticFields.version4_1_2),
     DEATH_TYPES(StaticFields.sounds.resolve("death types.yml"), "# Set a sound to play when a player die for a specific cause of death.\n" +
-            "# Warning >> This setting only works for 1.14+!\n" +
             "#\n" +
             "# To set a sound, just create a configuration section with the name of the cause of\n" +
             "# death or just copy the sample below.\n" +
             "# Causes of death: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html\n" +
             "#\n" +
             "# Sample:\n" +
-            "# (Take a note that this is a sample and the sounds and causes of death may not be\n" +
-            "# available on your MC version.)\n" +
             "#\n" +
             "#MAGIC:\n" +
             "#  Enabled: true\n" +
@@ -559,9 +539,6 @@ public enum Configurations
             "#      Options:\n" +
             "#        Permission Required: 'vip.customdeathsound.magic'\n" +
             "#        Radius: 5.5\n" +
-            "#        Relative Location:\n" +
-            "#          BACK: 2.0\n" +
-            "#          UP: 1.0\n" +
             "#      Pitch: 1.0\n" +
             "#      Sound: ENTITY_WITHER_DEATH\n" +
             "#      Volume: 1.0\n" +
@@ -586,8 +563,6 @@ public enum Configurations
             "# Game mode list: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/GameMode.html\n" +
             "#\n" +
             "# Sample:\n" +
-            "# (Take a note that this is a sample and the sounds and game modes may not be available\n" +
-            "# on your MC version.)\n" +
             "#\n" +
             "#CREATIVE: # The gamemode that you changed to.\n" +
             "#  Cancellable: true\n" +
@@ -2182,8 +2157,6 @@ public enum Configurations
     REGIONS(StaticFields.sounds.resolve("regions.yml"), "# Set a sound to play when you enter, exit or stand on a specific region.\n" +
             "#\n" +
             "# Sample:\n" +
-            "# (Take a note that this is a sample and the sounds may not be available\n" +
-            "# on your MC version.)\n" +
             "#\n" +
             "#PlayMoreSounds: # The region plugin.\n" +
             "#  Spawn: # The region name, replace 'Spawn' with the name of your region.\n" +
@@ -2262,7 +2235,6 @@ public enum Configurations
             "    '1':                                                                                                  #\n" +
             "      # The category this sound will be played. You can find available categories in file                 #\n" +
             "      #'available sounds.txt'.                                                                            #\n" +
-            (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.11")) <= 0 ? "      # It looks like this version does not support this feature. This option will be ignored.            #\n" : "") +
             "      Category: MASTER                                                                                    #\n" +
             "      # This is a delay in ticks the sound will wait before playing. Set to 0 for no delay.               #\n" +
             "      Delay: 0                                                                                            #\n" +
@@ -2288,15 +2260,6 @@ public enum Configurations
             "        # If you want the sound to play to everyone online in the server, set this to -1.                 #\n" +
             "        # If you want the sound to play to everyone in the event's world, set this to -2.                 #\n" +
             "        Radius: 15.2                                                                                      #\n" +
-            "        # A location is added to the event's final location. This will always respect where the player is #\n" +
-            "        #looking, i.e. if you add blocks to right the sound will be played to the player's right ear.     #\n" +
-            "        # Relative location option consumes a lot of memory, I recommend you leave it disabled if your    #\n" +
-            "        #server has a lot of players.                                                                     #\n" +
-            "        # Set negative to add blocks to the opposite direction, for example:                              #\n" +
-            "        Relative Location:                                                                                #\n" +
-            "          FRONT_BACK: 1.3 # This will be played relative to the back.                                     #\n" +
-            "          RIGHT_LEFT: -0.01 # This will be played relative to the right.                                  #\n" +
-            "          UP_DOWN: 0.13 # This will be played relative to up.                                             #\n" +
             "      # What the sound pitch is, values greater than 2 have no difference.                                #\n" +
             "      Pitch: 1.0                                                                                          #\n" +
             "      # You can set this to either a Sound Type or a Custom Sound.                                        #\n" +
@@ -2304,8 +2267,8 @@ public enum Configurations
             "      #custom sound you set in your resource pack's sounds.json.                                          #\n" +
             "      # PlayMoreSounds' sound types are different than bukkit's sound types, PlayMoreSounds' sound types  #\n" +
             "      #are always the same no matter which version of the server you are running, so sounds have the same #\n" +
-            "      #names in 1.7 to 1.18.                                                                              #\n" +
-            "      # You can find a list of available sounds for the version " + PlayMoreSoundsCore.getServerVersion() + " in the file 'available sounds.txt'." + PMSHelper.repeatChar(' ', 6 - PlayMoreSoundsCore.getServerVersion().toString().length()) + "#\n" +
+            "      #names in all versions.                                                                             #\n" +
+            "      # You can find a list of available sounds for the version " + EpicPluginLib.Platform.getVersion() + " in the file 'available sounds.txt'." + PMSHelper.repeatChar(' ', 6 - EpicPluginLib.Platform.getVersion().toString().length()) + "#\n" +
             "      Sound: ENTITY_ENDERMAN_TELEPORT                                                                     #\n" +
             "      # The volume of the sound. The way minecraft does it is by distance, volume 1 = ~15 blocks.         #\n" +
             "      # If you are playing region sounds you might want to set this to a big number so it plays with the  #\n" +
@@ -2386,7 +2349,7 @@ public enum Configurations
             "# When a player edits or creates a book using a book and quill.\n" +
             "# This sound is cancellable.\n" +
             "Edit Book:\n" +
-            "  Enabled: " + (SoundType.ITEM_ARMOR_EQUIP_LEATHER.getSound().isPresent() ? "true\n" : "false # ITEM_ARMOR_EQUIP_LEATHER is not available in " + PlayMoreSoundsCore.getServerVersion() + " please choose another sound.\n") +
+            "  Enabled: true\n" +
             "  Cancellable: false\n" +
             "  Sounds:\n" +
             "    '1':\n" +
@@ -2465,7 +2428,7 @@ public enum Configurations
             "# When a player closes an inventory.\n" +
             "# This sound is not cancellable.\n" +
             "Inventory Close:\n" +
-            "  Enabled: " + (SoundType.UI_TOAST_OUT.getSound().isPresent() ? "true\n" : "false # UI_TOAST_OUT is not available in " + PlayMoreSoundsCore.getServerVersion() + " please choose another sound.\n") +
+            "  Enabled: true\n" +
             "  Sounds:\n" +
             "    '1':\n" +
             "      Pitch: 2.0\n" +
@@ -2561,7 +2524,7 @@ public enum Configurations
             "# When a nether portal is opened.\n" +
             "# This sound is cancellable.\n" +
             "Portal Create:\n" +
-            "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.14")) < 0 ? "false # This event only supports 1.14+ and you are on " + PlayMoreSoundsCore.getServerVersion() + "\n" : "true\n") +
+            "  Enabled: true\n" +
             "  Cancellable: true\n" +
             "  Sounds:\n" +
             "    '1':\n" +
@@ -2639,7 +2602,7 @@ public enum Configurations
             "# When the player moves their current item to their off hand.\n" +
             "# This sound is cancellable.\n" +
             "Swap Hands:\n" +
-            "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.9.2")) < 0 ? "false # This event only supports 1.9.2+ and you are on " + PlayMoreSoundsCore.getServerVersion() + "\n" : "true\n") +
+            "  Enabled: true\n" +
             "  Cancellable: true\n" +
             "  Sounds:\n" +
             "    '1':\n" +
@@ -2666,7 +2629,7 @@ public enum Configurations
             "# When it starts raining on the world.\n" +
             "# This sound is cancellable.\n" +
             "Weather Rain:\n" +
-            "  Enabled: " + (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.9")) < 0 ? "false # ITEM_ELYTRA_FLYING is not available in " + PlayMoreSoundsCore.getServerVersion() + " please choose another sound.\n" : "true\n") +
+            "  Enabled: true\n" +
             "  Cancellable: true\n" +
             "  Sounds:\n" +
             "    '1':\n" +
@@ -2719,7 +2682,7 @@ public enum Configurations
     private static final @NotNull ConfigurationLoader configurationLoader = new ConfigurationLoader();
 
     static {
-        for (Configurations configuration : Configurations.values()) {
+        for (var configuration : Configurations.values()) {
             configurationLoader.registerConfiguration(configuration.configurationHolder, configuration.minVersion, PlayMoreSoundsVersion.getVersion());
         }
     }
