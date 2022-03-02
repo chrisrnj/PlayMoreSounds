@@ -323,8 +323,8 @@ public final class PlayMoreSounds extends JavaPlugin
             addonManager.startAddons(StartTime.BEFORE_COMMANDS);
             CommandLoader.getCommands();
             logger.log("&6-> &eCommands loaded.");
+            success = true;
         } catch (Exception e) {
-            success = false;
             errorHandler.report(e, "PMS Loading Error (Unknown):");
         } finally {
             if (success) {
