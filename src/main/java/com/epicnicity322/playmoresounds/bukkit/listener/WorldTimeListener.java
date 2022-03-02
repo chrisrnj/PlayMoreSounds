@@ -45,40 +45,40 @@ public final class WorldTimeListener
 
     public static void load()
     {
-        Configuration worldTimes = Configurations.WORLD_TIME_TRIGGERS.getConfigurationHolder().getConfiguration();
+        var worldTimes = Configurations.WORLD_TIME_TRIGGERS.getConfigurationHolder().getConfiguration();
 
+        // Creeper sounds throughout the day to scare players on halloween.
         if (PMSHelper.halloweenEvent())
             worldTimes = getHalloweenWorldTimeTriggersConfig();
 
         for (World world : Bukkit.getWorlds()) {
-            if (runningWorlds.containsKey(world)) {
-                runningWorlds.get(world).cancel();
-                runningWorlds.remove(world);
+            BukkitTask removed = runningWorlds.remove(world);
+
+            if (removed != null) {
+                removed.cancel();
             }
 
-            ConfigurationSection worldSection = worldTimes.getConfigurationSection(world.getName());
+            var worldSection = worldTimes.getConfigurationSection(world.getName());
 
             if (worldSection != null) {
-                HashMap<Long, ConfigurationSection> times = new HashMap<>();
+                var times = new HashMap<Long, PlayableRichSound>();
 
                 // Filtering the nodes of worldSection to get only configuration sections that are numeric.
                 worldSection.getNodes().forEach((key, value) -> {
                     // This exception will only be caught if the key is a long greater than Long#MAX_VALUE.
                     try {
-                        if (StringUtils.isNumeric(key) && value instanceof ConfigurationSection)
-                            times.put(Long.parseLong(key), (ConfigurationSection) value);
+                        if (StringUtils.isNumeric(key) && value instanceof ConfigurationSection section)
+                            times.put(Long.parseLong(key), new PlayableRichSound(section));
                     } catch (Exception ignored) {
                     }
                 });
 
                 runningWorlds.put(world, Bukkit.getScheduler().runTaskTimer(PlayMoreSounds.getInstance(), () -> {
                     long time = world.getTime();
+                    PlayableRichSound sound = times.get(time);
 
-                    if (times.containsKey(time)) {
-                        ConfigurationSection timeSection = times.get(time);
-
-                        new PlayableRichSound(timeSection).play(world.getSpawnLocation());
-                    }
+                    if (sound != null)
+                        sound.play(world.getSpawnLocation());
                 }, 0, 1));
             }
         }
@@ -86,9 +86,9 @@ public final class WorldTimeListener
 
     private static Configuration getHalloweenWorldTimeTriggersConfig()
     {
-        Configuration worldTimes = new Configuration(new YamlConfigurationLoader());
+        var worldTimes = new Configuration(new YamlConfigurationLoader());
 
-        for (World world : Bukkit.getWorlds()) {
+        for (var world : Bukkit.getWorlds()) {
             if (world.getEnvironment() == World.Environment.NORMAL) {
                 for (int i = 0; i < 6; ++i) {
                     int randomTime = random.nextInt(24001);
@@ -98,6 +98,7 @@ public final class WorldTimeListener
                     worldTimes.set(world.getName() + "." + randomTime + ".Sounds.0.Sound", "ENTITY_CREEPER_PRIMED");
                     worldTimes.set(world.getName() + "." + randomTime + ".Sounds.0.Volume", 10);
                     worldTimes.set(world.getName() + "." + randomTime + ".Sounds.0.Pitch", 1);
+                    // Relative Location in case the user has Extra Options addon.
                     worldTimes.set(world.getName() + "." + randomTime + ".Sounds.0.Options.Relative Location.BACK", 2);
                     worldTimes.set(world.getName() + "." + randomTime + ".Sounds.0.Options.Radius", -2);
                 }
