@@ -20,15 +20,12 @@ package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
 
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
-import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.inventory.ListInventory;
-import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
@@ -39,15 +36,18 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.TreeSet;
 
 public final class ListSubCommand extends Command implements Helpable
 {
-    private static final @NotNull HashMap<Integer, HashMap<Integer, ArrayList<String>>> soundPagesCache = new HashMap<>();
+    private static @NotNull HashMap<Integer, ArrayList<String>> chatSoundPages;
 
     static {
-        // Clear cache on disable.
-        PlayMoreSounds.onDisable(soundPagesCache::clear);
+        Runnable updater = () -> {
+            chatSoundPages = PMSHelper.splitIntoPages(SoundType.getPresentSoundNames(), Configurations.CONFIG.getConfigurationHolder().getConfiguration().getNumber("List.Chat.Max Per Page").orElse(10).intValue());
+        };
+        updater.run();
+        PlayMoreSounds.onEnable(updater);
+        PlayMoreSounds.onReload(updater);
     }
 
     @Override
@@ -75,11 +75,10 @@ public final class ListSubCommand extends Command implements Helpable
     }
 
     // Using BaseComponent[] on HoverEvent is deprecated on newer versions of spigot but is necessary on older ones.
-    @SuppressWarnings(value = "deprecation")
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
         boolean player = sender instanceof Player;
         boolean gui = player && sender.hasPermission("playmoresounds.list.gui");
         int page = 1;
@@ -123,7 +122,7 @@ public final class ListSubCommand extends Command implements Helpable
 
             HashMap<Integer, ArrayList<String>> soundPages = soundPagesCache.get(soundsPerPage);
             if (soundPages == null) {
-                soundPages = PMSHelper.splitIntoPages(new TreeSet<>(SoundType.getPresentSoundNames()), soundsPerPage);
+                soundPages = PMSHelper.splitIntoPages(SoundType.getPresentSoundNames(), soundsPerPage);
 
                 soundPagesCache.put(soundsPerPage, soundPages);
             }
@@ -163,11 +162,7 @@ public final class ListSubCommand extends Command implements Helpable
                 if (player) {
                     TextComponent fancySound = new TextComponent((prefix + sound).replace("&", "§"));
 
-                    if (VersionUtils.hasHoverContentApi())
-                        fancySound.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(tooltip.replace("<sound>", sound))));
-                    else
-                        fancySound.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(tooltip.replace("<sound>", sound)).create()));
-
+                    fancySound.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(tooltip.replace("<sound>", sound))));
                     fancySound.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pms play " + sound + " " + sender.getName()));
 
                     text.addExtra(fancySound);

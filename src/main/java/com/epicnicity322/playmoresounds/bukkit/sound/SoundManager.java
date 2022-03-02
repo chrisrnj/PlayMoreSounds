@@ -19,8 +19,6 @@
 package com.epicnicity322.playmoresounds.bukkit.sound;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.util.UniversalVersionMethods;
-import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.sound.SoundOptions;
 import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
@@ -29,19 +27,17 @@ import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.UUID;
 
 public final class SoundManager
 {
-    private static final @NotNull BukkitScheduler scheduler = Bukkit.getScheduler();
-    private static final @NotNull HashSet<UUID> disabledSoundsPlayers = new HashSet<>();
+    private static final @NotNull HashMap<UUID, Boolean> soundStateCache = new HashMap<>();
     private static NamespacedKey soundState;
 
     private SoundManager()
@@ -52,29 +48,25 @@ public final class SoundManager
      * Enables or Disables sounds of a {@link Player}.
      * <p>
      * Sounds that have the option {@link SoundOptions#ignoresDisabled()} will be played anyway.
-     * If bukkit is running on 1.14+ the sounds will persist a server restart.
      *
      * @param player The player to toggle the sounds.
      * @param state  The state of sounds: Enabled or Disabled.
-     * @throws IllegalStateException If the server is running on 1.14+ and PlayMoreSounds is disabled.
+     * @throws IllegalStateException If PlayMoreSounds is not instantiated yet.
      */
     public static void toggleSoundsState(@NotNull Player player, boolean state)
     {
-        if (VersionUtils.hasPersistentData()) {
-            if (soundState == null) {
-                if (PlayMoreSounds.getInstance() == null)
-                    throw new IllegalStateException("PlayMoreSounds must be loaded to use this method.");
+        var uuid = player.getUniqueId();
 
-                soundState = new NamespacedKey(PlayMoreSounds.getInstance(), "sound_state");
-            }
+        soundStateCache.putIfAbsent(uuid, state);
 
-            player.getPersistentDataContainer().set(soundState, PersistentDataType.INTEGER, state ? 1 : 0);
-        } else {
-            if (state)
-                disabledSoundsPlayers.remove(player.getUniqueId());
-            else
-                disabledSoundsPlayers.add(player.getUniqueId());
+        if (soundState == null) {
+            if (PlayMoreSounds.getInstance() == null)
+                throw new IllegalStateException("PlayMoreSounds must be loaded to use this method.");
+
+            soundState = new NamespacedKey(PlayMoreSounds.getInstance(), "sound_state");
         }
+
+        player.getPersistentDataContainer().set(soundState, PersistentDataType.INTEGER, state ? 1 : 0);
     }
 
     /**
@@ -82,73 +74,68 @@ public final class SoundManager
      *
      * @param player The player to get the state.
      * @return If sounds are enabled or disabled for this player.
-     * @throws IllegalStateException If the server is running on 1.14+ and PlayMoreSounds is disabled.
+     * @throws IllegalStateException If PlayMoreSounds is not instantiated yet.
      */
     public static boolean getSoundsState(@NotNull Player player)
     {
-        if (VersionUtils.hasPersistentData()) {
-            if (soundState == null) {
-                PlayMoreSounds plugin = PlayMoreSounds.getInstance();
+        var uuid = player.getUniqueId();
+        Boolean state = soundStateCache.get(uuid);
 
-                if (plugin == null)
+        if (state == null) {
+            if (soundState == null) {
+                if (PlayMoreSounds.getInstance() == null)
                     throw new IllegalStateException("PlayMoreSounds must be loaded to use this method.");
 
-                soundState = new NamespacedKey(plugin, "sound_state");
+                soundState = new NamespacedKey(PlayMoreSounds.getInstance(), "sound_state");
             }
 
-            return player.getPersistentDataContainer().getOrDefault(soundState, PersistentDataType.INTEGER, 1) == 1;
+            boolean persistentState = player.getPersistentDataContainer().getOrDefault(soundState, PersistentDataType.INTEGER, 1) == 1;
+            soundStateCache.put(uuid, persistentState);
+            return persistentState;
         } else {
-            return !disabledSoundsPlayers.contains(player.getUniqueId());
+            return state;
         }
     }
 
     /**
-     * Stops the currently playing sounds. If the server is running 1.10.2+, {@link Player#stopSound(String)} method is
-     * used, if the server is running an older version, an old glitch of playing lots of sounds is used to stop the sounds.
-     * If the server is running a version older than 1.10.2, you can not specify the sounds to stop as all
-     * minecraft/resource pack sounds are stopped.
+     * Stops currently playing sounds to the player.
+     * <p>
+     * Sounds with invalid namespaced keys which {@link PMSHelper#isNamespacedKey(String)} returns false, are ignored.
      *
-     * @param player The player to stop the sound.
-     * @param sounds The sounds to stop, null if you want to stop all minecraft sounds.
+     * @param player The player to stop the sounds.
+     * @param sounds The sounds to stop or null if you want to stop all minecraft sounds, custom sounds are not supported for null.
      * @param delay  The delay to wait before stopping the sounds.
      * @throws IllegalStateException If PlayMoreSounds was not instantiated by bukkit yet.
      */
     public static void stopSounds(@NotNull Player player, @Nullable HashSet<String> sounds, long delay)
     {
-        PlayMoreSounds main = PlayMoreSounds.getInstance();
-
-        if (main == null)
+        if (PlayMoreSounds.getInstance() == null)
             throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
         if (sounds != null)
             sounds.removeIf(sound -> !PMSHelper.isNamespacedKey(sound));
 
-        scheduler.runTaskLater(main, () -> {
-            if (VersionUtils.hasStopSound())
-                if (sounds == null)
-                    for (SoundType toStop : SoundType.getPresentSoundTypes())
-                        // Sounds of #getSoundTypes() are always present.
-                        player.stopSound(toStop.getSound().orElse(""));
-                else
-                    for (String sound : sounds)
-                        player.stopSound(sound);
-            else {
-                // ENTITY_CHICKEN_HURT is always present.
-                String chickenSound = SoundType.ENTITY_CHICKEN_HURT.getSound().orElse("");
+        Runnable stopper = () -> {
+            if (sounds == null)
+                for (SoundType toStop : SoundType.getPresentSoundTypes())
+                    // Sounds of #getSoundTypes() are always present.
+                    player.stopSound(toStop.getSound().orElse(""));
+            else
+                for (String sound : sounds)
+                    player.stopSound(sound);
+        };
 
-                for (int i = 0; i < 70; ++i)
-                    player.playSound(player.getLocation(), chickenSound, 1.0E-4f, 1.0f);
-            }
-        }, delay);
+        if (delay <= 0) stopper.run();
+        else Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), stopper, delay);
     }
 
     /**
-     * Gets all players inside a radius range.
+     * Gets a collection of players inside a radius range.
      * <ul>
-     * <li>Radius < -1 - All players in the world.</li>
-     * <li>Radius < 0  - All players in the server.</li>
-     * <li>Radius > 0  - All players that have their location's distance compared by {@link Location#distanceSquared(Location)} lower than the {@param radius}.</li>
-     * <li>Radius = 0  - Empty.</li>
+     * <li>Radius == -2 - All players in the world.</li>
+     * <li>Radius == -1 - All players in the server.</li>
+     * <li>Radius > 0   - All players that have their location's distance in blocks lower than the {@param radius}.</li>
+     * <li>Otherwise    - Empty.</li>
      * </ul>
      *
      * @param radius   The range of blocks to get the players.
@@ -157,21 +144,22 @@ public final class SoundManager
      */
     public static @NotNull Collection<Player> getInRange(double radius, @NotNull Location location)
     {
-        if (radius < -1) {
-            return location.getWorld().getPlayers();
-        } else if (radius < 0) {
-            // Creating new HashSet because Bukkit#getOnlinePlayers is not immutable.
-            return new HashSet<>(UniversalVersionMethods.getOnlinePlayers());
-        } else if (radius != 0) {
-            HashSet<Player> players = new HashSet<>();
+        if (radius > 0) {
+            radius = square(radius);
+            var inRadius = new HashSet<Player>();
 
-            for (Player player : location.getWorld().getPlayers()) {
+            for (var player : location.getWorld().getPlayers()) {
                 if (distance(location, player.getLocation()) <= radius) {
-                    players.add(player);
+                    inRadius.add(player);
                 }
             }
 
-            return players;
+            return inRadius;
+        } else if (radius == -1) {
+            // Creating new HashSet because Bukkit#getOnlinePlayers is not immutable.
+            return new HashSet<>(Bukkit.getOnlinePlayers());
+        } else if (radius == -2) {
+            return location.getWorld().getPlayers();
         } else {
             return new HashSet<>();
         }
@@ -186,47 +174,5 @@ public final class SoundManager
     private static double square(double value)
     {
         return value * value;
-    }
-
-    /**
-     * Adds blocks to up, down, right, left, front, back from original sound location based on pitch and yaw.
-     */
-    static @NotNull Location addRelativeLocation(@NotNull Location location, @NotNull Map<SoundOptions.Direction, Double> locationToAdd)
-    {
-        if (!locationToAdd.isEmpty()) {
-            location = location.clone();
-
-            Double leftRight = locationToAdd.get(SoundOptions.Direction.LEFT_RIGHT);
-            Double frontBack = locationToAdd.get(SoundOptions.Direction.FRONT_BACK);
-            Double upDown = locationToAdd.get(SoundOptions.Direction.UP_DOWN);
-            double sin = 0;
-            double cos = 0;
-
-            if (leftRight != null) {
-                double angle = Math.PI * 2 * location.getYaw() / 360;
-                sin = Math.sin(angle);
-                cos = Math.cos(angle);
-
-                location.add(leftRight * cos, 0.0, leftRight * sin);
-            }
-
-            if (frontBack != null) {
-                if (leftRight == null) {
-                    double angle = Math.PI * 2 * location.getYaw() / 360 * -1;
-                    sin = Math.sin(angle);
-                    cos = Math.cos(angle);
-                } else {
-                    sin = sin * -1;
-                    cos = cos * -1;
-                }
-
-                location.add(frontBack * sin, 0.0, frontBack * cos);
-            }
-
-            if (upDown != null)
-                location.add(0.0, upDown, 0.0);
-        }
-
-        return location;
     }
 }

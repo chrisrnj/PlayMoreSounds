@@ -18,10 +18,8 @@
 
 package com.epicnicity322.playmoresounds.bukkit.inventory;
 
-import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.epicpluginlib.core.util.ObjectUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
@@ -49,8 +47,6 @@ import java.util.function.Consumer;
 @SuppressWarnings("deprecation")
 public final class InventoryUtils
 {
-    private static final boolean hasInventoryCloseMethod;
-    private static final @NotNull Material glassPanel;
     private static final @NotNull HashMap<HumanEntity, HashMap<Integer, Consumer<InventoryClickEvent>>> openInventories = new HashMap<>();
     private static final @NotNull HashMap<HumanEntity, Consumer<InventoryCloseEvent>> onClose = new HashMap<>();
     private static final @NotNull Listener inventoryListener = new Listener()
@@ -96,22 +92,6 @@ public final class InventoryUtils
     };
 
     static {
-        boolean notFinalHasInventoryCloseMethod = false;
-
-        try {
-            Inventory.class.getMethod("close");
-            notFinalHasInventoryCloseMethod = true;
-        } catch (NoSuchMethodException ignored) {
-        }
-
-        hasInventoryCloseMethod = notFinalHasInventoryCloseMethod;
-
-        if (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.13")) < 0) {
-            glassPanel = Material.valueOf("THIN_GLASS");
-        } else {
-            glassPanel = Material.GLASS_PANE;
-        }
-
         PlayMoreSounds.onDisable(() -> {
             openInventories.keySet().forEach(HumanEntity::closeInventory);
             openInventories.clear();
@@ -136,11 +116,11 @@ public final class InventoryUtils
         for (int slot = from_index; slot <= to_index; ++slot) {
             if (inventory.getItem(slot) != null) continue;
 
-            ItemStack glassPane = new ItemStack(glassPanel);
+            ItemStack glassPane = new ItemStack(Material.GLASS_PANE);
             ItemMeta meta = glassPane.getItemMeta();
 
             meta.setDisplayName(" ");
-            if (VersionUtils.hasItemFlags()) meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
             glassPane.setItemMeta(meta);
             inventory.setItem(slot, glassPane);
         }
@@ -157,8 +137,8 @@ public final class InventoryUtils
 
         if (config.getBoolean(configPath + ".Glowing").orElse(false))
             itemMeta.addEnchant(Enchantment.DURABILITY, 1, true);
-        if (VersionUtils.hasItemFlags())
-            itemMeta.addItemFlags(ItemFlag.values());
+
+        itemMeta.addItemFlags(ItemFlag.values());
 
         itemStack.setItemMeta(itemMeta);
         return itemStack;
@@ -221,15 +201,5 @@ public final class InventoryUtils
 
         openInventories.put(player, buttons);
         InventoryUtils.onClose.put(player, onClose);
-    }
-
-    public static void closeInventory(@NotNull Inventory inventory)
-    {
-        if (hasInventoryCloseMethod)
-            inventory.close();
-        else
-            for (HumanEntity viewer : inventory.getViewers()) {
-                viewer.closeInventory();
-            }
     }
 }

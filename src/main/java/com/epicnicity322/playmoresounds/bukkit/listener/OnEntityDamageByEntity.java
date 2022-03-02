@@ -20,12 +20,10 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
-import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
@@ -48,12 +46,14 @@ public final class OnEntityDamageByEntity extends PMSListener
     private static final @NotNull Pattern comma = Pattern.compile(",");
     private final @NotNull HashSet<PlayableRichSound> conditions = new HashSet<>();
     private final @NotNull PlayMoreSounds plugin;
+    private final @NotNull NamespacedKey killerUUID;
 
     public OnEntityDamageByEntity(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
 
         this.plugin = plugin;
+        this.killerUUID = new NamespacedKey(plugin, "killer_uuid");
     }
 
     private static boolean matchesCondition(String condition, Entity damager, Entity victim, Material itemInDamagerHand)
@@ -62,12 +62,12 @@ public final class OnEntityDamageByEntity extends PMSListener
             // Getting the criterion of the condition and removing spaces, so everything works as intended on matchesCriterion.
             int hitIndex = condition.indexOf("hit");
             int holdingIndex = condition.indexOf("holding");
-            String damagerCriterion = condition.substring(0, hitIndex).replace(" ", "");
-            String victimCriterion = condition.substring(hitIndex + 4, holdingIndex).replace(" ", "");
-            String itemCriterion = condition.substring(holdingIndex + 7).replace(" ", "");
+            var damagerCriterion = condition.substring(0, hitIndex).replace(" ", "");
+            var victimCriterion = condition.substring(hitIndex + 4, holdingIndex).replace(" ", "");
+            var itemCriterion = condition.substring(holdingIndex + 7).replace(" ", "");
 
-            return matchesCriterion(damagerCriterion, damager.getType().toString()) &&
-                    matchesCriterion(victimCriterion, victim.getType().toString()) &&
+            return matchesCriterion(damagerCriterion, damager.getType().name()) &&
+                    matchesCriterion(victimCriterion, victim.getType().name()) &&
                     matchesCriterion(itemCriterion, itemInDamagerHand.name());
         } catch (Exception ignored) {
             // If the user got the syntax wrong it will just return false.
@@ -76,12 +76,12 @@ public final class OnEntityDamageByEntity extends PMSListener
         return false;
     }
 
-    protected static boolean matchesCriterion(String criterion, String value)
+    static boolean matchesCriterion(String criterion, String value)
     {
         criterion = criterion.toLowerCase();
         value = value.toLowerCase();
 
-        if (criterion.startsWith("any") || criterion.equals(value))
+        if (criterion.equals(value) || criterion.startsWith("any"))
             return true;
 
         try {
@@ -98,34 +98,29 @@ public final class OnEntityDamageByEntity extends PMSListener
             if (lastBracketIndex == -1)
                 lastBracketIndex = criterion.length();
 
-            String filter = criterion.substring(0, bracketIndex);
             String[] strings = comma.split(criterion.substring(bracketIndex + 1, lastBracketIndex));
 
-            switch (filter) {
-                case "contains":
-                    for (String string : strings)
+            switch (criterion.substring(0, bracketIndex)) {
+                case "contains" -> {
+                    for (var string : strings)
                         if (value.contains(string))
                             return true;
-
-                    break;
-                case "endswith":
-                    for (String string : strings)
+                }
+                case "endswith" -> {
+                    for (var string : strings)
                         if (value.endsWith(string))
                             return true;
-
-                    break;
-                case "equals":
-                    for (String string : strings)
+                }
+                case "equals" -> {
+                    for (var string : strings)
                         if (value.equals(string))
                             return true;
-
-                    break;
-                case "startswith":
-                    for (String string : strings)
+                }
+                case "startswith" -> {
+                    for (var string : strings)
                         if (value.startsWith(string))
                             return true;
-
-                    break;
+                }
             }
         } catch (Exception ignored) {
             // If the user got the syntax wrong it will just return false.
@@ -147,27 +142,26 @@ public final class OnEntityDamageByEntity extends PMSListener
 
         Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
         Configuration hitSounds = Configurations.HIT_SOUNDS.getConfigurationHolder().getConfiguration();
-        ConfigurationSection defaultSection = sounds.getConfigurationSection(getName());
-
-        boolean defaultEnabled = defaultSection != null && defaultSection.getBoolean("Enabled").orElse(false);
-        boolean playerKillKilledEnabled = sounds.getBoolean("Player Kill.Enabled").orElse(false) || sounds.getBoolean("Player Killed.Enabled").orElse(false);
-        boolean specificHurtEnabled = false;
 
         for (Map.Entry<String, Object> condition : hitSounds.getNodes().entrySet()) {
-            if (condition.getValue() instanceof ConfigurationSection) {
-                ConfigurationSection conditionSection = (ConfigurationSection) condition.getValue();
-
+            if (condition.getValue() instanceof ConfigurationSection conditionSection) {
                 if (conditionSection.getBoolean("Enabled").orElse(false)) {
                     conditions.add(new PlayableRichSound(conditionSection));
-                    specificHurtEnabled = true;
                 }
             }
         }
 
-        if (defaultEnabled || specificHurtEnabled || playerKillKilledEnabled) {
-            if (defaultEnabled)
-                setRichSound(new PlayableRichSound(defaultSection));
+        boolean defaultEnabled = sounds.getBoolean(getName() + ".Enabled").orElse(false);
+        // Player Kill and Player Killed sounds depend on this listener to know who is the killer.
+        boolean playerKillKilledEnabled = sounds.getBoolean("Player Kill.Enabled").orElse(false) || sounds.getBoolean("Player Killed.Enabled").orElse(false);
 
+        if (defaultEnabled) {
+            setRichSound(new PlayableRichSound(sounds.getConfigurationSection(getName())));
+        } else {
+            setRichSound(null);
+        }
+
+        if (defaultEnabled || !conditions.isEmpty() || playerKillKilledEnabled) {
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
                 setLoaded(true);
@@ -180,16 +174,15 @@ public final class OnEntityDamageByEntity extends PMSListener
         }
     }
 
-    // getItemInHand() is deprecated but is only used if you are running on older version of bukkit.
-    @SuppressWarnings(value = "deprecation")
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event)
     {
-        Player player = null;
-        Entity damager = event.getDamager();
-        Entity victim = event.getEntity();
-        Material damagerHand = Material.AIR;
-        Location damagerLocation = damager.getLocation();
+        var damager = event.getDamager();
+        var victim = event.getEntity();
+        var damagerHand = Material.AIR;
+        var damagerLocation = damager.getLocation();
+        // damager can be an entity, so damagerPlayer is only not null if the damager is a player.
+        Player damagerPlayer = null;
 
         // Getting the damager main hand item.
         if (damager instanceof LivingEntity) {
@@ -197,36 +190,33 @@ public final class OnEntityDamageByEntity extends PMSListener
 
             // Avoiding double unnecessary casting.
             if (damager instanceof Player) {
-                player = (Player) damager;
-                equipment = player.getEquipment();
+                damagerPlayer = (Player) damager;
+                equipment = damagerPlayer.getEquipment();
             } else {
                 equipment = ((LivingEntity) damager).getEquipment();
             }
 
             if (equipment != null) {
-                if (equipment.getItemInHand() != null)
-                    damagerHand = equipment.getItemInHand().getType();
+                damagerHand = equipment.getItemInMainHand().getType();
             }
         }
 
-        if (VersionUtils.hasPersistentData() && player != null && victim instanceof Player) {
-            Player victimPlayer = (Player) victim;
-
-            if (victimPlayer.getHealth() - event.getFinalDamage() <= 0) {
-                victimPlayer.getPersistentDataContainer().set(new NamespacedKey(plugin, "killer_uuid"), PersistentDataType.STRING, player.getUniqueId().toString());
-            }
+        // The players last killer uuid is set here, so it can be get in PlayerDeathEvent and be used to play kill and killed sounds.
+        // Then, after the player respawns, the killer uuid key is removed from player data.
+        if (damagerPlayer != null && victim instanceof Player victimPlayer && victimPlayer.getHealth() - event.getFinalDamage() <= 0) {
+            victimPlayer.getPersistentDataContainer().set(killerUUID, PersistentDataType.STRING, damagerPlayer.getUniqueId().toString());
         }
 
         // If the default sound should play.
-        boolean defaultSound = true;
+        boolean defaultSound = getRichSound() != null;
 
-        // Checking if any condition on hurt sounds.yml matches this scenario.
+        // Checking if any condition on hit sounds.yml matches this scenario.
         for (PlayableRichSound condition : conditions) {
             if (!event.isCancelled() || !condition.isCancellable()) {
                 ConfigurationSection conditionSection = condition.getSection();
 
                 if (matchesCondition(conditionSection.getName(), damager, victim, damagerHand)) {
-                    condition.play(player, damagerLocation);
+                    condition.play(damagerPlayer, damagerLocation);
 
                     // Checking if default sound should play.
                     if (conditionSection.getBoolean("Prevent Other Sounds.Default Sound").orElse(false))
@@ -240,12 +230,8 @@ public final class OnEntityDamageByEntity extends PMSListener
         }
 
         // Playing the default sound.
-        if (defaultSound) {
-            PlayableRichSound sound = getRichSound();
-
-            if (sound != null)
-                if (!event.isCancelled() || !sound.isCancellable())
-                    sound.play(player, damagerLocation);
+        if (defaultSound && (!event.isCancelled() || !getRichSound().isCancellable())) {
+            getRichSound().play(damagerPlayer, damagerLocation);
         }
     }
 }

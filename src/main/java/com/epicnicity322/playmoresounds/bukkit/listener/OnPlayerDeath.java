@@ -20,13 +20,11 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
-import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -43,24 +41,20 @@ import java.util.UUID;
 
 public final class OnPlayerDeath extends PMSListener
 {
-    private static @Nullable Object namespacedKey;
-
-    static {
-        if (VersionUtils.hasPersistentData()) {
-            PlayMoreSounds.onInstance(() -> namespacedKey = new NamespacedKey(PlayMoreSounds.getInstance(), "last_damage"));
-        }
-    }
-
     private final @NotNull HashMap<String, PlayableRichSound> specificDeaths = new HashMap<>();
     private final @NotNull PlayMoreSounds plugin;
     private @Nullable PlayableRichSound playerKilled;
     private @Nullable PlayableRichSound playerKill;
+    private final @NotNull NamespacedKey lastDamageKey;
+    private final @NotNull NamespacedKey killerUUIDKey;
 
     public OnPlayerDeath(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
 
         this.plugin = plugin;
+        lastDamageKey = new NamespacedKey(PlayMoreSounds.getInstance(), "last_damage");
+        killerUUIDKey = new NamespacedKey(plugin, "killer_uuid");
     }
 
     @Override
@@ -76,28 +70,36 @@ public final class OnPlayerDeath extends PMSListener
 
         Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
         Configuration deathTypes = Configurations.DEATH_TYPES.getConfigurationHolder().getConfiguration();
-        ConfigurationSection defaultSection = sounds.getConfigurationSection(getName());
 
-        boolean defaultEnabled = defaultSection != null && defaultSection.getBoolean("Enabled").orElse(false);
-        boolean specificDeathEnabled = false;
-
-        if (VersionUtils.hasPersistentData()) {
-            for (Map.Entry<String, Object> deathType : deathTypes.getNodes().entrySet()) {
-                if (deathType.getValue() instanceof ConfigurationSection) {
-                    ConfigurationSection deathTypeSection = (ConfigurationSection) deathType.getValue();
-
-                    if (deathTypeSection.getBoolean("Enabled").orElse(false)) {
-                        specificDeaths.put(deathType.getKey().toUpperCase(), new PlayableRichSound(deathTypeSection));
-                        specificDeathEnabled = true;
-                    }
+        for (Map.Entry<String, Object> deathType : deathTypes.getNodes().entrySet()) {
+            if (deathType.getValue() instanceof ConfigurationSection deathTypeSection) {
+                if (deathTypeSection.getBoolean("Enabled").orElse(false)) {
+                    specificDeaths.put(deathType.getKey().toUpperCase(), new PlayableRichSound(deathTypeSection));
                 }
             }
         }
 
-        if (defaultEnabled || specificDeathEnabled) {
-            if (defaultEnabled)
-                setRichSound(new PlayableRichSound(defaultSection));
+        boolean defaultEnabled = sounds.getBoolean(getName() + ".Enabled").orElse(false);
+        boolean playerKillEnabled = sounds.getBoolean("Player Kill.Enabled").orElse(false);
+        boolean playerKilledEnabled = sounds.getBoolean("Player Kill.Enabled").orElse(false);
 
+        if (defaultEnabled) {
+            setRichSound(new PlayableRichSound(sounds.getConfigurationSection(getName())));
+        } else {
+            setRichSound(null);
+        }
+        if (playerKillEnabled) {
+            playerKill = new PlayableRichSound(sounds.getConfigurationSection("Player Kill"));
+        } else {
+            playerKill = null;
+        }
+        if (playerKilledEnabled) {
+            playerKilled = new PlayableRichSound(sounds.getConfigurationSection("Player Killed"));
+        } else {
+            playerKilled = null;
+        }
+
+        if (defaultEnabled || !specificDeaths.isEmpty() || playerKillEnabled || playerKilledEnabled) {
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
                 setLoaded(true);
@@ -108,72 +110,58 @@ public final class OnPlayerDeath extends PMSListener
                 setLoaded(false);
             }
         }
-
-        if (!VersionUtils.hasPersistentData()) EntityDamageEvent.getHandlerList().unregister(this);
-
-        if (sounds.getBoolean("Player Kill.Enabled").orElse(false)) {
-            playerKill = new PlayableRichSound(sounds.getConfigurationSection("Player Kill"));
-        }
-        if (sounds.getBoolean("Player Killed.Enabled").orElse(false)) {
-            playerKilled = new PlayableRichSound(sounds.getConfigurationSection("Player Killed"));
-        }
     }
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event)
     {
-        Player player = event.getEntity();
-        boolean defaultSound = true;
+        var player = event.getEntity();
+        var playerData = player.getPersistentDataContainer();
+        boolean defaultSound = getRichSound() != null;
 
-        if (VersionUtils.hasPersistentData()) {
-            String killerUUID = player.getPersistentDataContainer().get(new NamespacedKey(plugin, "killer_uuid"), PersistentDataType.STRING);
+        String killerUUID = playerData.get(killerUUIDKey, PersistentDataType.STRING);
 
-            if (killerUUID != null) {
-                if (playerKill != null) {
-                    Player killer = Bukkit.getPlayer(UUID.fromString(killerUUID));
+        if (killerUUID != null) {
+            if (playerKill != null) {
+                var killer = Bukkit.getPlayer(UUID.fromString(killerUUID));
 
-                    playerKill.play(killer);
-                }
-                if (playerKilled != null) {
-                    playerKilled.play(player);
-
-                    if (playerKilled.getSection().getBoolean("Prevent Death Sounds").orElse(false)) {
-                        return;
-                    }
-                }
+                if (killer != null) playerKill.play(killer);
             }
+            if (playerKilled != null) {
+                playerKilled.play(player);
 
-            String cause = player.getPersistentDataContainer().get((NamespacedKey) namespacedKey, PersistentDataType.STRING);
+                if (playerKilled.getSection().getBoolean("Prevent Death Sounds").orElse(false)) return;
+            }
+        }
 
-            if (cause != null) {
-                PlayableRichSound specificDeathSound = specificDeaths.get(cause);
+        String lastDamage = playerData.get(this.lastDamageKey, PersistentDataType.STRING);
 
-                if (specificDeathSound != null) {
-                    specificDeathSound.play(player);
+        if (lastDamage != null) {
+            var specificDeathSound = specificDeaths.get(lastDamage);
 
-                    if (specificDeathSound.getSection().getBoolean("Prevent Default Sound").orElse(false))
-                        defaultSound = false;
-                }
+            if (specificDeathSound != null) {
+                specificDeathSound.play(player);
+
+                if (specificDeathSound.getSection().getBoolean("Prevent Default Sound").orElse(false))
+                    defaultSound = false;
             }
         }
 
         if (defaultSound) {
-            PlayableRichSound sound = getRichSound();
-
-            if (sound != null)
-                sound.play(player);
+            getRichSound().play(player);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDamage(EntityDamageEvent event)
     {
-        Entity entity = event.getEntity();
+        if (specificDeaths.isEmpty()) return;
+        var entity = event.getEntity();
 
-        if (VersionUtils.hasPersistentData() && !event.isCancelled() && entity instanceof Player) {
-            if (((Player) entity).getHealth() - event.getFinalDamage() <= 0) {
-                entity.getPersistentDataContainer().set((NamespacedKey) namespacedKey, PersistentDataType.STRING, event.getCause().toString());
-            }
+        // The players last damage cause is set here, so it can be get in PlayerDeathEvent and be used to play specific death sounds.
+        // Then, after the player respawns, the last damage key is removed from player data.
+        if (!event.isCancelled() && entity instanceof Player player && player.getHealth() - event.getFinalDamage() <= 0) {
+            entity.getPersistentDataContainer().set(lastDamageKey, PersistentDataType.STRING, event.getCause().name());
         }
     }
 }

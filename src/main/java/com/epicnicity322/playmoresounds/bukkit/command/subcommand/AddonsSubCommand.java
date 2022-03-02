@@ -24,6 +24,7 @@ import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.inventory.AddonsInventory;
 import com.epicnicity322.playmoresounds.bukkit.util.UniqueRunnable;
+import com.epicnicity322.playmoresounds.core.addons.AddonManager;
 import com.epicnicity322.playmoresounds.core.addons.PMSAddon;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.HumanEntity;
@@ -32,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.UUID;
 
 public final class AddonsSubCommand extends Command implements Helpable
@@ -75,82 +77,69 @@ public final class AddonsSubCommand extends Command implements Helpable
         MessageSender lang = PlayMoreSounds.getLanguage();
 
         if (args.length > 1) {
-            if (args[1].equalsIgnoreCase("list")) {
-                if (!sender.hasPermission("playmoresounds.addons.list")) {
-                    lang.send(sender, lang.get("General.No Permission"));
-                    return;
-                }
-
-                lang.send(sender, lang.get("Addons.List.Header"));
-
-                HashSet<PMSAddon> addons = PlayMoreSounds.getAddonManager().getAddons();
-                StringBuilder data = new StringBuilder();
-                int count = 0;
-
-                for (PMSAddon addon : addons) {
-                    data.append(addon.isLoaded() ? "&a" : "&c").append(addon.getDescription().getName());
-
-                    if (++count != addons.size()) {
-                        data.append(lang.get("Addons.List.Separator", "&f, "));
-                    }
-                }
-
-                lang.send(sender, false, data.toString());
-            } else if (args[1].equalsIgnoreCase("uninstall")) {
-                if (!sender.hasPermission("playmoresounds.addons.uninstall")) {
-                    lang.send(sender, lang.get("General.No Permission"));
-                    return;
-                }
-                if (args.length < 3) {
-                    lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", "uninstall <addon>"));
-                    return;
-                }
-
-                String addonName = join(args);
-
-                if (ADDONS_TO_UNINSTALL.removeIf(addon -> addon.getDescription().getName().equals(addonName))) {
-                    lang.send(sender, lang.get("Addons.Uninstall.Cancel").replace("<addon>", addonName));
-                } else {
-                    PMSAddon addon = null;
-
-                    for (PMSAddon a : PlayMoreSounds.getAddonManager().getAddons()) {
-                        if (a.getDescription().getName().equals(addonName)) {
-                            addon = a;
-                            break;
-                        }
-                    }
-
-                    if (addon == null) {
-                        lang.send(sender, lang.get("Addons.Error.Not Found").replace("<addon>", addonName).replace("<label>", label));
+            switch (args[1].toLowerCase(Locale.ROOT)) {
+                case "list":
+                    if (!sender.hasPermission("playmoresounds.addons.list")) {
+                        lang.send(sender, lang.get("General.No Permission"));
                         return;
                     }
 
-                    if (uninstallConfirmationUUIDs == null) uninstallConfirmationUUIDs = new HashMap<>();
+                    lang.send(sender, lang.get("Addons.List.Header"));
 
-                    UUID uuid = uninstallConfirmationUUIDs.get(addon);
+                    HashSet<PMSAddon> addons = PlayMoreSounds.getAddonManager().getAddons();
+                    StringBuilder data = new StringBuilder();
+                    int count = 0;
 
-                    if (uuid == null) {
-                        UUID newUUID = UUID.randomUUID();
+                    for (PMSAddon addon : addons) {
+                        data.append(addon.isLoaded() ? "&a" : "&c").append(addon.getDescription().getName());
 
-                        uninstallConfirmationUUIDs.put(addon, newUUID);
-                        uuid = newUUID;
+                        if (++count != addons.size()) {
+                            data.append(lang.get("Addons.List.Separator", "&f, "));
+                        }
                     }
 
-                    PMSAddon finalAddon = addon;
-                    ConfirmSubCommand.addPendingConfirmation(sender, new UniqueRunnable(uuid)
-                    {
-                        @Override
-                        public void run()
-                        {
-                            ADDONS_TO_UNINSTALL.add(finalAddon);
-                            uninstallConfirmationUUIDs.remove(finalAddon);
-                            lang.send(sender, lang.get("Addons.Uninstall.Success").replace("<addon>", addonName));
-                        }
-                    }, lang.get("Addons.Uninstall.Confirmation.Description").replace("<addon>", addonName));
-                    lang.send(sender, lang.get("Addons.Uninstall.Confirmation.Chat").replace("<addon>", addonName).replace("<label>", label));
-                }
-            } else {
-                lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", "<list|uninstall>"));
+                    lang.send(sender, false, data.toString());
+                    break;
+                case "uninstall":
+                    if (!sender.hasPermission("playmoresounds.addons.uninstall")) {
+                        lang.send(sender, lang.get("General.No Permission"));
+                        return;
+                    }
+                    if (args.length < 3) {
+                        lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", "uninstall <addon>"));
+                        return;
+                    }
+
+                    uninstall(lang, label, sender, args);
+                    break;
+                    /*
+                case "stop":
+                    if (!sender.hasPermission("playmoresounds.addons.stop")) {
+                        lang.send(sender, lang.get("General.No Permission"));
+                        return;
+                    }
+                    if (args.length < 3) {
+                        lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", "stop <addon>"));
+                        return;
+                    }
+
+                    stopOrStart(true, lang, label, sender, args);
+                    break;
+                case "start":
+                    if (!sender.hasPermission("playmoresounds.addons.start")) {
+                        lang.send(sender, lang.get("General.No Permission"));
+                        return;
+                    }
+                    if (args.length < 3) {
+                        lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", "start <addon>"));
+                        return;
+                    }
+
+                    stopOrStart(false, lang, label, sender, args);
+                    break;
+                     */
+                default:
+                    lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", "<list|uninstall>"));
             }
 
             return;
@@ -176,5 +165,83 @@ public final class AddonsSubCommand extends Command implements Helpable
             builder.append(" ").append(args[i]);
 
         return builder.toString().trim();
+    }
+
+    private void uninstall(MessageSender lang, String label, CommandSender sender, String[] args)
+    {
+        String addonName = join(args);
+
+        if (ADDONS_TO_UNINSTALL.removeIf(addon -> addon.getDescription().getName().equals(addonName))) {
+            lang.send(sender, lang.get("Addons.Uninstall.Cancel").replace("<addon>", addonName));
+        } else {
+            PMSAddon addon = null;
+
+            for (PMSAddon a : PlayMoreSounds.getAddonManager().getAddons()) {
+                if (a.getDescription().getName().equals(addonName)) {
+                    addon = a;
+                    break;
+                }
+            }
+
+            if (addon == null) {
+                lang.send(sender, lang.get("Addons.Error.Not Found").replace("<addon>", addonName).replace("<label>", label));
+                return;
+            }
+
+            if (uninstallConfirmationUUIDs == null) uninstallConfirmationUUIDs = new HashMap<>();
+
+            UUID uuid = uninstallConfirmationUUIDs.get(addon);
+
+            if (uuid == null) {
+                UUID newUUID = UUID.randomUUID();
+
+                uninstallConfirmationUUIDs.put(addon, newUUID);
+                uuid = newUUID;
+            }
+
+            PMSAddon finalAddon = addon;
+            ConfirmSubCommand.addPendingConfirmation(sender, new UniqueRunnable(uuid)
+            {
+                @Override
+                public void run()
+                {
+                    ADDONS_TO_UNINSTALL.add(finalAddon);
+                    uninstallConfirmationUUIDs.remove(finalAddon);
+                    lang.send(sender, lang.get("Addons.Uninstall.Success").replace("<addon>", addonName));
+                }
+            }, lang.get("Addons.Uninstall.Confirmation.Description").replace("<addon>", addonName));
+            lang.send(sender, lang.get("Addons.Uninstall.Confirmation.Chat").replace("<addon>", addonName).replace("<label>", label));
+        }
+    }
+
+    private void stopOrStart(boolean stop, MessageSender lang, String label, CommandSender sender, String[] args)
+    {
+        AddonManager addonManager = PlayMoreSounds.getAddonManager();
+        String addonName = join(args);
+        PMSAddon addon = null;
+
+        for (PMSAddon a : addonManager.getAddons()) {
+            if (a.getDescription().getName().equals(addonName)) {
+                addon = a;
+                break;
+            }
+        }
+
+        if (addon == null) {
+            lang.send(sender, lang.get("Addons.Error.Not Found").replace("<addon>", addonName).replace("<label>", label));
+            return;
+        }
+        if (stop != addon.isLoaded()) {
+            lang.send(sender, lang.get(stop ? "Addons.Stop.Error.Already Stopped" : "Addons.Start.Error.Already Started").replace("<addon>", addonName));
+            return;
+        }
+
+        if (stop) {
+            addonManager.stopAddon(addon);
+            lang.send(sender, lang.get("Addons.Stop.Success").replace("<addon>", addonName));
+        } else {
+            addonManager.startAddon(addon);
+            lang.send(sender, lang.get("Addons.Start.Success").replace("<addon>", addonName));
+        }
     }
 }

@@ -57,7 +57,7 @@ public final class PlayMoreSoundsCore
         }
 
         // Removing error reports if the server was reloaded
-        DummyErrorHandler dummyErrorHandler = new DummyErrorHandler(folder, "PlayMoreSounds", PlayMoreSoundsVersion.version,
+        var dummyErrorHandler = new DummyErrorHandler(folder, "PlayMoreSounds", PlayMoreSoundsVersion.version,
                 Collections.singleton("Epicnicity322"), "https://github.com/Epicnicity322/PlayMoreSounds/");
 
         if (Objects.equals(System.getProperty("PlayMoreSounds Enabled"), "true")) {
@@ -73,7 +73,7 @@ public final class PlayMoreSoundsCore
         System.setProperty("PlayMoreSounds Enabled", "true");
 
         // Creating available sounds file
-        Path availableSounds = folder.resolve("available sounds.txt");
+        var availableSounds = folder.resolve("available sounds.txt");
         StringBuilder data = new StringBuilder("""
                 A list of sounds and sound categories available in this minecraft version.
                 This file is not a configuration and any information stored here is not used anywhere in the plugin.
@@ -83,7 +83,7 @@ public final class PlayMoreSoundsCore
                 Sound categories are available for this version:
                 """);
 
-        for (SoundCategory category : SoundCategory.values()) {
+        for (var category : SoundCategory.values()) {
             data.append("\n- ").append(category.name());
         }
 

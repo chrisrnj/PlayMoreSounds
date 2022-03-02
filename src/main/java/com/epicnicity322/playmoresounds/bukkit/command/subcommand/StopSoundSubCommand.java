@@ -24,7 +24,6 @@ import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandUtils;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
-import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -79,7 +78,7 @@ public final class StopSoundSubCommand extends Command implements Helpable
         if (targets == null)
             return;
 
-        if (VersionUtils.hasStopSound() && args.length > 2) {
+        if (args.length > 2) {
             toStop = new HashSet<>();
 
             for (String sound : args[2].split(","))

@@ -23,7 +23,6 @@ import com.epicnicity322.epicpluginlib.bukkit.logger.Logger;
 import com.epicnicity322.epicpluginlib.core.EpicPluginLib;
 import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
 import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
-import com.epicnicity322.epicpluginlib.core.logger.ErrorHandler;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.epicpluginlib.core.util.PathUtils;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandLoader;
@@ -34,7 +33,6 @@ import com.epicnicity322.playmoresounds.bukkit.metrics.Metrics;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
 import com.epicnicity322.playmoresounds.bukkit.util.ListenerRegister;
 import com.epicnicity322.playmoresounds.bukkit.util.UpdateManager;
-import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.addons.AddonManager;
 import com.epicnicity322.playmoresounds.core.addons.PMSAddon;
@@ -45,8 +43,6 @@ import com.epicnicity322.playmoresounds.core.util.LoadableHashSet;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import com.epicnicity322.yamlhandler.YamlConfigurationLoader;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.UnknownDependencyException;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -65,10 +61,7 @@ import java.util.Random;
 public final class PlayMoreSounds extends JavaPlugin
 {
     private static final @NotNull Logger logger = new Logger(PMSHelper.isChristmas() ? "&f[&4PlayMoreSounds&f] " : "&6[&9PlayMoreSounds&6] ");
-    private static final @NotNull MessageSender language = new MessageSender(
-            () -> Configurations.CONFIG.getConfigurationHolder().getConfiguration().getString("Language").orElse("EN_US"),
-            logger::getPrefix,
-            Configurations.LANGUAGE_EN_US.getConfigurationHolder().getDefaultConfiguration());
+    private static final @NotNull MessageSender language;
     private static final @NotNull LoadableHashSet<String> serverPlugins = new LoadableHashSet<>();
     private static final @NotNull AddonManager addonManager = new AddonManager(serverPlugins, logger);
     private static @Nullable HashSet<Runnable> onDisable;
@@ -78,16 +71,19 @@ public final class PlayMoreSounds extends JavaPlugin
     private static @Nullable PlayMoreSounds instance;
     private static boolean enabled = false;
     private static boolean disabled = false;
-    private static boolean success = true;
 
     static {
         // Checking if EpicPluginLib is outdated.
-        if (EpicPluginLib.version.compareTo(new Version("2.2")) < 0) {
-            throw new UnknownDependencyException("You are running an old version of EpicPluginLib, make sure you are using 2.2 or similar.");
+        if (EpicPluginLib.version.compareTo(new Version("2.2.1")) < 0) {
+            throw new UnknownDependencyException("You are running an old version of EpicPluginLib, make sure you are using 2.2.1 or similar.");
         }
 
         PlayMoreSoundsCore.getErrorHandler().setLogger(logger);
 
+        language = new MessageSender(
+                () -> Configurations.CONFIG.getConfigurationHolder().getConfiguration().getString("Language").orElse("EN_US"),
+                logger::getPrefix,
+                Configurations.LANGUAGE_EN_US.getConfigurationHolder().getDefaultConfiguration());
         language.addLanguage("EN_US", Configurations.LANGUAGE_EN_US.getConfigurationHolder());
         language.addLanguage("ES_LA", Configurations.LANGUAGE_ES_LA.getConfigurationHolder());
         language.addLanguage("PT_BR", Configurations.LANGUAGE_PT_BR.getConfigurationHolder());
@@ -117,15 +113,22 @@ public final class PlayMoreSounds extends JavaPlugin
      * If a exception is caught, PlayMoreSounds automatically handles it and logs into the data folder.
      *
      * @param runnable Runnable to run on disable.
+     * @return Whether runnable was immediately executed because PlayMoreSounds is disabled.
      */
-    public static void onDisable(@NotNull Runnable runnable)
+    public static boolean onDisable(@NotNull Runnable runnable)
     {
-        if (onDisable == null) onDisable = new HashSet<>();
-        onDisable.add(runnable);
-
         if (disabled) {
-            runnable.run();
+            try {
+                runnable.run();
+            } catch (Throwable t) {
+                PlayMoreSoundsCore.getErrorHandler().report(t, "Plugin already disabled so instantly execute #onDisable:");
+            }
+        } else {
+            if (onDisable == null) onDisable = new HashSet<>();
+            onDisable.add(runnable);
         }
+
+        return disabled;
     }
 
     /**
@@ -134,15 +137,22 @@ public final class PlayMoreSounds extends JavaPlugin
      * If a exception is caught, PlayMoreSounds automatically handles it and logs into the data folder.
      *
      * @param runnable Runnable to run on enable.
+     * @return Whether runnable was immediately executed because PlayMoreSounds is enabled.
      */
-    public static void onEnable(@NotNull Runnable runnable)
+    public static boolean onEnable(@NotNull Runnable runnable)
     {
-        if (onEnable == null) onEnable = new HashSet<>();
-        onEnable.add(runnable);
-
         if (enabled) {
-            runnable.run();
+            try {
+                runnable.run();
+            } catch (Throwable t) {
+                PlayMoreSoundsCore.getErrorHandler().report(t, "Plugin already enabled so instantly execute #onEnable:");
+            }
+        } else {
+            if (onEnable == null) onEnable = new HashSet<>();
+            onEnable.add(runnable);
         }
+
+        return enabled;
     }
 
     /**
@@ -151,15 +161,22 @@ public final class PlayMoreSounds extends JavaPlugin
      * If a exception is caught, PlayMoreSounds automatically handles it and logs into the data folder.
      *
      * @param runnable Runnable to run on load.
+     * @return Whether runnable was immediately executed because PlayMoreSounds was already instantiated.
      */
-    public static void onInstance(@NotNull Runnable runnable)
+    public static boolean onInstance(@NotNull Runnable runnable)
     {
-        if (onInstance == null) onInstance = new HashSet<>();
-        onInstance.add(runnable);
-
         if (getInstance() != null) {
-            runnable.run();
+            try {
+                runnable.run();
+            } catch (Throwable t) {
+                PlayMoreSoundsCore.getErrorHandler().report(t, "Plugin already instantiated so instantly execute #onInstance:");
+            }
+        } else {
+            if (onInstance == null) onInstance = new HashSet<>();
+            onInstance.add(runnable);
         }
+
+        return getInstance() != null;
     }
 
     /**
@@ -244,15 +261,12 @@ public final class PlayMoreSounds extends JavaPlugin
         // Checking if PlayMoreSounds was already enabled.
         if (enabled) return;
 
-        // On older versions of bukkit #getLogger() is null before the plugin is enabled.
-        logger.setLogger(getLogger());
-        ErrorHandler errorHandler = PlayMoreSoundsCore.getErrorHandler();
+        var errorHandler = PlayMoreSoundsCore.getErrorHandler();
+        boolean success = false;
 
         try {
-            if (!success) return;
-
             // Loading and registering addons:
-            for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
+            for (var plugin : Bukkit.getPluginManager().getPlugins()) {
                 serverPlugins.add(plugin.getName());
             }
 
@@ -283,22 +297,19 @@ public final class PlayMoreSounds extends JavaPlugin
             addonManager.startAddons(StartTime.BEFORE_LISTENERS);
 
             // Registering all listeners:
-            PluginManager pluginManager = Bukkit.getPluginManager();
+            var pm = Bukkit.getPluginManager();
 
-            if (VersionUtils.supportsResourcePacks()) {
-                OnPlayerResourcePackStatus.load(this);
-            }
-
+            OnPlayerResourcePackStatus.load(this);
             // Registering region wand tool listener.
-            pluginManager.registerEvents(new OnPlayerInteract(), this);
+            pm.registerEvents(new OnPlayerInteract(), this);
             // Registering region enter event caller.
-            pluginManager.registerEvents(new OnPlayerJoin(this), this);
+            pm.registerEvents(new OnPlayerJoin(this), this);
             // Registering region enter and leave event caller.
-            pluginManager.registerEvents(new OnPlayerMove(), this);
+            pm.registerEvents(new OnPlayerMove(), this);
             // Registering region leave event caller.
-            pluginManager.registerEvents(new OnPlayerQuit(), this);
+            pm.registerEvents(new OnPlayerQuit(), this);
             // Registering region enter and leave event caller.
-            pluginManager.registerEvents(new OnPlayerTeleport(this), this);
+            pm.registerEvents(new OnPlayerTeleport(this), this);
             // TimeTrigger checks itself it does need to load or not on load method.
             WorldTimeListener.load();
 
@@ -312,15 +323,17 @@ public final class PlayMoreSounds extends JavaPlugin
             errorHandler.report(e, "PMS Loading Error (Unknown):");
         } finally {
             if (success) {
+                var serverVersion = EpicPluginLib.Platform.getVersion();
+
                 logger.log("&6============================================");
                 logger.log("&aPlayMoreSounds has been enabled");
-                logger.log("&a" + SoundType.getPresentSoundTypes().size() + " sounds available on " + VersionUtils.getBukkitVersion());
+                logger.log("&a" + SoundType.getPresentSoundTypes().size() + " sounds available on " + serverVersion);
                 logger.log("&6============================================");
 
-                if (VersionUtils.getBukkitVersion().compareTo(new Version("1.7.10")) < 0) {
-                    logger.log("PlayMoreSounds detected you are on version " + VersionUtils.getBukkitVersion() + ". This version is not supported and some errors WILL be thrown if you proceed to use the plugin.", ConsoleLogger.Level.WARN);
-                } else if (VersionUtils.getBukkitVersion().compareTo(new Version("1.19")) >= 0) {
-                    logger.log("PlayMoreSounds detected you are on version " + VersionUtils.getBukkitVersion() + ". This version is not officially supported and some errors might be thrown.", ConsoleLogger.Level.WARN);
+                if (serverVersion.compareTo(new Version("1.18")) < 0) {
+                    logger.log("PlayMoreSounds detected you are on version " + serverVersion + ". This version is not supported so errors will no longer be logged.", ConsoleLogger.Level.WARN);
+                } else if (serverVersion.compareTo(new Version("1.19")) >= 0) {
+                    logger.log("PlayMoreSounds detected you are on version " + serverVersion + ". This version was not tested and might throw errors.", ConsoleLogger.Level.WARN);
                 }
 
                 boolean bStats = false;
@@ -331,7 +344,7 @@ public final class PlayMoreSounds extends JavaPlugin
                 }
 
                 if (bStats) {
-                    Metrics metrics = new Metrics(this, 7985);
+                    var metrics = new Metrics(this, 7985);
 
                     metrics.addCustomChart(new Metrics.AdvancedPie("running_addons", () -> {
                         HashSet<PMSAddon> addons = addonManager.getAddons();
@@ -346,8 +359,8 @@ public final class PlayMoreSounds extends JavaPlugin
                     logger.log("&ePlayMoreSounds is using bStats as metrics collector.");
                 }
 
-                LocalDateTime now = LocalDateTime.now();
-                Random random = new Random();
+                var now = LocalDateTime.now();
+                var random = new Random();
 
                 if (now.getMonth() == Month.OCTOBER && now.getDayOfMonth() == 31) {
                     if (random.nextBoolean())
@@ -373,11 +386,11 @@ public final class PlayMoreSounds extends JavaPlugin
                 // Bukkit only runs a task once the server has fully loaded.
                 Bukkit.getScheduler().runTask(this, () -> addonManager.startAddons(StartTime.SERVER_LOAD_COMPLETE));
             } else {
-                logger.log("&6============================================");
-                logger.log("&cSomething went wrong while loading PMS");
-                logger.log("&cMake sure you read messages before reporting");
-                logger.log("&6============================================");
-                getLogger().severe("Plugin disabled.");
+                logger.log("&6============================================", ConsoleLogger.Level.ERROR);
+                logger.log("&cSomething went wrong while loading PMS", ConsoleLogger.Level.ERROR);
+                logger.log("&cMake sure you read errors before reporting", ConsoleLogger.Level.ERROR);
+                logger.log("&6============================================", ConsoleLogger.Level.ERROR);
+                logger.log("Plugin disabled.", ConsoleLogger.Level.ERROR);
                 Bukkit.getPluginManager().disablePlugin(this);
             }
 
@@ -387,7 +400,7 @@ public final class PlayMoreSounds extends JavaPlugin
                         runnable.run();
                     } catch (Exception e) {
                         logger.log("&cAn unknown error occurred on PlayMoreSounds startup.");
-                        errorHandler.report(e, "PMS Loading Error (Unknown):");
+                        errorHandler.report(e, "Success: " + success + "\nPMS Loading Error (Unknown):");
                     }
                 }
             }

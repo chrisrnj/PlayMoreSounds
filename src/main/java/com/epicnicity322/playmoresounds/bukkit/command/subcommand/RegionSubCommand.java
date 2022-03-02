@@ -28,7 +28,6 @@ import com.epicnicity322.playmoresounds.bukkit.listener.OnPlayerInteract;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
 import com.epicnicity322.playmoresounds.bukkit.util.UniqueRunnable;
-import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
@@ -366,7 +365,7 @@ public final class RegionSubCommand extends Command implements Helpable
 
         for (SoundRegion region : regions) {
             // Checking if particles should be sent.
-            if (VersionUtils.hasOffHand() && (sender instanceof Player) && showingBorders.get() < config.getNumber("Sound Regions.Border.Max Showing Borders").orElse(30).intValue()) {
+            if (sender instanceof Player && showingBorders.get() < config.getNumber("Sound Regions.Border.Max Showing Borders").orElse(30).intValue()) {
                 int count;
                 double r, g, b;
 

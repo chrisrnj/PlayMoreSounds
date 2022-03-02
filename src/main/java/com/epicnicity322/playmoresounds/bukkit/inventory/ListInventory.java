@@ -22,7 +22,6 @@ import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.epicpluginlib.core.util.ObjectUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
-import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
@@ -111,7 +110,6 @@ public final class ListInventory implements PMSInventory
 
             if (config.getBoolean("List.Inventory.Items.Sound.Glowing").orElse(false))
                 soundItemMeta.addEnchant(Enchantment.DURABILITY, 1, true);
-            if (VersionUtils.hasItemFlags())
                 soundItemMeta.addItemFlags(ItemFlag.values());
 
             soundItem.setItemMeta(soundItemMeta);

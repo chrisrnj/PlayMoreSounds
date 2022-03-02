@@ -18,10 +18,8 @@
 
 package com.epicnicity322.playmoresounds.bukkit.command;
 
-import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
-import com.epicnicity322.playmoresounds.bukkit.util.UniversalVersionMethods;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -33,6 +31,7 @@ import java.util.stream.Collectors;
 
 public final class CommandUtils
 {
+    // Lists useful for tab completion
     private static final @NotNull List<String> targetAllArgs = Arrays.asList("*", "all", "everybody", "everyone", "online");
     private static final @NotNull List<String> targetSelfArgs = Arrays.asList("i", "me", "myself", "self");
     private static final @NotNull ArrayList<String> targetArgs = targetAllArgs.stream().collect(Collectors.toCollection(() -> new ArrayList<>(targetSelfArgs)));
@@ -55,12 +54,12 @@ public final class CommandUtils
     public static HashSet<Player> getTargets(@NotNull CommandSender sender, @NotNull String[] args, int targetPosition,
                                              @NotNull String invalidArgsMsgToConsole, @NotNull String permissionOthers)
     {
-        HashSet<Player> targets = new HashSet<>();
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var targets = new HashSet<Player>();
+        var lang = PlayMoreSounds.getLanguage();
 
         if (args.length <= targetPosition) {
-            if (sender instanceof Player) {
-                targets.add((Player) sender);
+            if (sender instanceof Player player) {
+                targets.add(player);
             } else {
                 lang.send(sender, invalidArgsMsgToConsole);
                 return null;
@@ -69,13 +68,9 @@ public final class CommandUtils
             String target = args[targetPosition];
 
             switch (target.toLowerCase()) {
-                case "*":
-                case "all":
-                case "everybody":
-                case "everyone":
-                case "online":
+                case "*", "all", "everybody", "everyone", "online" -> {
                     if (sender.hasPermission(permissionOthers)) {
-                        Collection<? extends Player> online = UniversalVersionMethods.getOnlinePlayers();
+                        var online = Bukkit.getOnlinePlayers();
 
                         if (online.size() == 0) {
                             lang.send(sender, lang.get("General.Nobody Online"));
@@ -87,24 +82,21 @@ public final class CommandUtils
                         lang.send(sender, lang.get("General.No Permission"));
                         return null;
                     }
-                    break;
+                }
 
-                case "i":
-                case "me":
-                case "myself":
-                case "self":
-                    if (sender instanceof Player) {
-                        targets.add((Player) sender);
+                case "i", "me", "myself", "self" -> {
+                    if (sender instanceof Player player) {
+                        targets.add(player);
                     } else {
                         lang.send(sender, lang.get("General.Not A Player"));
                         return null;
                     }
-                    break;
+                }
 
-                default:
+                default -> {
                     if (target.toLowerCase().startsWith("radius=") && target.length() > 7) {
                         if (sender instanceof Player) {
-                            String number = target.substring(target.indexOf("=") + 1);
+                            var number = target.substring(target.indexOf("=") + 1);
 
                             try {
                                 double radius = Double.parseDouble(number);
@@ -118,10 +110,10 @@ public final class CommandUtils
                             return null;
                         }
                     } else {
-                        String[] names = target.split(",");
+                        var names = target.split(",");
 
                         for (String name : names) {
-                            Player player = Bukkit.getPlayer(name);
+                            var player = Bukkit.getPlayer(name);
 
                             if (player == null) {
                                 lang.send(sender, lang.get("General.Player Not Found").replace("<player>", name));
@@ -131,7 +123,7 @@ public final class CommandUtils
                             targets.add(player);
                         }
                     }
-                    break;
+                }
             }
         }
 
@@ -162,7 +154,7 @@ public final class CommandUtils
      */
     public static String getWho(@NotNull Set<Player> players, @NotNull CommandSender sender)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
 
         if (players.size() == 1) {
             Player theOne = players.iterator().next();
@@ -173,13 +165,13 @@ public final class CommandUtils
                 return theOne.getName();
         }
 
-        if (players.containsAll(UniversalVersionMethods.getOnlinePlayers()))
+        if (players.containsAll(Bukkit.getOnlinePlayers()))
             return lang.get("General.Everyone");
 
-        StringBuilder names = new StringBuilder();
+        var names = new StringBuilder();
         int count = 1;
 
-        for (Player player : players) {
+        for (var player : players) {
             if (count == players.size())
                 names.append(player.getName());
             else if (count == players.size() - 1)
@@ -208,7 +200,7 @@ public final class CommandUtils
             if (sender instanceof Player) list.add(sender.getName());
         }
 
-        for (String selfArg : list) {
+        for (var selfArg : list) {
             if (selfArg.toLowerCase(Locale.ROOT).startsWith(argument.toLowerCase(Locale.ROOT)))
                 possibleCompletions.add(selfArg);
         }
