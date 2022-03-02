@@ -18,14 +18,12 @@
 
 package com.epicnicity322.playmoresounds.bukkit.inventory;
 
-import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.epicpluginlib.core.util.ObjectUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
-import com.epicnicity322.yamlhandler.Configuration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -35,7 +33,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -44,7 +41,7 @@ import java.util.function.Consumer;
 @SuppressWarnings("deprecation")
 public final class ListInventory implements PMSInventory
 {
-    private static final @NotNull ArrayList<ListInventory> listInvetories = new ArrayList<>();
+    private static final @NotNull ArrayList<ListInventory> listInventories = new ArrayList<>();
     private final @NotNull Inventory inventory;
     private final int page;
     private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>();
@@ -53,8 +50,8 @@ public final class ListInventory implements PMSInventory
     {
         if (PlayMoreSounds.getInstance() == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
-        Configuration config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
+        var lang = PlayMoreSounds.getLanguage();
         int rowsPerPage = config.getNumber("List.Inventory.Rows Per Page").orElse(4).intValue();
 
         if (rowsPerPage > 4) {
@@ -102,8 +99,8 @@ public final class ListInventory implements PMSInventory
         for (SoundType sound : soundList) {
             if (!soundMaterialsIterator.hasNext()) soundMaterialsIterator = soundMaterials.iterator();
 
-            ItemStack soundItem = new ItemStack(ObjectUtils.getOrDefault(Material.matchMaterial(soundMaterialsIterator.next()), Material.STONE));
-            ItemMeta soundItemMeta = soundItem.getItemMeta();
+            var soundItem = new ItemStack(ObjectUtils.getOrDefault(Material.matchMaterial(soundMaterialsIterator.next()), Material.STONE));
+            var soundItemMeta = soundItem.getItemMeta();
 
             soundItemMeta.setDisplayName(lang.getColored("List.Inventory.Items.Sound.Display Name").replace("<sound>", sound.name()));
             soundItemMeta.setLore(Arrays.asList(lang.getColored("List.Inventory.Items.Sound.Lore").split("<line>")));
@@ -126,7 +123,7 @@ public final class ListInventory implements PMSInventory
     public static void refreshListInventories()
     {
         if (PlayMoreSounds.getInstance() == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
-        listInvetories.clear();
+        listInventories.clear();
 
         int rowsPerPage = Configurations.CONFIG.getConfigurationHolder().getConfiguration().getNumber("List.Inventory.Rows Per Page").orElse(4).intValue();
 
@@ -137,17 +134,17 @@ public final class ListInventory implements PMSInventory
         }
 
         TreeMap<Integer, ArrayList<SoundType>> soundPages = new TreeMap<>(PMSHelper.splitIntoPages(SoundType.getPresentSoundTypes(), rowsPerPage * 9));
-        for (Integer page : soundPages.keySet()) {
-            listInvetories.add(new ListInventory(page));
+        for (var page : soundPages.keySet()) {
+            listInventories.add(new ListInventory(page));
         }
     }
 
     public static ListInventory getListInventory(int page)
     {
-        if (listInvetories.isEmpty()) refreshListInventories();
-        if (page > listInvetories.size()) page = listInvetories.size();
+        if (listInventories.isEmpty()) refreshListInventories();
+        if (page > listInventories.size()) page = listInventories.size();
         if (page < 1) page = 1;
-        return listInvetories.get(page - 1);
+        return listInventories.get(page - 1);
     }
 
     private static Iterator<String> getIterator(ArrayList<String> list, int page)

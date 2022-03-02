@@ -22,6 +22,7 @@ import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.addons.exceptions.InvalidAddonException;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -35,7 +36,7 @@ public final class AddonClassLoader extends URLClassLoader
     final @NotNull AddonDescription description;
     final PMSAddon addon;
 
-    AddonClassLoader(@NotNull Path jar, @NotNull AddonDescription description) throws InvalidAddonException, MalformedURLException, IllegalAccessException, InstantiationException
+    AddonClassLoader(@NotNull Path jar, @NotNull AddonDescription description) throws InvalidAddonException, MalformedURLException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException
     {
         super(new URL[]{jar.toUri().toURL()}, PlayMoreSoundsCore.class.getClassLoader());
 
@@ -56,7 +57,7 @@ public final class AddonClassLoader extends URLClassLoader
 
         Class<? extends PMSAddon> addonClass = main.asSubclass(PMSAddon.class);
 
-        addon = addonClass.newInstance();
+        addon = addonClass.getConstructor().newInstance();
         addon.loaded = true;
     }
 
@@ -100,7 +101,7 @@ public final class AddonClassLoader extends URLClassLoader
 
         // Searching for clazz in other addons.
         if (addons) {
-            for (AddonClassLoader loader : AddonManager.addonClassLoaders) {
+            for (var loader : AddonManager.addonClassLoaders) {
                 if (loader == this) continue;
 
                 try {

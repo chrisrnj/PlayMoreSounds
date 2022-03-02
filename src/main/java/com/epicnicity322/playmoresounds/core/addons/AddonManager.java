@@ -33,7 +33,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
 
 public class AddonManager
 {
@@ -63,12 +62,12 @@ public class AddonManager
         if (!serverPlugins.isLoaded())
             throw new IllegalStateException("Can not register addons if the server has not registered all plugins yet.");
 
-        Path addonsFolder = PlayMoreSoundsCore.getFolder().resolve("Addons");
+        var addonsFolder = PlayMoreSoundsCore.getFolder().resolve("Addons");
 
         if (Files.notExists(addonsFolder))
             Files.createDirectories(addonsFolder);
 
-        TreeMap<AddonDescription, Path> addons = new TreeMap<>((description, t1) -> {
+        var addons = new TreeMap<AddonDescription, Path>((description, t1) -> {
             if (description.getRequiredAddons().contains(t1.getName()) || description.getAddonHooks().contains(t1.getName())) {
                 return 1;
             } else {
@@ -76,14 +75,14 @@ public class AddonManager
             }
         });
 
-        HashSet<String> addonNames = new HashSet<>();
+        var addonNames = new HashSet<String>();
 
         // Parsing and getting addon descriptions.
-        try (Stream<Path> fileStream = Files.list(addonsFolder)) {
+        try (var fileStream = Files.list(addonsFolder)) {
             fileStream.filter(file -> file.getFileName().toString().endsWith(".jar")).forEach(jar -> {
                 try {
-                    AddonDescription description = new AddonDescription(jar);
-                    String name = description.getName();
+                    var description = new AddonDescription(jar);
+                    var name = description.getName();
 
                     // Checking if an addon with the same name was registered before.
                     if (addonNames.contains(name)) {
@@ -116,7 +115,7 @@ public class AddonManager
         // Removing addons that are missing dependencies.
         addons.keySet().removeIf(description -> {
             if (!addonNames.containsAll(description.getRequiredAddons())) {
-                String name = description.getName();
+                var name = description.getName();
                 logger.log("&c" + (name.toLowerCase().contains("addon") ? name : name + " addon") + " could not be loaded because it depends on the other addon(s): " + description.getRequiredAddons(), ConsoleLogger.Level.WARN);
                 addonNames.remove(description.getName());
                 return true;
@@ -127,7 +126,7 @@ public class AddonManager
 
         // Instantiating addons main class.
         addons.forEach((description, jar) -> {
-            String name = description.getName();
+            var name = description.getName();
 
             try {
                 addonClassLoaders.add(new AddonClassLoader(jar, description));
@@ -149,7 +148,7 @@ public class AddonManager
     {
         if (addonClassLoaders.isEmpty()) return;
 
-        for (PMSAddon addon : getAddons())
+        for (var addon : getAddons())
             if (addon.getDescription().getStartTime() == startTime && !addon.started && !addon.stopped)
                 callOnStart(addon);
     }
@@ -167,7 +166,7 @@ public class AddonManager
 
     private void callOnStart(@NotNull PMSAddon addon)
     {
-        String name = addon.getDescription().getName();
+        var name = addon.getDescription().getName();
 
         logger.log("&eStarting " + name + " v" + addon.getDescription().getVersion() + (name.toLowerCase().contains("addon") ? "." : " addon."));
 
@@ -209,7 +208,7 @@ public class AddonManager
 
     private void callOnStop(@NotNull PMSAddon addon)
     {
-        String name = addon.getDescription().getName();
+        var name = addon.getDescription().getName();
 
         logger.log("&eStopping " + name + " v" + addon.getDescription().getVersion() + (name.toLowerCase().contains("addon") ? "." : " addon."));
 
@@ -236,7 +235,7 @@ public class AddonManager
      */
     public @NotNull HashSet<PMSAddon> getAddons()
     {
-        HashSet<PMSAddon> addons = new HashSet<>();
+        var addons = new HashSet<PMSAddon>();
 
         addonClassLoaders.forEach(classLoader -> addons.add(classLoader.getAddon()));
 

@@ -18,7 +18,6 @@
 
 package com.epicnicity322.playmoresounds.bukkit.inventory;
 
-import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.epicpluginlib.bukkit.reflection.ReflectionUtil;
 import com.epicnicity322.epicpluginlib.core.tools.Downloader;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
@@ -28,7 +27,6 @@ import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.subcommand.AddonsSubCommand;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
-import com.epicnicity322.playmoresounds.core.addons.AddonDescription;
 import com.epicnicity322.playmoresounds.core.addons.PMSAddon;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import org.bukkit.Bukkit;
@@ -56,7 +54,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 //TODO: Add change page button to Addon Management Inventory and Addon Install Inventory.
@@ -90,8 +87,8 @@ public final class AddonsInventory implements PMSInventory
     {
         if (PlayMoreSounds.getInstance() == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
-        HashSet<PMSAddon> addons = PlayMoreSounds.getAddonManager().getAddons();
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var addons = PlayMoreSounds.getAddonManager().getAddons();
+        var lang = PlayMoreSounds.getLanguage();
 
         if (addons.isEmpty()) {
             addonPages = new HashMap<>(0);
@@ -110,8 +107,8 @@ public final class AddonsInventory implements PMSInventory
             buttons = new HashMap<>(1 + addons.size());
             inventory = Bukkit.createInventory(null, size, lang.getColored("Addons.Inventory.Title.Default"));
 
-            ItemStack info = InventoryUtils.getItemStack("Addons.Inventory.Items.Info");
-            ItemMeta infoMeta = info.getItemMeta();
+            var info = InventoryUtils.getItemStack("Addons.Inventory.Items.Info");
+            var infoMeta = info.getItemMeta();
             infoMeta.setLore(Arrays.asList(lang.getColored("Addons.Inventory.Items.Info.Lore").replace("<addons>", Integer.toString(addons.size())).split("<line>")));
             info.setItemMeta(infoMeta);
 
@@ -130,7 +127,7 @@ public final class AddonsInventory implements PMSInventory
     private static String findAddonsDownloadURL(JSONArray assets)
     {
         for (Object asset : assets) {
-            JSONObject jsonAsset = (JSONObject) asset;
+            var jsonAsset = (JSONObject) asset;
 
             if (!jsonAsset.get("name").equals("Addons.zip")) continue;
 
@@ -146,7 +143,7 @@ public final class AddonsInventory implements PMSInventory
         allInventories.forEach(HumanEntity::closeInventory);
 
         new Thread(() -> {
-            MessageSender lang = PlayMoreSounds.getLanguage();
+            var lang = PlayMoreSounds.getLanguage();
 
             try {
                 downloadAddons(player, true);
@@ -177,7 +174,7 @@ public final class AddonsInventory implements PMSInventory
     private static void downloadAddons(@NotNull Player player, boolean latest) throws Exception
     {
         BukkitTask repeatingTitle = null;
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
 
         try {
             if (Files.notExists(tempFolder)) {
@@ -193,8 +190,8 @@ public final class AddonsInventory implements PMSInventory
             // Getting the github release information.
             if (hasTitles)
                 repeatingTitle = Bukkit.getScheduler().runTaskTimer(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Downloading.Title"), lang.getColored("Addons.Download.Downloading.Subtitle.Info"), 5, 10, 5), 0, 25);
-            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                Downloader downloader = new Downloader(releasesURL, baos);
+            try (var baos = new ByteArrayOutputStream()) {
+                var downloader = new Downloader(releasesURL, baos);
                 downloader.run();
 
                 if (downloader.getResult() != Downloader.Result.SUCCESS) {
@@ -205,13 +202,13 @@ public final class AddonsInventory implements PMSInventory
                     throw downloader.getException();
                 }
 
-                JSONArray releases = (JSONArray) new JSONParser().parse(baos.toString());
+                var releases = (JSONArray) new JSONParser().parse(baos.toString());
 
                 if (latest) {
                     releaseData = (JSONObject) releases.get(0);
                 } else {
                     for (Object tagObject : releases) {
-                        JSONObject jsonTag = (JSONObject) tagObject;
+                        var jsonTag = (JSONObject) tagObject;
 
                         if (jsonTag.get("tag_name").equals(PlayMoreSoundsVersion.version)) {
                             releaseData = jsonTag;
@@ -246,7 +243,7 @@ public final class AddonsInventory implements PMSInventory
             if (hasTitles)
                 repeatingTitle = Bukkit.getScheduler().runTaskTimer(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Downloading.Title"), lang.getColored("Addons.Download.Downloading.Subtitle.Files"), 5, 10, 5), 0, 25);
             try (FileOutputStream fos = new FileOutputStream(tempAddonsZip.toFile())) {
-                Downloader downloader = new Downloader(new URL(addonsDownloadURL), fos);
+                var downloader = new Downloader(new URL(addonsDownloadURL), fos);
                 downloader.run();
 
                 if (downloader.getResult() != Downloader.Result.SUCCESS) {
@@ -287,12 +284,12 @@ public final class AddonsInventory implements PMSInventory
 
     private static String breakLore(String lore, int maxInFirstLine, String color)
     {
-        StringBuilder builder = new StringBuilder();
+        var builder = new StringBuilder();
 
         if (lore.length() > maxInFirstLine) {
             builder.append(lore, 0, maxInFirstLine).append('-');
 
-            String rest = lore.substring(maxInFirstLine);
+            var rest = lore.substring(maxInFirstLine);
             int count = 0;
             while (rest.length() != 0) {
                 //Max of three lines.
@@ -329,19 +326,19 @@ public final class AddonsInventory implements PMSInventory
     private void fillAddons()
     {
         ArrayList<PMSAddon> addons = addonPages.get(1);
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
 
         if (addons == null) return;
 
         int slot = 18;
 
-        for (PMSAddon addon : addons) {
+        for (var addon : addons) {
             if (slot > 54) break;
             boolean toBeUninstalled = AddonsSubCommand.ADDONS_TO_UNINSTALL.contains(addon);
-            AddonDescription description = addon.getDescription();
-            ItemStack addonItem = InventoryUtils.getItemStack("Addons.Inventory.Items.Addon");
-            ItemMeta meta = addonItem.getItemMeta();
-            String name = addon.getDescription().getName();
+            var description = addon.getDescription();
+            var addonItem = InventoryUtils.getItemStack("Addons.Inventory.Items.Addon");
+            var meta = addonItem.getItemMeta();
+            var name = addon.getDescription().getName();
 
             meta.setDisplayName(lang.getColored("Addons.Inventory.Items.Addon.Display Name").replace("<name>", name));
             meta.setLore(Arrays.asList(lang.getColored(toBeUninstalled ? "Addons.Inventory.Items.Addon.To be uninstalled lore" : "Addons.Inventory.Items.Addon.Lore").replace("<description>", breakLore(description.getDescription(), 22, lastColor("<description>"))).replace("<authors>", breakLore(description.getAuthors().toString(), 24, lastColor("<authors>"))).replace("<version>", breakLore(description.getVersion().getVersion(), 26, lastColor("<version>"))).split("<line>")));
@@ -388,7 +385,7 @@ public final class AddonsInventory implements PMSInventory
 
     public void openInventory(@NotNull HumanEntity humanEntity)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
 
         if (block.get()) {
             lang.send(humanEntity, lang.get("Addons.Error.Blocked"));
@@ -425,7 +422,7 @@ public final class AddonsInventory implements PMSInventory
             // Getting addon descriptions.
             try (Stream<Path> addonFolders = Files.list(tempAddonsFolder)) {
                 //Collecting so IOException can be thrown.
-                for (Path addonFolder : addonFolders.filter(Files::isDirectory).collect(Collectors.toList())) {
+                for (Path addonFolder : addonFolders.filter(Files::isDirectory).toList()) {
                     addons.put(addonFolder, Arrays.asList(ChatColor.translateAlternateColorCodes('&', PathUtils.read(addonFolder.resolve("description.txt"))).split("\n")));
                 }
             }
@@ -450,7 +447,7 @@ public final class AddonsInventory implements PMSInventory
 
                     try (Stream<Path> files = Files.list(tempFolder)) {
                         // Checking if temp folder is empty before deleting.
-                        if (!files.findAny().isPresent()) {
+                        if (files.findAny().isEmpty()) {
                             Files.delete(tempFolder);
                         }
                     }
@@ -462,7 +459,7 @@ public final class AddonsInventory implements PMSInventory
 
         private void fillAddons()
         {
-            MessageSender lang = PlayMoreSounds.getLanguage();
+            var lang = PlayMoreSounds.getLanguage();
             int slot = -1;
 
             for (Path addon : addonPages.get(1)) {
@@ -483,7 +480,7 @@ public final class AddonsInventory implements PMSInventory
                         if (Files.notExists(addonsFolder)) Files.createDirectories(addonsFolder);
 
                         // Collecting so IOException can be thrown.
-                        for (Path jar : jars.filter(path -> path.toString().endsWith(".jar")).collect(Collectors.toList())) {
+                        for (Path jar : jars.filter(path -> path.toString().endsWith(".jar")).toList()) {
                             Files.move(jar, addonsFolder.resolve(jar.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
                         }
 

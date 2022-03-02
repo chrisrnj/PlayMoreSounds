@@ -34,8 +34,8 @@ public class PMSAddon
 
     protected PMSAddon()
     {
-        ClassLoader classLoader = getClass().getClassLoader();
-        String name = this.getClass().getName();
+        var classLoader = getClass().getClassLoader();
+        var name = this.getClass().getName();
 
         if (!(classLoader instanceof AddonClassLoader))
             throw new UnsupportedOperationException(name + " can only be instantiated by " + AddonClassLoader.class.getName());
@@ -132,9 +132,7 @@ public class PMSAddon
     public boolean equals(Object otherAddon)
     {
         if (this == otherAddon) return true;
-        if (!(otherAddon instanceof PMSAddon)) return false;
-
-        PMSAddon pmsAddon = (PMSAddon) otherAddon;
+        if (!(otherAddon instanceof PMSAddon pmsAddon)) return false;
 
         return jar.equals(pmsAddon.jar);
     }

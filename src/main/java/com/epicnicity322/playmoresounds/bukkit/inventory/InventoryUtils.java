@@ -22,7 +22,6 @@ import com.epicnicity322.epicpluginlib.core.util.ObjectUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
-import com.epicnicity322.yamlhandler.Configuration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -36,7 +35,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,7 +54,7 @@ public final class InventoryUtils
         {
             if (event.getClickedInventory() == null) return;
 
-            HumanEntity player = event.getWhoClicked();
+            var player = event.getWhoClicked();
             HashMap<Integer, Consumer<InventoryClickEvent>> buttons = openInventories.get(player);
 
             if (buttons == null) return;
@@ -75,7 +73,7 @@ public final class InventoryUtils
         @EventHandler
         public void onInventoryClose(InventoryCloseEvent event)
         {
-            HumanEntity player = event.getPlayer();
+            var player = event.getPlayer();
 
             if (openInventories.remove(player) != null) {
                 if (openInventories.isEmpty()) HandlerList.unregisterAll(this);
@@ -116,8 +114,8 @@ public final class InventoryUtils
         for (int slot = from_index; slot <= to_index; ++slot) {
             if (inventory.getItem(slot) != null) continue;
 
-            ItemStack glassPane = new ItemStack(Material.GLASS_PANE);
-            ItemMeta meta = glassPane.getItemMeta();
+            var glassPane = new ItemStack(Material.GLASS_PANE);
+            var meta = glassPane.getItemMeta();
 
             meta.setDisplayName(" ");
             meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
@@ -128,9 +126,9 @@ public final class InventoryUtils
 
     public static @NotNull ItemStack getItemStack(@NotNull String configPath)
     {
-        Configuration config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
-        ItemStack itemStack = new ItemStack(ObjectUtils.getOrDefault(Material.matchMaterial(config.getString(configPath + ".Material").orElse("STONE")), Material.STONE));
-        ItemMeta itemMeta = itemStack.getItemMeta();
+        var config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
+        var itemStack = new ItemStack(ObjectUtils.getOrDefault(Material.matchMaterial(config.getString(configPath + ".Material").orElse("STONE")), Material.STONE));
+        var itemMeta = itemStack.getItemMeta();
 
         itemMeta.setDisplayName(PlayMoreSounds.getLanguage().getColored(configPath + ".Display Name"));
         itemMeta.setLore(Arrays.asList(PlayMoreSounds.getLanguage().getColored(configPath + ".Lore").split("<line>")));

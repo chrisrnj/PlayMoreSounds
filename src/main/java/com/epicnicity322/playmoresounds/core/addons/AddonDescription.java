@@ -35,7 +35,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 
@@ -60,10 +59,10 @@ public class AddonDescription
     protected AddonDescription(@NotNull Path jar) throws IOException, InvalidAddonException
     {
         // Getting the description file.
-        JarFile jarFile = new JarFile(jar.toFile());
-        JarEntry entry = jarFile.getJarEntry("pmsaddon.yml");
+        var jarFile = new JarFile(jar.toFile());
+        var entry = jarFile.getJarEntry("pmsaddon.yml");
 
-        String fileName = jar.getFileName().toString();
+        var fileName = jar.getFileName().toString();
 
         if (entry == null)
             throw new InvalidAddonException(new FileNotFoundException("The jar '" + fileName + "' in addons folder does not contain a description file."));
@@ -230,9 +229,7 @@ public class AddonDescription
     public boolean equals(Object o)
     {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        AddonDescription that = (AddonDescription) o;
+        if (!(o instanceof AddonDescription that)) return false;
 
         return addonHooks.equals(that.addonHooks) &&
                 apiVersion.equals(that.apiVersion) &&
