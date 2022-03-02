@@ -18,20 +18,17 @@
 
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
-import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.epicpluginlib.core.util.ObjectUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,7 +36,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 
-public record OnPlayerInteract() implements Listener
+public final class OnPlayerInteract implements Listener
 {
     private static final @NotNull HashMap<UUID, Location[]> selectedDiagonals = new HashMap<>();
     private static final @NotNull UUID console = UUID.randomUUID();
@@ -81,15 +78,15 @@ public record OnPlayerInteract() implements Listener
         if ((event.getAction() != Action.LEFT_CLICK_BLOCK && event.getAction() != Action.RIGHT_CLICK_BLOCK)
                 || event.useInteractedBlock() == Event.Result.DENY) return;
 
-        Player player = event.getPlayer();
+        var player = event.getPlayer();
 
         if (!player.hasPermission("playmoresounds.region.select.wand")) return;
 
-        ItemStack item = event.getItem();
+        var item = event.getItem();
 
         if (item == null || !item.isSimilar(RegionManager.getWand())) return;
 
-        MessageSender lang = PlayMoreSounds.getLanguage();
+        var lang = PlayMoreSounds.getLanguage();
         UUID uuid = player.getUniqueId();
         Location clicked = event.getClickedBlock().getLocation();
 

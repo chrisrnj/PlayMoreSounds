@@ -35,7 +35,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public record OnPlayerJoin() implements Listener
+public final class OnPlayerJoin implements Listener
 {
     private static final @NotNull Cancellable cancellableDummy = new Cancellable()
     {
@@ -91,7 +91,7 @@ public record OnPlayerJoin() implements Listener
         PlayMoreSounds.onReload(soundUpdater);
     }
 
-    public OnPlayerJoin
+    public OnPlayerJoin()
     {
         if (PlayMoreSounds.getInstance() == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
     }
