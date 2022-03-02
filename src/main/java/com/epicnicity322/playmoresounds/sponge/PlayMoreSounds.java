@@ -59,9 +59,9 @@ import java.util.Random;
 public final class PlayMoreSounds
 {
     private static final @NotNull MessageSender language;
+    private static final @NotNull LoadableHashSet<String> serverPlugins = new LoadableHashSet<>();
     private static @Nullable HashSet<Runnable> onDisable;
     private static @Nullable HashSet<Runnable> onEnable;
-    private static final @NotNull LoadableHashSet<String> serverPlugins = new LoadableHashSet<>();
     private static @Nullable HashSet<Runnable> onReload;
     private static boolean enabled = false;
     private static boolean disabled = false;
