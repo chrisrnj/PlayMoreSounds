@@ -21,26 +21,22 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
-import com.epicnicity322.yamlhandler.Configuration;
-import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class OnWeatherChange extends PMSListener
 {
-    private final @NotNull PlayMoreSounds plugin;
-    private PlayableRichSound stopSound;
-    private PlayableRichSound startSound;
+    private @Nullable PlayableRichSound stopSound;
+    private @Nullable PlayableRichSound startSound;
 
     public OnWeatherChange(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
-
-        this.plugin = plugin;
     }
 
     @Override
@@ -52,15 +48,21 @@ public final class OnWeatherChange extends PMSListener
     @Override
     public void load()
     {
-        Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
-        ConfigurationSection stop = sounds.getConfigurationSection("Weather Rain End");
-        ConfigurationSection start = sounds.getConfigurationSection("Weather Rain");
-        boolean stopEnabled = stop != null && stop.getBoolean("Enabled").orElse(false);
-        boolean startEnabled = start != null && start.getBoolean("Enabled").orElse(false);
+        var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+        boolean stopEnabled = sounds.getBoolean("Weather Rain End.Enabled").orElse(false);
+        boolean startEnabled = sounds.getBoolean("Weather Rain.Enabled").orElse(false);
 
         if (stopEnabled || startEnabled) {
-            stopSound = new PlayableRichSound(stop);
-            startSound = new PlayableRichSound(start);
+            if (stopEnabled) {
+                stopSound = new PlayableRichSound(sounds.getConfigurationSection("Weather Rain End"));
+            } else {
+                stopSound = null;
+            }
+            if (startEnabled) {
+                startSound = new PlayableRichSound(sounds.getConfigurationSection("Weather Rain End"));
+            } else {
+                startSound = null;
+            }
 
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -77,9 +79,9 @@ public final class OnWeatherChange extends PMSListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onWeatherChange(WeatherChangeEvent event)
     {
-        PlayableRichSound sound = event.toWeatherState() ? startSound : stopSound;
+        var sound = event.toWeatherState() ? startSound : stopSound;
 
-        if (!event.isCancelled() || !sound.isCancellable())
+        if (sound != null && (!event.isCancelled() || !sound.isCancellable()))
             sound.play(event.getWorld().getSpawnLocation());
     }
 }

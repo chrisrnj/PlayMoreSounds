@@ -21,10 +21,7 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
-import com.epicnicity322.yamlhandler.Configuration;
-import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
@@ -32,15 +29,12 @@ import org.jetbrains.annotations.NotNull;
 
 public final class OnPlayerBedLeave extends PMSListener
 {
-    private final @NotNull PlayMoreSounds plugin;
     private PlayableRichSound bedLeave;
     private PlayableRichSound wakeUp;
 
     public OnPlayerBedLeave(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
-
-        this.plugin = plugin;
     }
 
     @Override
@@ -52,18 +46,21 @@ public final class OnPlayerBedLeave extends PMSListener
     @Override
     public void load()
     {
-        Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
-        ConfigurationSection leave = sounds.getConfigurationSection("Bed Leave");
-        ConfigurationSection wake = sounds.getConfigurationSection("Wake Up");
-        boolean leaveEnabled = leave != null && leave.getBoolean("Enabled").orElse(false);
-        boolean wakeEnabled = wake != null && wake.getBoolean("Enabled").orElse(false);
+        var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+        boolean leaveEnabled = sounds.getBoolean("Bed Leave.Enabled").orElse(false);
+        boolean wakeEnabled = sounds.getBoolean("Wake Up.Enabled").orElse(false);
 
         if (leaveEnabled || wakeEnabled) {
-            if (leaveEnabled)
-                bedLeave = new PlayableRichSound(leave);
-
-            if (wakeEnabled)
-                wakeUp = new PlayableRichSound(wake);
+            if (leaveEnabled) {
+                bedLeave = new PlayableRichSound(sounds.getConfigurationSection("Bed Leave"));
+            } else {
+                bedLeave = null;
+            }
+            if (wakeEnabled) {
+                wakeUp = new PlayableRichSound(sounds.getConfigurationSection("Wake Up"));
+            } else {
+                wakeUp = null;
+            }
 
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -80,7 +77,7 @@ public final class OnPlayerBedLeave extends PMSListener
     @EventHandler
     public void onPlayerBedLeave(PlayerBedLeaveEvent event)
     {
-        Player player = event.getPlayer();
+        var player = event.getPlayer();
 
         if (bedLeave != null)
             bedLeave.play(player);

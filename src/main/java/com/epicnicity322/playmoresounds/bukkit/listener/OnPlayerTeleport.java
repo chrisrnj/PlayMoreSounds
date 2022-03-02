@@ -21,15 +21,11 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
-import com.epicnicity322.yamlhandler.Configuration;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +36,7 @@ public final class OnPlayerTeleport implements Listener
 
     static {
         Runnable soundUpdater = () -> {
-            Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+            var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
 
             if (sounds.getBoolean("Teleport.Enabled").orElse(false))
                 teleport = new PlayableRichSound(sounds.getConfigurationSection("Teleport"));
@@ -54,24 +50,23 @@ public final class OnPlayerTeleport implements Listener
         };
 
         PlayMoreSounds.onInstance(soundUpdater);
+        PlayMoreSounds.onEnable(soundUpdater); // Make sure to load once all configurations have been reloaded.
         PlayMoreSounds.onReload(soundUpdater);
     }
 
     private final @NotNull PlayMoreSounds main;
-    private final @NotNull BukkitScheduler scheduler;
 
     public OnPlayerTeleport(@NotNull PlayMoreSounds main)
     {
         this.main = main;
-        scheduler = Bukkit.getScheduler();
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerTeleport(PlayerTeleportEvent event)
     {
-        Player player = event.getPlayer();
-        Location from = event.getFrom();
-        Location to = event.getTo();
+        var player = event.getPlayer();
+        var from = event.getFrom();
+        var to = event.getTo();
 
         if (!event.isCancelled())
             OnPlayerMove.callRegionEnterLeaveEvents(event, player, from, to);
@@ -84,7 +79,7 @@ public final class OnPlayerTeleport implements Listener
         boolean playWorldChange = worldChange != null && !from.getWorld().equals(to.getWorld()) && (!event.isCancelled() || !worldChange.isCancellable());
 
         if (playTeleport || playWorldChange)
-            scheduler.runTask(main, () -> {
+            Bukkit.getScheduler().runTask(main, () -> {
                 if (playWorldChange) {
                     worldChange.play(player);
 

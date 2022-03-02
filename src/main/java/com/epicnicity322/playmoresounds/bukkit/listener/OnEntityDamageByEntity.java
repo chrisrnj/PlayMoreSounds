@@ -45,14 +45,12 @@ public final class OnEntityDamageByEntity extends PMSListener
 {
     private static final @NotNull Pattern comma = Pattern.compile(",");
     private final @NotNull HashSet<PlayableRichSound> conditions = new HashSet<>();
-    private final @NotNull PlayMoreSounds plugin;
     private final @NotNull NamespacedKey killerUUID;
 
     public OnEntityDamageByEntity(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
 
-        this.plugin = plugin;
         this.killerUUID = new NamespacedKey(plugin, "killer_uuid");
     }
 

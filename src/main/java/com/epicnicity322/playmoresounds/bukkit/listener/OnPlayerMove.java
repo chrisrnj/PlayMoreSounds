@@ -66,13 +66,13 @@ public final class OnPlayerMove implements Listener
             boolean isInTo = region.isInside(to);
 
             if (isInFrom && !isInTo) {
-                RegionLeaveEvent regionLeaveEvent = new RegionLeaveEvent(region, player, from, to);
+                var regionLeaveEvent = new RegionLeaveEvent(region, player, from, to);
                 Bukkit.getPluginManager().callEvent(regionLeaveEvent);
 
                 if (regionLeaveEvent.isCancelled())
                     event.setCancelled(true);
             } else if (!isInFrom && isInTo) {
-                RegionEnterEvent regionEnterEvent = new RegionEnterEvent(region, player, from, to);
+                var regionEnterEvent = new RegionEnterEvent(region, player, from, to);
                 Bukkit.getPluginManager().callEvent(regionEnterEvent);
 
                 if (regionEnterEvent.isCancelled())
@@ -116,7 +116,7 @@ public final class OnPlayerMove implements Listener
                 boolean playEnterSound = true;
 
                 if (loop != null) {
-                    PlayableRichSound loopSound = new PlayableRichSound(loop);
+                    var loopSound = new PlayableRichSound(loop);
 
                     if (loopSound.isEnabled() && (!event.isCancelled() || !loopSound.isCancellable())) {
                         long delay = loop.getNumber("Delay").orElse(0).longValue();
@@ -138,10 +138,10 @@ public final class OnPlayerMove implements Listener
                 }
 
                 if (playEnterSound) {
-                    ConfigurationSection enter = biomesConfiguration.getConfigurationSection(to.getWorld().getName() + '.' + toBiome.name() + ".Enter");
+                    var enter = biomesConfiguration.getConfigurationSection(to.getWorld().getName() + '.' + toBiome.name() + ".Enter");
 
                     if (enter != null) {
-                        PlayableRichSound enterSound = new PlayableRichSound(enter);
+                        var enterSound = new PlayableRichSound(enter);
 
                         if (!event.isCancelled() || !enterSound.isCancellable()) {
                             enterSound.play(player);
@@ -153,7 +153,7 @@ public final class OnPlayerMove implements Listener
                 }
 
                 if (leave != null) {
-                    PlayableRichSound leaveSound = new PlayableRichSound(leave);
+                    var leaveSound = new PlayableRichSound(leave);
 
                     if (!event.isCancelled() || !leaveSound.isCancellable())
                         leaveSound.play(player);

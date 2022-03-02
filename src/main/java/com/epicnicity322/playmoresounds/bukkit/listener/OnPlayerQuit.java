@@ -23,10 +23,7 @@ import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionLeaveEvent;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
-import com.epicnicity322.yamlhandler.Configuration;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -39,7 +36,7 @@ public final class OnPlayerQuit implements Listener
 
     static {
         Runnable soundUpdater = () -> {
-            Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+            var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
 
             if (sounds.getBoolean("Player Ban.Enabled").orElse(false))
                 playerBan = new PlayableRichSound(sounds.getConfigurationSection("Player Ban"));
@@ -52,19 +49,19 @@ public final class OnPlayerQuit implements Listener
                 leaveServer = null;
         };
 
-        // Not running it immediately because PlayableRichSound requires PlayMoreSounds loaded if delay > 0.
         PlayMoreSounds.onInstance(soundUpdater);
+        PlayMoreSounds.onEnable(soundUpdater); // Make sure to load once all configurations have been reloaded.
         PlayMoreSounds.onReload(soundUpdater);
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event)
     {
-        Player player = event.getPlayer();
-        Location location = player.getLocation();
+        var player = event.getPlayer();
+        var location = player.getLocation();
 
         RegionManager.getRegions().stream().filter(region -> region.isInside(location)).forEach(region -> {
-            RegionLeaveEvent regionLeaveEvent = new RegionLeaveEvent(region, player, location, location);
+            var regionLeaveEvent = new RegionLeaveEvent(region, player, location, location);
             Bukkit.getPluginManager().callEvent(regionLeaveEvent);
         });
 

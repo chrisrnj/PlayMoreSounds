@@ -21,10 +21,8 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
-import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
@@ -38,33 +36,24 @@ import java.util.regex.Pattern;
 
 public final class OnAsyncPlayerChat extends PMSListener
 {
-    private final @NotNull PlayMoreSounds plugin;
     private final @NotNull HashMap<String, HashSet<PlayableRichSound>> filtersAndCriteria = new HashMap<>();
 
     public OnAsyncPlayerChat(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
-        this.plugin = plugin;
     }
 
-    protected static boolean matchesFilter(String filter, String criteria, String message)
+    static boolean matchesFilter(String filter, String criteria, String message)
     {
-        switch (filter) {
-            case "Starts With":
-                return message.startsWith(criteria);
-            case "Ends With":
-                return message.endsWith(criteria);
-            case "Contains SubString":
-                return message.toLowerCase().contains(criteria.toLowerCase());
-            case "Contains":
-                return message.toLowerCase().matches(".*\\b" + Pattern.quote(criteria.toLowerCase()) + "\\b.*");
-            case "Equals Ignore Case":
-                return message.equalsIgnoreCase(criteria);
-            case "Equals Exactly":
-                return message.equals(criteria);
-            default:
-                return false;
-        }
+        return switch (filter) {
+            case "Starts With" -> message.startsWith(criteria);
+            case "Ends With" -> message.endsWith(criteria);
+            case "Contains SubString" -> message.toLowerCase().contains(criteria.toLowerCase());
+            case "Contains" -> message.toLowerCase().matches(".*\\b" + Pattern.quote(criteria.toLowerCase()) + "\\b.*");
+            case "Equals Ignore Case" -> message.equalsIgnoreCase(criteria);
+            case "Equals Exactly" -> message.equals(criteria);
+            default -> false;
+        };
     }
 
     @Override
@@ -78,37 +67,35 @@ public final class OnAsyncPlayerChat extends PMSListener
     {
         filtersAndCriteria.clear();
 
-        Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
-        Configuration chatTriggers = Configurations.CHAT_SOUNDS.getConfigurationHolder().getConfiguration();
-        ConfigurationSection defaultSection = sounds.getConfigurationSection(getName());
-
-        boolean defaultEnabled = defaultSection != null && defaultSection.getBoolean("Enabled").orElse(false);
-        boolean triggerEnabled = false;
+        var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+        var chatTriggers = Configurations.CHAT_SOUNDS.getConfigurationHolder().getConfiguration();
 
         for (Map.Entry<String, Object> filter : chatTriggers.getNodes().entrySet()) {
-            if (filter.getValue() instanceof ConfigurationSection) {
-                ConfigurationSection filterSection = (ConfigurationSection) filter.getValue();
+            if (filter.getValue() instanceof ConfigurationSection filterSection) {
                 HashSet<PlayableRichSound> criteria = new HashSet<>();
 
                 for (Map.Entry<String, Object> criterion : filterSection.getNodes().entrySet()) {
-                    if (criterion.getValue() instanceof ConfigurationSection) {
-                        ConfigurationSection criterionSection = (ConfigurationSection) criterion.getValue();
+                    if (criterion.getValue() instanceof ConfigurationSection criterionSection) {
 
                         if (criterionSection.getBoolean("Enabled").orElse(false)) {
                             criteria.add(new PlayableRichSound(criterionSection));
-                            triggerEnabled = true;
                         }
                     }
                 }
 
-                filtersAndCriteria.put(filter.getKey(), criteria);
+                if (!criteria.isEmpty()) filtersAndCriteria.put(filter.getKey(), criteria);
             }
         }
 
-        if (defaultEnabled || triggerEnabled) {
-            if (defaultEnabled)
-                setRichSound(new PlayableRichSound(defaultSection));
+        boolean defaultEnabled = sounds.getBoolean(getName() + ".Enabled").orElse(false);
 
+        if (defaultEnabled) {
+            setRichSound(new PlayableRichSound(sounds.getConfigurationSection(getName())));
+        } else {
+            setRichSound(null);
+        }
+
+        if (defaultEnabled || !filtersAndCriteria.isEmpty()) {
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
                 setLoaded(true);
@@ -124,13 +111,13 @@ public final class OnAsyncPlayerChat extends PMSListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onAsyncPlayerChat(AsyncPlayerChatEvent event)
     {
-        String message = event.getMessage();
-        Player player = event.getPlayer();
-        boolean defaultSound = true;
+        var message = event.getMessage();
+        var player = event.getPlayer();
+        boolean defaultSound = getRichSound() != null;
 
         filterLoop:
         for (Map.Entry<String, HashSet<PlayableRichSound>> filter : filtersAndCriteria.entrySet()) {
-            for (PlayableRichSound criteria : filter.getValue()) {
+            for (var criteria : filter.getValue()) {
                 ConfigurationSection criteriaSection = criteria.getSection();
 
                 if (!event.isCancelled() || !criteria.isCancellable()) {
@@ -147,12 +134,7 @@ public final class OnAsyncPlayerChat extends PMSListener
             }
         }
 
-        if (defaultSound) {
-            PlayableRichSound sound = getRichSound();
-
-            if (sound != null)
-                if (!event.isCancelled() || !sound.isCancellable())
-                    Bukkit.getScheduler().runTask(plugin, () -> sound.play(player));
-        }
+        if (defaultSound && (!event.isCancelled() || !getRichSound().isCancellable()))
+            Bukkit.getScheduler().runTask(plugin, () -> getRichSound().play(player));
     }
 }

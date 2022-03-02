@@ -21,7 +21,6 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
-import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -30,7 +29,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -56,23 +54,26 @@ public final class OnInventoryClick extends PMSListener
     {
         criteriaSounds.clear();
 
-        for (Map.Entry<String, Object> node : Configurations.ITEMS_CLICKED.getConfigurationHolder().getConfiguration().getNodes().entrySet()) {
-            if (node.getValue() instanceof ConfigurationSection) {
-                ConfigurationSection section = (ConfigurationSection) node.getValue();
+        var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+        var itemsClicked = Configurations.ITEMS_CLICKED.getConfigurationHolder().getConfiguration();
 
+        for (Map.Entry<String, Object> node : itemsClicked.getNodes().entrySet()) {
+            if (node.getValue() instanceof ConfigurationSection section) {
                 if (section.getBoolean("Enabled").orElse(false) && section.contains("Sounds")) {
                     criteriaSounds.put(node.getKey(), new PlayableRichSound(section));
                 }
             }
         }
 
-        Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
         boolean defaultEnabled = sounds.getBoolean(getName() + ".Enabled").orElse(false);
 
-        if (!criteriaSounds.isEmpty() || defaultEnabled) {
-            if (defaultEnabled)
-                setRichSound(new PlayableRichSound(sounds.getConfigurationSection(getName())));
+        if (defaultEnabled) {
+            setRichSound(new PlayableRichSound(sounds.getConfigurationSection(getName())));
+        } else {
+            setRichSound(null);
+        }
 
+        if (defaultEnabled || !criteriaSounds.isEmpty()) {
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
                 setLoaded(true);
@@ -90,19 +91,19 @@ public final class OnInventoryClick extends PMSListener
     {
         if (event.getClickedInventory() == null) return;
 
-        ItemStack item = event.getCurrentItem();
+        var item = event.getCurrentItem();
 
         if (item == null) return;
         if (item.getType() == Material.AIR && event.getCursor() != null)
             item = event.getCursor();
 
-        Player player = (Player) event.getWhoClicked();
-        PlayableRichSound defaultSound = getRichSound();
+        var player = (Player) event.getWhoClicked();
+        var defaultSound = getRichSound();
         String material = item.getType().name();
 
         for (Map.Entry<String, PlayableRichSound> criterion : criteriaSounds.entrySet()) {
             if (OnEntityDamageByEntity.matchesCriterion(criterion.getKey(), material)) {
-                PlayableRichSound criterionSound = criterion.getValue();
+                var criterionSound = criterion.getValue();
 
                 if (!event.isCancelled() || !criterionSound.isCancellable()) {
                     criterionSound.play(player);

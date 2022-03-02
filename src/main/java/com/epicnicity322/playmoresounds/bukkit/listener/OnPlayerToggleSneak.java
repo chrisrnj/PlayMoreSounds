@@ -19,7 +19,6 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.jetbrains.annotations.NotNull;
@@ -40,7 +39,7 @@ public final class OnPlayerToggleSneak extends PMSListener
     @EventHandler
     public void onPlayerToggleSneak(PlayerToggleSneakEvent event)
     {
-        PlayableRichSound sound = getRichSound();
+        var sound = getRichSound();
 
         if (!event.isCancelled() || !sound.isCancellable())
             sound.play(event.getPlayer());

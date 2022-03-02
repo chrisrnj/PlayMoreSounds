@@ -19,7 +19,6 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerEditBookEvent;
@@ -41,7 +40,7 @@ public final class OnPlayerEditBook extends PMSListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerEditBook(PlayerEditBookEvent event)
     {
-        PlayableRichSound sound = getRichSound();
+        var sound = getRichSound();
 
         if (!event.isCancelled() || !sound.isCancellable())
             sound.play(event.getPlayer());

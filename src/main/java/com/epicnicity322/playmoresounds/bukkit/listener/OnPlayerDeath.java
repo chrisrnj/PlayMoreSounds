@@ -21,7 +21,6 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
-import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -42,7 +41,6 @@ import java.util.UUID;
 public final class OnPlayerDeath extends PMSListener
 {
     private final @NotNull HashMap<String, PlayableRichSound> specificDeaths = new HashMap<>();
-    private final @NotNull PlayMoreSounds plugin;
     private final @NotNull NamespacedKey lastDamageKey;
     private final @NotNull NamespacedKey killerUUIDKey;
     private @Nullable PlayableRichSound playerKilled;
@@ -51,9 +49,7 @@ public final class OnPlayerDeath extends PMSListener
     public OnPlayerDeath(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
-
-        this.plugin = plugin;
-        lastDamageKey = new NamespacedKey(PlayMoreSounds.getInstance(), "last_damage");
+        lastDamageKey = new NamespacedKey(plugin, "last_damage");
         killerUUIDKey = new NamespacedKey(plugin, "killer_uuid");
     }
 
@@ -68,8 +64,8 @@ public final class OnPlayerDeath extends PMSListener
     {
         specificDeaths.clear();
 
-        Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
-        Configuration deathTypes = Configurations.DEATH_TYPES.getConfigurationHolder().getConfiguration();
+        var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+        var deathTypes = Configurations.DEATH_TYPES.getConfigurationHolder().getConfiguration();
 
         for (Map.Entry<String, Object> deathType : deathTypes.getNodes().entrySet()) {
             if (deathType.getValue() instanceof ConfigurationSection deathTypeSection) {

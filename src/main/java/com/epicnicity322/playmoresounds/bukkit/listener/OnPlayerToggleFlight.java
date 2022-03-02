@@ -21,10 +21,7 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
-import com.epicnicity322.yamlhandler.Configuration;
-import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
@@ -33,15 +30,12 @@ import org.jetbrains.annotations.NotNull;
 
 public final class OnPlayerToggleFlight extends PMSListener
 {
-    private final @NotNull PlayMoreSounds plugin;
     private PlayableRichSound stopSound;
     private PlayableRichSound startSound;
 
     public OnPlayerToggleFlight(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
-
-        this.plugin = plugin;
     }
 
     @Override
@@ -53,15 +47,21 @@ public final class OnPlayerToggleFlight extends PMSListener
     @Override
     public void load()
     {
-        Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
-        ConfigurationSection stop = sounds.getConfigurationSection("Stop Flying");
-        ConfigurationSection start = sounds.getConfigurationSection("Start Flying");
-        boolean stopEnabled = stop != null && stop.getBoolean("Enabled").orElse(false);
-        boolean startEnabled = start != null && start.getBoolean("Enabled").orElse(false);
+        var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+        boolean stopEnabled = sounds.getBoolean("Stop Flying.Enabled").orElse(false);
+        boolean startEnabled = sounds.getBoolean("Start Flying.Enabled").orElse(false);
 
         if (stopEnabled || startEnabled) {
-            stopSound = new PlayableRichSound(stop);
-            startSound = new PlayableRichSound(start);
+            if (stopEnabled) {
+                stopSound = new PlayableRichSound(sounds.getConfigurationSection("Stop Flying"));
+            } else {
+                stopSound = null;
+            }
+            if (startEnabled) {
+                startSound = new PlayableRichSound(sounds.getConfigurationSection("Start Flying"));
+            } else {
+                startSound = null;
+            }
 
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -78,7 +78,7 @@ public final class OnPlayerToggleFlight extends PMSListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerToggleFlight(PlayerToggleFlightEvent event)
     {
-        Player player = event.getPlayer();
+        var player = event.getPlayer();
         PlayableRichSound sound;
 
         if (player.isFlying())

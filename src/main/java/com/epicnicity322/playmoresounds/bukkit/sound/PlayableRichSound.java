@@ -55,7 +55,7 @@ public class PlayableRichSound extends RichSound<PlayableSound> implements Playa
     public void play(@Nullable Player player, @NotNull Location sourceLocation)
     {
         if (isEnabled() && !getChildSounds().isEmpty()) {
-            PlayRichSoundEvent event = new PlayRichSoundEvent(player, sourceLocation, this);
+            var event = new PlayRichSoundEvent(player, sourceLocation, this);
 
             Bukkit.getPluginManager().callEvent(event);
 
@@ -80,7 +80,7 @@ public class PlayableRichSound extends RichSound<PlayableSound> implements Playa
      */
     public @NotNull BukkitRunnable playInLoop(@Nullable Player player, @NotNull Supplier<Location> sourceLocation, long delay, long period, @Nullable Supplier<Boolean> breaker)
     {
-        PlayMoreSounds main = PlayMoreSounds.getInstance();
+        var main = PlayMoreSounds.getInstance();
 
         if (main == null)
             throw new IllegalStateException("PlayMoreSounds is not loaded.");

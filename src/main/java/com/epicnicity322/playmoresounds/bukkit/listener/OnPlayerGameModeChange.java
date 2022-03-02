@@ -21,10 +21,8 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
-import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
@@ -37,13 +35,10 @@ import java.util.Map;
 public final class OnPlayerGameModeChange extends PMSListener
 {
     private final @NotNull HashMap<String, PlayableRichSound> specificGameModes = new HashMap<>();
-    private final @NotNull PlayMoreSounds plugin;
 
     public OnPlayerGameModeChange(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
-
-        this.plugin = plugin;
     }
 
     @Override
@@ -57,28 +52,26 @@ public final class OnPlayerGameModeChange extends PMSListener
     {
         specificGameModes.clear();
 
-        Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
-        Configuration gameModes = Configurations.GAME_MODES.getConfigurationHolder().getConfiguration();
-        ConfigurationSection defaultSection = sounds.getConfigurationSection(getName());
-
-        boolean defaultEnabled = defaultSection != null && defaultSection.getBoolean("Enabled").orElse(false);
-        boolean specificGameModeEnabled = false;
+        var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+        var gameModes = Configurations.GAME_MODES.getConfigurationHolder().getConfiguration();
 
         for (Map.Entry<String, Object> gameMode : gameModes.getNodes().entrySet()) {
-            if (gameMode.getValue() instanceof ConfigurationSection) {
-                ConfigurationSection gameModeSection = (ConfigurationSection) gameMode.getValue();
-
+            if (gameMode.getValue() instanceof ConfigurationSection gameModeSection) {
                 if (gameModeSection.getBoolean("Enabled").orElse(false)) {
                     specificGameModes.put(gameMode.getKey().toUpperCase(), new PlayableRichSound(gameModeSection));
-                    specificGameModeEnabled = true;
                 }
             }
         }
 
-        if (defaultEnabled || specificGameModeEnabled) {
-            if (defaultEnabled)
-                setRichSound(new PlayableRichSound(defaultSection));
+        boolean defaultEnabled = sounds.getBoolean(getName() + ".Enabled").orElse(false);
 
+        if (defaultEnabled) {
+            setRichSound(new PlayableRichSound(sounds.getConfigurationSection(getName())));
+        } else {
+            setRichSound(null);
+        }
+
+        if (defaultEnabled || !specificGameModes.isEmpty()) {
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
                 setLoaded(true);
@@ -94,9 +87,9 @@ public final class OnPlayerGameModeChange extends PMSListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerGameModeChange(PlayerGameModeChangeEvent event)
     {
-        Player player = event.getPlayer();
+        var player = event.getPlayer();
         PlayableRichSound specificGameModeSound = specificGameModes.get(event.getNewGameMode().name());
-        boolean defaultSound = true;
+        boolean defaultSound = getRichSound() != null;
 
         if (specificGameModeSound != null) {
             if (!event.isCancelled() || !specificGameModeSound.isCancellable()) {
@@ -107,12 +100,7 @@ public final class OnPlayerGameModeChange extends PMSListener
             }
         }
 
-        if (defaultSound) {
-            PlayableRichSound sound = getRichSound();
-
-            if (sound != null)
-                if (!event.isCancelled() || !sound.isCancellable())
-                    sound.play(player);
-        }
+        if (defaultSound && (!event.isCancelled() || !getRichSound().isCancellable()))
+            getRichSound().play(player);
     }
 }

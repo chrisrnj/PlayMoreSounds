@@ -31,14 +31,12 @@ import org.jetbrains.annotations.NotNull;
 
 public final class OnPlayerRespawn extends PMSListener
 {
-    private final @NotNull PlayMoreSounds plugin;
     private final @NotNull NamespacedKey lastDamageKey;
     private final @NotNull NamespacedKey killerUUIDKey;
 
     public OnPlayerRespawn(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
-        this.plugin = plugin;
         lastDamageKey = new NamespacedKey(plugin, "last_damage");
         killerUUIDKey = new NamespacedKey(plugin, "killer_uuid");
     }

@@ -21,7 +21,6 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
-import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
@@ -68,7 +67,7 @@ public abstract class PMSListener implements Listener
      */
     public void load()
     {
-        Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+        var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
         ConfigurationSection section = sounds.getConfigurationSection(getName());
 
         if (section == null || !section.getBoolean("Enabled").orElse(false)) {
