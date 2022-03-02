@@ -18,17 +18,15 @@
 
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
-import com.epicnicity322.epicpluginlib.core.util.ObjectUtils;
+import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
-import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionEnterEvent;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionLeaveEvent;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
-import com.epicnicity322.playmoresounds.core.sound.SoundType;
-import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -45,19 +43,17 @@ import java.util.Map;
 
 public final class OnRegionEnterLeave extends PMSListener
 {
-    private final @NotNull PlayMoreSounds plugin;
-    private final @NotNull HashMap<String, BukkitRunnable> regionsInLoop = new HashMap<>();
-    private final @NotNull HashMap<String, HashSet<String>> soundsToStop = new HashMap<>();
+    private final @NotNull HashMap<String, PlayableRichSound> regionSounds = new HashMap<>();
+    private final @NotNull HashMap<String, BukkitRunnable> loopingRegions = new HashMap<>();
     private @Nullable PlayableRichSound regionEnterSound = null;
     private @Nullable PlayableRichSound regionLeaveSound = null;
 
     public OnRegionEnterLeave(@NotNull PlayMoreSounds plugin)
     {
         super(plugin);
-        this.plugin = plugin;
 
-        PlayMoreSounds.onDisable(() -> regionsInLoop.entrySet().removeIf(entry -> {
-            entry.getValue().cancel();
+        PlayMoreSounds.onDisable(() -> loopingRegions.entrySet().removeIf(entry -> {
+            if (!entry.getValue().isCancelled()) entry.getValue().cancel();
             return true;
         }));
     }
@@ -71,37 +67,37 @@ public final class OnRegionEnterLeave extends PMSListener
     @Override
     public void load()
     {
-        Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
-        Configuration regions = Configurations.REGIONS.getConfigurationHolder().getConfiguration();
-        ConfigurationSection regionEnterSection = sounds.getConfigurationSection("Region Enter");
-        ConfigurationSection regionLeaveSection = sounds.getConfigurationSection("Region Leave");
-        ConfigurationSection defaultSection = ObjectUtils.getOrDefault(regionEnterSection, regionLeaveSection);
-        ConfigurationSection regionsYAMLSection = regions.getConfigurationSection("PlayMoreSounds");
-        boolean load = !soundsToStop.isEmpty();
+        regionSounds.clear();
 
-        if (!load)
-            if (defaultSection != null)
-                load = defaultSection.getBoolean("Enabled").orElse(false);
+        var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+        var regions = Configurations.REGIONS.getConfigurationHolder().getConfiguration();
+        ConfigurationSection regionsSection = regions.getConfigurationSection("PlayMoreSounds");
 
-        if (!load) {
-            if (regionsYAMLSection != null) {
-                for (Map.Entry<String, Object> section : regionsYAMLSection.getAbsoluteNodes().entrySet()) {
-                    if (section.getKey().endsWith("Enabled")) {
-                        if (section.getValue() == Boolean.TRUE) {
-                            load = true;
-                            break;
-                        }
-                    }
-                }
+        if (regionsSection != null) {
+            for (Map.Entry<String, Object> node : regionsSection.getNodes().entrySet()) {
+                if (!(node.getValue() instanceof ConfigurationSection regionSection)) continue;
+
+                addRegionSound(regionSection, "Enter");
+                addRegionSound(regionSection, "Leave");
+                addRegionSound(regionSection, "Loop");
             }
         }
 
-        if (load) {
-            if (regionEnterSection != null)
-                regionEnterSound = new PlayableRichSound(regionEnterSection);
-            if (regionLeaveSection != null)
-                regionLeaveSound = new PlayableRichSound(regionLeaveSection);
+        boolean regionEnterEnabled = sounds.getBoolean("Region Enter.Enabled").orElse(false);
+        boolean regionLeaveEnabled = sounds.getBoolean("Region Leave.Enabled").orElse(false);
 
+        if (regionEnterEnabled) {
+            regionEnterSound = new PlayableRichSound(sounds.getConfigurationSection("Region Enter"));
+        } else {
+            regionEnterSound = null;
+        }
+        if (regionLeaveEnabled) {
+            regionLeaveSound = new PlayableRichSound(sounds.getConfigurationSection("Region Leave"));
+        } else {
+            regionLeaveSound = null;
+        }
+
+        if (!regionSounds.isEmpty() || regionEnterEnabled || regionLeaveEnabled) {
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
                 setLoaded(true);
@@ -114,143 +110,115 @@ public final class OnRegionEnterLeave extends PMSListener
         }
     }
 
+    private void addRegionSound(ConfigurationSection regionSection, String type)
+    {
+        if (regionSection.getBoolean(type + ".Enabled").orElse(false)) {
+            try {
+                regionSounds.put(type + "." + regionSection.getName(), new PlayableRichSound(regionSection.getConfigurationSection(type)));
+            } catch (IllegalArgumentException e) {
+                PlayMoreSounds.getConsoleLogger().log("The sound region '" + regionSection.getName() + "' has an invalid sound for " + type + " event in regions.yml configuration, so it was ignored.", ConsoleLogger.Level.WARN);
+            }
+        }
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onRegionEnter(RegionEnterEvent event)
     {
-        Player player = event.getPlayer();
-        ConfigurationSection regions = Configurations.REGIONS.getConfigurationHolder().getConfiguration()
-                .getConfigurationSection("PlayMoreSounds");
-        SoundRegion region = event.getRegion();
-        boolean defaultSound = true;
+        var player = event.getPlayer();
+        var regionName = event.getRegion().getName();
 
-        String key = region.getId() + ";" + player.getUniqueId();
+        boolean playDefaultSound = regionEnterSound != null;
+        boolean playEnterSound = true;
 
-        if (regionsInLoop.containsKey(key)) {
-            regionsInLoop.get(key).cancel();
-            regionsInLoop.remove(key);
-        }
+        String loopKey = player.getUniqueId() + ";" + regionName;
+        PlayableRichSound loopSound = regionSounds.get("Loop." + regionName);
 
-        if (regions != null) {
-            ConfigurationSection loop = regions.getConfigurationSection(region.getName() + ".Loop");
-            boolean playEnterSound = true;
+        // Playing loop sound
+        if (loopSound != null && (!event.isCancelled() || !loopSound.isCancellable())) {
+            ConfigurationSection loopSection = loopSound.getSection();
+            long delay = loopSection.getNumber("Delay").orElse(0).longValue();
+            long period = loopSection.getNumber("Period").orElse(0).longValue();
 
-            if (loop != null) {
-                PlayableRichSound loopSound = new PlayableRichSound(loop);
+            BukkitRunnable previousRunnable = loopingRegions.put(loopKey, loopSound.playInLoop(player, player::getLocation,
+                    delay, period, () -> {
+                        if (!player.isOnline()) return false;
 
-                if (loopSound.isEnabled() && (!event.isCancelled() || !loopSound.isCancellable())) {
-                    long delay = loop.getNumber("Delay").orElse(0).longValue();
-                    long period = loop.getNumber("Period").orElse(0).longValue();
+                        for (var region : RegionManager.getRegions()) {
+                            if (region.getName().equals(regionName)) {
+                                return region.isInside(player.getLocation());
+                            }
+                        }
 
-                    regionsInLoop.put(key, loopSound.playInLoop(player, player::getLocation, delay, period, () -> {
-                        Configuration updatedRegions = Configurations.REGIONS.getConfigurationHolder().getConfiguration();
-
-                        return !updatedRegions.getBoolean("PlayMoreSounds." + region.getName() + ".Loop.Enabled").orElse(false)
-                                || !RegionManager.getRegions().contains(region) || !player.isOnline() || !region.isInside(player.getLocation());
+                        return false;
                     }));
 
-                    stopOnExit(player, region, loop);
+            if (previousRunnable != null && !previousRunnable.isCancelled()) previousRunnable.cancel();
 
-                    if (loop.getBoolean("Prevent Other Sounds.Default Sound").orElse(false))
-                        defaultSound = false;
-                    if (loop.getBoolean("Prevent Other Sounds.Enter Sound").orElse(false))
-                        playEnterSound = false;
-                }
-            }
+            if (loopSection.getBoolean("Prevent Default Sound").orElse(false))
+                playEnterSound = false;
+        }
 
-            if (playEnterSound) {
-                ConfigurationSection enter = regions.getConfigurationSection(region.getName() + ".Enter");
+        // Playing enter sound
+        if (playEnterSound) {
+            PlayableRichSound enterSound = regionSounds.get("Enter." + regionName);
 
-                if (enter != null) {
-                    PlayableRichSound enterSound = new PlayableRichSound(enter);
+            if (enterSound != null && (!event.isCancelled() || !enterSound.isCancellable())) {
+                enterSound.play(player);
 
-                    if (enterSound.isEnabled()) {
-                        if (!event.isCancelled() || !enterSound.isCancellable()) {
-                            enterSound.play(player);
-
-                            stopOnExit(player, region, enter);
-
-                            if (enter.getBoolean("Prevent Default Sound").orElse(false))
-                                defaultSound = false;
-                        }
-                    }
-                }
+                if (enterSound.getSection().getBoolean("Prevent Default Sound").orElse(false))
+                    playDefaultSound = false;
             }
         }
 
-        if (defaultSound && regionEnterSound != null)
-            if (!event.isCancelled() || !regionEnterSound.isCancellable()) {
-                regionEnterSound.play(player);
-
-                if (regionEnterSound.isEnabled())
-                    stopOnExit(player, region, regionEnterSound.getSection());
-            }
+        // Playing default sound in sounds.yml
+        if (playDefaultSound && (!event.isCancelled() || !regionEnterSound.isCancellable())) {
+            regionEnterSound.play(player);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onRegionLeave(RegionLeaveEvent event)
     {
-        Player player = event.getPlayer();
-        SoundRegion region = event.getRegion();
-        String key = region.getId() + ";" + player.getUniqueId();
+        var player = event.getPlayer();
+        var regionName = event.getRegion().getName();
+        // Being cancelled means the player didn't actually leave the region, so the loop keeps playing.
+        if (!event.isCancelled()) {
+            String loopKey = player.getUniqueId() + ";" + regionName;
+            BukkitRunnable loopingRunnable = loopingRegions.remove(loopKey);
 
-        if (regionsInLoop.containsKey(key)) {
-            regionsInLoop.get(key).cancel();
-            regionsInLoop.remove(key);
+            if (loopingRunnable != null && !loopingRunnable.isCancelled()) loopingRunnable.cancel();
+
+            stopOnExit(player, regionSounds.get("Loop." + regionName));
+            stopOnExit(player, regionSounds.get("Enter." + regionName));
         }
 
-        soundsToStop.entrySet().removeIf(entry -> {
-            String stopKey = entry.getKey();
+        boolean playDefaultSound = regionLeaveSound != null;
+        PlayableRichSound leaveSound = regionSounds.get("Leave." + regionName);
 
-            if (stopKey.startsWith(key)) {
-                long delay = Long.parseLong(stopKey.substring(stopKey.lastIndexOf(";") + 1));
+        if (leaveSound != null && (!event.isCancelled() || !leaveSound.isCancellable())) {
+            leaveSound.play(player);
 
-                SoundManager.stopSounds(player, entry.getValue(), delay);
-                return true;
-            }
-
-            return false;
-        });
-
-        boolean defaultSound = true;
-
-        ConfigurationSection leave = Configurations.REGIONS.getConfigurationHolder().getConfiguration().getConfigurationSection("PlayMoreSounds." + region.getName() + ".Leave");
-
-        if (leave != null) {
-            PlayableRichSound leaveSound = new PlayableRichSound(leave);
-
-            if (leaveSound.isEnabled()) {
-                if (!event.isCancelled() || !leaveSound.isCancellable()) {
-                    leaveSound.play(player);
-
-                    if (leave.getBoolean("Prevent Default Sound").orElse(false))
-                        defaultSound = false;
-                }
-            }
+            if (leaveSound.getSection().getBoolean("Prevent Default Sound").orElse(false))
+                playDefaultSound = false;
         }
 
-        if (defaultSound && regionLeaveSound != null)
-            if (!event.isCancelled() || !regionLeaveSound.isCancellable())
-                regionLeaveSound.play(player);
+        if (playDefaultSound && (!event.isCancelled() || !regionLeaveSound.isCancellable())) {
+            regionLeaveSound.play(player);
+        }
     }
 
-    private void stopOnExit(Player player, SoundRegion region, ConfigurationSection section)
+    private void stopOnExit(Player player, PlayableRichSound playingSound)
     {
-        if (section.getBoolean("Stop On Exit.Enabled").orElse(false)) {
-            ConfigurationSection soundsSection = section.getConfigurationSection("Sounds");
-            String key = region.getId() + ";" + player.getUniqueId() + ";" + section.getNumber("Stop On Exit.Delay").orElse(0);
-            HashSet<String> sounds = soundsToStop.get(key);
+        if (playingSound == null) return;
 
-            if (sounds == null)
-                sounds = new HashSet<>();
+        if (playingSound.getSection().getBoolean("Stop On Exit.Enabled").orElse(true)) {
+            HashSet<String> toStop = new HashSet<>(playingSound.getChildSounds().size());
 
-            if (soundsSection != null)
-                for (String sound : soundsSection.getNodes().keySet()) {
-                    String soundToStop = soundsSection.getString(sound + ".Sound").orElse("");
+            for (PlayableSound sound : playingSound.getChildSounds()) {
+                toStop.add(sound.getSound());
+            }
 
-                    sounds.add(SoundType.getPresentSoundNames().contains(soundToStop) ? SoundType.valueOf(soundToStop).getSound().orElse("") : soundToStop);
-                }
-
-            soundsToStop.put(key, sounds);
+            SoundManager.stopSounds(player, toStop, playingSound.getSection().getNumber("Stop On Exit.Delay").orElse(0).longValue());
         }
     }
 }
