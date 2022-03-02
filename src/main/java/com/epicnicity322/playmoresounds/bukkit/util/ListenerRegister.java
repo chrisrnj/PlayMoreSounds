@@ -19,7 +19,6 @@
 package com.epicnicity322.playmoresounds.bukkit.util;
 
 import com.epicnicity322.epicpluginlib.bukkit.reflection.ReflectionUtil;
-import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.listener.*;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
@@ -41,7 +40,7 @@ public final class ListenerRegister
 
     static {
         PlayMoreSounds.onInstance(() -> {
-            PlayMoreSounds instance = PlayMoreSounds.getInstance();
+            var instance = PlayMoreSounds.getInstance();
 
             listeners.add(new OnAsyncPlayerChat(instance));
             listeners.add(new OnCraftItem(instance));
@@ -61,18 +60,10 @@ public final class ListenerRegister
             listeners.add(new OnPlayerKick(instance));
             listeners.add(new OnPlayerLevelChange(instance));
             listeners.add(new OnPlayerRespawn(instance));
-
-            // PlayerSwapHandItemsEvent was added on 1.9.2
-            if (ReflectionUtil.getClass("org.bukkit.event.player.PlayerSwapHandItemsEvent") != null)
-                listeners.add(new OnPlayerSwapHandItems(instance));
-
+            listeners.add(new OnPlayerSwapHandItems(instance));
             listeners.add(new OnPlayerToggleFlight(instance));
             listeners.add(new OnPlayerToggleSneak(instance));
-
-            // OnPortalCreate listener uses methods that were changed in 1.14
-            if (PlayMoreSoundsCore.getServerVersion().compareTo(new Version("1.14")) >= 0)
-                listeners.add(new OnPortalCreate(instance));
-
+            listeners.add(new OnPortalCreate(instance));
             listeners.add(new OnRegionEnterLeave(instance));
             listeners.add(new OnWeatherChange(instance));
 
