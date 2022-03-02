@@ -39,7 +39,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 
-public class OnPlayerInteract implements Listener
+public record OnPlayerInteract() implements Listener
 {
     private static final @NotNull HashMap<UUID, Location[]> selectedDiagonals = new HashMap<>();
     private static final @NotNull UUID console = UUID.randomUUID();

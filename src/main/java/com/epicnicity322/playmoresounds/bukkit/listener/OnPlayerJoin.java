@@ -18,23 +18,16 @@
 
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
-import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
-import com.epicnicity322.epicpluginlib.bukkit.reflection.ReflectionUtil;
 import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionEnterEvent;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
-import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;
 import com.epicnicity322.playmoresounds.bukkit.util.UpdateManager;
-import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
-import com.epicnicity322.yamlhandler.Configuration;
 import com.google.common.io.BaseEncoding;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -42,7 +35,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class OnPlayerJoin implements Listener
+public record OnPlayerJoin() implements Listener
 {
     private static final @NotNull Cancellable cancellableDummy = new Cancellable()
     {
@@ -55,29 +48,28 @@ public final class OnPlayerJoin implements Listener
         {
         }
     };
-    private static final boolean hasFancyResourcePackMessage = ReflectionUtil.getMethod(Player.class, "setResourcePack", String.class, byte[].class, String.class) != null;
-    private static final boolean hasResourcePackHash = ReflectionUtil.getMethod(Player.class, "setResourcePack", String.class, byte[].class) != null;
     private static @Nullable PlayableRichSound firstJoin;
     private static @Nullable PlayableRichSound joinServer;
     private static byte[] resourcePackHash;
 
     static {
         Runnable soundUpdater = () -> {
-            Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+            var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
 
-            if (sounds.getBoolean("First Join.Enabled").orElse(false))
+            if (sounds.getBoolean("First Join.Enabled").orElse(false)) {
                 firstJoin = new PlayableRichSound(sounds.getConfigurationSection("First Join"));
-            else
+            } else {
                 firstJoin = null;
-
-            if (sounds.getBoolean("Join Server.Enabled").orElse(false))
+            }
+            if (sounds.getBoolean("Join Server.Enabled").orElse(false)) {
                 joinServer = new PlayableRichSound(sounds.getConfigurationSection("Join Server"));
-            else
+            } else {
                 joinServer = null;
+            }
 
-            Configuration config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
+            var config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
 
-            if (hasResourcePackHash && config.getBoolean("Resource Packs.Request").orElse(false) && !config.getString("Resource Packs.URL").orElse("").isEmpty()) {
+            if (config.getBoolean("Resource Packs.Request").orElse(false) && !config.getString("Resource Packs.URL").orElse("").isEmpty()) {
                 String hexadecimalHash = config.getString("Resource Packs.Hash").orElse("");
 
                 if (hexadecimalHash.length() != 40) {
@@ -94,25 +86,22 @@ public final class OnPlayerJoin implements Listener
             }
         };
 
-        // Not running it immediately because PlayableRichSound requires PlayMoreSounds loaded if delay > 0.
         PlayMoreSounds.onInstance(soundUpdater);
+        PlayMoreSounds.onEnable(soundUpdater); // Make sure to load once all configurations have been reloaded.
         PlayMoreSounds.onReload(soundUpdater);
     }
 
-    private final @NotNull PlayMoreSounds plugin;
-
-    public OnPlayerJoin(@NotNull PlayMoreSounds plugin)
+    public OnPlayerJoin
     {
-        this.plugin = plugin;
+        if (PlayMoreSounds.getInstance() == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
     }
 
-    @SuppressWarnings("deprecation")
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event)
     {
-        MessageSender lang = PlayMoreSounds.getLanguage();
-        Player player = event.getPlayer();
-        Location location = player.getLocation();
+        var lang = PlayMoreSounds.getLanguage();
+        var player = event.getPlayer();
+        var location = player.getLocation();
 
         // Playing join sound
         if (player.hasPlayedBefore()) {
@@ -123,17 +112,13 @@ public final class OnPlayerJoin implements Listener
         if (UpdateManager.isUpdateAvailable() && player.hasPermission("playmoresounds.update.joinmessage"))
             lang.send(player, false, "&2* &aPlayMoreSounds has a new update available!\n&2* &aDownload it using &7&n/pms update download&a command.");
 
-        Configuration config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
-
-        // Enabling sounds on login.
-        if (config.getBoolean("Enable Sounds On Login").orElse(false))
-            SoundManager.toggleSoundsState(player, true);
+        var config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
 
         // Calling region enter event.
         for (SoundRegion region : RegionManager.getRegions()) {
             if (!region.isInside(location)) continue;
 
-            RegionEnterEvent regionEnterEvent = new RegionEnterEvent(region, player, location, location);
+            var regionEnterEvent = new RegionEnterEvent(region, player, location, location);
 
             // Checking if event should be played only when player accepts resource pack.
             if (config.getBoolean("Resource Packs.Request").orElse(false)) {
@@ -146,7 +131,7 @@ public final class OnPlayerJoin implements Listener
         // Calling biome enter event.
         String biome = location.getBlock().getBiome().name();
         String world = location.getWorld().getName();
-        Configuration biomesConfig = Configurations.BIOMES.getConfigurationHolder().getConfiguration();
+        var biomesConfig = Configurations.BIOMES.getConfigurationHolder().getConfiguration();
 
         if (biomesConfig.getBoolean(world + "." + biome + "." + "Enter.Enabled").orElse(false) || biomesConfig.getBoolean(world + "." + biome + "." + "Loop.Enabled").orElse(false)) {
             // Checking if event should be played only when player accepts resource pack.
@@ -160,23 +145,7 @@ public final class OnPlayerJoin implements Listener
         String url = config.getString("Resource Packs.URL").orElse("");
 
         // Setting the player's resource pack.
-        if (VersionUtils.supportsResourcePacks() && config.getBoolean("Resource Packs.Request").orElse(false) && !url.isEmpty())
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                try {
-                    if (hasFancyResourcePackMessage) {
-                        player.setResourcePack(url, resourcePackHash, lang.getColored("Resource Packs.Request Message"));
-                    } else {
-                        lang.send(player, false, lang.get("Resource Packs.Request Message"));
-
-                        if (hasResourcePackHash)
-                            player.setResourcePack(url, resourcePackHash);
-                        else
-                            player.setResourcePack(url);
-                    }
-                } catch (Exception ex) {
-                    PlayMoreSounds.getConsoleLogger().log(lang.get("Resource Packs.Error").replace("<player>", player.getName()));
-                    ex.printStackTrace();
-                }
-            }, 3);
+        if (config.getBoolean("Resource Packs.Request").orElse(false) && !url.isEmpty())
+            Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> player.setResourcePack(url, resourcePackHash, lang.getColored("Resource Packs.Request Message")), 3);
     }
 }
