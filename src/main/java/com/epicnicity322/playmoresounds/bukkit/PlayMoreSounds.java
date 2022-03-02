@@ -30,6 +30,8 @@ import com.epicnicity322.playmoresounds.bukkit.command.subcommand.AddonsSubComma
 import com.epicnicity322.playmoresounds.bukkit.inventory.ListInventory;
 import com.epicnicity322.playmoresounds.bukkit.listener.*;
 import com.epicnicity322.playmoresounds.bukkit.metrics.Metrics;
+import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
+import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
 import com.epicnicity322.playmoresounds.bukkit.util.ListenerRegister;
 import com.epicnicity322.playmoresounds.bukkit.util.UpdateManager;
@@ -230,9 +232,10 @@ public final class PlayMoreSounds extends JavaPlugin
 
     public static @NotNull HashMap<ConfigurationHolder, Exception> reload()
     {
-        if (instance == null) throw new UnsupportedOperationException("PlayMoreSounds is not loaded.");
+        if (instance == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
         HashMap<ConfigurationHolder, Exception> exceptions = Configurations.getConfigurationLoader().loadConfigurations();
+        RegionManager.reload();
         ListenerRegister.loadListeners();
         WorldTimeListener.load();
         UpdateManager.loadUpdater(instance);
@@ -294,6 +297,8 @@ public final class PlayMoreSounds extends JavaPlugin
                 return;
             }
 
+            RegionManager.reload();
+
             addonManager.startAddons(StartTime.BEFORE_LISTENERS);
 
             // Registering all listeners:
@@ -303,7 +308,7 @@ public final class PlayMoreSounds extends JavaPlugin
             // Registering region wand tool listener.
             pm.registerEvents(new OnPlayerInteract(), this);
             // Registering region enter event caller.
-            pm.registerEvents(new OnPlayerJoin(this), this);
+            pm.registerEvents(new OnPlayerJoin(), this);
             // Registering region enter and leave event caller.
             pm.registerEvents(new OnPlayerMove(), this);
             // Registering region leave event caller.
@@ -414,6 +419,24 @@ public final class PlayMoreSounds extends JavaPlugin
     {
         // Checking if PlayMoreSounds was already disabled.
         if (disabled) return;
+
+        if (!RegionManager.getRegions().isEmpty()) {
+            logger.log("&eSaving regions...");
+            int count = 0;
+
+            for (SoundRegion region : RegionManager.getRegions()) {
+                try {
+                    RegionManager.save(region);
+                    count++;
+                } catch (Exception e) {
+                    logger.log("Unable to save " + region.getName() + " region.", ConsoleLogger.Level.WARN);
+                }
+            }
+
+            if (count != 0) {
+                logger.log("&e" + count + " regions were saved.");
+            }
+        }
 
         addonManager.stopAddons();
 

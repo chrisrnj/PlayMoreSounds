@@ -19,7 +19,6 @@
 package com.epicnicity322.playmoresounds.bukkit.region;
 
 import com.epicnicity322.yamlhandler.Configuration;
-import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -34,7 +33,7 @@ import java.util.regex.Pattern;
 
 public class SoundRegion
 {
-    private static final @NotNull Pattern allowedRegionNameChars = Pattern.compile("^[A-Za-z0-9_]+$");
+    public static final @NotNull Pattern ALLOWED_REGION_NAME_CHARS = Pattern.compile("^[A-Za-z0-9_]+$");
     private final @NotNull UUID id;
     private final @Nullable UUID creator;
     private final @NotNull ZonedDateTime creationDate;
@@ -68,8 +67,8 @@ public class SoundRegion
         description = data.getString("Description").orElse(null);
 
         World world = Objects.requireNonNull(Bukkit.getWorld(UUID.fromString(data.getString("World").orElseThrow(invalidRegionData))), "The world this region is in does not exist or is not loaded.");
-        ConfigurationSection first = data.getConfigurationSection("Diagonals.First");
-        ConfigurationSection second = data.getConfigurationSection("Diagonals.Second");
+        var first = data.getConfigurationSection("Diagonals.First");
+        var second = data.getConfigurationSection("Diagonals.Second");
 
         if (first == null || second == null) {
             throw invalidRegionData.get();
@@ -107,7 +106,7 @@ public class SoundRegion
      */
     private Set<Location> parseBorder()
     {
-        HashSet<Location> border = new HashSet<>();
+        var border = new HashSet<Location>();
 
         double startX = minDiagonal.getX();
         double endX = maxDiagonal.getX() + 1d;
@@ -172,7 +171,7 @@ public class SoundRegion
      */
     public void setName(@NotNull String name)
     {
-        if (!allowedRegionNameChars.matcher(name).matches())
+        if (!ALLOWED_REGION_NAME_CHARS.matcher(name).matches())
             throw new IllegalArgumentException("Specified name is not alpha-numeric.");
 
         this.name = name;
@@ -205,7 +204,7 @@ public class SoundRegion
      */
     public void setMaxDiagonal(@NotNull Location loc)
     {
-        World world = minDiagonal.getWorld();
+        var world = minDiagonal.getWorld();
 
         if (loc.getWorld() != world)
             throw new IllegalArgumentException("First position can not be in a different world than second position.");
@@ -239,7 +238,7 @@ public class SoundRegion
      */
     public void setMinDiagonal(@NotNull Location location)
     {
-        World world = maxDiagonal.getWorld();
+        var world = maxDiagonal.getWorld();
 
         if (location.getWorld() != world)
             throw new IllegalArgumentException("Second position can not be in a different world than first position.");
@@ -297,40 +296,13 @@ public class SoundRegion
     }
 
     /**
-     * Checks if the {@link Object} is a {@link SoundRegion} and has the same properties as this one, {@link UUID}s are
-     * ignored.
-     *
-     * @param o The object to compare.
-     * @return If the object is similar to this one.
-     */
-    public final boolean isSimilar(Object o)
-    {
-        if (this == o) return true;
-        if (!(o instanceof SoundRegion)) return false;
-
-        SoundRegion that = (SoundRegion) o;
-
-        return Objects.equals(creator, that.creator) &&
-                creationDate.equals(that.creationDate) &&
-                name.equals(that.name) &&
-                Objects.equals(description, that.description) &&
-                minDiagonal.equals(that.maxDiagonal) &&
-                minDiagonal.equals(that.minDiagonal);
-    }
-
-    /**
-     * Checks if the {@link Object} is a {@link SoundRegion} and has the same {@link UUID} as this one. If there's two
-     * instances with the same {@link UUID} and different properties, this will return true.
-     *
-     * @see #isSimilar(Object)
+     * Checks if the {@link Object} is a {@link SoundRegion} and has the same {@link UUID} as this one.
      */
     @Override
     public boolean equals(Object o)
     {
         if (this == o) return true;
-        if (!(o instanceof SoundRegion)) return false;
-
-        SoundRegion that = (SoundRegion) o;
+        if (!(o instanceof SoundRegion that)) return false;
 
         return id.equals(that.id);
     }

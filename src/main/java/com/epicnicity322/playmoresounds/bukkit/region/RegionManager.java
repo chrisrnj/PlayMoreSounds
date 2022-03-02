@@ -18,13 +18,11 @@
 
 package com.epicnicity322.playmoresounds.bukkit.region;
 
-import com.epicnicity322.epicpluginlib.core.util.ObjectUtils;
+import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
-import com.epicnicity322.yamlhandler.ConfigurationSection;
 import com.epicnicity322.yamlhandler.YamlConfigurationLoader;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -32,9 +30,7 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -42,17 +38,16 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class RegionManager
 {
-    //TODO: Fix this mess
-    private static final @NotNull YamlConfigurationLoader loader = new YamlConfigurationLoader();
     private static final @NotNull Path regionsFolder = PlayMoreSoundsCore.getFolder().resolve("Data").resolve("Regions");
+    private static final @NotNull HashSet<SoundRegion> regions = new HashSet<>();
+    private static final @NotNull Set<SoundRegion> unmodifiableRegions = Collections.unmodifiableSet(new HashSet<>());
     private static final @NotNull Runnable regionUpdater;
     private static final @NotNull Runnable wandUpdater;
-    private static final @NotNull HashSet<SoundRegion> regions = new HashSet<>();
-    private static @NotNull Set<SoundRegion> unmodifiableRegions = Collections.unmodifiableSet(new HashSet<>());
     private static ItemStack wand;
 
     static {
@@ -63,52 +58,46 @@ public final class RegionManager
                 try (Stream<Path> regionFiles = Files.list(regionsFolder)) {
                     regionFiles.forEach(regionFile -> {
                         try {
-                            regions.add(new SoundRegion(loader.load(regionFile)));
-                        } catch (Exception ignored) {
-                            // Ignoring files that aren't considered valid regions.
+                            regions.add(new SoundRegion(new YamlConfigurationLoader().load(regionFile)));
+                        } catch (Exception e) {
+                            PlayMoreSounds.getConsoleLogger().log("Error when reading region file \"" + regionFile.getFileName().toString() + "\": " + e.getMessage());
+                            PlayMoreSoundsCore.getErrorHandler().report(e, "Region instantiate from file exception:");
                         }
                     });
-                } catch (IOException ignored) {
+                } catch (IOException e) {
+                    PlayMoreSounds.getConsoleLogger().log("Unable to read regions in Data/Regions folder.", ConsoleLogger.Level.ERROR);
+                    PlayMoreSoundsCore.getErrorHandler().report(e, "Region Read Exception:");
                 }
             }
-
-            unmodifiableRegions = Collections.unmodifiableSet(regions);
         };
 
         wandUpdater = () -> {
-            String material = null;
+            var config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
 
-            try {
-                ConfigurationSection wandSection = ObjectUtils.getOrDefault(
-                        Configurations.CONFIG.getConfigurationHolder().getConfiguration().getConfigurationSection("Sound Regions.Wand"),
-                        Configurations.CONFIG.getConfigurationHolder().getDefaultConfiguration().getConfigurationSection("Sound Regions.Wand"));
+            String materialName = config.getString("Sound Regions.Wand.Material").orElse("FEATHER");
+            var material = Material.getMaterial(materialName);
 
-                material = wandSection.getString("Material").orElse("FEATHER");
-
-                ItemStack item = new ItemStack(Material.valueOf(material.toUpperCase()));
-                ItemMeta meta = item.getItemMeta();
-
-                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                        wandSection.getString("Name").orElse("&6&l&nRegion Selection Tool")));
-
-                if (wandSection.getBoolean("Glowing").orElse(false))
-                    meta.addEnchant(Enchantment.DURABILITY, 1, false);
-
-                if (VersionUtils.hasItemFlags())
-                    meta.addItemFlags(ItemFlag.values());
-
-                item.setItemMeta(meta);
-                wand = item;
-            } catch (IllegalArgumentException ex) {
-                PlayMoreSounds.getConsoleLogger().log("&cCouldn't get region wand. \"" + material + "\" is not a valid material. Please verify your configuration.");
-                PlayMoreSoundsCore.getErrorHandler().report(ex, "Invalid material:");
+            if (material == null || material.isAir()) {
+                PlayMoreSounds.getConsoleLogger().log("&cRegion wand has an invalid material: " + material + ". Using default FEATHER.");
+                material = Material.FEATHER;
             }
+
+            var item = new ItemStack(material);
+            var meta = item.getItemMeta();
+
+            meta.setDisplayName(ChatColor.translateAlternateColorCodes('&',
+                    config.getString("Sound Regions.Wand.Name").orElse("&6&l&nRegion Selection Tool")));
+
+            if (config.getBoolean("Sound Regions.Wand.Glowing").orElse(false))
+                meta.addEnchant(Enchantment.DURABILITY, 1, false);
+
+            meta.addItemFlags(ItemFlag.values());
+            item.setItemMeta(meta);
+            wand = item;
         };
 
         regionUpdater.run();
-        PlayMoreSounds.onReload(regionUpdater);
-        PlayMoreSounds.onReload(wandUpdater);
-        PlayMoreSounds.onEnable(wandUpdater);
+        wandUpdater.run();
     }
 
     private RegionManager()
@@ -126,15 +115,9 @@ public final class RegionManager
         return unmodifiableRegions;
     }
 
-    public static @NotNull HashSet<SoundRegion> getRegions(@NotNull Location location)
+    public static @NotNull Set<SoundRegion> getRegions(@NotNull Location location)
     {
-        HashSet<SoundRegion> regionsInLocation = new HashSet<>();
-
-        for (SoundRegion region : regions) {
-            if (region.isInside(location)) regionsInLocation.add(region);
-        }
-
-        return regionsInLocation;
+        return regions.stream().filter(region -> region.isInside(location)).collect(Collectors.toSet());
     }
 
     /**
@@ -142,12 +125,9 @@ public final class RegionManager
      *
      * @return An immutable {@link ItemStack} of the region selection tool.
      */
-    public static @Nullable ItemStack getWand()
+    public static @NotNull ItemStack getWand()
     {
-        if (wand == null)
-            return null;
-        else
-            return wand.clone();
+        return wand.clone();
     }
 
     /**
@@ -163,7 +143,7 @@ public final class RegionManager
     {
         delete(region);
 
-        Configuration data = new Configuration(loader);
+        Configuration data = new Configuration(new YamlConfigurationLoader());
 
         data.set("Name", region.getName());
         data.set("World", region.getMaxDiagonal().getWorld().getUID().toString());
@@ -188,7 +168,6 @@ public final class RegionManager
 
         data.save(regionsFolder.resolve(region.getId() + ".yml"));
         regions.add(region);
-        unmodifiableRegions = Collections.unmodifiableSet(regions);
     }
 
     /**
@@ -205,9 +184,7 @@ public final class RegionManager
             throw new IllegalArgumentException("Region is a sub-class of SoundRegion.");
 
         Files.deleteIfExists(regionsFolder.resolve(region.getId() + ".yml"));
-
-        if (regions.remove(region))
-            unmodifiableRegions = Collections.unmodifiableSet(regions);
+        regions.remove(region);
     }
 
     /**
