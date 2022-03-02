@@ -469,6 +469,8 @@ public final class PlayMoreSounds extends JavaPlugin
                     PlayMoreSoundsCore.getErrorHandler().report(e, "Addon Uninstall Exception");
                 }
             }
+
+            AddonsSubCommand.ADDONS_TO_UNINSTALL.clear();
         }
 
         disabled = true;
