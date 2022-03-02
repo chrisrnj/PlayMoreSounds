@@ -2,7 +2,7 @@ Changes with * at the start are the ones that are currently under development, t
 
 This version only works with java 17! And it was meant to be run on minecraft 1.18 or newer, all previous measures to
 support lower versions were removed in order to achieve better performance.
-The plugin might work as low as 1.16, but errors are not logged because the minimum supported version is 1.18.
+The plugin might work as low as 1.17, but errors are not logged because the minimum supported version is 1.18.
 
 All classes in the plugin were taken a look at and changed, in order to use java 17 features and fix bugs found on the way.
 
@@ -30,6 +30,7 @@ Regions:
 Removals:
 - Removed Relative Location option: This option would make some impact on performance even when you didn't use it, so it was removed because the majority of users don't use it.
 - Removed World Black List feature: This feature showed absolutely no use in bStats, so it was removed to save performance.
+- Removed Enable Sounds On Login.
 - Removed PrePlaySoundEvent: This event was called before the sound had parsed the Permission Required, and since it has no use in current addons it was removed to save performance.
 *Both Relative Location and World Black List features are available in the Extra Options addon.
 
