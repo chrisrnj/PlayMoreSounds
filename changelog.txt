@@ -40,9 +40,11 @@ Removals:
 - Removed World Black List feature: This feature showed absolutely no use in bStats, so it was removed to save performance.
 - Removed Enable Sounds On Login.
 - Removed PrePlaySoundEvent: This event was called before the sound had parsed the Permission Required, and since it has no use in current addons it was removed to save performance.
+*- Removed all sounds from SoundType that's below 1.17.
 *Both Relative Location and World Black List features are available in the Extra Options addon.
 
 What to expect of 5.0:
 - Several classes will be renamed.
 - The folders and configurations will be renamed.
 - A proper stop sound method will be added to the Playable interface, so sounds with delay can be stopped before they're played.
+- Addon loading code will be completely rewritten in order to add commands for starting and stopping addons without restarting server.
