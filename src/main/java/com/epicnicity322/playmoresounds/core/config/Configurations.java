@@ -434,17 +434,6 @@ public enum Configurations
             "    Glowing: true\n" +
             "    Material: FEATHER\n" +
             "\n" +
-            "# The worlds that sounds should not play.\n" +
-            "#\n" +
-            "# Example:\n" +
-            "#World Black List:\n" +
-            "#- 'world_nether'\n" +
-            "#- 'world_the_end'\n" +
-            "#\n" +
-            "# All sounds played by PlayMoreSounds will respect this, even plugins that hook to PlayMoreSounds to\n" +
-            "#play sounds.\n" +
-            "World Black List: []\n" +
-            "\n" +
             "# Update scheduler\n" +
             "Updater:\n" +
             "  Enabled: true\n" +
