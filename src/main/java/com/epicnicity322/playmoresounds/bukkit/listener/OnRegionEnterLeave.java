@@ -141,15 +141,15 @@ public final class OnRegionEnterLeave extends PMSListener
 
             BukkitRunnable previousRunnable = loopingRegions.put(loopKey, loopSound.playInLoop(player, player::getLocation,
                     delay, period, () -> {
-                        if (!player.isOnline()) return false;
+                        if (!player.isOnline()) return true;
 
                         for (var region : RegionManager.getRegions()) {
                             if (region.getName().equals(regionName)) {
-                                return region.isInside(player.getLocation());
+                                return !region.isInside(player.getLocation());
                             }
                         }
 
-                        return false;
+                        return true;
                     }));
 
             if (previousRunnable != null && !previousRunnable.isCancelled()) previousRunnable.cancel();
