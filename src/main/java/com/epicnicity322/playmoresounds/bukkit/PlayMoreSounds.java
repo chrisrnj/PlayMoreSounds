@@ -115,9 +115,8 @@ public final class PlayMoreSounds extends JavaPlugin
      * If a exception is caught, PlayMoreSounds automatically handles it and logs into the data folder.
      *
      * @param runnable Runnable to run on disable.
-     * @return Whether runnable was immediately executed because PlayMoreSounds is disabled.
      */
-    public static boolean onDisable(@NotNull Runnable runnable)
+    public static void onDisable(@NotNull Runnable runnable)
     {
         if (disabled) {
             try {
@@ -129,8 +128,6 @@ public final class PlayMoreSounds extends JavaPlugin
             if (onDisable == null) onDisable = new HashSet<>();
             onDisable.add(runnable);
         }
-
-        return disabled;
     }
 
     /**
@@ -139,9 +136,8 @@ public final class PlayMoreSounds extends JavaPlugin
      * If a exception is caught, PlayMoreSounds automatically handles it and logs into the data folder.
      *
      * @param runnable Runnable to run on enable.
-     * @return Whether runnable was immediately executed because PlayMoreSounds is enabled.
      */
-    public static boolean onEnable(@NotNull Runnable runnable)
+    public static void onEnable(@NotNull Runnable runnable)
     {
         if (enabled) {
             try {
@@ -153,8 +149,6 @@ public final class PlayMoreSounds extends JavaPlugin
             if (onEnable == null) onEnable = new HashSet<>();
             onEnable.add(runnable);
         }
-
-        return enabled;
     }
 
     /**
@@ -163,9 +157,8 @@ public final class PlayMoreSounds extends JavaPlugin
      * If a exception is caught, PlayMoreSounds automatically handles it and logs into the data folder.
      *
      * @param runnable Runnable to run on load.
-     * @return Whether runnable was immediately executed because PlayMoreSounds was already instantiated.
      */
-    public static boolean onInstance(@NotNull Runnable runnable)
+    public static void onInstance(@NotNull Runnable runnable)
     {
         if (getInstance() != null) {
             try {
@@ -177,8 +170,6 @@ public final class PlayMoreSounds extends JavaPlugin
             if (onInstance == null) onInstance = new HashSet<>();
             onInstance.add(runnable);
         }
-
-        return getInstance() != null;
     }
 
     /**
