@@ -35,6 +35,10 @@ Sound Events:
 - Fix weather sounds giving errors if you disable one of the two sounds.
 - Fix flight sounds giving errors if you disable one of the two sounds.
 
+Commands:
+- List command will page default to 1 if you specify a number lower than 1.
+- Play command will play even when players have sounds toggled off.
+
 Removals:
 - Removed Relative Location option: This option would make some impact on performance even when you didn't use it, so it was removed because the majority of users don't use it.
 - Removed World Black List feature: This feature showed absolutely no use in bStats, so it was removed to save performance.
@@ -48,3 +52,4 @@ What to expect of 5.0:
 - The folders and configurations will be renamed.
 - A proper stop sound method will be added to the Playable interface, so sounds with delay can be stopped before they're played.
 - Addon loading code will be completely rewritten in order to add commands for starting and stopping addons without restarting server.
+- The entire yaml configuration api will change, while also making use of new SnakeYAML 1.30 features.
