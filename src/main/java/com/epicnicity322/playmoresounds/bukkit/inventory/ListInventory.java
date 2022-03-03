@@ -114,7 +114,7 @@ public final class ListInventory implements PMSInventory
             inventory.setItem(count, soundItem);
             buttons.put(count, event -> {
                 Player player = (Player) event.getWhoClicked();
-                player.playSound(player.getLocation(), sound.getSoundOnVersion(), 10, 1);
+                player.playSound(player.getLocation(), sound.getSound().orElse("block.note_block.pling"), 10, 1);
             });
             count++;
         }
