@@ -1,0 +1,9 @@
+language: java
+
+jdk: openjdk17
+
+script: mvn clean verify
+
+os: linux
+
+dist: xenial
