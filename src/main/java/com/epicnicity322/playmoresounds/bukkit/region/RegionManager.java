@@ -45,7 +45,7 @@ public final class RegionManager
 {
     private static final @NotNull Path regionsFolder = PlayMoreSoundsCore.getFolder().resolve("Data").resolve("Regions");
     private static final @NotNull HashSet<SoundRegion> regions = new HashSet<>();
-    private static final @NotNull Set<SoundRegion> unmodifiableRegions = Collections.unmodifiableSet(new HashSet<>());
+    private static final @NotNull Set<SoundRegion> unmodifiableRegions = Collections.unmodifiableSet(regions);
     private static final @NotNull Runnable regionUpdater;
     private static final @NotNull Runnable wandUpdater;
     private static ItemStack wand;
