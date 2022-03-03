@@ -96,6 +96,7 @@ public final class OnPlayerJoin implements Listener
         if (PlayMoreSounds.getInstance() == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
     }
 
+    @SuppressWarnings("deprecation")
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event)
     {

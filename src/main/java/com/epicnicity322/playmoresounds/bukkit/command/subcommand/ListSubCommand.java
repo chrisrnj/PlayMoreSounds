@@ -73,7 +73,7 @@ public final class ListSubCommand extends Command implements Helpable
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
-    // Using BaseComponent[] on HoverEvent is deprecated on newer versions of spigot but is necessary on older ones.
+    @SuppressWarnings("deprecation")
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {

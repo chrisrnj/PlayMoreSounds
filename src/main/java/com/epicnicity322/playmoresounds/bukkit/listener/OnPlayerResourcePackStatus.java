@@ -103,6 +103,7 @@ public final class OnPlayerResourcePackStatus implements Listener
         return playersIgnoringForce.contains(player);
     }
 
+    @SuppressWarnings("deprecation")
     @EventHandler
     public void onPlayerResourcePackStatus(PlayerResourcePackStatusEvent event)
     {

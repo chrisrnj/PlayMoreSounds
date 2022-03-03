@@ -41,6 +41,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@SuppressWarnings("deprecation")
 public final class RegionManager
 {
     private static final @NotNull Path regionsFolder = PlayMoreSoundsCore.getFolder().resolve("Data").resolve("Regions");

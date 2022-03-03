@@ -108,6 +108,7 @@ public final class OnAsyncPlayerChat extends PMSListener
         }
     }
 
+    @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onAsyncPlayerChat(AsyncPlayerChatEvent event)
     {
