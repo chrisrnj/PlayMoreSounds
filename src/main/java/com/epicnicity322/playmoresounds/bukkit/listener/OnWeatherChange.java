@@ -49,21 +49,10 @@ public final class OnWeatherChange extends PMSListener
     public void load()
     {
         var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
-        boolean stopEnabled = sounds.getBoolean("Weather Rain End.Enabled").orElse(false);
-        boolean startEnabled = sounds.getBoolean("Weather Rain.Enabled").orElse(false);
+        stopSound = getRichSound(sounds.getConfigurationSection("Weather Rain End"));
+        startSound = getRichSound(sounds.getConfigurationSection("Weather Rain"));
 
-        if (stopEnabled || startEnabled) {
-            if (stopEnabled) {
-                stopSound = new PlayableRichSound(sounds.getConfigurationSection("Weather Rain End"));
-            } else {
-                stopSound = null;
-            }
-            if (startEnabled) {
-                startSound = new PlayableRichSound(sounds.getConfigurationSection("Weather Rain End"));
-            } else {
-                startSound = null;
-            }
-
+        if (stopSound != null || startSound != null) {
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
                 setLoaded(true);

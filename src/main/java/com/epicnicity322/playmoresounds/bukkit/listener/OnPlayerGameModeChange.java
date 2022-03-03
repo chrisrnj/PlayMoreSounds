@@ -63,15 +63,9 @@ public final class OnPlayerGameModeChange extends PMSListener
             }
         }
 
-        boolean defaultEnabled = sounds.getBoolean(getName() + ".Enabled").orElse(false);
+        setRichSound(getRichSound(sounds.getConfigurationSection(getName())));
 
-        if (defaultEnabled) {
-            setRichSound(new PlayableRichSound(sounds.getConfigurationSection(getName())));
-        } else {
-            setRichSound(null);
-        }
-
-        if (defaultEnabled || !specificGameModes.isEmpty()) {
+        if (getRichSound() != null || !specificGameModes.isEmpty()) {
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
                 setLoaded(true);

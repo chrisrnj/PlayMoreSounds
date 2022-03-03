@@ -47,21 +47,10 @@ public final class OnPlayerBedLeave extends PMSListener
     public void load()
     {
         var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
-        boolean leaveEnabled = sounds.getBoolean("Bed Leave.Enabled").orElse(false);
-        boolean wakeEnabled = sounds.getBoolean("Wake Up.Enabled").orElse(false);
+        bedLeave = getRichSound(sounds.getConfigurationSection("Bed Leave"));
+        wakeUp = getRichSound(sounds.getConfigurationSection("Wake Up"));
 
-        if (leaveEnabled || wakeEnabled) {
-            if (leaveEnabled) {
-                bedLeave = new PlayableRichSound(sounds.getConfigurationSection("Bed Leave"));
-            } else {
-                bedLeave = null;
-            }
-            if (wakeEnabled) {
-                wakeUp = new PlayableRichSound(sounds.getConfigurationSection("Wake Up"));
-            } else {
-                wakeUp = null;
-            }
-
+        if (bedLeave != null || wakeUp != null) {
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
                 setLoaded(true);

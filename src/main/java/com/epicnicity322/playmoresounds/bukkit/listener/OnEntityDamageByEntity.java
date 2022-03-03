@@ -21,7 +21,6 @@ package com.epicnicity322.playmoresounds.bukkit.listener;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
-import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -138,8 +137,8 @@ public final class OnEntityDamageByEntity extends PMSListener
     {
         conditions.clear();
 
-        Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
-        Configuration hitSounds = Configurations.HIT_SOUNDS.getConfigurationHolder().getConfiguration();
+        var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+        var hitSounds = Configurations.HIT_SOUNDS.getConfigurationHolder().getConfiguration();
 
         for (Map.Entry<String, Object> condition : hitSounds.getNodes().entrySet()) {
             if (condition.getValue() instanceof ConfigurationSection conditionSection) {
@@ -149,17 +148,12 @@ public final class OnEntityDamageByEntity extends PMSListener
             }
         }
 
-        boolean defaultEnabled = sounds.getBoolean(getName() + ".Enabled").orElse(false);
+        setRichSound(getRichSound(sounds.getConfigurationSection(getName())));
+
         // Player Kill and Player Killed sounds depend on this listener to know who is the killer.
         boolean playerKillKilledEnabled = sounds.getBoolean("Player Kill.Enabled").orElse(false) || sounds.getBoolean("Player Killed.Enabled").orElse(false);
 
-        if (defaultEnabled) {
-            setRichSound(new PlayableRichSound(sounds.getConfigurationSection(getName())));
-        } else {
-            setRichSound(null);
-        }
-
-        if (defaultEnabled || !conditions.isEmpty() || playerKillKilledEnabled) {
+        if (getRichSound() != null || !conditions.isEmpty() || playerKillKilledEnabled) {
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
                 setLoaded(true);

@@ -67,9 +67,11 @@ public final class WorldTimeListener
                 worldSection.getNodes().forEach((key, value) -> {
                     // This exception will only be caught if the key is a long greater than Long#MAX_VALUE.
                     try {
-                        if (StringUtils.isNumeric(key) && value instanceof ConfigurationSection section)
-                            times.put(Long.parseLong(key), new PlayableRichSound(section));
-                    } catch (Exception ignored) {
+                        if (StringUtils.isNumeric(key) && value instanceof ConfigurationSection section) {
+                            var sound = PMSListener.getRichSound(section);
+                            if (sound != null) times.put(Long.parseLong(key), sound);
+                        }
+                    } catch (NumberFormatException ignored) {
                     }
                 });
 

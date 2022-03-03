@@ -48,21 +48,10 @@ public final class OnPlayerToggleFlight extends PMSListener
     public void load()
     {
         var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
-        boolean stopEnabled = sounds.getBoolean("Stop Flying.Enabled").orElse(false);
-        boolean startEnabled = sounds.getBoolean("Start Flying.Enabled").orElse(false);
+        stopSound = getRichSound(sounds.getConfigurationSection("Stop Flying"));
+        startSound = getRichSound(sounds.getConfigurationSection("Start Flying"));
 
-        if (stopEnabled || startEnabled) {
-            if (stopEnabled) {
-                stopSound = new PlayableRichSound(sounds.getConfigurationSection("Stop Flying"));
-            } else {
-                stopSound = null;
-            }
-            if (startEnabled) {
-                startSound = new PlayableRichSound(sounds.getConfigurationSection("Start Flying"));
-            } else {
-                startSound = null;
-            }
-
+        if (stopSound != null || startSound != null) {
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
                 setLoaded(true);

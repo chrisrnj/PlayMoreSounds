@@ -83,21 +83,10 @@ public final class OnRegionEnterLeave extends PMSListener
             }
         }
 
-        boolean regionEnterEnabled = sounds.getBoolean("Region Enter.Enabled").orElse(false);
-        boolean regionLeaveEnabled = sounds.getBoolean("Region Leave.Enabled").orElse(false);
+        regionEnterSound = getRichSound(sounds.getConfigurationSection("Region Enter"));
+        regionLeaveSound = getRichSound(sounds.getConfigurationSection("Region Leave"));
 
-        if (regionEnterEnabled) {
-            regionEnterSound = new PlayableRichSound(sounds.getConfigurationSection("Region Enter"));
-        } else {
-            regionEnterSound = null;
-        }
-        if (regionLeaveEnabled) {
-            regionLeaveSound = new PlayableRichSound(sounds.getConfigurationSection("Region Leave"));
-        } else {
-            regionLeaveSound = null;
-        }
-
-        if (!regionSounds.isEmpty() || regionEnterEnabled || regionLeaveEnabled) {
+        if (!regionSounds.isEmpty() || regionEnterSound != null || regionLeaveSound != null) {
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
                 setLoaded(true);

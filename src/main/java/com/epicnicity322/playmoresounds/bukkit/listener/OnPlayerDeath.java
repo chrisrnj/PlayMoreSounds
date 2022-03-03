@@ -75,27 +75,11 @@ public final class OnPlayerDeath extends PMSListener
             }
         }
 
-        boolean defaultEnabled = sounds.getBoolean(getName() + ".Enabled").orElse(false);
-        boolean playerKillEnabled = sounds.getBoolean("Player Kill.Enabled").orElse(false);
-        boolean playerKilledEnabled = sounds.getBoolean("Player Kill.Enabled").orElse(false);
+        setRichSound(getRichSound(sounds.getConfigurationSection(getName())));
+        playerKill = getRichSound(sounds.getConfigurationSection("Player Kill"));
+        playerKilled = getRichSound(sounds.getConfigurationSection("Player Killed"));
 
-        if (defaultEnabled) {
-            setRichSound(new PlayableRichSound(sounds.getConfigurationSection(getName())));
-        } else {
-            setRichSound(null);
-        }
-        if (playerKillEnabled) {
-            playerKill = new PlayableRichSound(sounds.getConfigurationSection("Player Kill"));
-        } else {
-            playerKill = null;
-        }
-        if (playerKilledEnabled) {
-            playerKilled = new PlayableRichSound(sounds.getConfigurationSection("Player Killed"));
-        } else {
-            playerKilled = null;
-        }
-
-        if (defaultEnabled || !specificDeaths.isEmpty() || playerKillEnabled || playerKilledEnabled) {
+        if (getRichSound() != null || !specificDeaths.isEmpty() || playerKill != null || playerKilled != null) {
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
                 setLoaded(true);

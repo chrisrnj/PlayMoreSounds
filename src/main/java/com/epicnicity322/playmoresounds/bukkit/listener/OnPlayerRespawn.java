@@ -19,7 +19,6 @@
 package com.epicnicity322.playmoresounds.bukkit.listener;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import org.bukkit.Bukkit;
@@ -46,17 +45,12 @@ public final class OnPlayerRespawn extends PMSListener
     {
         var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
 
-        boolean respawnEnabled = sounds.getBoolean(getName() + ".Enabled").orElse(false);
         boolean playerKillKilledEnabled = sounds.getBoolean("Player Kill.Enabled").orElse(false) || sounds.getBoolean("Player Killer.Enabled").orElse(false);
         boolean deathTypeEnabled = PMSHelper.anySoundEnabled(Configurations.DEATH_TYPES.getConfigurationHolder().getConfiguration(), null);
 
-        if (respawnEnabled) {
-            setRichSound(new PlayableRichSound(sounds.getConfigurationSection(getName())));
-        } else {
-            setRichSound(null);
-        }
+        setRichSound(getRichSound(sounds.getConfigurationSection(getName())));
 
-        if (respawnEnabled || playerKillKilledEnabled || deathTypeEnabled) {
+        if (getRichSound() != null || playerKillKilledEnabled || deathTypeEnabled) {
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
                 setLoaded(true);
