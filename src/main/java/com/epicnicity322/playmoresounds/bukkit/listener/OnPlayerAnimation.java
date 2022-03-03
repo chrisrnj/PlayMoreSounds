@@ -58,7 +58,7 @@ public final class OnPlayerAnimation extends PMSListener
         for (Map.Entry<String, Object> node : itemsSwung.getNodes().entrySet()) {
             if (node.getValue() instanceof ConfigurationSection section) {
                 if (section.getBoolean("Enabled").orElse(false) && section.contains("Sounds")) {
-                    criteriaSounds.put(node.getKey(), new PlayableRichSound(section));
+                    criteriaSounds.put(node.getKey(), getRichSound(section));
                 }
             }
         }

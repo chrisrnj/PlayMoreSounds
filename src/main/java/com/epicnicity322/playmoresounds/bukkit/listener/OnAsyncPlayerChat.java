@@ -78,7 +78,7 @@ public final class OnAsyncPlayerChat extends PMSListener
                     if (criterion.getValue() instanceof ConfigurationSection criterionSection) {
 
                         if (criterionSection.getBoolean("Enabled").orElse(false)) {
-                            criteria.add(new PlayableRichSound(criterionSection));
+                            criteria.add(getRichSound(criterionSection));
                         }
                     }
                 }

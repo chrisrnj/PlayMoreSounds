@@ -37,16 +37,8 @@ public final class OnPlayerTeleport implements Listener
     static {
         Runnable soundUpdater = () -> {
             var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
-
-            if (sounds.getBoolean("Teleport.Enabled").orElse(false))
-                teleport = new PlayableRichSound(sounds.getConfigurationSection("Teleport"));
-            else
-                teleport = null;
-
-            if (sounds.getBoolean("World Change.Enabled").orElse(false))
-                worldChange = new PlayableRichSound(sounds.getConfigurationSection("World Change"));
-            else
-                worldChange = null;
+            teleport = PMSListener.getRichSound(sounds.getConfigurationSection("Teleport"));
+            worldChange = PMSListener.getRichSound(sounds.getConfigurationSection("World Change"));
         };
 
         PlayMoreSounds.onInstance(soundUpdater);

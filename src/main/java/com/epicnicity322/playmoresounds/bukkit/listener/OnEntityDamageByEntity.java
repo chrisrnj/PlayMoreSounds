@@ -143,7 +143,7 @@ public final class OnEntityDamageByEntity extends PMSListener
         for (Map.Entry<String, Object> condition : hitSounds.getNodes().entrySet()) {
             if (condition.getValue() instanceof ConfigurationSection conditionSection) {
                 if (conditionSection.getBoolean("Enabled").orElse(false)) {
-                    conditions.add(new PlayableRichSound(conditionSection));
+                    conditions.add(getRichSound(conditionSection));
                 }
             }
         }

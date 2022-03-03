@@ -54,20 +54,10 @@ public final class OnPlayerJoin implements Listener
 
     static {
         Runnable soundUpdater = () -> {
-            var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
-
-            if (sounds.getBoolean("First Join.Enabled").orElse(false)) {
-                firstJoin = new PlayableRichSound(sounds.getConfigurationSection("First Join"));
-            } else {
-                firstJoin = null;
-            }
-            if (sounds.getBoolean("Join Server.Enabled").orElse(false)) {
-                joinServer = new PlayableRichSound(sounds.getConfigurationSection("Join Server"));
-            } else {
-                joinServer = null;
-            }
-
             var config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
+            var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+            firstJoin = PMSListener.getRichSound(sounds.getConfigurationSection("First Join"));
+            joinServer = PMSListener.getRichSound(sounds.getConfigurationSection("Join Server"));
 
             if (config.getBoolean("Resource Packs.Request").orElse(false) && !config.getString("Resource Packs.URL").orElse("").isEmpty()) {
                 String hexadecimalHash = config.getString("Resource Packs.Hash").orElse("");

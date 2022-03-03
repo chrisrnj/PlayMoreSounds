@@ -58,7 +58,7 @@ public final class OnPlayerGameModeChange extends PMSListener
         for (Map.Entry<String, Object> gameMode : gameModes.getNodes().entrySet()) {
             if (gameMode.getValue() instanceof ConfigurationSection gameModeSection) {
                 if (gameModeSection.getBoolean("Enabled").orElse(false)) {
-                    specificGameModes.put(gameMode.getKey().toUpperCase(), new PlayableRichSound(gameModeSection));
+                    specificGameModes.put(gameMode.getKey().toUpperCase(), getRichSound(gameModeSection));
                 }
             }
         }

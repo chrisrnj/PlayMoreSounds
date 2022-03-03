@@ -37,16 +37,8 @@ public final class OnPlayerQuit implements Listener
     static {
         Runnable soundUpdater = () -> {
             var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
-
-            if (sounds.getBoolean("Player Ban.Enabled").orElse(false))
-                playerBan = new PlayableRichSound(sounds.getConfigurationSection("Player Ban"));
-            else
-                playerBan = null;
-
-            if (sounds.getBoolean("Leave Server.Enabled").orElse(false))
-                leaveServer = new PlayableRichSound(sounds.getConfigurationSection("Leave Server"));
-            else
-                leaveServer = null;
+            playerBan = PMSListener.getRichSound(sounds.getConfigurationSection("Player Ban"));
+            leaveServer = PMSListener.getRichSound(sounds.getConfigurationSection("Leave Server"));
         };
 
         PlayMoreSounds.onInstance(soundUpdater);

@@ -70,7 +70,7 @@ public final class OnPlayerDeath extends PMSListener
         for (Map.Entry<String, Object> deathType : deathTypes.getNodes().entrySet()) {
             if (deathType.getValue() instanceof ConfigurationSection deathTypeSection) {
                 if (deathTypeSection.getBoolean("Enabled").orElse(false)) {
-                    specificDeaths.put(deathType.getKey().toUpperCase(), new PlayableRichSound(deathTypeSection));
+                    specificDeaths.put(deathType.getKey().toUpperCase(), getRichSound(deathTypeSection));
                 }
             }
         }
