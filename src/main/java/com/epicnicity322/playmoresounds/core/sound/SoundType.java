@@ -18,8 +18,8 @@
 
 package com.epicnicity322.playmoresounds.core.sound;
 
+import com.epicnicity322.epicpluginlib.core.EpicPluginLib;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
-import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -1255,7 +1255,7 @@ public enum SoundType
         else if (StaticFields.lowerThanMin)
             versionDependentName = getSound(getMinSupportedVersion()).orElse(null);
         else
-            versionDependentName = getSound(PlayMoreSoundsCore.getServerVersion()).orElse(null);
+            versionDependentName = getSound(EpicPluginLib.Platform.getVersion()).orElse(null);
 
         if (versionDependentName != null) {
             StaticFields.availableSoundTypes.add(this);
@@ -1349,11 +1349,11 @@ public enum SoundType
         /**
          * If the current bukkit version is greater than the maximum supported.
          */
-        private static final boolean greaterThanMax = !PlayMoreSoundsCore.getServerVersion().getVersion().startsWith(maxSupportedVersion.getVersion()) && PlayMoreSoundsCore.getServerVersion().compareTo(maxSupportedVersion) > 0;
+        private static final boolean greaterThanMax = !EpicPluginLib.Platform.getVersion().getVersion().startsWith(maxSupportedVersion.getVersion()) && EpicPluginLib.Platform.getVersion().compareTo(maxSupportedVersion) > 0;
         /**
          * If the current bukkit version is lower than the minimum supported.
          */
-        private static final boolean lowerThanMin = PlayMoreSoundsCore.getServerVersion().compareTo(minSupportedVersion) < 0;
+        private static final boolean lowerThanMin = EpicPluginLib.Platform.getVersion().compareTo(minSupportedVersion) < 0;
         private static final @NotNull LinkedHashSet<String> availableSoundNames = new LinkedHashSet<>();
         private static final @NotNull LinkedHashSet<SoundType> availableSoundTypes = new LinkedHashSet<>();
     }
