@@ -25,6 +25,7 @@ import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandUtils;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
 import com.epicnicity322.playmoresounds.core.sound.SoundCategory;
+import com.epicnicity322.playmoresounds.core.sound.SoundOptions;
 import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import org.bukkit.command.CommandSender;
@@ -154,7 +155,7 @@ public final class PlaySubCommand extends Command implements Helpable
                 }
         }
 
-        var pmsSound = new PlayableSound(sound, SoundCategory.MASTER, volume, pitch, 0, null);
+        var pmsSound = new PlayableSound(sound, SoundCategory.MASTER, volume, pitch, 0, new SoundOptions(true, null, null, 0));
 
         for (Player player : targets) pmsSound.play(player);
 
