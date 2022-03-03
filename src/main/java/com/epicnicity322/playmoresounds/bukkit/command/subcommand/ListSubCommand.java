@@ -39,7 +39,7 @@ import java.util.HashMap;
 
 public final class ListSubCommand extends Command implements Helpable
 {
-    private static @NotNull HashMap<Integer, ArrayList<String>> chatSoundPages;
+    private static HashMap<Integer, ArrayList<String>> chatSoundPages;
 
     static {
         Runnable updater = () -> chatSoundPages = PMSHelper.splitIntoPages(SoundType.getPresentSoundNames(), Configurations.CONFIG.getConfigurationHolder().getConfiguration().getNumber("List.Chat.Max Per Page").orElse(10).intValue());
@@ -114,6 +114,7 @@ public final class ListSubCommand extends Command implements Helpable
         if (gui) {
             ListInventory.getListInventory(page).openInventory((Player) sender);
         } else {
+            if (page < 1) page = 1;
             if (page > chatSoundPages.size()) {
                 lang.send(sender, lang.get("List.Chat.Error.Not Exists").replace("<page>",
                         Integer.toString(page)).replace("<totalpages>", Integer.toString(chatSoundPages.size())));
@@ -137,7 +138,7 @@ public final class ListSubCommand extends Command implements Helpable
                 String sound = soundList.get(i);
                 String prefix;
 
-                if (alternatePrefix = !alternatePrefix) {
+                if (!(alternatePrefix = !alternatePrefix)) {
                     prefix = alternateColor;
                 } else {
                     prefix = color;
