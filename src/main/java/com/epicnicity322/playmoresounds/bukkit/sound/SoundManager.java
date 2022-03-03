@@ -57,7 +57,7 @@ public final class SoundManager
     {
         var uuid = player.getUniqueId();
 
-        soundStateCache.putIfAbsent(uuid, state);
+        soundStateCache.put(uuid, state);
 
         if (soundState == null) {
             if (PlayMoreSounds.getInstance() == null)
