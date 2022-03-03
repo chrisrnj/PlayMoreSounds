@@ -8,7 +8,7 @@ All classes in the plugin were taken a look at and changed, in order to use java
 
 General sound playing improvements:
 - Spectators and players with invisibility effect were not able to hear sounds. Now they can hear all sounds, but the sounds are treated as if you set the Radius option to 0.
-*- Add error messages when a configuration sound has an invalid namespaced key, previously an ugly error would be thrown to console.
+- Add error messages when a configuration sound has an invalid namespaced key, previously an ugly error would be thrown to console.
 - Players will be cached when checking for toggle state, previously the plugin would access the player persistent data everytime it played a sound.
 - Improve sound playing performance significantly by removing support to versions lower than 1.10 and 1.7, which had their own way of playing sounds. Also by removing some unused features, check Removals below.
 
@@ -18,7 +18,7 @@ Death sounds improvements:
 
 Addon Updates:
 - Changed the Regions Handler code SEVERELY: Now all region sounds are cached on load saving performance when playing them, plus the wait for resource pack load before playing sounds was generalized in this addon.
-This is a really recommended update for WorldGuard Regions, it improves performance significantly.
+This is a really recommended update for WorldGuard Regions addon, it improves performance significantly.
 - Create RedProtect Regions addon: Since regions handler had a big update, I decided to update this addon too, which previously was abandoned.
 - Created VentureChat Hook, UltimateChat Hook and EssentialsChat Hook addons: They can hook into these plugins and play different sounds for each channel.
 *- Created Extra Options addon: This addon brings some extras to the Options section in a sound, like Relative Location that was removed.
