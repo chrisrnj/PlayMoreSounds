@@ -56,6 +56,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
@@ -326,7 +327,7 @@ public final class PlayMoreSounds extends JavaPlugin
                 logger.log("&a" + SoundType.getPresentSoundTypes().size() + " sounds available on " + serverVersion);
                 logger.log("&6============================================");
 
-                if (serverVersion.compareTo(new Version("1.18")) < 0) {
+                if (serverVersion.compareTo(new Version("1.17")) < 0) {
                     logger.log("PlayMoreSounds detected you are on version " + serverVersion + ". This version is not supported so errors will no longer be logged.", ConsoleLogger.Level.WARN);
                 } else if (serverVersion.compareTo(new Version("1.19")) >= 0) {
                     logger.log("PlayMoreSounds detected you are on version " + serverVersion + ". This version was not tested and might throw errors.", ConsoleLogger.Level.WARN);
@@ -343,14 +344,13 @@ public final class PlayMoreSounds extends JavaPlugin
                     var metrics = new Metrics(this, 7985);
 
                     metrics.addCustomChart(new Metrics.AdvancedPie("running_addons", () -> {
-                        HashSet<PMSAddon> addons = addonManager.getAddons();
+                        ArrayList<PMSAddon> addons = addonManager.getAddons();
                         HashMap<String, Integer> map = new HashMap<>(addons.size());
 
                         addons.forEach(addon -> map.put(addon.getDescription().getName(), 1));
                         return map;
                     }));
                     metrics.addCustomChart(new Metrics.SimplePie("checking_for_updates", () -> Boolean.toString(Configurations.CONFIG.getConfigurationHolder().getConfiguration().getBoolean("Updater.Enabled").orElse(false))));
-                    metrics.addCustomChart(new Metrics.SimplePie("uses_world_black_list", () -> Boolean.toString(!Configurations.CONFIG.getConfigurationHolder().getConfiguration().getCollection("World Black List", Object::toString).isEmpty())));
 
                     logger.log("&ePlayMoreSounds is using bStats as metrics collector.");
                 }
