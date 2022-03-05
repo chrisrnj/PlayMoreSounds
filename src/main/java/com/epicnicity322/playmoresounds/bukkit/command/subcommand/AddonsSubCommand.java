@@ -39,8 +39,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class AddonsSubCommand extends Command implements Helpable
 {
     public static final @NotNull HashSet<PMSAddon> ADDONS_TO_UNINSTALL = new HashSet<>();
-    private static @Nullable HashMap<String, UUID> uninstallConfirmationUUIDs;
     static final @NotNull AtomicBoolean experimentalCommands = new AtomicBoolean(false);
+    private static @Nullable HashMap<String, UUID> uninstallConfirmationUUIDs;
 
     @Override
     public @NotNull String getName()
