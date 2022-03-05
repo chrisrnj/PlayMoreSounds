@@ -41,6 +41,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -133,8 +134,9 @@ public final class DevSubCommand extends Command
                         uuid = player == null ? null : player.getUniqueId();
                     }
 
-                    LinkedHashMap<Runnable, String> confirmations = ConfirmSubCommand.pendingConfirmations.get(uuid);
-                    if (confirmations == null) {
+                    LinkedHashMap<Runnable, String> confirmations;
+                    if (ConfirmSubCommand.pendingConfirmations == null ||
+                            (confirmations = ConfirmSubCommand.pendingConfirmations.get(uuid)) == null || confirmations.isEmpty()) {
                         lang.send(sender, false, "no confirmations");
                         return;
                     }
@@ -156,8 +158,9 @@ public final class DevSubCommand extends Command
                         uuid = player == null ? null : player.getUniqueId();
                     }
 
-                    LinkedHashMap<Runnable, String> confirmations = ConfirmSubCommand.pendingConfirmations.get(uuid);
-                    if (confirmations == null) {
+                    LinkedHashMap<Runnable, String> confirmations;
+                    if (ConfirmSubCommand.pendingConfirmations == null ||
+                            (confirmations = ConfirmSubCommand.pendingConfirmations.get(uuid)) == null || confirmations.isEmpty()) {
                         lang.send(sender, lang.get("Confirm.Error.Nothing Pending"));
                         return;
                     }
@@ -172,15 +175,16 @@ public final class DevSubCommand extends Command
                     }
                     int count = 1;
 
-                    for (Map.Entry<Runnable, String> entry : confirmations.entrySet()) {
+                    for (Map.Entry<Runnable, String> entry : new LinkedHashSet<>(confirmations.entrySet())) {
                         if (count++ == id) {
                             try {
+                                lang.send(sender, false, "confirming: " + entry.getValue());
                                 entry.getKey().run();
-                                lang.send(sender, false, "done: " + entry.getValue());
                             } catch (Throwable t) {
                                 lang.send(sender, false, "something went wrong");
                                 t.printStackTrace();
                             }
+                            confirmations.remove(entry.getKey());
                             break;
                         }
                     }
