@@ -102,12 +102,10 @@ public abstract class RichSound<T extends Sound>
     }
 
     @Override
-    public boolean equals(Object o)
+    public boolean equals(@Nullable Object o)
     {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        RichSound<?> that = (RichSound<?>) o;
+        if (!(o instanceof RichSound<?> that)) return false;
 
         return enabled == that.enabled
                 && cancellable == that.cancellable
@@ -120,5 +118,28 @@ public abstract class RichSound<T extends Sound>
     public int hashCode()
     {
         return Objects.hash(name, section, enabled, cancellable, childSounds);
+    }
+
+    @Override
+    public @NotNull String toString()
+    {
+        StringBuilder string = new StringBuilder();
+
+        string.append(getClass().getName()).append("{").append("name='").append(name).append('\'');
+
+        if (section != null) {
+            // Don't wanna print a big mess with all the nodes of this section
+            string.append(", section-path='").append(section.getPath()).append('\'');
+
+            section.getRoot().getFilePath().ifPresent(path -> string.append(", section-root='").append(path.toAbsolutePath()).append('\''));
+        }
+
+        string.append(", enabled=").append(enabled)
+                .append(", cancellable=").append(cancellable)
+                .append(", childSounds=").append(childSounds);
+
+        string.append('}');
+
+        return string.toString();
     }
 }

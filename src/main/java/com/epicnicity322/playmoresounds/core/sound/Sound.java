@@ -249,11 +249,11 @@ public class Sound
     }
 
     @Override
-    public String toString()
+    public @NotNull String toString()
     {
         StringBuilder string = new StringBuilder();
 
-        string.append("CoreSound{sound='").append(sound).append('\'')
+        string.append(getClass().getName()).append("{sound='").append(sound).append('\'')
                 .append(", volume=").append(volume)
                 .append(", pitch=").append(pitch)
                 .append(", delay=").append(delay)
@@ -278,7 +278,7 @@ public class Sound
      * @return If the argument is a similar sound to this one.
      * @see #equals(Object)
      */
-    public boolean isSimilar(Object o)
+    public boolean isSimilar(@Nullable Object o)
     {
         if (this == o) return true;
         if (!(o instanceof Sound sound1)) return false;
@@ -299,9 +299,10 @@ public class Sound
     @Override
     public boolean equals(Object o)
     {
-        if (!isSimilar(o)) return false;
+        if (this == o) return true;
+        if (!(o instanceof Sound sound1)) return false;
 
-        Sound sound1 = (Sound) o;
+        if (!isSimilar(sound1)) return false;
 
         return Objects.equals(sound1.section, section);
     }

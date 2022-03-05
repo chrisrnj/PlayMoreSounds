@@ -167,7 +167,7 @@ public class SoundOptions
     @Override
     public @NotNull String toString()
     {
-        return "SoundOptions{" +
+        return getClass().getName() + "{" +
                 "ignoresDisabled=" + ignoresDisabled +
                 ", permissionToListen='" + permissionToListen + '\'' +
                 ", permissionRequired='" + permissionRequired + '\'' +
