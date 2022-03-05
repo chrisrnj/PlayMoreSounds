@@ -73,7 +73,7 @@ public class AddonManager
             fileStream.filter(file -> file.getFileName().toString().endsWith(".jar")).forEach(jar -> {
                 try {
                     var description = new AddonDescription(jar);
-                    var name = description.getName();
+                    String name = description.getName();
 
                     // Checking if an addon with the same name was registered before.
                     if (addonNames.contains(name)) {
@@ -81,16 +81,16 @@ public class AddonManager
                         return;
                     }
 
-                    name = name.toLowerCase().contains("addon") ? name : name + " addon";
+                    var fixedName = name.toLowerCase().contains("addon") ? name : name + " addon";
 
                     // Checking if addon api-version is compatible.
                     if (description.getApiVersion().compareTo(PlayMoreSoundsVersion.getVersion()) > 0) {
-                        logger.log("&c" + name + " was made for PlayMoreSounds v" + description.getApiVersion() + ". You are currently on " + PlayMoreSoundsVersion.version + ".", ConsoleLogger.Level.WARN);
+                        logger.log("&c" + fixedName + " was made for PlayMoreSounds v" + description.getApiVersion() + ". You are currently on " + PlayMoreSoundsVersion.version + ".", ConsoleLogger.Level.WARN);
                         return;
                     }
                     // Checking if server has the required plugins by this addon.
                     if (!serverPlugins.containsAll(description.getRequiredPlugins())) {
-                        logger.log("&c" + name + " could not be loaded because it depends on the " + PMSHelper.correctNounNumber("plugin: ", "plugins: ", description.getRequiredPlugins().size()) + description.getRequiredPlugins(), ConsoleLogger.Level.WARN);
+                        logger.log("&c" + fixedName + " could not be loaded because it depends on the " + PMSHelper.correctNounNumber("plugin: ", "plugins: ", description.getRequiredPlugins().size()) + description.getRequiredPlugins(), ConsoleLogger.Level.WARN);
                         return;
                     }
 
