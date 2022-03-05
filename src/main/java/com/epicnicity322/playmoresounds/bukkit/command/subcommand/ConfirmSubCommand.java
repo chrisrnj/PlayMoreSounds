@@ -25,24 +25,44 @@ import com.epicnicity322.epicpluginlib.core.util.StringUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.*;
 
 public final class ConfirmSubCommand extends Command implements Helpable
 {
-    private static @Nullable HashMap<CommandSender, LinkedHashMap<Runnable, String>> pendingConfirmations;
+    static @Nullable HashMap<UUID, LinkedHashMap<Runnable, String>> pendingConfirmations;
 
-    public static void addPendingConfirmation(@NotNull CommandSender sender, @NotNull Runnable confirmation, @NotNull String description)
+    /**
+     * Adds a runnable that will run when the player gives confirmation. Players will be able to list and confirm
+     * runnables through the command "/pms confirm". Runnables are removed once the player confirms them.
+     *
+     * @param who          The {@link UUID} of the player you want to add a confirmation, null if it's for console.
+     * @param confirmation The runnable to run when the player confirms.
+     * @param description  The description of what will have when the player confirms this runnable.
+     */
+    public static void addPendingConfirmation(@Nullable UUID who, @NotNull Runnable confirmation, @NotNull String description)
     {
         if (pendingConfirmations == null) pendingConfirmations = new HashMap<>();
-        LinkedHashMap<Runnable, String> confirmations = pendingConfirmations.computeIfAbsent(sender, k -> new LinkedHashMap<>());
+        pendingConfirmations.computeIfAbsent(who, k -> new LinkedHashMap<>()).put(confirmation, description);
+    }
 
-        confirmations.put(confirmation, description);
+    /**
+     * Adds a runnable that will run when the player gives confirmation. Players will be able to list and confirm
+     * runnables through the command "/pms confirm". Runnables are removed once the player confirms them.
+     * <p>
+     * This has the same effect as {@link #addPendingConfirmation(UUID, Runnable, String)}. If the sender is a player,
+     * then their {@link UUID} is get, if not, then null is used to store confirmations.
+     *
+     * @param who          The sender you want to add a confirmation.
+     * @param confirmation The runnable to run when the player confirms.
+     * @param description  The description of what will have when the player confirms this runnable.
+     */
+    public static void addPendingConfirmation(@NotNull CommandSender who, @NotNull Runnable confirmation, @NotNull String description)
+    {
+        addPendingConfirmation(who instanceof Player player ? player.getUniqueId() : null, confirmation, description);
     }
 
     @Override
@@ -74,8 +94,9 @@ public final class ConfirmSubCommand extends Command implements Helpable
     {
         var lang = PlayMoreSounds.getLanguage();
         LinkedHashMap<Runnable, String> confirmations;
+        UUID uuid = sender instanceof Player player ? player.getUniqueId() : null;
 
-        if (pendingConfirmations == null || (confirmations = pendingConfirmations.get(sender)) == null || confirmations.isEmpty()) {
+        if (pendingConfirmations == null || (confirmations = pendingConfirmations.get(uuid)) == null || confirmations.isEmpty()) {
             lang.send(sender, lang.get("Confirm.Error.Nothing Pending"));
             return;
         }
@@ -120,8 +141,8 @@ public final class ConfirmSubCommand extends Command implements Helpable
                 try {
                     r.run();
                 } catch (Throwable t) {
-                    PlayMoreSounds.getConsoleLogger().log("Something went wrong when trying to confirm \"" + desc + "\" for " + sender.getName() + ".", ConsoleLogger.Level.WARN);
-                    PlayMoreSoundsCore.getErrorHandler().report(t, "Confirm Description: \"" + desc + "\"\nOn Confirm for " + sender.getName() + " Error:");
+                    PlayMoreSounds.getConsoleLogger().log("Something went wrong when trying to confirm \"" + desc + "\" for " + uuid + ".", ConsoleLogger.Level.WARN);
+                    PlayMoreSoundsCore.getErrorHandler().report(t, "Confirm Description: \"" + desc + "\"\nOn Confirm for " + uuid + " Error:");
                 }
                 confirmations.remove(r);
                 return;
