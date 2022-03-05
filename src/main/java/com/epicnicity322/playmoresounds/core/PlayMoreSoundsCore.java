@@ -63,7 +63,7 @@ public final class PlayMoreSoundsCore
         if (Objects.equals(System.getProperty("PlayMoreSounds Enabled"), "true")) {
             System.out.println("PlayMoreSounds NOTICE: A reload was detected and since PlayMoreSounds does not support reloads, all PlayMoreSounds errors thrown from now on will not be logged.");
             errorHandler = dummyErrorHandler;
-        } else if (EpicPluginLib.Platform.getVersion().compareTo(new Version("1.18")) < 0) {
+        } else if (EpicPluginLib.Platform.getVersion().compareTo(new Version("1.17")) < 0) {
             errorHandler = dummyErrorHandler;
         } else {
             errorHandler = new ErrorHandler(folder, "PlayMoreSounds", PlayMoreSoundsVersion.version,
