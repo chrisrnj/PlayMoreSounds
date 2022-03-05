@@ -21,6 +21,7 @@ package com.epicnicity322.playmoresounds.core.util;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -72,6 +73,20 @@ public final class PMSHelper
         }
 
         return false;
+    }
+
+    /**
+     * Allows you to use a noun in the correct number: plural or singular.
+     *
+     * @param singular If the size is one.
+     * @param plural   If the collection has more than one or zero elements.
+     * @param size     The amount you are referring to.
+     * @return The correct noun that should be used when referring to the amount of elements.
+     */
+    @Contract(value = "null,null,_ -> null", pure = true)
+    public static String correctNounNumber(String singular, String plural, int size)
+    {
+        return size == 1 ? singular : plural;
     }
 
     /**
