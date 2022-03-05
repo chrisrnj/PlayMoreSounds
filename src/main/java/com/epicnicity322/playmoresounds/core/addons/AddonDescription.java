@@ -44,6 +44,7 @@ public class AddonDescription
     private static final @NotNull Pattern notAlphaNumericAndSpace = Pattern.compile("[^A-Za-z0-9\\s]");
     private static final @NotNull Pattern notLetters = Pattern.compile("[^A-Za-z]");
     private static final @NotNull YamlConfigurationLoader loader = new YamlConfigurationLoader();
+    final @NotNull Path jar;
     private final @NotNull Collection<String> addonHooks;
     private final @NotNull Collection<String> authors;
     private final @NotNull Collection<String> pluginHooks;
@@ -58,6 +59,8 @@ public class AddonDescription
 
     protected AddonDescription(@NotNull Path jar) throws IOException, InvalidAddonException
     {
+        this.jar = jar;
+
         // Getting the description file.
         var jarFile = new JarFile(jar.toFile());
         var entry = jarFile.getJarEntry("pmsaddon.yml");
