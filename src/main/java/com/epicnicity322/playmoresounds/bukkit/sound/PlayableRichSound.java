@@ -21,7 +21,6 @@ package com.epicnicity322.playmoresounds.bukkit.sound;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.events.PlayRichSoundEvent;
 import com.epicnicity322.playmoresounds.core.sound.RichSound;
-import com.epicnicity322.playmoresounds.core.sound.SoundOptions;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -71,7 +70,7 @@ public class PlayableRichSound extends RichSound<PlayableSound> implements Playa
      * {@link PlayRichSoundEvent} will be called for every time the sound is played by this loop.
      *
      * @param player         The player to play the sound.
-     * @param sourceLocation The location where the sound will play. May change depending on {@link SoundOptions#getRelativeLocation()}.
+     * @param sourceLocation The location where the sound will play.
      * @param delay          The time in ticks to wait before playing the first sound.
      * @param period         The time in ticks to wait before playing the sound again.
      * @param breaker        A boolean that will run in the loop, if the boolean is true the loop will be cancelled.

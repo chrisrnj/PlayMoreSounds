@@ -33,8 +33,6 @@ import java.util.Collection;
 /**
  * This event is called for every player that hears a PlayMoreSounds sound. E.g., if a sound is played with -1 radius,
  * then this event is called for every people online in the server, because all of them hear the sound.
- *
- * @see PrePlaySoundEvent
  */
 public class PlaySoundEvent extends Event implements Cancellable
 {
