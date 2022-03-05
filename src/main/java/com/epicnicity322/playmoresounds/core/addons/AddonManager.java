@@ -176,7 +176,7 @@ public class AddonManager
             addon.onStart();
             addon.started = true;
             addon.loaded = true;
-            AddonEventManager.callLoadUnloadEvent(addon);
+            AddonEventManager.callLoadUnloadEvent(addon, logger);
         } catch (Throwable t) {
             logger.log("&cException while starting the addon '" + name + "': " + t.getMessage(), ConsoleLogger.Level.WARN);
             PlayMoreSoundsCore.getErrorHandler().report(t, "Addon Author(s): " + addon.getDescription().getAuthors() + "\nPath: " + addon.getJar().toAbsolutePath() + "\nStart addon exception:");
@@ -226,7 +226,7 @@ public class AddonManager
         try {
             addon.getClassLoader().close();
             addon.loaded = false;
-            AddonEventManager.callLoadUnloadEvent(addon);
+            AddonEventManager.callLoadUnloadEvent(addon, logger);
         } catch (IOException e) {
             logger.log("&cUnable to close '" + addon + "' addon class loader.", ConsoleLogger.Level.ERROR);
             PlayMoreSoundsCore.getErrorHandler().report(e, "Addon Author(s): " + addon.getDescription().getAuthors() + "\nPath: " + addon.getJar().toAbsolutePath() + "\nAddonClassLoader close exception:");

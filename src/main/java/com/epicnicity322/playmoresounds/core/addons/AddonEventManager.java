@@ -18,6 +18,7 @@
 
 package com.epicnicity322.playmoresounds.core.addons;
 
+import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.addons.events.AddonLoadUnloadEvent;
 import org.jetbrains.annotations.NotNull;
@@ -52,14 +53,14 @@ public final class AddonEventManager
         registeredLoadUnloadEvents.remove(event);
     }
 
-    static void callLoadUnloadEvent(PMSAddon addon)
+    static void callLoadUnloadEvent(PMSAddon addon, ConsoleLogger<?> logger)
     {
         for (AddonLoadUnloadEvent event : registeredLoadUnloadEvents)
             try {
                 event.onLoadUnload(addon);
-            } catch (Exception ex) {
-                // PlayMoreSoundsCore.getLogger().log("&eException while calling addon load unload event: " + ex.getMessage());
-                PlayMoreSoundsCore.getErrorHandler().report(ex, "Call addon load unload event exception:");
+            } catch (Throwable t) {
+                logger.log("&eException while calling addon load unload event: " + t.getMessage());
+                PlayMoreSoundsCore.getErrorHandler().report(t, "Call addon load unload event exception:");
             }
     }
 }
