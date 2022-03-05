@@ -32,7 +32,7 @@ public class LoadableHashSet<E> extends HashSet<E>
     /**
      * @return If this set was already populated.
      */
-    public boolean isLoaded()
+    public synchronized boolean isLoaded()
     {
         return loaded;
     }
@@ -40,7 +40,7 @@ public class LoadableHashSet<E> extends HashSet<E>
     /**
      * Set if this set is populated.
      */
-    public void setLoaded(boolean loaded)
+    public synchronized void setLoaded(boolean loaded)
     {
         this.loaded = loaded;
     }
