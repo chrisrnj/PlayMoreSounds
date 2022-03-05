@@ -31,12 +31,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.LinkedHashSet;
 
 public class AddonManager
 {
-    static final @NotNull Set<AddonClassLoader> addonClassLoaders = ConcurrentHashMap.newKeySet();
+    static final @NotNull LinkedHashSet<AddonClassLoader> addonClassLoaders = new LinkedHashSet<>();
     private final @NotNull LoadableHashSet<String> serverPlugins;
     private final @NotNull ConsoleLogger<?> logger;
 
@@ -55,8 +54,10 @@ public class AddonManager
      */
     public void registerAddons() throws IOException
     {
-        if (!addonClassLoaders.isEmpty())
-            throw new UnsupportedOperationException("Addons were already registered.");
+        synchronized (addonClassLoaders) {
+            if (!addonClassLoaders.isEmpty())
+                throw new UnsupportedOperationException("Addons were already registered.");
+        }
 
         if (!serverPlugins.isLoaded())
             throw new IllegalStateException("Can not register addons if the server has not registered all plugins yet.");
@@ -131,7 +132,9 @@ public class AddonManager
             var name = description.getName();
 
             try {
-                addonClassLoaders.add(new AddonClassLoader(description.jar, description));
+                synchronized (addonClassLoaders) {
+                    addonClassLoaders.add(new AddonClassLoader(description.jar, description));
+                }
             } catch (InvalidAddonException e) {
                 logger.log("&c" + e.getMessage(), ConsoleLogger.Level.WARN);
             } catch (Throwable t) {
@@ -148,7 +151,9 @@ public class AddonManager
      */
     public void startAddons(@NotNull StartTime startTime)
     {
-        if (addonClassLoaders.isEmpty()) return;
+        synchronized (addonClassLoaders) {
+            if (addonClassLoaders.isEmpty()) return;
+        }
 
         for (var addon : getAddons())
             if (addon.getDescription().getStartTime() == startTime && !addon.started && !addon.stopped)
@@ -188,7 +193,9 @@ public class AddonManager
      */
     public void stopAddons()
     {
-        if (addonClassLoaders.isEmpty()) return;
+        synchronized (addonClassLoaders) {
+            if (addonClassLoaders.isEmpty()) return;
+        }
 
         for (PMSAddon addon : getAddons())
             if (addon.started && !addon.stopped)
@@ -234,14 +241,18 @@ public class AddonManager
     }
 
     /**
-     * @return An immutable set with all registered addons.
+     * @return An immutable list with all registered addons, in load order.
      */
-    public @NotNull HashSet<PMSAddon> getAddons()
+    public @NotNull ArrayList<PMSAddon> getAddons()
     {
-        var addons = new HashSet<PMSAddon>();
+        synchronized (addonClassLoaders) {
+            var pmsAddons = new ArrayList<PMSAddon>();
 
-        addonClassLoaders.forEach(classLoader -> addons.add(classLoader.getAddon()));
+            for (AddonClassLoader loader : addonClassLoaders) {
+                pmsAddons.add(loader.getAddon());
+            }
 
-        return addons;
+            return pmsAddons;
+        }
     }
 }

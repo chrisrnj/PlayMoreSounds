@@ -31,10 +31,7 @@ import org.bukkit.entity.HumanEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 public final class AddonsSubCommand extends Command implements Helpable
 {
@@ -84,7 +81,7 @@ public final class AddonsSubCommand extends Command implements Helpable
                         return;
                     }
                     lang.send(sender, lang.get("Addons.List.Header"));
-                    HashSet<PMSAddon> addons = PlayMoreSounds.getAddonManager().getAddons();
+                    ArrayList<PMSAddon> addons = PlayMoreSounds.getAddonManager().getAddons();
                     StringBuilder data = new StringBuilder();
                     int count = 0;
                     for (PMSAddon addon : addons) {
