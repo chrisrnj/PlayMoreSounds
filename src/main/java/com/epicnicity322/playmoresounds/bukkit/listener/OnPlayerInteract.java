@@ -63,11 +63,12 @@ public final class OnPlayerInteract implements Listener
     {
         Location[] selection = getSelectedDiagonals(player);
 
-        if (selection == null)
+        if (selection == null) {
             selection = new Location[2];
+            selectedDiagonals.put(ObjectUtils.getOrDefault(player, console), selection);
+        }
 
         selection[diagonal ? 0 : 1] = location;
-        selectedDiagonals.put(ObjectUtils.getOrDefault(player, console), selection);
     }
 
     // Other region plugins may cancel the event, so priority is set to high. If you wanted to play a sound on this event
