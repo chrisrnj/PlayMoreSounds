@@ -40,6 +40,7 @@ public final class CommandLoader
             commands.add(new AddonsSubCommand());
             commands.add(new CheckSubCommand());
             commands.add(new ConfirmSubCommand());
+            commands.add(new DevSubCommand());
             commands.add(new HelpSubCommand());
             commands.add(new ListSubCommand());
             commands.add(new PlaySubCommand());
