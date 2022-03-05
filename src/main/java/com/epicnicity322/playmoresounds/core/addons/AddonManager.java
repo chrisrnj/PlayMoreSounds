@@ -138,7 +138,7 @@ public class AddonManager
             } catch (InvalidAddonException e) {
                 logger.log("&c" + e.getMessage(), ConsoleLogger.Level.WARN);
             } catch (Throwable t) {
-                logger.log("&cException while initializing " + (name.toLowerCase().contains("addon") ? name : name + " addon") + ". Please contact the addon " + PMSHelper.correctNounNumber("author: ", "authors: ", description.getAuthors().size()) + description.getAuthors(), ConsoleLogger.Level.WARN);
+                logger.log("&cException while initializing " + (name.toLowerCase().contains("addon") ? name : name + " addon") + ". Please contact the addon " + PMSHelper.correctNounNumber("author: ", "authors: ", description.getAuthors().size()) + description.getAuthors(), ConsoleLogger.Level.ERROR);
                 PlayMoreSoundsCore.getErrorHandler().report(t, "Addon Author(s): " + description.getAuthors() + "\nPath: " + description.jar.toAbsolutePath() + "\nInstantiate main class exception:");
             }
         });
@@ -183,7 +183,7 @@ public class AddonManager
             addon.loaded = true;
             AddonEventManager.callLoadUnloadEvent(addon, logger);
         } catch (Throwable t) {
-            logger.log("&cException while starting the addon '" + name + "': " + t.getMessage(), ConsoleLogger.Level.WARN);
+            logger.log("&cException while starting the addon '" + name + "': " + t.getMessage(), ConsoleLogger.Level.ERROR);
             PlayMoreSoundsCore.getErrorHandler().report(t, "Addon Author(s): " + addon.getDescription().getAuthors() + "\nPath: " + addon.getJar().toAbsolutePath() + "\nStart addon exception:");
         }
     }
@@ -225,7 +225,7 @@ public class AddonManager
             addon.onStop();
             addon.stopped = true;
         } catch (Throwable t) {
-            logger.log("&cException while stopping the addon '" + name + "': " + t.getMessage(), ConsoleLogger.Level.WARN);
+            logger.log("&cException while stopping the addon '" + name + "': " + t.getMessage(), ConsoleLogger.Level.ERROR);
             PlayMoreSoundsCore.getErrorHandler().report(t, "Addon Author(s): " + addon.getDescription().getAuthors() + "\nPath: " + addon.getJar().toAbsolutePath() + "\nStop addon exception:");
             return;
         }
@@ -235,7 +235,7 @@ public class AddonManager
             addon.loaded = false;
             AddonEventManager.callLoadUnloadEvent(addon, logger);
         } catch (IOException e) {
-            logger.log("&cUnable to close '" + addon + "' addon class loader.", ConsoleLogger.Level.ERROR);
+            logger.log("&cUnable to close '" + addon + "' class loader, addon is still loaded.", ConsoleLogger.Level.ERROR);
             PlayMoreSoundsCore.getErrorHandler().report(e, "Addon Author(s): " + addon.getDescription().getAuthors() + "\nPath: " + addon.getJar().toAbsolutePath() + "\nAddonClassLoader close exception:");
         }
     }
