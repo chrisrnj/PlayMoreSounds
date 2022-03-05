@@ -56,7 +56,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
@@ -344,7 +343,7 @@ public final class PlayMoreSounds extends JavaPlugin
                     var metrics = new Metrics(this, 7985);
 
                     metrics.addCustomChart(new Metrics.AdvancedPie("running_addons", () -> {
-                        ArrayList<PMSAddon> addons = addonManager.getAddons();
+                        HashSet<PMSAddon> addons = addonManager.getAddons();
                         HashMap<String, Integer> map = new HashMap<>(addons.size());
 
                         addons.forEach(addon -> map.put(addon.getDescription().getName(), 1));

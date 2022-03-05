@@ -241,12 +241,12 @@ public class AddonManager
     }
 
     /**
-     * @return An immutable list with all registered addons, in load order.
+     * @return An immutable set with all registered addons, in load order.
      */
-    public @NotNull ArrayList<PMSAddon> getAddons()
+    public @NotNull HashSet<PMSAddon> getAddons()
     {
         synchronized (addonClassLoaders) {
-            var pmsAddons = new ArrayList<PMSAddon>();
+            var pmsAddons = new LinkedHashSet<PMSAddon>();
 
             for (AddonClassLoader loader : addonClassLoaders) {
                 pmsAddons.add(loader.getAddon());
