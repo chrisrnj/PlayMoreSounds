@@ -32,19 +32,20 @@ import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import com.epicnicity322.playmoresounds.core.util.LoadableHashSet;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
+import com.epicnicity322.playmoresounds.sponge.listeners.OnChangeInventory;
+import com.epicnicity322.playmoresounds.sponge.listeners.OnServerSideConnection;
 import com.epicnicity322.playmoresounds.sponge.metrics.Metrics;
 import com.google.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Server;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
 import org.spongepowered.api.event.lifecycle.RefreshGameEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
-import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.util.Tristate;
-import org.spongepowered.api.util.metric.MetricsConfigManager;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
 
@@ -68,8 +69,8 @@ public final class PlayMoreSounds
 
     static {
         // Checking if EpicPluginLib is outdated.
-        if (EpicPluginLib.version.compareTo(new Version("2.2")) < 0) {
-            throw new IllegalStateException("You are running an old version of EpicPluginLib, make sure you are using 2.2 or similar.");
+        if (EpicPluginLib.version.compareTo(new Version("2.2.1")) < 0) {
+            throw new IllegalStateException("You are running an old version of EpicPluginLib, make sure you are using 2.2.1 or similar.");
         }
 
         language = new MessageSender(
@@ -82,18 +83,14 @@ public final class PlayMoreSounds
         language.addLanguage("ZH_CN", Configurations.LANGUAGE_ZH_CN.getConfigurationHolder());
     }
 
+    private final @NotNull PluginContainer plugin;
     private final @NotNull Logger logger;
     private final @NotNull AddonManager addonManager;
-    @Inject
-    private PluginContainer container;
-    @Inject
-    private PluginManager pluginManager;
-    @Inject
-    private MetricsConfigManager metricsConfigManager;
 
     @Inject
-    public PlayMoreSounds(org.apache.logging.log4j.Logger lf4jLogger, Metrics.Factory metricsFactory)
+    public PlayMoreSounds(@NotNull PluginContainer plugin, @NotNull org.apache.logging.log4j.Logger lf4jLogger, @NotNull Metrics.Factory metricsFactory)
     {
+        this.plugin = plugin;
         logger = new Logger(PMSHelper.isChristmas() ? "&f[&4PlayMoreSounds&f] " : "&6[&9PlayMoreSounds&6] ", lf4jLogger);
         PlayMoreSoundsCore.getErrorHandler().setLogger(logger);
         addonManager = new AddonManager(serverPlugins, logger);
@@ -196,7 +193,7 @@ public final class PlayMoreSounds
 
         try {
             // Loading and registering addons:
-            for (var plugin : pluginManager.plugins()) {
+            for (var plugin : Sponge.pluginManager().plugins()) {
                 serverPlugins.add(plugin.metadata().id());
             }
 
@@ -228,7 +225,10 @@ public final class PlayMoreSounds
 
             addonManager.startAddons(StartTime.BEFORE_LISTENERS);
 
-            logger.log("&6-> &eNo listeners loaded.");
+            Sponge.eventManager().registerListeners(plugin, new OnServerSideConnection());
+            Sponge.eventManager().registerListeners(plugin, new OnChangeInventory());
+
+            logger.log("&6-> &e2 listeners loaded.");
 
             addonManager.startAddons(StartTime.BEFORE_COMMANDS);
 
@@ -244,7 +244,7 @@ public final class PlayMoreSounds
                 logger.log("&a " + SoundType.getPresentSoundTypes().size() + " sounds available on " + EpicPluginLib.Platform.getVersion());
                 logger.log("&6========================================");
 
-                if (metricsConfigManager.collectionState(container) == Tristate.TRUE)
+                if (Sponge.metricsConfigManager().collectionState(plugin) == Tristate.TRUE)
                     logger.log("&ePlayMoreSounds is using bStats as metrics collector.");
 
                 var now = LocalDateTime.now();
