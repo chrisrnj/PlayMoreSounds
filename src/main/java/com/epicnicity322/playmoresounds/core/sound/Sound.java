@@ -40,23 +40,35 @@ public class Sound
 
     private final @Nullable ConfigurationSection section;
     private @Nullable SoundType soundType;
-    private String sound;
-    private SoundCategory category;
+    private @NotNull String sound;
+    private @NotNull SoundCategory category;
     private float volume;
     private float pitch;
     private long delay;
-    private SoundOptions options;
+    private @NotNull SoundOptions options;
 
     public Sound(@NotNull String sound, @Nullable SoundCategory category, float volume, float pitch, long delay, @Nullable SoundOptions options)
     {
-        setSound(sound);
-        setCategory(category);
-        setOptions(options);
+        section = null;
 
+        // Checking if sound should be transformed to SoundType.
+        if (SoundType.getPresentSoundNames().contains(sound)) {
+            SoundType type = SoundType.valueOf(sound);
+
+            this.sound = type.getSound().orElse("block.note_block.pling");
+            soundType = type;
+        } else {
+            if (!PMSHelper.isNamespacedKey(sound))
+                throw new IllegalArgumentException("Sound is not a valid namespaced key.");
+
+            this.sound = sound;
+        }
+
+        this.category = Objects.requireNonNullElse(category, SoundCategory.MASTER);
+        this.options = Objects.requireNonNullElseGet(options, () -> new SoundOptions(false, null, null, 0.0));
         this.volume = volume;
         this.pitch = pitch;
         this.delay = delay;
-        section = null;
     }
 
     /**
@@ -70,18 +82,34 @@ public class Sound
      */
     public Sound(@NotNull ConfigurationSection section)
     {
-        setSound(section.getString("Sound").orElseThrow(() -> new IllegalArgumentException("Section must contain a Sound key.")));
-        setCategory(categories.get(section.getString("Category").orElse("").toUpperCase(Locale.ROOT)));
-
         this.section = section;
+
+        String sound = section.getString("Sound").orElseThrow(() -> new IllegalArgumentException("Section must contain a Sound key."));
+
+        // Checking if sound should be transformed to SoundType.
+        if (SoundType.getPresentSoundNames().contains(sound)) {
+            SoundType type = SoundType.valueOf(sound);
+
+            this.sound = type.getSound().orElse("block.note_block.pling");
+            soundType = type;
+        } else {
+            if (!PMSHelper.isNamespacedKey(sound))
+                throw new IllegalArgumentException("Sound is not a valid namespaced key.");
+
+            this.sound = sound;
+        }
+
+        // If the category doesn't exist, then use MASTER as default.
+        category = Objects.requireNonNullElse(categories.get(section.getString("Category").orElse("MASTER").toUpperCase(Locale.ROOT)), SoundCategory.MASTER);
         volume = section.getNumber("Volume").orElse(10).floatValue();
         pitch = section.getNumber("Pitch").orElse(1).floatValue();
         delay = section.getNumber("Delay").orElse(0).longValue();
 
         ConfigurationSection options = section.getConfigurationSection("Options");
 
+        // Assigning default options in case the sound is missing them.
         if (options == null)
-            setOptions(null);
+            this.options = new SoundOptions(false, null, null, 0.0);
         else
             this.options = new SoundOptions(options);
 
@@ -152,7 +180,7 @@ public class Sound
         if (SoundType.getPresentSoundNames().contains(sound)) {
             SoundType type = SoundType.valueOf(sound);
 
-            this.sound = type.getSound().orElse("BLOCK_NOTE_BLOCK_PLING");
+            this.sound = type.getSound().orElse("block.note_block.pling");
             soundType = type;
         } else {
             if (!PMSHelper.isNamespacedKey(sound))
