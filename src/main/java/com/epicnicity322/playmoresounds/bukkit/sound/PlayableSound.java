@@ -90,8 +90,7 @@ public class PlayableSound extends Sound implements Playable
         if (getDelay() == 0) {
             play(player, listeners, location);
         } else {
-            final Location finalLocation = location;
-            Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> play(player, listeners, finalLocation), getDelay());
+            Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> play(player, listeners, location), getDelay());
         }
     }
 
