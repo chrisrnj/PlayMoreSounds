@@ -18,7 +18,6 @@
 
 package com.epicnicity322.playmoresounds.bukkit.inventory;
 
-import com.epicnicity322.epicpluginlib.bukkit.reflection.ReflectionUtil;
 import com.epicnicity322.epicpluginlib.core.tools.Downloader;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.epicpluginlib.core.util.PathUtils;
@@ -64,7 +63,6 @@ public final class AddonsInventory implements PMSInventory
     private static final @NotNull Path tempFolder = PlayMoreSoundsCore.getFolder().resolve("Temp");
     private static final @NotNull Path tempAddonsZip = tempFolder.resolve("Addons.zip");
     private static final @NotNull Path tempAddonsFolder = tempFolder.resolve("Addons To Install");
-    private static final boolean hasTitles;
     private static final @NotNull HashSet<HumanEntity> allInventories = new HashSet<>();
     private static URL releasesURL;
 
@@ -74,9 +72,6 @@ public final class AddonsInventory implements PMSInventory
         } catch (MalformedURLException ignored) {
             // Will never happen...
         }
-
-        // Player#sendTitle(String, String, int, int, int) was added on Spigot v1.11.1
-        hasTitles = ReflectionUtil.getMethod(Player.class, "sendTitle", String.class, String.class, int.class, int.class, int.class) != null;
     }
 
     private final @NotNull Inventory inventory;
@@ -150,12 +145,13 @@ public final class AddonsInventory implements PMSInventory
                 ZipUtils.extractZip(tempAddonsZip, tempAddonsFolder);
 
                 if (unsupportedAddonsVersion()) {
-                    lang.send(player, lang.get("Addons.Download.Unsupported Version"));
+                    lang.send(player, lang.get("Addons.Download.Downloading.Unsupported Version"));
                     downloadAddons(player, false);
                 }
 
                 new AddonInstallerInventory(player);
             } catch (NullPointerException ignored) {
+                block.set(false);
                 // Error message already logged.
             } catch (Exception e) {
                 lang.send(player, lang.get("Addons.Download.Error.Unknown"));
@@ -181,24 +177,21 @@ public final class AddonsInventory implements PMSInventory
                 Files.createDirectories(tempFolder);
             } else {
                 if (Files.deleteIfExists(tempAddonsZip)) {
-                    lang.send(player, lang.get("Addons.Download.Already Exists"));
+                    lang.send(player, lang.get("Addons.Download.Downloading.Already Exists"));
                 }
             }
 
             JSONObject releaseData = null;
 
             // Getting the github release information.
-            if (hasTitles)
-                repeatingTitle = Bukkit.getScheduler().runTaskTimer(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Downloading.Title"), lang.getColored("Addons.Download.Downloading.Subtitle.Info"), 5, 10, 5), 0, 25);
+            repeatingTitle = Bukkit.getScheduler().runTaskTimer(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Downloading.Title"), lang.getColored("Addons.Download.Downloading.Subtitle.Info"), 5, 10, 5), 0, 25);
             try (var baos = new ByteArrayOutputStream()) {
                 var downloader = new Downloader(releasesURL, baos);
                 downloader.run();
 
                 if (downloader.getResult() != Downloader.Result.SUCCESS) {
-                    if (hasTitles) {
-                        repeatingTitle.cancel();
-                        Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
-                    }
+                    repeatingTitle.cancel();
+                    Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
                     throw downloader.getException();
                 }
 
@@ -217,47 +210,38 @@ public final class AddonsInventory implements PMSInventory
                     }
 
                     if (releaseData == null) {
-                        if (hasTitles) {
-                            repeatingTitle.cancel();
-                            Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
-                        }
+                        repeatingTitle.cancel();
+                        Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
                         lang.send(player, lang.get("Addons.Download.Error.Not Found").replace("<version>", PlayMoreSoundsVersion.version));
                         throw new NullPointerException();
                     }
                 }
             }
 
-            if (hasTitles) repeatingTitle.cancel();
+            repeatingTitle.cancel();
 
             String addonsDownloadURL = findAddonsDownloadURL((JSONArray) releaseData.get("assets"));
 
             if (addonsDownloadURL == null) {
-                if (hasTitles) {
-                    Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
-                }
+                Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
                 lang.send(player, lang.get("Addons.Download.Error.Not Found").replace("<version>", PlayMoreSoundsVersion.version));
                 throw new NullPointerException();
             }
 
             // Downloading addons zip to PlayMoreSounds data folder.
-            if (hasTitles)
-                repeatingTitle = Bukkit.getScheduler().runTaskTimer(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Downloading.Title"), lang.getColored("Addons.Download.Downloading.Subtitle.Files"), 5, 10, 5), 0, 25);
+            repeatingTitle = Bukkit.getScheduler().runTaskTimer(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Downloading.Title"), lang.getColored("Addons.Download.Downloading.Subtitle.Files"), 5, 10, 5), 0, 25);
             try (FileOutputStream fos = new FileOutputStream(tempAddonsZip.toFile())) {
                 var downloader = new Downloader(new URL(addonsDownloadURL), fos);
                 downloader.run();
 
                 if (downloader.getResult() != Downloader.Result.SUCCESS) {
-                    if (hasTitles) {
                         repeatingTitle.cancel();
                         Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
-                    }
                     throw downloader.getException();
                 }
 
-                if (hasTitles) {
                     repeatingTitle.cancel();
                     Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Success.Title"), lang.getColored("Addons.Download.Success.Subtitle"), 10, 20, 10));
-                }
             }
         } finally {
             if (repeatingTitle != null && !repeatingTitle.isCancelled()) repeatingTitle.cancel();
