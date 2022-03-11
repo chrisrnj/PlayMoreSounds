@@ -235,13 +235,13 @@ public final class AddonsInventory implements PMSInventory
                 downloader.run();
 
                 if (downloader.getResult() != Downloader.Result.SUCCESS) {
-                        repeatingTitle.cancel();
-                        Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
+                    repeatingTitle.cancel();
+                    Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Error.Title"), lang.getColored("Addons.Download.Error.Subtitle"), 10, 20, 10));
                     throw downloader.getException();
                 }
 
-                    repeatingTitle.cancel();
-                    Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Success.Title"), lang.getColored("Addons.Download.Success.Subtitle"), 10, 20, 10));
+                repeatingTitle.cancel();
+                Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> player.sendTitle(lang.getColored("Addons.Download.Success.Title"), lang.getColored("Addons.Download.Success.Subtitle"), 10, 20, 10));
             }
         } finally {
             if (repeatingTitle != null && !repeatingTitle.isCancelled()) repeatingTitle.cancel();
