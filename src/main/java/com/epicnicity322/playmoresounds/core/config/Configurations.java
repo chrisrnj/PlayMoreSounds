@@ -547,8 +547,12 @@ public enum Configurations
             "      Material: MUSIC_DISC_13\n" +
             "      Glowing: false\n" +
             "    Done:\n" +
-            "      Material: GREEN_WOOL\n" +
-            "      Glowing: false\n" +
+            "      Default:\n" +
+            "        Material: GREEN_WOOL\n" +
+            "        Glowing: false\n" +
+            "      Parent:\n" +
+            "        Material: GREEN_WOOL\n" +
+            "        Glowing: false\n" +
             "\n" +
             "Input Getter Inventory:\n" +
             "  Input Item:\n" +
@@ -1193,8 +1197,12 @@ public enum Configurations
             "      Display Name: 'Play'\n" +
             "      Lore: 'Play the sound <value>.'\n" +
             "    Done:\n" +
-            "      Display Name: 'Done'\n" +
-            "      Lore: 'Click to save this sound'\n" +
+            "      Default:\n" +
+            "        Display Name: 'Done'\n" +
+            "        Lore: 'Click to finish editing this sound'\n" +
+            "      Parent:\n" +
+            "        Display Name: 'Done'\n" +
+            "        Lore: 'Click to save and go back to <parent>'\n" +
             "  Title:\n" +
             "    Default: '&6Sound with id: <id>'\n" +
             "    Parent: '&6<richsound>'s sound with id <id>'\n" +
