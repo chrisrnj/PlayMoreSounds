@@ -107,14 +107,16 @@ public final class InventoryUtils
      * @param from_index The slot to start the filling.
      * @param to_index   The slot to stop the filling.
      */
-    public static void fillWithGlass(@NotNull Inventory inventory, int from_index, int to_index)
+    public static void fill(@NotNull Material material, @NotNull Inventory inventory, int from_index, int to_index)
     {
         if (from_index < 0 || to_index < 0 || from_index > 53 || to_index > 53) return;
 
         for (int slot = from_index; slot <= to_index; ++slot) {
-            if (inventory.getItem(slot) != null) continue;
+            ItemStack previous = inventory.getItem(slot);
 
-            var glassPane = new ItemStack(Material.GLASS_PANE);
+            if (previous != null && !previous.getType().isAir()) continue;
+
+            var glassPane = new ItemStack(material);
             var meta = glassPane.getItemMeta();
 
             meta.setDisplayName(" ");

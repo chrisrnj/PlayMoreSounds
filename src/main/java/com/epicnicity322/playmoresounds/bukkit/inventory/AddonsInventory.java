@@ -30,6 +30,7 @@ import com.epicnicity322.playmoresounds.core.addons.PMSAddon;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -92,7 +93,7 @@ public final class AddonsInventory implements PMSInventory
 
             inventory.setItem(4, InventoryUtils.getItemStack("Addons.Inventory.Items.Install"));
             buttons.put(4, event -> openInstallerInventory((Player) event.getWhoClicked()));
-            InventoryUtils.fillWithGlass(inventory, 0, 8);
+            InventoryUtils.fill(Material.GLASS_PANE, inventory, 0, 8);
         } else {
             addonPages = PMSHelper.splitIntoPages(addons, 36);
             int size = 18 + (addons.size() % 9 == 0 ? addons.size() : addons.size() + (9 - (addons.size() % 9)));
@@ -111,7 +112,7 @@ public final class AddonsInventory implements PMSInventory
             inventory.setItem(8, InventoryUtils.getItemStack("Addons.Inventory.Items.Install"));
             buttons.put(8, event -> openInstallerInventory((Player) event.getWhoClicked()));
             fillAddons();
-            InventoryUtils.fillWithGlass(inventory, 9, 17);
+            InventoryUtils.fill(Material.GLASS_PANE, inventory, 9, 17);
         }
     }
 
@@ -478,7 +479,7 @@ public final class AddonsInventory implements PMSInventory
                 });
             }
 
-            InventoryUtils.fillWithGlass(inventory, inventory.getSize() - 9, inventory.getSize() - 1);
+            InventoryUtils.fill(Material.GLASS_PANE, inventory, inventory.getSize() - 9, inventory.getSize() - 1);
         }
     }
 }
