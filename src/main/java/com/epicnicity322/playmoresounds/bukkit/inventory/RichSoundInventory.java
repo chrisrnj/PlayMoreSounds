@@ -18,6 +18,44 @@
 
 package com.epicnicity322.playmoresounds.bukkit.inventory;
 
-public class RichSoundInventory
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.HashMap;
+import java.util.function.Consumer;
+
+public final class RichSoundInventory implements PMSInventory
 {
+    private final @NotNull PlayableRichSound richSound;
+
+    public RichSoundInventory(@NotNull PlayableRichSound richSound)
+    {
+        this.richSound = richSound;
+    }
+
+    public @NotNull PlayableRichSound getRichSound()
+    {
+        return richSound;
+    }
+
+    @Override
+    public @NotNull Inventory getInventory()
+    {
+        return null;
+    }
+
+    @Override
+    public @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> getButtons()
+    {
+        return null;
+    }
+
+    @Override
+    public void openInventory(@NotNull HumanEntity humanEntity)
+    {
+
+    }
 }
