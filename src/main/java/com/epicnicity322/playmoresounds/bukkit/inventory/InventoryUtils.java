@@ -101,28 +101,70 @@ public final class InventoryUtils
     }
 
     /**
-     * Fills a inventory with glass panes, ignoring items that are not air.
+     * Fills a inventory with the specified material, ignoring items that are not air.
+     * <p>
+     * If the material is from an item that has {@link ItemMeta}, the name is set to blank and the flag
+     * {@link ItemFlag#HIDE_ATTRIBUTES} is added.
+     * <p>
+     * If you input a index that is greater than the inventories size or lower than 0, the operation is aborted and
+     * nothing is filled.
      *
      * @param inventory  The inventory to fill.
      * @param from_index The slot to start the filling.
      * @param to_index   The slot to stop the filling.
+     * @see #forceFill(Material, Inventory, int, int)
      */
     public static void fill(@NotNull Material material, @NotNull Inventory inventory, int from_index, int to_index)
     {
-        if (from_index < 0 || to_index < 0 || from_index > 53 || to_index > 53) return;
+        int size = inventory.getSize();
+        if (from_index < 0 || to_index < 0 || from_index >= size || to_index >= size) return;
 
         for (int slot = from_index; slot <= to_index; ++slot) {
             ItemStack previous = inventory.getItem(slot);
 
             if (previous != null && !previous.getType().isAir()) continue;
 
-            var glassPane = new ItemStack(material);
-            var meta = glassPane.getItemMeta();
+            var item = new ItemStack(material);
+            if (item.hasItemMeta()) {
+                var meta = item.getItemMeta();
 
-            meta.setDisplayName(" ");
-            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-            glassPane.setItemMeta(meta);
-            inventory.setItem(slot, glassPane);
+                meta.setDisplayName(" ");
+                meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+                item.setItemMeta(meta);
+            }
+            inventory.setItem(slot, item);
+        }
+    }
+
+    /**
+     * Fills a inventory with the specified material, items that were already set in the index range are replaced.
+     * <p>
+     * If the material is from an item that has {@link ItemMeta}, the name is set to blank and the flag
+     * {@link ItemFlag#HIDE_ATTRIBUTES} is added.
+     * <p>
+     * If you input a index that is greater than the inventories size or lower than 0, the operation is aborted and
+     * nothing is filled.
+     *
+     * @param inventory  The inventory to fill.
+     * @param from_index The slot to start the filling.
+     * @param to_index   The slot to stop the filling.
+     * @see #fill(Material, Inventory, int, int)
+     */
+    public static void forceFill(@NotNull Material material, @NotNull Inventory inventory, int from_index, int to_index)
+    {
+        int size = inventory.getSize();
+        if (from_index < 0 || to_index < 0 || from_index >= size || to_index >= size) return;
+
+        for (int slot = from_index; slot <= to_index; ++slot) {
+            var item = new ItemStack(material);
+            if (item.hasItemMeta()) {
+                var meta = item.getItemMeta();
+
+                meta.setDisplayName(" ");
+                meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+                item.setItemMeta(meta);
+            }
+            inventory.setItem(slot, item);
         }
     }
 
