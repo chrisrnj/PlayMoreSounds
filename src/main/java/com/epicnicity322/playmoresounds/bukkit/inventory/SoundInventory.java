@@ -44,9 +44,9 @@ import java.util.function.Consumer;
 public final class SoundInventory implements PMSInventory
 {
     private final @NotNull Inventory inventory;
-    private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>();
+    private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>(11);
     private final @NotNull PlayableSound sound;
-    private final @Nullable RichSoundInventory parent;
+    private final @Nullable String parentName;
 
     public SoundInventory(@NotNull PlayableSound sound)
     {
@@ -59,22 +59,19 @@ public final class SoundInventory implements PMSInventory
 
         if (parent != null) {
             title = title.replace("<richsound>", parent.getRichSound().getName());
+            this.parentName = parent.getRichSound().getName();
+        } else {
+            this.parentName = null;
         }
 
         this.inventory = Bukkit.createInventory(null, 45, sound.getSection() == null ? title.replace("<id>", "1") : title.replace("<id>", sound.getSection().getName()));
         this.sound = sound;
-        this.parent = parent;
-        updateButtons();
+        updateButtonItems();
+
         InventoryUtils.fill(Material.BLACK_STAINED_GLASS_PANE, inventory, 0, 8);
         InventoryUtils.fill(Material.GLASS_PANE, inventory, 9, 35);
         InventoryUtils.fill(Material.BLACK_STAINED_GLASS_PANE, inventory, 36, 44);
-    }
 
-    private void updateButtons()
-    {
-        var lang = PlayMoreSounds.getLanguage();
-
-        inventory.setItem(10, parseItemStack("Sound", sound.getSound()));
         buttons.put(10, event -> openInput(event, input -> {
             String soundType;
 
@@ -88,9 +85,7 @@ public final class SoundInventory implements PMSInventory
 
             sound.setSound(soundType);
             return true;
-        }, lang.getColored("Sound Inventory.Items.Sound.Input.Title"), lang.get("Sound Inventory.Items.Sound.Input.Invalid")));
-
-        inventory.setItem(12, parseItemStack("Volume", Float.toString(sound.getVolume())));
+        }, "Sound Inventory.Items.Sound.Input.Title", "Sound Inventory.Items.Sound.Input.Invalid"));
         buttons.put(12, event -> openInput(event, input -> {
             try {
                 sound.setVolume(Float.parseFloat(input));
@@ -98,9 +93,7 @@ public final class SoundInventory implements PMSInventory
             } catch (NumberFormatException ignored) {
                 return false;
             }
-        }, lang.getColored("Sound Inventory.Items.Volume.Input.Title"), lang.get("Sound Inventory.Items.Volume.Input.Invalid")));
-
-        inventory.setItem(14, parseItemStack("Pitch", Float.toString(sound.getPitch())));
+        }, "Sound Inventory.Items.Volume.Input.Title", "Sound Inventory.Items.Volume.Input.Invalid"));
         buttons.put(14, event -> openInput(event, input -> {
             try {
                 sound.setPitch(Float.parseFloat(input));
@@ -108,9 +101,7 @@ public final class SoundInventory implements PMSInventory
             } catch (NumberFormatException ignored) {
                 return false;
             }
-        }, lang.getColored("Sound Inventory.Items.Pitch.Input.Title"), lang.get("Sound Inventory.Items.Pitch.Input.Invalid")));
-
-        inventory.setItem(16, parseItemStack("Category", sound.getCategory().name()));
+        }, "Sound Inventory.Items.Pitch.Input.Title", "Sound Inventory.Items.Pitch.Input.Invalid"));
         buttons.put(16, event -> openInput(event, input -> {
             try {
                 sound.setCategory(SoundCategory.valueOf(input.toUpperCase(Locale.ROOT)));
@@ -118,9 +109,7 @@ public final class SoundInventory implements PMSInventory
             } catch (IllegalArgumentException ignored) {
                 return false;
             }
-        }, lang.getColored("Sound Inventory.Items.Category.Input.Title"), lang.get("Sound Inventory.Items.Category.Input.Invalid")));
-
-        inventory.setItem(27, parseItemStack("Delay", Long.toString(sound.getDelay())));
+        }, "Sound Inventory.Items.Category.Input.Title", "Sound Inventory.Items.Category.Input.Invalid"));
         buttons.put(27, event -> openInput(event, input -> {
             try {
                 sound.setDelay(Long.parseLong(input));
@@ -128,11 +117,10 @@ public final class SoundInventory implements PMSInventory
             } catch (NumberFormatException ignored) {
                 return false;
             }
-        }, lang.getColored("Sound Inventory.Items.Delay.Input.Title"), lang.get("Sound Inventory.Items.Delay.Input.Invalid")));
+        }, "Sound Inventory.Items.Delay.Input.Title", "Sound Inventory.Items.Delay.Input.Invalid"));
 
         var options = sound.getOptions();
 
-        inventory.setItem(29, parseItemStack("Radius", Double.toString(options.getRadius())));
         buttons.put(29, event -> openInput(event, input -> {
             try {
                 options.setRadius(Double.parseDouble(input));
@@ -140,15 +128,11 @@ public final class SoundInventory implements PMSInventory
             } catch (NumberFormatException ignored) {
                 return false;
             }
-        }, lang.getColored("Sound Inventory.Items.Radius.Input.Title"), lang.get("Sound Inventory.Items.Radius.Input.Invalid")));
-
-        inventory.setItem(31, parseItemStack(options.ignoresDisabled() ? "Ignores Toggle.Enabled" : "Ignores Toggle.Disabled", Boolean.toString(options.ignoresDisabled())));
+        }, "Sound Inventory.Items.Radius.Input.Title", "Sound Inventory.Items.Radius.Input.Invalid"));
         buttons.put(31, event -> {
             options.setIgnoresDisabled(!options.ignoresDisabled());
             inventory.setItem(31, parseItemStack(options.ignoresDisabled() ? "Ignores Toggle.Enabled" : "Ignores Toggle.Disabled", Boolean.toString(options.ignoresDisabled())));
         });
-
-        inventory.setItem(33, parseItemStack("Permission Required", options.getPermissionRequired()));
         buttons.put(33, event -> openInput(event, input -> {
             if (input.isEmpty() || input.equalsIgnoreCase("null")) {
                 options.setPermissionRequired(null);
@@ -156,9 +140,7 @@ public final class SoundInventory implements PMSInventory
                 options.setPermissionRequired(input);
             }
             return true;
-        }, lang.getColored("Sound Inventory.Items.Permission Required.Input.Title"), null));
-
-        inventory.setItem(35, parseItemStack("Permission To Listen", options.getPermissionToListen()));
+        }, "Sound Inventory.Items.Permission Required.Input.Title", null));
         buttons.put(35, event -> openInput(event, input -> {
             if (input.isEmpty() || input.equalsIgnoreCase("null")) {
                 options.setPermissionToListen(null);
@@ -166,12 +148,9 @@ public final class SoundInventory implements PMSInventory
                 options.setPermissionToListen(input);
             }
             return true;
-        }, lang.getColored("Sound Inventory.Items.Permission To Listen.Input.Title"), null));
+        }, "Sound Inventory.Items.Permission To Listen.Input.Title", null));
 
-        inventory.setItem(37, parseItemStack("Play", sound.getSound()));
         buttons.put(37, event -> sound.play((Player) event.getWhoClicked()));
-
-        inventory.setItem(43, InventoryUtils.getItemStack("Sound Inventory.Items.Done"));
         if (parent != null) {
             buttons.put(43, event -> parent.openInventory(event.getWhoClicked()));
         } else {
@@ -182,16 +161,45 @@ public final class SoundInventory implements PMSInventory
     private void openInput(InventoryClickEvent event, Validator validator, String title, String error)
     {
         HumanEntity player = event.getWhoClicked();
+        var lang = PlayMoreSounds.getLanguage();
 
-        new InputGetterInventory((Player) player, title, input -> {
+        new InputGetterInventory((Player) player, lang.getColored(title), input -> {
             if (validator.validate(input)) {
-                updateButtons();
+                updateButtonItems();
                 openInventory(player);
             } else {
-                PlayMoreSounds.getLanguage().send(player, error);
+                PlayMoreSounds.getLanguage().send(player, lang.get(error));
                 Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> openInventory(player), 40);
             }
         }).openInventory();
+    }
+
+    private void updateButtonItems()
+    {
+        inventory.setItem(10, parseItemStack("Sound", sound.getSound()));
+        inventory.setItem(12, parseItemStack("Volume", Float.toString(sound.getVolume())));
+        inventory.setItem(14, parseItemStack("Pitch", Float.toString(sound.getPitch())));
+        inventory.setItem(16, parseItemStack("Category", sound.getCategory().name()));
+        inventory.setItem(27, parseItemStack("Delay", Long.toString(sound.getDelay())));
+
+        var options = sound.getOptions();
+
+        inventory.setItem(29, parseItemStack("Radius", Double.toString(options.getRadius())));
+        inventory.setItem(31, parseItemStack(options.ignoresDisabled() ? "Ignores Toggle.Enabled" : "Ignores Toggle.Disabled", Boolean.toString(options.ignoresDisabled())));
+        inventory.setItem(33, parseItemStack("Permission Required", options.getPermissionRequired()));
+        inventory.setItem(35, parseItemStack("Permission To Listen", options.getPermissionToListen()));
+
+        inventory.setItem(37, parseItemStack("Play", sound.getSound()));
+        if (parentName != null) {
+            var item = InventoryUtils.getItemStack("Sound Inventory.Items.Done.Parent");
+            var meta = item.getItemMeta();
+
+            meta.setDisplayName(meta.getDisplayName().replace("<parent>", parentName));
+            item.setItemMeta(meta);
+            inventory.setItem(43, item);
+        } else {
+            inventory.setItem(43, InventoryUtils.getItemStack("Sound Inventory.Items.Done.Default"));
+        }
     }
 
     private ItemStack parseItemStack(String name, String value)
@@ -209,6 +217,11 @@ public final class SoundInventory implements PMSInventory
         meta.setLore(lore);
         itemStack.setItemMeta(meta);
         return itemStack;
+    }
+
+    public @NotNull PlayableSound getSound()
+    {
+        return sound;
     }
 
     @Override
