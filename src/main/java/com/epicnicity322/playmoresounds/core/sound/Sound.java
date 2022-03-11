@@ -38,6 +38,7 @@ public class Sound
         }
     }
 
+    private final @NotNull String id;
     private final @Nullable ConfigurationSection section;
     private @Nullable SoundType soundType;
     private @NotNull String sound;
@@ -47,9 +48,10 @@ public class Sound
     private long delay;
     private @NotNull SoundOptions options;
 
-    public Sound(@NotNull String sound, @Nullable SoundCategory category, float volume, float pitch, long delay, @Nullable SoundOptions options)
+    public Sound(@Nullable String id, @NotNull String sound, @Nullable SoundCategory category, float volume, float pitch, long delay, @Nullable SoundOptions options)
     {
-        section = null;
+        this.section = null;
+        this.id = id == null ? PMSHelper.getRandomString(6) : id;
 
         // Checking if sound should be transformed to SoundType.
         if (SoundType.getPresentSoundNames().contains(sound)) {
@@ -83,6 +85,7 @@ public class Sound
     public Sound(@NotNull ConfigurationSection section)
     {
         this.section = section;
+        this.id = section.getName();
 
         String sound = section.getString("Sound").orElseThrow(() -> new IllegalArgumentException("Section must contain a Sound key."));
 
@@ -113,6 +116,18 @@ public class Sound
         else
             this.options = new SoundOptions(options);
 
+    }
+
+    /**
+     * Gets the ID of this sound, can be any type of string.
+     * <p>
+     * The ID is the same as the section name, in case this is a {@link ConfigurationSection} sound.
+     *
+     * @return The ID of this sound.
+     */
+    public @NotNull String getId()
+    {
+        return id;
     }
 
     /**
@@ -314,6 +329,7 @@ public class Sound
         return Float.compare(sound1.volume, volume) == 0 &&
                 Float.compare(sound1.pitch, pitch) == 0 &&
                 delay == sound1.delay &&
+                category == sound1.category &&
                 sound.equals(sound1.sound) &&
                 options.equals(sound1.options);
     }
@@ -332,12 +348,13 @@ public class Sound
 
         if (!isSimilar(sound1)) return false;
 
-        return Objects.equals(sound1.section, section);
+        return id.equals(sound1.id) &&
+                Objects.equals(sound1.section, section);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(sound, volume, pitch, delay, options, section);
+        return Objects.hash(id, sound, volume, pitch, delay, category, options, section);
     }
 }
