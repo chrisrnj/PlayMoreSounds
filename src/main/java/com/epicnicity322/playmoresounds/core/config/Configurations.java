@@ -508,7 +508,49 @@ public enum Configurations
             "        Glowing: false\n" +
             "      Confirm:\n" +
             "        Material: GREEN_WOOL\n" +
-            "        Glowing: false", StaticFields.version4_1_2),
+            "        Glowing: false\n" +
+            "\n" +
+            "Sound Inventory:\n" +
+            "  Items:\n" +
+            "    Sound:\n" +
+            "      Material: NOTE_BLOCK\n" +
+            "      Glowing: false\n" +
+            "    Volume:\n" +
+            "      Material: GUNPOWDER\n" +
+            "      Glowing: false\n" +
+            "    Pitch:\n" +
+            "      Material: REDSTONE\n" +
+            "      Glowing: false\n" +
+            "    Delay:\n" +
+            "      Material: REPEATER\n" +
+            "      Glowing: false\n" +
+            "    Category:\n" +
+            "      Material: MOJANG_BANNER_PATTERN\n" +
+            "      Glowing: false\n" +
+            "    Radius:\n" +
+            "      Material: COMPASS\n" +
+            "      Glowing: false\n" +
+            "    Ignores Toggle:\n" +
+            "      Enabled:\n" +
+            "        Material: REDSTONE_LAMP\n" +
+            "        Glowing: false\n" +
+            "      Disabled:\n" +
+            "        Material: REDSTONE_LAMP\n" +
+            "        Glowing: false\n" +
+            "    Permission Required:\n" +
+            "      Material: WRITABLE_BOOK\n" +
+            "      Glowing: false\n" +
+            "    Permission To Listen:\n" +
+            "      Material: WRITABLE_BOOK\n" +
+            "      Glowing: false\n" +
+            "    Done:\n" +
+            "      Material: GREEN_WOOL\n" +
+            "      Glowing: false\n" +
+            "\n" +
+            "Input Getter Inventory:\n" +
+            "  Input Item:\n" +
+            "    Material: NETHER_STAR\n" +
+            "    Glowing: false", StaticFields.version4_1_2),
     DEATH_TYPES(StaticFields.sounds.resolve("death types.yml"), "# Set a sound to play when a player die for a specific cause of death.\n" +
             "#\n" +
             "# To set a sound, just create a configuration section with the name of the cause of\n" +
@@ -960,6 +1002,11 @@ public enum Configurations
             "    &e/<label> update [download] [--force]\n" +
             "    &7 > Checks and downloads updates.\n" +
             "\n" +
+            "Input Getter Inventory:\n" +
+            "  Input Item:\n" +
+            "    Display Name: 'Input'\n" +
+            "    Lore: 'Type in the input.'\n" +
+            "\n" +
             "List:\n" +
             "  Chat:\n" +
             "    Alternate Color: '&8'\n" +
@@ -1083,6 +1130,66 @@ public enum Configurations
             "    Declined: '&cYou must accept the resource pack to play on this server.'\n" +
             "    Download Fail: '&cSomething went wrong while downloading the resource pack. Please try joining again.'\n" +
             "  Request Message: '&ePlease download the resource pack to continue.'\n" +
+            "\n" +
+            "Sound Inventory:\n" +
+            "  Items:\n" +
+            "    Sound:\n" +
+            "      Display Name: 'Sound'\n" +
+            "      Lore: 'Current: <value>'\n" +
+            "      Input:\n" +
+            "        Invalid: '&cThe sound input is not a valid namespaced key!'\n" +
+            "        Title: '&9Please input the new sound'\n" +
+            "    Volume:\n" +
+            "      Display Name: 'Volume'\n" +
+            "      Lore: 'Current: <value>'\n" +
+            "      Input:\n" +
+            "        Invalid: '&cThe volume input is not a float number!'\n" +
+            "        Title: '&9Please input the new volume'\n" +
+            "    Pitch:\n" +
+            "      Display Name: 'Pitch'\n" +
+            "      Lore: 'Current: <value>'\n" +
+            "      Input:\n" +
+            "        Invalid: '&cThe pitch input is not a float number!'\n" +
+            "        Title: '&9Please input the new pitch'\n" +
+            "    Delay:\n" +
+            "      Display Name: 'Delay'\n" +
+            "      Lore: 'Current: <value>'\n" +
+            "      Input:\n" +
+            "        Invalid: \"&cThe delay input is not a 'long' number!\"\n" +
+            "        Title: '&9Please input the new delay'\n" +
+            "    Category:\n" +
+            "      Display Name: 'Category'\n" +
+            "      Lore: 'Current: <value>'\n" +
+            "      Input:\n" +
+            "        Invalid: '&cThe category input was not found! Check available sounds.txt file to see all categories.'\n" +
+            "        Title: '&9Please input the new category'\n" +
+            "    Radius:\n" +
+            "      Display Name: 'Radius'\n" +
+            "      Lore: 'Current: <value>'\n" +
+            "      Input:\n" +
+            "        Invalid: \"&cThe radius input is not a 'double' number!\"\n" +
+            "        Title: '&9Please input the new radius'\n" +
+            "    Ignores Toggle:\n" +
+            "      Enabled:\n" +
+            "        Display Name: 'Ignores Toggle'\n" +
+            "        Lore: 'Current: <value>'\n" +
+            "      Disabled:\n" +
+            "        Display Name: 'Ignores Toggle'\n" +
+            "        Lore: 'Current: <value>'\n" +
+            "    Permission Required:\n" +
+            "      Display Name: 'Permission Required'\n" +
+            "      Lore: 'Current: <value>'\n" +
+            "      Input:\n" +
+            "        Title: '&9Input the permission required'\n" +
+            "    Permission To Listen:\n" +
+            "      Display Name: 'Permission To Listen'\n" +
+            "      Lore: 'Current: <value>'\n" +
+            "      Input:\n" +
+            "        Title: '&9Input the permission to listen'\n" +
+            "    Done:\n" +
+            "      Display Name: 'Done'\n" +
+            "      Lore: 'Click to save this sound'\n" +
+            "  Title: '&eSound with id: <id>'\n" +
             "\n" +
             "Stop Sound:\n" +
             "  Success:\n" +
