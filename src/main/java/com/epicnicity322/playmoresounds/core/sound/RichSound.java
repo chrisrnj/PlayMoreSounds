@@ -22,39 +22,55 @@ import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
+import java.util.*;
 
 public abstract class RichSound<T extends Sound>
 {
     private final @NotNull String name;
+    private final @NotNull Collection<T> childSounds;
+    private final @NotNull Collection<T> unmodifiableChildSounds;
     private @Nullable ConfigurationSection section;
     private boolean enabled;
     private boolean cancellable;
-    private @NotNull Collection<T> childSounds;
 
     public RichSound(@NotNull String name, boolean enabled, boolean cancellable, @Nullable Collection<T> childSounds)
     {
+        // Checking if there are two child sounds with the same name in the collection.
+        var currentNames = new HashSet<String>();
+        for (var sound : childSounds) {
+            if (!currentNames.add(sound.getId())) {
+                throw new IllegalArgumentException("Child Sounds collection has two sounds with the same ID.");
+            }
+        }
+
         this.name = name;
         this.enabled = enabled;
         this.cancellable = cancellable;
         this.childSounds = childSounds;
+        this.unmodifiableChildSounds = Collections.unmodifiableCollection(childSounds);
     }
 
     public RichSound(@NotNull ConfigurationSection section)
     {
         this.section = section;
         this.name = section.getPath();
-        enabled = section.getBoolean("Enabled").orElse(false);
-        cancellable = section.getBoolean("Cancellable").orElse(false);
-        childSounds = new HashSet<>();
+        this.enabled = section.getBoolean("Enabled").orElse(false);
+        this.cancellable = section.getBoolean("Cancellable").orElse(false);
+        this.childSounds = new HashSet<>();
+        this.unmodifiableChildSounds = Collections.unmodifiableCollection(childSounds);
 
         var sounds = section.getConfigurationSection("Sounds");
 
         if (sounds != null) {
-            for (String childSound : sounds.getNodes().keySet()) {
-                childSounds.add(newCoreSound(sounds.getConfigurationSection(childSound)));
+            var currentNames = new HashSet<String>();
+
+            for (Map.Entry<String, Object> node : sounds.getNodes().entrySet()) {
+                if (!(node.getValue() instanceof ConfigurationSection childSoundSection)) continue;
+                // A RichSound can not have two sounds with the same ID.
+                if (currentNames.contains(node.getKey())) continue;
+
+                currentNames.add(node.getKey());
+                childSounds.add(newCoreSound(childSoundSection));
             }
         }
     }
@@ -66,7 +82,7 @@ public abstract class RichSound<T extends Sound>
         return name;
     }
 
-    public @Nullable ConfigurationSection getSection()
+    public final @Nullable ConfigurationSection getSection()
     {
         return section;
     }
@@ -91,14 +107,34 @@ public abstract class RichSound<T extends Sound>
         this.cancellable = cancellable;
     }
 
-    public @NotNull Collection<T> getChildSounds()
+    public final @NotNull Collection<T> getChildSounds()
     {
-        return childSounds;
+        return unmodifiableChildSounds;
     }
 
-    public void setChildSounds(@Nullable Collection<T> childSounds)
+    public final @Nullable T getChildSound(@NotNull String id)
     {
-        this.childSounds = Objects.requireNonNullElseGet(childSounds, HashSet::new);
+        for (var sound : childSounds) {
+            if (sound.getId().equals(id)) {
+                return sound;
+            }
+        }
+        return null;
+    }
+
+    public final void addChildSound(@NotNull T childSound)
+    {
+        if (getChildSound(childSound.getId()) == null) childSounds.add(childSound);
+    }
+
+    public final void removeChildSound(@NotNull T childSound)
+    {
+        childSounds.remove(childSound);
+    }
+
+    public final void removeChildSound(@NotNull String id)
+    {
+        childSounds.removeIf(sound -> sound.getId().equals(id));
     }
 
     @Override
