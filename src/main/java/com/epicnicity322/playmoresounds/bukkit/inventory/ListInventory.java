@@ -123,7 +123,9 @@ public final class ListInventory implements PMSInventory
     public static void refreshListInventories()
     {
         if (PlayMoreSounds.getInstance() == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
-        listInventories.clear();
+        synchronized (listInventories) {
+            listInventories.clear();
+        }
 
         int rowsPerPage = Configurations.CONFIG.getConfigurationHolder().getConfiguration().getNumber("List.Inventory.Rows Per Page").orElse(4).intValue();
 
@@ -134,17 +136,21 @@ public final class ListInventory implements PMSInventory
         }
 
         TreeMap<Integer, ArrayList<SoundType>> soundPages = new TreeMap<>(PMSHelper.splitIntoPages(SoundType.getPresentSoundTypes(), rowsPerPage * 9));
-        for (var page : soundPages.keySet()) {
-            listInventories.add(new ListInventory(page));
+        synchronized (listInventories) {
+            for (var page : soundPages.keySet()) {
+                listInventories.add(new ListInventory(page));
+            }
         }
     }
 
     public static ListInventory getListInventory(int page)
     {
-        if (listInventories.isEmpty()) refreshListInventories();
-        if (page > listInventories.size()) page = listInventories.size();
-        if (page < 1) page = 1;
-        return listInventories.get(page - 1);
+        synchronized (listInventories) {
+            if (listInventories.isEmpty()) refreshListInventories();
+            if (page > listInventories.size()) page = listInventories.size();
+            if (page < 1) page = 1;
+            return listInventories.get(page - 1);
+        }
     }
 
     private static Iterator<String> getIterator(ArrayList<String> list, int page)
