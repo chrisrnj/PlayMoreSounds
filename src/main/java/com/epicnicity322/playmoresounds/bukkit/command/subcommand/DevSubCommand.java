@@ -21,11 +21,14 @@ package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.core.util.StringUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.bukkit.inventory.InputGetterInventory;
+import com.epicnicity322.playmoresounds.bukkit.inventory.SoundInventory;
 import com.epicnicity322.playmoresounds.bukkit.listener.OnPlayerInteract;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
 import com.epicnicity322.playmoresounds.bukkit.sound.events.PlayRichSoundEvent;
 import com.epicnicity322.playmoresounds.bukkit.sound.events.PlaySoundEvent;
+import com.epicnicity322.playmoresounds.bukkit.util.ListenerRegister;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -101,6 +104,8 @@ public final class DevSubCommand extends Command
         String command = join(args);
 
         switch (command) {
+            case "test edit" -> new SoundInventory(ListenerRegister.getListeners().stream().filter(l -> l.getName().equals("Change Held Item")).findFirst().get().getRichSound().getChildSounds().stream().findFirst().get()).openInventory((Player) sender);
+            case "open anvil" -> new InputGetterInventory((Player) sender, "Testing", sender::sendMessage).openInventory();
             case "register addons" -> {
                 try {
                     PlayMoreSounds.getAddonManager().registerAddons();
