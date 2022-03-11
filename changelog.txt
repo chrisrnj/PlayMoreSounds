@@ -1,55 +1,23 @@
 Changes with * at the start are the ones that are currently under development, the rest is already added.
 
-This version only works with java 17! And it was meant to be run on minecraft 1.18 or newer, all previous measures to
-support lower versions were removed in order to achieve better performance.
-The plugin might work as low as 1.17, but errors are not logged because the minimum supported version is 1.18.
+Sound Editing GUI:
+- You can now edit sounds using a GUI!
+- Use the command /pms edit to navigate through sounds.yml sounds and edit them.
+- Inputs will be given through a fancy Anvil inventory.
+- In a region you can use the command /pms rg set sound to set a sound to play in this region, for loop, enter or leave.
 
-All classes in the plugin were taken a look at and changed, in order to use java 17 features and fix bugs found on the way.
-
-General sound playing improvements:
-- Spectators and players with invisibility effect were not able to hear sounds. Now they can hear all sounds, but the sounds are treated as if you set the Radius option to 0.
-- Add error messages when a configuration sound has an invalid namespaced key, previously an ugly error would be thrown to console.
-- Players will be cached when checking for toggle state, previously the plugin would access the player persistent data everytime it played a sound.
-- Improve sound playing performance significantly by removing support to versions lower than 1.10 and 1.7, which had their own way of playing sounds. Also by removing some unused features, check Removals below.
-
-Death sounds improvements:
-- Last death cause will only be recorded in case any sound in 'death types.yml' is enabled, which previously was recorded on every hit.
-- Player Kill and Player Killed will play even when 'Player Death' or 'death types' sounds are disabled, which previously wouldn't.
-
-Addon Updates:
-- Changed the Regions Handler code SEVERELY: Now all region sounds are cached on load saving performance when playing them, plus the wait for resource pack load before playing sounds was generalized in this addon.
-This is a really recommended update for WorldGuard Regions addon, it improves performance significantly.
-- Create RedProtect Regions addon: Since regions handler had a big update, I decided to update this addon too, which previously was abandoned.
-- Created VentureChat Hook, UltimateChat Hook and EssentialsChat Hook addons: They can hook into these plugins and play different sounds for each channel.
-*- Created Extra Options addon: This addon brings some extras to the Options section in a sound, like Relative Location that was removed.
-You can install or update addons through the command /pms addons.
-
-Regions:
-- Native region sounds were changed severely to keep up with Regions Handler and cache region sounds on load.
-- Players were able to set a description on 'create' command, even if they didn't have permission 'playmoresounds.region.description'.
-
-Sound Events:
-- Removed checks to prevent listeners from being registered in older versions.
-- Events will be more precise when checking if a sound is enabled.
-- Cache world time triggers sounds on load instead of getting it everytime.
-- Fix weather sounds giving errors if you disable one of the two sounds.
-- Fix flight sounds giving errors if you disable one of the two sounds.
-
-Commands:
-- List command will page default to 1 if you specify a number lower than 1.
-- Play command will play even when players have sounds toggled off.
-
-Removals:
-- Removed Relative Location option: This option would make some impact on performance even when you didn't use it, so it was removed because the majority of users don't use it.
-- Removed World Black List feature: This feature showed absolutely no use in bStats, so it was removed to save performance.
-- Removed Enable Sounds On Login.
-- Removed PrePlaySoundEvent: This event was called before the sound had parsed the Permission Required, and since it has no use in current addons it was removed to save performance.
-*- Removed all sounds from SoundType that's below 1.17.
-*Both Relative Location and World Black List features are available in the Extra Options addon.
+Fixes:
+*- Fix log sounds dev option giving an error when the entity making a sound is null.
+- Fix addons inventory not being able to be open after an error.
+- Fix addons inventory giving key not found when informing the user that the latest addons are unsupported, and the addons made for the current PlayMoreSounds version will be downloaded.
 
 What to expect of 5.0:
-- Several classes will be renamed.
-- The folders and configurations will be renamed.
-- A proper stop sound method will be added to the Playable interface, so sounds with delay can be stopped before they're played.
-- Addon loading code will be completely rewritten in order to add commands for starting and stopping addons without restarting server.
-- The entire yaml configuration api will change, while also making use of new SnakeYAML 1.30 features.
+*- There were major changes to the api and configurations.
+*- Specific sound configurations were renamed.
+*- Sounds that were tasked to play later due to a delay can now be stopped, in case you're leaving a region for example.
+*- Addon code had several changes to allow it to be restartable and stoppable with start and stop commands.
+
+*Radio Feature:
+- You can now assign a sound to play in a specific location or the whole world in loop.
+- Enabling the Synchronize Sounds option makes so all players hear sounds at the same time.
+- If a player has entered the world AFTER the sound was played, the sound will play anyway but stop right before the next loop. This way the sound is always heard by all players.
