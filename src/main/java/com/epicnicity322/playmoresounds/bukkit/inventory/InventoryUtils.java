@@ -18,7 +18,6 @@
 
 package com.epicnicity322.playmoresounds.bukkit.inventory;
 
-import com.epicnicity322.epicpluginlib.core.util.ObjectUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
@@ -35,6 +34,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -127,8 +127,10 @@ public final class InventoryUtils
     public static @NotNull ItemStack getItemStack(@NotNull String configPath)
     {
         var config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
-        var itemStack = new ItemStack(ObjectUtils.getOrDefault(Material.matchMaterial(config.getString(configPath + ".Material").orElse("STONE")), Material.STONE));
-        var itemMeta = itemStack.getItemMeta();
+        Material material = Material.matchMaterial(config.getString(configPath + ".Material").orElse("STONE"));
+        if (material == null || material.isAir()) material = Material.STONE;
+        var itemStack = new ItemStack(material);
+        ItemMeta itemMeta = itemStack.getItemMeta();
 
         itemMeta.setDisplayName(PlayMoreSounds.getLanguage().getColored(configPath + ".Display Name"));
         itemMeta.setLore(Arrays.asList(PlayMoreSounds.getLanguage().getColored(configPath + ".Lore").split("<line>")));
