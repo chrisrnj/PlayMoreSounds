@@ -521,11 +521,11 @@ public enum Configurations
             "    Pitch:\n" +
             "      Material: REDSTONE\n" +
             "      Glowing: false\n" +
-            "    Delay:\n" +
-            "      Material: REPEATER\n" +
-            "      Glowing: false\n" +
             "    Category:\n" +
             "      Material: MOJANG_BANNER_PATTERN\n" +
+            "      Glowing: false\n" +
+            "    Delay:\n" +
+            "      Material: REPEATER\n" +
             "      Glowing: false\n" +
             "    Radius:\n" +
             "      Material: COMPASS\n" +
@@ -542,6 +542,9 @@ public enum Configurations
             "      Glowing: false\n" +
             "    Permission To Listen:\n" +
             "      Material: WRITABLE_BOOK\n" +
+            "      Glowing: false\n" +
+            "    Play:\n" +
+            "      Material: MUSIC_DISC_13\n" +
             "      Glowing: false\n" +
             "    Done:\n" +
             "      Material: GREEN_WOOL\n" +
@@ -1138,37 +1141,37 @@ public enum Configurations
             "      Lore: 'Current: <value>'\n" +
             "      Input:\n" +
             "        Invalid: '&cThe sound input is not a valid namespaced key!'\n" +
-            "        Title: '&9Please input the new sound'\n" +
+            "        Title: '&9Input new sound'\n" +
             "    Volume:\n" +
             "      Display Name: 'Volume'\n" +
             "      Lore: 'Current: <value>'\n" +
             "      Input:\n" +
-            "        Invalid: '&cThe volume input is not a float number!'\n" +
-            "        Title: '&9Please input the new volume'\n" +
+            "        Invalid: '&cThe volume input is not a valid float number!'\n" +
+            "        Title: '&9Input new volume'\n" +
             "    Pitch:\n" +
             "      Display Name: 'Pitch'\n" +
             "      Lore: 'Current: <value>'\n" +
             "      Input:\n" +
-            "        Invalid: '&cThe pitch input is not a float number!'\n" +
-            "        Title: '&9Please input the new pitch'\n" +
-            "    Delay:\n" +
-            "      Display Name: 'Delay'\n" +
-            "      Lore: 'Current: <value>'\n" +
-            "      Input:\n" +
-            "        Invalid: \"&cThe delay input is not a 'long' number!\"\n" +
-            "        Title: '&9Please input the new delay'\n" +
+            "        Invalid: '&cThe pitch input is not a valid float number!'\n" +
+            "        Title: '&9Input new pitch'\n" +
             "    Category:\n" +
             "      Display Name: 'Category'\n" +
             "      Lore: 'Current: <value>'\n" +
             "      Input:\n" +
-            "        Invalid: '&cThe category input was not found! Check available sounds.txt file to see all categories.'\n" +
-            "        Title: '&9Please input the new category'\n" +
+            "        Invalid: '&cThe category input was not found! Check available sounds.txt file to see available categories.'\n" +
+            "        Title: '&9Input new category'\n" +
+            "    Delay:\n" +
+            "      Display Name: 'Delay'\n" +
+            "      Lore: 'Current: <value>'\n" +
+            "      Input:\n" +
+            "        Invalid: \"&cThe delay input is not a valid 'long' number!\"\n" +
+            "        Title: '&9Input new delay'\n" +
             "    Radius:\n" +
             "      Display Name: 'Radius'\n" +
             "      Lore: 'Current: <value>'\n" +
             "      Input:\n" +
-            "        Invalid: \"&cThe radius input is not a 'double' number!\"\n" +
-            "        Title: '&9Please input the new radius'\n" +
+            "        Invalid: \"&cThe radius input is not a valid 'double' number!\"\n" +
+            "        Title: '&9Input new radius'\n" +
             "    Ignores Toggle:\n" +
             "      Enabled:\n" +
             "        Display Name: 'Ignores Toggle'\n" +
@@ -1180,16 +1183,21 @@ public enum Configurations
             "      Display Name: 'Permission Required'\n" +
             "      Lore: 'Current: <value>'\n" +
             "      Input:\n" +
-            "        Title: '&9Input the permission required'\n" +
+            "        Title: '&9Permission required'\n" +
             "    Permission To Listen:\n" +
             "      Display Name: 'Permission To Listen'\n" +
             "      Lore: 'Current: <value>'\n" +
             "      Input:\n" +
-            "        Title: '&9Input the permission to listen'\n" +
+            "        Title: '&9Permission to listen'\n" +
+            "    Play:\n" +
+            "      Display Name: 'Play'\n" +
+            "      Lore: 'Play the sound <value>.'\n" +
             "    Done:\n" +
             "      Display Name: 'Done'\n" +
             "      Lore: 'Click to save this sound'\n" +
-            "  Title: '&eSound with id: <id>'\n" +
+            "  Title:\n" +
+            "    Default: '&6Sound with id: <id>'\n" +
+            "    Parent: '&6<richsound>'s sound with id <id>'\n" +
             "\n" +
             "Stop Sound:\n" +
             "  Success:\n" +
