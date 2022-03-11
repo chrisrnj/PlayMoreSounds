@@ -1168,13 +1168,13 @@ public enum Configurations
             "      Display Name: 'Delay'\n" +
             "      Lore: 'Current: <value>'\n" +
             "      Input:\n" +
-            "        Invalid: \"&cThe delay input is not a valid 'long' number!\"\n" +
+            "        Invalid: '&cThe delay input is not a valid ''long'' number!'\n" +
             "        Title: '&9Input new delay'\n" +
             "    Radius:\n" +
             "      Display Name: 'Radius'\n" +
             "      Lore: 'Current: <value>'\n" +
             "      Input:\n" +
-            "        Invalid: \"&cThe radius input is not a valid 'double' number!\"\n" +
+            "        Invalid: '&cThe radius input is not a valid ''double'' number!'\n" +
             "        Title: '&9Input new radius'\n" +
             "    Ignores Toggle:\n" +
             "      Enabled:\n" +
@@ -1205,7 +1205,7 @@ public enum Configurations
             "        Lore: 'Click to save and go back to <parent>'\n" +
             "  Title:\n" +
             "    Default: '&6Sound with id: <id>'\n" +
-            "    Parent: '&6<richsound>'s sound with id <id>'\n" +
+            "    Parent: '&6<richsound>''s sound with id <id>'\n" +
             "\n" +
             "Stop Sound:\n" +
             "  Success:\n" +
