@@ -65,7 +65,7 @@ public final class SoundInventory implements PMSInventory
     {
         this.parentName = parent.getRichSound().getName();
         this.inventory = Bukkit.createInventory(null, 45, PlayMoreSounds.getLanguage().getColored("Sound Inventory.Title.Parent")
-                .replace("<id>", sound.getId()).replace("<parent>", parentName));
+                .replace("<id>", sound.getId()).replace("<richsound>", parentName));
         this.sound = sound;
         updateButtonItems();
         putButtons();
