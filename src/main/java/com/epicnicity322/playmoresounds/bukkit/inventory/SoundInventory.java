@@ -50,16 +50,8 @@ public final class SoundInventory implements PMSInventory
 
     public SoundInventory(@NotNull PlayableSound sound)
     {
-        String title = PlayMoreSounds.getLanguage().getColored("Sound Inventory.Title.Default");
-
-        if (sound.getSection() == null) {
-            title = title.replace("<id>", "1");
-        } else {
-            title = title.replace("<id>", sound.getSection().getName());
-        }
-
         this.parentName = null;
-        this.inventory = Bukkit.createInventory(null, 45, title);
+        this.inventory = Bukkit.createInventory(null, 45, PlayMoreSounds.getLanguage().getColored("Sound Inventory.Title.Default").replace("<id>", sound.getId()));
         this.sound = sound;
         updateButtonItems();
         putButtons();
@@ -69,11 +61,11 @@ public final class SoundInventory implements PMSInventory
         InventoryUtils.fill(Material.BLACK_STAINED_GLASS_PANE, inventory, 36, 44);
     }
 
-    SoundInventory(@NotNull PlayableSound sound, @NotNull RichSoundInventory parent, @NotNull String id)
+    SoundInventory(@NotNull PlayableSound sound, @NotNull RichSoundInventory parent)
     {
         this.parentName = parent.getRichSound().getName();
         this.inventory = Bukkit.createInventory(null, 45, PlayMoreSounds.getLanguage().getColored("Sound Inventory.Title.Parent")
-                .replace("<id>", id).replace("<parent>", parentName));
+                .replace("<id>", sound.getId()).replace("<parent>", parentName));
         this.sound = sound;
         updateButtonItems();
         putButtons();

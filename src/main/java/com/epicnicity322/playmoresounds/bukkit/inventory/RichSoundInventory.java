@@ -57,6 +57,7 @@ public class RichSoundInventory implements PMSInventory
                     soundMaterials.add(material);
                 }
             });
+            if (soundMaterials.isEmpty()) soundMaterials.add(Material.STONE);
         };
         materialsUpdater.run();
         PlayMoreSounds.onEnable(materialsUpdater);
@@ -67,7 +68,7 @@ public class RichSoundInventory implements PMSInventory
 
     private final @NotNull Inventory inventory;
     private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>();
-    private final @NotNull HashMap<PlayableSound, SoundProperties> childProperties;
+    private final @NotNull HashMap<PlayableSound, SoundInventory> childInventories;
     private final @NotNull AtomicInteger soundMaterialIndex = new AtomicInteger(0);
     private @NotNull HashMap<Integer, ArrayList<PlayableSound>> childSoundPages;
 
@@ -76,25 +77,21 @@ public class RichSoundInventory implements PMSInventory
         this.richSound = richSound;
 
         Collection<PlayableSound> children = richSound.getChildSounds();
-        this.childProperties = new HashMap<>(children.size());
+        this.childInventories = new HashMap<>(children.size());
 
-        if (richSound.getSection() == null) {
-            int count = 1;
-            for (PlayableSound sound : children) {
-                String id = Integer.toString(count++);
-                childProperties.put(sound, new SoundProperties(id, new SoundInventory(sound, this, id)));
-            }
-        } else {
-            for (PlayableSound sound : children) {
-                String id = sound.getSection().getName();
-                childProperties.put(sound, new SoundProperties(id, new SoundInventory(sound, this, id)));
-            }
+        for (PlayableSound sound : children) {
+            childInventories.put(sound, new SoundInventory(sound, this));
         }
 
         this.childSoundPages = PMSHelper.splitIntoPages(children, 36);
 
         int size = children.size() + 18;
-        if (size > 54) size = 54;
+        if (size > 54) {
+            size = 54;
+        } else {
+            // Making sure size is a multiple of 9
+            size = (size % 9 == 0 ? size : size + (9 - (size % 9)));
+        }
 
         this.inventory = Bukkit.createInventory(null, size, PlayMoreSounds.getLanguage().get("Rich Sound Inventory.Title").replace("<richsound>", richSound.getName()));
         updateButtonsItems();
@@ -110,13 +107,14 @@ public class RichSoundInventory implements PMSInventory
             updateButtonsItems();
         });
         buttons.put(13, event -> {
-            var newSound = new PlayableSound("block.note_block.pling", SoundCategory.MASTER, 10, 1, 0, null);
-            var newSoundId = PMSHelper.getRandomString(6);
-            var newSoundInventory = new SoundInventory(newSound, this, newSoundId);
+            var newSound = new PlayableSound(null, "block.note_block.pling", SoundCategory.MASTER, 10, 1, 0, null);
+            var newSoundInventory = new SoundInventory(newSound, this);
 
-            children.add(newSound);
-            childProperties.put(newSound, new SoundProperties(newSoundId, newSoundInventory));
+            richSound.addChildSound(newSound);
+            childInventories.put(newSound, newSoundInventory);
+            // Updating sound pages.
             this.childSoundPages = PMSHelper.splitIntoPages(children, 36);
+            // Going to last page.
             fillChildSounds(childSoundPages.size());
             newSoundInventory.openInventory(event.getWhoClicked());
         });
@@ -202,12 +200,10 @@ public class RichSoundInventory implements PMSInventory
         boolean glowing = Configurations.CONFIG.getConfigurationHolder().getConfiguration().getBoolean("Rich Sound Inventory.Items.Sound.Glowing").orElse(false);
 
         for (PlayableSound sound : sounds) {
+            // Creating sound item and replacing the lore and name variables.
             var soundItem = new ItemStack(nextSoundMaterial());
             var meta = soundItem.getItemMeta();
-            var properties = getProperties(sound);
-
-            meta.setDisplayName(PlayMoreSounds.getLanguage().getColored("Rich Sound Inventory.Items.Sound.Display Name").replace("<id>", properties.id));
-
+            meta.setDisplayName(PlayMoreSounds.getLanguage().getColored("Rich Sound Inventory.Items.Sound.Display Name").replace("<id>", sound.getId()));
             var lore = new ArrayList<String>();
             for (String line : PlayMoreSounds.getLanguage().getColored("Rich Sound Inventory.Items.Sound.Lore").split("<line>")) {
                 lore.add(line.replace("<sound>", sound.getSound())
@@ -215,14 +211,14 @@ public class RichSoundInventory implements PMSInventory
                         .replace("<pitch>", Float.toString(sound.getPitch())));
             }
             meta.setLore(lore);
-
             if (glowing)
                 meta.addEnchant(Enchantment.DURABILITY, 1, true);
-
             meta.addItemFlags(ItemFlag.values());
             soundItem.setItemMeta(meta);
+
             inventory.setItem(slot, soundItem);
-            buttons.put(slot, event -> properties.childInventory.openInventory(event.getWhoClicked()));
+            SoundInventory childInventory = childInventories.get(sound);
+            buttons.put(slot, event -> childInventory.openInventory(event.getWhoClicked()));
             ++slot;
         }
     }
@@ -255,11 +251,6 @@ public class RichSoundInventory implements PMSInventory
         return soundMaterials.get(next);
     }
 
-    private SoundProperties getProperties(PlayableSound sound)
-    {
-        return childProperties.get(sound);
-    }
-
     public @NotNull PlayableRichSound getRichSound()
     {
         return richSound;
@@ -281,23 +272,5 @@ public class RichSoundInventory implements PMSInventory
     public void openInventory(@NotNull HumanEntity humanEntity)
     {
         InventoryUtils.openInventory(inventory, buttons, humanEntity);
-    }
-
-    private record SoundProperties(String id, SoundInventory childInventory)
-    {
-        @Override
-        public boolean equals(Object o)
-        {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            SoundProperties that = (SoundProperties) o;
-            return id.equals(that.id);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return Objects.hash(id);
-        }
     }
 }
