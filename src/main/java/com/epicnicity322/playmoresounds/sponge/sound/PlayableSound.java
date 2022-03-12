@@ -43,9 +43,9 @@ public class PlayableSound extends Sound implements Playable
     private @NotNull net.kyori.adventure.sound.Sound kyoriSound;
     private @NotNull Duration delay;
 
-    public PlayableSound(@NotNull String sound, @Nullable SoundCategory category, float volume, float pitch, long delay, @Nullable SoundOptions options)
+    public PlayableSound(@Nullable String id, @NotNull String sound, @Nullable SoundCategory category, float volume, float pitch, long delay, @Nullable SoundOptions options)
     {
-        super(sound, category, volume, pitch, delay, options);
+        super(id, sound, category, volume, pitch, delay, options);
         this.delay = Ticks.duration(getDelay());
         this.kyoriSound = net.kyori.adventure.sound.Sound.sound(Key.key(getSound()), category.asSponge(), volume, pitch);
     }

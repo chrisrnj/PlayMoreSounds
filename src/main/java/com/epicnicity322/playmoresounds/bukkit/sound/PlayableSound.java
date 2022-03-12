@@ -37,9 +37,9 @@ import java.util.Collections;
 
 public class PlayableSound extends Sound implements Playable
 {
-    public PlayableSound(@NotNull String sound, @Nullable SoundCategory category, float volume, float pitch, long delay, @Nullable SoundOptions options)
+    public PlayableSound(@Nullable String id, @NotNull String sound, @Nullable SoundCategory category, float volume, float pitch, long delay, @Nullable SoundOptions options)
     {
-        super(sound, category, volume, pitch, delay, options);
+        super(id, sound, category, volume, pitch, delay, options);
 
         if (delay > 0 && PlayMoreSounds.getInstance() == null) {
             throw new UnsupportedOperationException("PlayMoreSounds must be enabled to play delayed sounds.");

@@ -155,7 +155,7 @@ public final class PlaySubCommand extends Command implements Helpable
                 }
         }
 
-        var pmsSound = new PlayableSound(sound, SoundCategory.MASTER, volume, pitch, 0, new SoundOptions(true, null, null, 0));
+        var pmsSound = new PlayableSound(null, sound, SoundCategory.MASTER, volume, pitch, 0, new SoundOptions(true, null, null, 0));
 
         for (Player player : targets) pmsSound.play(player);
 
