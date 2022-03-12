@@ -56,7 +56,7 @@ public abstract class RichSound<T extends Sound>
         this.name = section.getPath();
         this.enabled = section.getBoolean("Enabled").orElse(false);
         this.cancellable = section.getBoolean("Cancellable").orElse(false);
-        this.childSounds = new HashSet<>();
+        this.childSounds = new ArrayList<>();
         this.unmodifiableChildSounds = Collections.unmodifiableCollection(childSounds);
 
         var sounds = section.getConfigurationSection("Sounds");
