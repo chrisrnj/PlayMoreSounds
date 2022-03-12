@@ -122,7 +122,7 @@ public class RichSoundInventory implements PMSInventory
 
     protected void updateButtonsItems()
     {
-        inventory.setItem(0, parseItemStack("Enabled", Boolean.toString(richSound.isEnabled())));
+        inventory.setItem(0, richSound.isEnabled() ? InventoryUtils.getItemStack("Rich Sound Inventory.Items.Status.Enabled") : InventoryUtils.getItemStack("Rich Sound Inventory.Items.Status.Disabled"));
 
         // Replacing variables of info item.
         ConfigurationSection section = richSound.getSection();
@@ -131,19 +131,14 @@ public class RichSoundInventory implements PMSInventory
         var previousLore = meta.getLore();
         var newLore = new ArrayList<String>();
         for (String line : previousLore) {
-            if (section != null) {
-                Optional<Path> root = section.getRoot().getFilePath();
-                if (line.contains("<section-root>")) {
-                    if (root.isPresent()) {
-                        line = line.replace("<section-path>", root.get().getFileName().toString());
-                    } else {
-                        continue;
-                    }
-                }
-                line = line.replace("<section-path>", section.getPath());
-            } else {
-                if (line.contains("<section-path>") || line.contains("<section-root>")) {
+            if (line.contains("<config>")) {
+                if (section == null) {
                     continue;
+                } else {
+                    Optional<Path> root = section.getRoot().getFilePath();
+                    if (root.isPresent()) {
+                        line = line.replace("<config>", root.get().getFileName().toString());
+                    } else continue;
                 }
             }
             line = line.replace("<name>", richSound.getName());

@@ -510,6 +510,48 @@ public enum Configurations
             "        Material: GREEN_WOOL\n" +
             "        Glowing: false\n" +
             "\n" +
+            "Rich Sound Inventory:\n" +
+            "  Items:\n" +
+            "    Status:\n" +
+            "      Enabled:\n" +
+            "        Material: LIME_CONCRETE\n" +
+            "        Glowing: false\n" +
+            "      Disabled:\n" +
+            "        Material: RED_CONCRETE\n" +
+            "        Glowing: false\n" +
+            "    Info:\n" +
+            "      Material: PAPER\n" +
+            "      Glowing: false\n" +
+            "    Cancellable:\n" +
+            "      Material: BARRIER\n" +
+            "      Glowing: false\n" +
+            "    Previous Page:\n" +
+            "      Material: SPECTRAL_ARROW\n" +
+            "      Glowing: false\n" +
+            "    Add Sound:\n" +
+            "      Material: END_CRYSTAL\n" +
+            "      Glowing: false\n" +
+            "    Next Page:\n" +
+            "      Material: SPECTRAL_ARROW\n" +
+            "      Glowing: false\n" +
+            "    Sound:\n" +
+            "      Materials:\n" +
+            "      - MUSIC_DISC_13\n" +
+            "      - MUSIC_DISC_CAT\n" +
+            "      - MUSIC_DISC_CHIRP\n" +
+            "      - MUSIC_DISC_BLOCKS\n" +
+            "      - MUSIC_DISC_FAR\n" +
+            "      - MUSIC_DISC_MALL\n" +
+            "      - MUSIC_DISC_MELLOHI\n" +
+            "      - MUSIC_DISC_STAL\n" +
+            "      - MUSIC_DISC_STRAD\n" +
+            "      - MUSIC_DISC_WARD\n" +
+            "      - MUSIC_DISC_WAIT\n" +
+            "      Glowing: false\n" +
+            "    Save:\n" +
+            "      Material: LIME_CONCRETE\n" +
+            "      Glowing: false\n" +
+            "\n" +
             "Sound Inventory:\n" +
             "  Items:\n" +
             "    Sound:\n" +
@@ -532,10 +574,10 @@ public enum Configurations
             "      Glowing: false\n" +
             "    Ignores Toggle:\n" +
             "      Enabled:\n" +
-            "        Material: REDSTONE_LAMP\n" +
+            "        Material: BLUE_CONCRETE\n" +
             "        Glowing: false\n" +
             "      Disabled:\n" +
-            "        Material: REDSTONE_LAMP\n" +
+            "        Material: LIGHT_GRAY_CONCRETE\n" +
             "        Glowing: false\n" +
             "    Permission Required:\n" +
             "      Material: WRITABLE_BOOK\n" +
@@ -548,10 +590,10 @@ public enum Configurations
             "      Glowing: false\n" +
             "    Done:\n" +
             "      Default:\n" +
-            "        Material: GREEN_WOOL\n" +
+            "        Material: LIME_CONCRETE\n" +
             "        Glowing: false\n" +
             "      Parent:\n" +
-            "        Material: GREEN_WOOL\n" +
+            "        Material: LIME_CONCRETE\n" +
             "        Glowing: false\n" +
             "\n" +
             "Input Getter Inventory:\n" +
@@ -1137,6 +1179,53 @@ public enum Configurations
             "    Declined: '&cYou must accept the resource pack to play on this server.'\n" +
             "    Download Fail: '&cSomething went wrong while downloading the resource pack. Please try joining again.'\n" +
             "  Request Message: '&ePlease download the resource pack to continue.'\n" +
+            "\n" +
+            "Rich Sound Inventory:\n" +
+            "  Items:\n" +
+            "    Status:\n" +
+            "      Enabled:\n" +
+            "        Display Name: '&a&lEnabled'\n" +
+            "        Lore: '&7 This sound is enabled and will<line>&7play normally.'\n" +
+            "      Disabled:\n" +
+            "        Display Name: '&c&lDisabled'\n" +
+            "        Lore: >-\n" +
+            "          &7 This sound is disabled and will<line>\n" +
+            "          &7not play. Events that play this<line>\n" +
+            "          &7sound will be unregistered on plugin<line>\n" +
+            "          &7reload.\n" +
+            "    Info:\n" +
+            "      Display Name: '&8&lInfo'\n" +
+            "      Lore: >-\n" +
+            "        &7Name:&f <name><line>\n" +
+            "        &7Config:&f <config><line>\n" +
+            "        &7Child Sounds:&f <child-amount>\n" +
+            "    Cancellable:\n" +
+            "      Display Name: '&b&lCancellable'\n" +
+            "      Lore: >-\n" +
+            "        &7 Current:&f <value><line>\n" +
+            "        &7 Cancellable helps add compatibility<line>\n" +
+            "        &7with other plugins.\n" +
+            "    Previous Page:\n" +
+            "      Display Name: '&e&lPrevious page'\n" +
+            "      Lore: '&7Click to go to page <value>.'\n" +
+            "    Add Sound:\n" +
+            "      Display Name: '&2&lChild Sounds'\n" +
+            "      Lore: >-\n" +
+            "        &7Current page: &f<value><line>\n" +
+            "        &7Click to add a new child sound.'\n" +
+            "    Next Page:\n" +
+            "      Display Name: '&e&lNext page'\n" +
+            "      Lore: '&7Click to go to page <value>.'\n" +
+            "    Sound:\n" +
+            "      Display Name: '&5&lSound <id>'\n" +
+            "      Lore: >-\n" +
+            "        &7Sound:&f <sound><line>\n" +
+            "        &7Volume:&f <volume><line>\n" +
+            "        &7Pitch:&f <pitch><line>\n" +
+            "        &8Click to edit or remove.\n" +
+            "    Save:\n" +
+            "      Display Name: '&2&lSave'\n" +
+            "      Lore: '&7 Click to save this sound to the<line>&7configuration <config>.'\n" +
             "\n" +
             "Sound Inventory:\n" +
             "  Items:\n" +
