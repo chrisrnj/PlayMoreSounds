@@ -37,7 +37,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -66,7 +69,7 @@ public class RichSoundInventory implements PMSInventory
 
     private final @NotNull PlayableRichSound richSound;
 
-    private final @NotNull Inventory inventory;
+    private @NotNull Inventory inventory;
     private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>();
     private final @NotNull HashMap<PlayableSound, SoundInventory> childInventories;
     private final @NotNull AtomicInteger soundMaterialIndex = new AtomicInteger(0);
@@ -75,17 +78,16 @@ public class RichSoundInventory implements PMSInventory
     public RichSoundInventory(@NotNull PlayableRichSound richSound)
     {
         this.richSound = richSound;
+        this.childInventories = new HashMap<>(richSound.getChildSounds().size());
 
-        Collection<PlayableSound> children = richSound.getChildSounds();
-        this.childInventories = new HashMap<>(children.size());
-
-        for (PlayableSound sound : children) {
+        // Cache-ing the child inventories.
+        for (PlayableSound sound : richSound.getChildSounds()) {
             childInventories.put(sound, new SoundInventory(sound, this));
         }
 
-        this.childSoundPages = PMSHelper.splitIntoPages(children, 36);
+        this.childSoundPages = PMSHelper.splitIntoPages(richSound.getChildSounds(), 35);
 
-        int size = children.size() + 18;
+        int size = richSound.getChildSounds().size() + 19;
         if (size > 54) {
             size = 54;
         } else {
@@ -98,6 +100,7 @@ public class RichSoundInventory implements PMSInventory
         fillChildSounds(1);
         InventoryUtils.fill(Material.BLACK_STAINED_GLASS_PANE, inventory, 9, 17);
 
+        // Setting up buttons.
         buttons.put(0, event -> {
             richSound.setEnabled(!richSound.isEnabled());
             updateButtonsItems();
@@ -112,12 +115,38 @@ public class RichSoundInventory implements PMSInventory
 
             richSound.addChildSound(newSound);
             childInventories.put(newSound, newSoundInventory);
-            // Updating sound pages.
-            this.childSoundPages = PMSHelper.splitIntoPages(children, 36);
+            // Updating, new sound might add a new row to the inventory.
+            updateInventory();
             // Going to last page.
             fillChildSounds(childSoundPages.size());
             newSoundInventory.openInventory(event.getWhoClicked());
         });
+    }
+
+    private void updateInventory()
+    {
+        List<HumanEntity> viewers = new ArrayList<>(inventory.getViewers());
+        for (HumanEntity viewer : viewers) {
+            viewer.closeInventory();
+        }
+
+        this.childSoundPages = PMSHelper.splitIntoPages(richSound.getChildSounds(), 35);
+
+        int size = richSound.getChildSounds().size() + 19;
+        if (size > 54) {
+            size = 54;
+        } else {
+            // Making sure size is a multiple of 9
+            size = (size % 9 == 0 ? size : size + (9 - (size % 9)));
+        }
+
+        this.inventory = Bukkit.createInventory(null, size, PlayMoreSounds.getLanguage().get("Rich Sound Inventory.Title").replace("<richsound>", richSound.getName()));
+        updateButtonsItems();
+        fillChildSounds(1);
+        InventoryUtils.fill(Material.BLACK_STAINED_GLASS_PANE, inventory, 9, 17);
+        for (HumanEntity viewer : viewers) {
+            openInventory(viewer);
+        }
     }
 
     protected void updateButtonsItems()
