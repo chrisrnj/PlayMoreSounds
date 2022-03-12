@@ -22,7 +22,7 @@ import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.core.util.StringUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.inventory.InputGetterInventory;
-import com.epicnicity322.playmoresounds.bukkit.inventory.SoundInventory;
+import com.epicnicity322.playmoresounds.bukkit.inventory.RichSoundInventory;
 import com.epicnicity322.playmoresounds.bukkit.listener.OnPlayerInteract;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
@@ -104,7 +104,7 @@ public final class DevSubCommand extends Command
         String command = join(args);
 
         switch (command) {
-            case "test edit" -> new SoundInventory(ListenerRegister.getListeners().stream().filter(l -> l.getName().equals("Change Held Item")).findFirst().get().getRichSound().getChildSounds().stream().findFirst().get()).openInventory((Player) sender);
+            case "test edit" -> new RichSoundInventory(ListenerRegister.getListeners().stream().filter(l -> l.getName().equals("Change Held Item")).findFirst().get().getRichSound()).openInventory((Player) sender);
             case "open anvil" -> new InputGetterInventory((Player) sender, "Testing", sender::sendMessage).openInventory();
             case "register addons" -> {
                 try {
