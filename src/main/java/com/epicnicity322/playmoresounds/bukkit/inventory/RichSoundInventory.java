@@ -109,6 +109,10 @@ public class RichSoundInventory implements PMSInventory
             richSound.setCancellable(!richSound.isCancellable());
             updateButtonsItems();
         });
+        buttons.put(inventory.getSize() - 1, event -> {
+            // TODO: Save rich sound.
+            event.getWhoClicked().closeInventory();
+        });
         buttons.put(13, event -> {
             var newSound = new PlayableSound(null, "block.note_block.pling", SoundCategory.MASTER, 10, 1, 0, null);
             var newSoundInventory = new SoundInventory(newSound, this);
@@ -125,6 +129,8 @@ public class RichSoundInventory implements PMSInventory
 
     private void updateInventory()
     {
+        // Removing previous save button and closing inventory.
+        buttons.remove(inventory.getSize() - 1);
         List<HumanEntity> viewers = new ArrayList<>(inventory.getViewers());
         for (HumanEntity viewer : viewers) {
             viewer.closeInventory();
@@ -147,6 +153,10 @@ public class RichSoundInventory implements PMSInventory
         for (HumanEntity viewer : viewers) {
             openInventory(viewer);
         }
+        buttons.put(inventory.getSize() - 1, event -> {
+            // TODO: Save rich sound.
+            event.getWhoClicked().closeInventory();
+        });
     }
 
     protected void updateButtonsItems()
@@ -180,6 +190,7 @@ public class RichSoundInventory implements PMSInventory
         inventory.setItem(4, infoItem);
 
         inventory.setItem(8, parseItemStack("Cancellable", Boolean.toString(richSound.isCancellable())));
+        inventory.setItem(inventory.getSize() - 1, InventoryUtils.getItemStack("Rich Sound Inventory.Items.Save"));
     }
 
     private void fillChildSounds(int page)
