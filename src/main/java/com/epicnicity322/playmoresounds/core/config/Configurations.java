@@ -1230,71 +1230,106 @@ public enum Configurations
             "Sound Inventory:\n" +
             "  Items:\n" +
             "    Sound:\n" +
-            "      Display Name: 'Sound'\n" +
-            "      Lore: 'Current: <value>'\n" +
+            "      Display Name: '&8&5&4&F&2&B&lSound'\n" +
+            "      Lore: >-\n" +
+            "        &7Current:&f <value><line>\n" +
+            "        &7The sound that will play. Can either<line>\n" +
+            "        &7be a sound from &n/pms list&7 or a custom sound.<line>\n" +
             "      Input:\n" +
             "        Invalid: '&cThe sound input is not a valid namespaced key!'\n" +
-            "        Title: '&9Input new sound'\n" +
+            "        Title: '&8&5&4&F&2&BInput new sound'\n" +
             "    Volume:\n" +
-            "      Display Name: 'Volume'\n" +
-            "      Lore: 'Current: <value>'\n" +
+            "      Display Name: '&8Volume'\n" +
+            "      Lore: >-\n" +
+            "        &7Current:&f <value><line>\n" +
+            "        &7The volume of this sound, it's<line>\n" +
+            "        &7noticeable only when it's a decimal.<line>\n" +
+            "        &7A big volume is recommended if this<line>\n" +
+            "        &7is a region sound.\n" +
             "      Input:\n" +
             "        Invalid: '&cThe volume input is not a valid float number!'\n" +
-            "        Title: '&9Input new volume'\n" +
+            "        Title: '&8Input new volume'\n" +
             "    Pitch:\n" +
-            "      Display Name: 'Pitch'\n" +
-            "      Lore: 'Current: <value>'\n" +
+            "      Display Name: '&4&lPitch'\n" +
+            "      Lore: >-\n" +
+            "        &7Current:&f <value><line>\n" +
+            "        &7The pitch of this sound. Values<line>\n" +
+            "        &7greater than 2 have no difference.\n" +
             "      Input:\n" +
             "        Invalid: '&cThe pitch input is not a valid float number!'\n" +
-            "        Title: '&9Input new pitch'\n" +
+            "        Title: '&4Input new pitch'\n" +
             "    Category:\n" +
-            "      Display Name: 'Category'\n" +
-            "      Lore: 'Current: <value>'\n" +
+            "      Display Name: '&e&lCategory'\n" +
+            "      Lore: >-\n" +
+            "        &7Current:&f <value><line>\n" +
+            "        &7The music category this sound is<line>\n" +
+            "        &7gonna play.\n" +
             "      Input:\n" +
             "        Invalid: '&cThe category input was not found! Check available sounds.txt file to see available categories.'\n" +
-            "        Title: '&9Input new category'\n" +
+            "        Title: '&e&lInput new category'\n" +
             "    Delay:\n" +
-            "      Display Name: 'Delay'\n" +
-            "      Lore: 'Current: <value>'\n" +
+            "      Display Name: '&c&lDelay'\n" +
+            "      Lore: >-\n" +
+            "        &7Current:&f <value><line>\n" +
+            "        &7Time in ticks to wait before playing<line>\n" +
+            "        &7the sound." +
             "      Input:\n" +
             "        Invalid: '&cThe delay input is not a valid ''long'' number!'\n" +
-            "        Title: '&9Input new delay'\n" +
+            "        Title: '&cInput new delay'\n" +
             "    Radius:\n" +
-            "      Display Name: 'Radius'\n" +
-            "      Lore: 'Current: <value>'\n" +
+            "      Display Name: '&3&lRadius'\n" +
+            "      Lore: >-\n" +
+            "        &7Current:&f <value><line>\n" +
+            "        &7Radius in blocks the sound can be heard<line>\n" +
+            "        &f-&7 Use 0 for no radius.\n" +
+            "        &f-&7 Use -1 for everyone online.\n" +
+            "        &f-&7 Use -2 for everyone in the world.\n" +
             "      Input:\n" +
             "        Invalid: '&cThe radius input is not a valid ''double'' number!'\n" +
-            "        Title: '&9Input new radius'\n" +
+            "        Title: '&3Input new radius'\n" +
             "    Ignores Toggle:\n" +
             "      Enabled:\n" +
-            "        Display Name: 'Ignores Toggle'\n" +
-            "        Lore: 'Current: <value>'\n" +
+            "        Display Name: '&f&lIgnoring Toggle'\n" +
+            "        Lore: >-\n" +
+            "          &7This sound will play even when players<line>\n" +
+            "          &7disabled their sounds with command<line>\n" +
+            "          &7&n/pms toggle&7.\n" +
             "      Disabled:\n" +
-            "        Display Name: 'Ignores Toggle'\n" +
-            "        Lore: 'Current: <value>'\n" +
+            "        Display Name: '&f&lNot Ignoring Toggle'\n" +
+            "        Lore: >-\n" +
+            "          &7This sound will respect players that<line>\n" +
+            "          &7disabled their sounds with command<line>\n" +
+            "          &7&n/pms toggle&7.\n" +
             "    Permission Required:\n" +
-            "      Display Name: 'Permission Required'\n" +
-            "      Lore: 'Current: <value>'\n" +
+            "      Display Name: '&9Permission Required'\n" +
+            "      Lore: >-\n" +
+            "        &7Current:&f <value><line>\n" +
+            "        &7The permission required to play this<line>\n" +
+            "        &7sound.<line>\n" +
+            "        &7Input 'null' for no permission.\n" +
             "      Input:\n" +
             "        Title: '&9Permission required'\n" +
             "    Permission To Listen:\n" +
-            "      Display Name: 'Permission To Listen'\n" +
-            "      Lore: 'Current: <value>'\n" +
+            "      Display Name: '&9Permission To Listen'\n" +
+            "      Lore: >-\n" +
+            "        &7Current:&f <value><line>\n" +
+            "        &7The permission other players need in<line>\n" +
+            "        &7order to hear the sound.\n" +
             "      Input:\n" +
             "        Title: '&9Permission to listen'\n" +
             "    Play:\n" +
-            "      Display Name: 'Play'\n" +
-            "      Lore: 'Play the sound <value>.'\n" +
+            "      Display Name: '&0&lPlay'\n" +
+            "      Lore: '&7Click to play <value>'\n" +
             "    Done:\n" +
             "      Default:\n" +
             "        Display Name: 'Done'\n" +
-            "        Lore: 'Click to finish editing this sound'\n" +
+            "        Lore: '&7Click to finish editing this sound.'\n" +
             "      Parent:\n" +
             "        Display Name: 'Done'\n" +
-            "        Lore: 'Click to save and go back to <parent>'\n" +
+            "        Lore: '&7Click to save and go back to <value>.'\n" +
             "  Title:\n" +
-            "    Default: '&6Sound with id: <id>'\n" +
-            "    Parent: '&6<richsound>''s sound with id <id>'\n" +
+            "    Default: '&6Editing sound <id>'\n" +
+            "    Parent: '&6Editing <id> of <richsound>'\n" +
             "\n" +
             "Stop Sound:\n" +
             "  Success:\n" +
