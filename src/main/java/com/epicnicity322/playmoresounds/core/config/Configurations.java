@@ -1212,10 +1212,10 @@ public enum Configurations
             "      Display Name: '&2&lChild Sounds'\n" +
             "      Lore: >-\n" +
             "        &7Current page: &f<value>\n" +
-            "        <line>&7Click to add a new child sound.\n" +
+            "        <line>&8Click to add a new child sound.\n" +
             "    Next Page:\n" +
             "      Display Name: '&e&lNext page'\n" +
-            "      Lore: '&7Click to go to page <value>.\n" +
+            "      Lore: '&7Click to go to page <value>.'\n" +
             "    Sound:\n" +
             "      Display Name: '&5&lSound <id>'\n" +
             "      Lore: >-\n" +
@@ -1224,23 +1224,23 @@ public enum Configurations
             "        <line>&7Pitch:&f <pitch>\n" +
             "        <line>&8Click to edit or remove.\n" +
             "    Save:\n" +
-            "      Display Name: '&2&lSave\n" +
-            "      Lore: '&7Click to save this sound to the<line>&7configuration <config>.\n" +
-            "  Title: '&6Rich Sound <richsound>'\n" +
+            "      Display Name: '&2&lSave'\n" +
+            "      Lore: '&7Click to save this sound to the<line>&7configuration <config>.'\n" +
+            "  Title: '&1Rich Sound <richsound>'\n" +
             "\n" +
             "Sound Inventory:\n" +
             "  Items:\n" +
             "    Sound:\n" +
-            "      Display Name: '&b&lSound'\n" +
+            "      Display Name: '&5&lSound'\n" +
             "      Lore: >-\n" +
             "        &7Current:&f <value>\n" +
-            "        <line>&7The sound that will play. Can either\n" +
-            "        <line>&7be a sound from &n/pms list&7 or a custom sound.\n" +
+            "        <line>&7The sound that will play. Can either be a\n" +
+            "        <line>&7sound from &n/pms list&7 or a custom sound.\n" +
             "      Input:\n" +
             "        Invalid: '&cThe sound input is not a valid namespaced key!'\n" +
-            "        Title: '&bInput new sound'\n" +
+            "        Title: '&5Input new sound'\n" +
             "    Volume:\n" +
-            "      Display Name: '&8Volume'\n" +
+            "      Display Name: '&8&lVolume'\n" +
             "      Lore: >-\n" +
             "        &7Current:&f <value>\n" +
             "        <line>&7The volume of this sound, it's\n" +
@@ -1264,10 +1264,13 @@ public enum Configurations
             "      Lore: >-\n" +
             "        &7Current:&f <value>\n" +
             "        <line>&7The music category this sound is\n" +
-            "        <line>&7gonna play.\n" +
+            "        <line>&7gonna play. Available categories:\n" +
+            "        <line>&fAMBIENT&7, &fBLOCK&7, &fHOSTILE&7, &fMASTER&7,\n" +
+            "        <line>&fMUSIC&7, &fNEUTRAL&7, &fPLAYER&7, &fRECORD&7,\n" +
+            "        <line>&fVOICE&7 and &fWEATHER&7.\n" +
             "      Input:\n" +
             "        Invalid: '&cThe category input was not found! Check available sounds.txt file to see available categories.'\n" +
-            "        Title: '&e&lInput new category'\n" +
+            "        Title: '&eInput new category'\n" +
             "    Delay:\n" +
             "      Display Name: '&c&lDelay'\n" +
             "      Lore: >-\n" +
@@ -1327,11 +1330,11 @@ public enum Configurations
             "        Display Name: '&2&lDone'\n" +
             "        Lore: '&7Click to finish editing this sound.'\n" +
             "      Parent:\n" +
-            "        Display Name: 'Done'\n" +
+            "        Display Name: '&2&lDone'\n" +
             "        Lore: '&7Click to save and go back to &f<value>&7.'\n" +
             "  Title:\n" +
-            "    Default: '&6Editing sound <id>'\n" +
-            "    Parent: '&6Editing <id> of <richsound>'\n" +
+            "    Default: '&1Editing sound <id>'\n" +
+            "    Parent: '&1Sound <id> of <richsound>'\n" +
             "\n" +
             "Stop Sound:\n" +
             "  Success:\n" +
