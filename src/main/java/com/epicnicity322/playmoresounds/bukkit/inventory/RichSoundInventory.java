@@ -24,7 +24,7 @@ import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.sound.SoundCategory;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
-import com.epicnicity322.yamlhandler.ConfigurationSection;
+import com.epicnicity322.yamlhandler.Configuration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -35,6 +35,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ import java.util.function.Consumer;
 public class RichSoundInventory implements PMSInventory
 {
     private static final @NotNull ArrayList<Material> soundMaterials = new ArrayList<>();
+    private static final @NotNull AtomicInteger soundMaterialIndex = new AtomicInteger(0);
 
     static {
         Runnable materialsUpdater = () -> {
@@ -67,17 +69,37 @@ public class RichSoundInventory implements PMSInventory
         PlayMoreSounds.onReload(materialsUpdater);
     }
 
-    private final @NotNull PlayableRichSound richSound;
-
-    private @NotNull Inventory inventory;
     private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>();
+    private final @NotNull PlayableRichSound richSound;
+    private final @NotNull Configuration save;
+    private final @NotNull Path savePath;
     private final @NotNull HashMap<PlayableSound, SoundInventory> childInventories;
-    private final @NotNull AtomicInteger soundMaterialIndex = new AtomicInteger(0);
-    private @NotNull HashMap<Integer, ArrayList<PlayableSound>> childSoundPages;
+    private Inventory inventory;
+    private HashMap<Integer, ArrayList<PlayableSound>> childSoundPages;
 
     public RichSoundInventory(@NotNull PlayableRichSound richSound)
     {
+        this(richSound, null);
+    }
+
+    public RichSoundInventory(@NotNull PlayableRichSound richSound, @Nullable Configuration save)
+    {
+        if (save == null) {
+            if (richSound.getSection() == null) {
+                throw new IllegalArgumentException("The provided sound does not have a section. Please provide a configuration to save this sound.");
+            } else {
+                save = richSound.getSection().getRoot();
+            }
+        }
+
+        Optional<Path> savePath = save.getFilePath();
+
+        if (savePath.isEmpty())
+            throw new IllegalArgumentException("The save configuration does not have a path to save the sound.");
+
         this.richSound = richSound;
+        this.save = save;
+        this.savePath = savePath.get().getFileName();
         this.childInventories = new HashMap<>(richSound.getChildSounds().size());
 
         // Cache-ing the child inventories.
@@ -85,20 +107,8 @@ public class RichSoundInventory implements PMSInventory
             childInventories.put(sound, new SoundInventory(sound, this));
         }
 
-        this.childSoundPages = PMSHelper.splitIntoPages(richSound.getChildSounds(), 35);
-
-        int size = richSound.getChildSounds().size() + 19;
-        if (size > 54) {
-            size = 54;
-        } else {
-            // Making sure size is a multiple of 9
-            size = (size % 9 == 0 ? size : size + (9 - (size % 9)));
-        }
-
-        this.inventory = Bukkit.createInventory(null, size, PlayMoreSounds.getLanguage().get("Rich Sound Inventory.Title").replace("<richsound>", richSound.getName()));
-        updateButtonsItems();
-        fillChildSounds(1);
-        InventoryUtils.fill(Material.BLACK_STAINED_GLASS_PANE, inventory, 9, 17);
+        // Setting up the inventory and childSoundPages
+        updateInventory();
 
         // Setting up buttons.
         buttons.put(0, event -> {
@@ -109,86 +119,105 @@ public class RichSoundInventory implements PMSInventory
             richSound.setCancellable(!richSound.isCancellable());
             updateButtonsItems();
         });
-        buttons.put(inventory.getSize() - 1, event -> {
-            // TODO: Save rich sound.
-            event.getWhoClicked().closeInventory();
-        });
         buttons.put(13, event -> {
-            var newSound = new PlayableSound(null, "block.note_block.pling", SoundCategory.MASTER, 10, 1, 0, null);
+            // Creating a new sound with default values and random id.
+            var newSound = new PlayableSound(null, "BLOCK_NOTE_BLOCK_PLING", SoundCategory.MASTER, 10, 1, 0, null);
             var newSoundInventory = new SoundInventory(newSound, this);
 
             richSound.addChildSound(newSound);
             childInventories.put(newSound, newSoundInventory);
+
+            // Opening the new sound inventory.
+            newSoundInventory.openInventory(event.getWhoClicked());
             // Updating, new sound might add a new row to the inventory.
             updateInventory();
             // Going to last page.
             fillChildSounds(childSoundPages.size());
-            newSoundInventory.openInventory(event.getWhoClicked());
         });
+    }
+
+    private static Material nextSoundMaterial()
+    {
+        int next = soundMaterialIndex.get();
+        if (next + 1 >= soundMaterials.size()) {
+            soundMaterialIndex.set(0);
+        } else {
+            soundMaterialIndex.set(next + 1);
+        }
+        return soundMaterials.get(next);
     }
 
     private void updateInventory()
     {
-        // Removing previous save button and closing inventory.
-        buttons.remove(inventory.getSize() - 1);
-        List<HumanEntity> viewers = new ArrayList<>(inventory.getViewers());
-        for (HumanEntity viewer : viewers) {
-            viewer.closeInventory();
+        // Checking if a previous inventory was set and closing to all viewers.
+        ArrayList<HumanEntity> viewers = null;
+
+        if (inventory != null) {
+            buttons.remove(inventory.getSize() - 1);
+            viewers = new ArrayList<>(inventory.getViewers());
+            for (HumanEntity viewer : viewers) {
+                viewer.closeInventory();
+            }
         }
 
+        // Setting up the sound pages
         this.childSoundPages = PMSHelper.splitIntoPages(richSound.getChildSounds(), 35);
 
-        int size = richSound.getChildSounds().size() + 19;
-        if (size > 54) {
-            size = 54;
+        int inventorySize = richSound.getChildSounds().size() + 19;
+        if (inventorySize > 54) {
+            inventorySize = 54;
         } else {
             // Making sure size is a multiple of 9
-            size = (size % 9 == 0 ? size : size + (9 - (size % 9)));
+            inventorySize = (inventorySize % 9 == 0 ? inventorySize : inventorySize + (9 - (inventorySize % 9)));
         }
 
-        this.inventory = Bukkit.createInventory(null, size, PlayMoreSounds.getLanguage().get("Rich Sound Inventory.Title").replace("<richsound>", richSound.getName()));
+        this.inventory = Bukkit.createInventory(null, inventorySize, PlayMoreSounds.getLanguage().getColored("Rich Sound Inventory.Title").replace("<richsound>", richSound.getName()));
         updateButtonsItems();
         fillChildSounds(1);
         InventoryUtils.fill(Material.BLACK_STAINED_GLASS_PANE, inventory, 9, 17);
-        for (HumanEntity viewer : viewers) {
-            openInventory(viewer);
-        }
-        buttons.put(inventory.getSize() - 1, event -> {
-            // TODO: Save rich sound.
+
+        // Setting save button.
+        buttons.put(inventorySize - 1, event -> {
+            //TODO: Create set and save methods
+//            try {
+//                set();
+//                save();
+//            } catch (Exception e) {
+//                PlayMoreSounds.getLanguage().send(event.getWhoClicked(), PlayMoreSounds.getLanguage().get("Rich Sound Inventory.Items.Save.Error").replace("<richsound>", richSound.getName()));
+//                PlayMoreSoundsCore.getErrorHandler().report(e, "RichSound: " + richSound + "\nSaving through GUI exception:");
+//            }
             event.getWhoClicked().closeInventory();
         });
+
+        // Reopening the inventory to the viewers after updating.
+        if (viewers != null) {
+            for (HumanEntity viewer : viewers) {
+                openInventory(viewer);
+            }
+        }
     }
 
     protected void updateButtonsItems()
     {
-        inventory.setItem(0, richSound.isEnabled() ? InventoryUtils.getItemStack("Rich Sound Inventory.Items.Status.Enabled") : InventoryUtils.getItemStack("Rich Sound Inventory.Items.Status.Disabled"));
+        inventory.setItem(0, InventoryUtils.getItemStack("Rich Sound Inventory.Items.Status." + (richSound.isEnabled() ? "Enabled" : "Disabled")));
 
         // Replacing variables of info item.
-        ConfigurationSection section = richSound.getSection();
         ItemStack infoItem = InventoryUtils.getItemStack("Rich Sound Inventory.Items.Info");
         ItemMeta meta = infoItem.getItemMeta();
         var previousLore = meta.getLore();
-        var newLore = new ArrayList<String>();
-        for (String line : previousLore) {
-            if (line.contains("<config>")) {
-                if (section == null) {
-                    continue;
-                } else {
-                    Optional<Path> root = section.getRoot().getFilePath();
-                    if (root.isPresent()) {
-                        line = line.replace("<config>", root.get().getFileName().toString());
-                    } else continue;
-                }
-            }
-            line = line.replace("<name>", richSound.getName());
-            line = line.replace("<child-amount>", Integer.toString(richSound.getChildSounds().size()));
+        var newLore = new ArrayList<String>(previousLore.size());
 
-            newLore.add(line);
+        for (String line : previousLore) {
+            newLore.add(line
+                    .replace("<name>", richSound.getName())
+                    .replace("<child-amount>", Integer.toString(richSound.getChildSounds().size()))
+                    .replace("<config>", savePath.toString()));
         }
+
         meta.setLore(newLore);
         infoItem.setItemMeta(meta);
-        inventory.setItem(4, infoItem);
 
+        inventory.setItem(4, infoItem);
         inventory.setItem(8, parseItemStack("Cancellable", Boolean.toString(richSound.isCancellable())));
         inventory.setItem(inventory.getSize() - 1, InventoryUtils.getItemStack("Rich Sound Inventory.Items.Save"));
     }
@@ -196,7 +225,7 @@ public class RichSoundInventory implements PMSInventory
     private void fillChildSounds(int page)
     {
         // Removing previous child sounds from previous page.
-        for (int i = 18; i < inventory.getSize(); ++i) {
+        for (int i = 18; i < inventory.getSize() - 1; ++i) {
             inventory.setItem(i, null);
             buttons.remove(i);
         }
@@ -223,31 +252,38 @@ public class RichSoundInventory implements PMSInventory
             buttons.remove(10);
             InventoryUtils.forceFill(Material.BLACK_STAINED_GLASS_PANE, inventory, 10, 10);
         }
+
         // Adding 'Add Sound' button.
         inventory.setItem(13, parseItemStack("Add Sound", Integer.toString(page)));
         // Unlike change page buttons, add sound button does not need to be added to #buttons map again, because it does
         //the same thing everytime: add a new sound. So it's set on constructor.
-
 
         // Filling with the child sound on this page.
         ArrayList<PlayableSound> sounds = childSoundPages.get(page);
         int slot = 18;
         boolean glowing = Configurations.CONFIG.getConfigurationHolder().getConfiguration().getBoolean("Rich Sound Inventory.Items.Sound.Glowing").orElse(false);
 
-        for (PlayableSound sound : sounds) {
+        for (var sound : sounds) {
             // Creating sound item and replacing the lore and name variables.
-            var soundItem = new ItemStack(nextSoundMaterial());
-            var meta = soundItem.getItemMeta();
+            ItemStack soundItem = new ItemStack(nextSoundMaterial());
+            ItemMeta meta = soundItem.getItemMeta();
+
             meta.setDisplayName(PlayMoreSounds.getLanguage().getColored("Rich Sound Inventory.Items.Sound.Display Name").replace("<id>", sound.getId()));
-            var lore = new ArrayList<String>();
-            for (String line : PlayMoreSounds.getLanguage().getColored("Rich Sound Inventory.Items.Sound.Lore").split("<line>")) {
-                lore.add(line.replace("<sound>", sound.getSound())
+
+            String[] configLore = PlayMoreSounds.getLanguage().getColored("Rich Sound Inventory.Items.Sound.Lore").split("<line>");
+            var lore = new ArrayList<String>(configLore.length);
+
+            for (String line : configLore) {
+                lore.add(line
+                        .replace("<sound>", sound.getSound())
                         .replace("<volume>", Float.toString(sound.getVolume()))
                         .replace("<pitch>", Float.toString(sound.getPitch())));
             }
+
             meta.setLore(lore);
-            if (glowing)
-                meta.addEnchant(Enchantment.DURABILITY, 1, true);
+
+            if (glowing) meta.addEnchant(Enchantment.DURABILITY, 1, true);
+
             meta.addItemFlags(ItemFlag.values());
             soundItem.setItemMeta(meta);
 
@@ -261,6 +297,7 @@ public class RichSoundInventory implements PMSInventory
     private ItemStack parseItemStack(String name, String value)
     {
         if (value == null) value = "null";
+
         ItemStack itemStack = InventoryUtils.getItemStack("Rich Sound Inventory.Items." + name);
         ItemMeta meta = itemStack.getItemMeta();
         meta.setDisplayName(meta.getDisplayName().replace("<value>", value));
@@ -273,17 +310,6 @@ public class RichSoundInventory implements PMSInventory
         meta.setLore(lore);
         itemStack.setItemMeta(meta);
         return itemStack;
-    }
-
-    private Material nextSoundMaterial()
-    {
-        int next = soundMaterialIndex.get();
-        if (next + 1 >= soundMaterials.size()) {
-            soundMaterialIndex.set(0);
-        } else {
-            soundMaterialIndex.set(next + 1);
-        }
-        return soundMaterials.get(next);
     }
 
     public @NotNull PlayableRichSound getRichSound()
