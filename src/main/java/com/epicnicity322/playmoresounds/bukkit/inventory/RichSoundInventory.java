@@ -147,7 +147,25 @@ public class RichSoundInventory implements PMSInventory
         return soundMaterials.get(next);
     }
 
-    private void updateInventory()
+    private static ItemStack parseItemStack(String name, String value)
+    {
+        if (value == null) value = "null";
+
+        ItemStack itemStack = InventoryUtils.getItemStack("Rich Sound Inventory.Items." + name);
+        ItemMeta meta = itemStack.getItemMeta();
+        meta.setDisplayName(meta.getDisplayName().replace("<value>", value));
+
+        List<String> previousLore = meta.getLore();
+        var lore = new ArrayList<String>(previousLore.size());
+
+        for (String string : previousLore) lore.add(string.replace("<value>", value));
+
+        meta.setLore(lore);
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+
+    void updateInventory()
     {
         // Checking if a previous inventory was set and closing to all viewers.
         ArrayList<HumanEntity> viewers = null;
@@ -292,24 +310,6 @@ public class RichSoundInventory implements PMSInventory
             buttons.put(slot, event -> childInventory.openInventory(event.getWhoClicked()));
             ++slot;
         }
-    }
-
-    private ItemStack parseItemStack(String name, String value)
-    {
-        if (value == null) value = "null";
-
-        ItemStack itemStack = InventoryUtils.getItemStack("Rich Sound Inventory.Items." + name);
-        ItemMeta meta = itemStack.getItemMeta();
-        meta.setDisplayName(meta.getDisplayName().replace("<value>", value));
-
-        List<String> previousLore = meta.getLore();
-        var lore = new ArrayList<String>(previousLore.size());
-
-        for (String string : previousLore) lore.add(string.replace("<value>", value));
-
-        meta.setLore(lore);
-        itemStack.setItemMeta(meta);
-        return itemStack;
     }
 
     public @NotNull PlayableRichSound getRichSound()

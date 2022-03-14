@@ -55,6 +55,8 @@ public final class SoundInventory implements PMSInventory
         this.sound = sound;
         updateButtonItems();
         putButtons();
+        buttons.put(37, event -> sound.play((Player) event.getWhoClicked()));
+        buttons.put(43, event -> event.getWhoClicked().closeInventory());
 
         InventoryUtils.fill(Material.BLACK_STAINED_GLASS_PANE, inventory, 0, 8);
         InventoryUtils.fill(Material.GLASS_PANE, inventory, 9, 35);
@@ -69,7 +71,16 @@ public final class SoundInventory implements PMSInventory
         this.sound = sound;
         updateButtonItems();
         putButtons();
-        buttons.put(43, event -> parent.openInventory(event.getWhoClicked()));
+        buttons.put(37, event -> {
+            parent.getRichSound().removeChildSound(sound);
+            parent.updateInventory();
+            parent.openInventory(event.getWhoClicked());
+        });
+        buttons.put(40, event -> sound.play((Player) event.getWhoClicked()));
+        buttons.put(43, event -> {
+            parent.updateInventory();
+            parent.openInventory(event.getWhoClicked());
+        });
 
         InventoryUtils.fill(Material.BLACK_STAINED_GLASS_PANE, inventory, 0, 8);
         InventoryUtils.fill(Material.GLASS_PANE, inventory, 9, 35);
@@ -155,9 +166,6 @@ public final class SoundInventory implements PMSInventory
             }
             return true;
         }, "Permission To Listen"));
-
-        buttons.put(37, event -> sound.play((Player) event.getWhoClicked()));
-        if (parentName == null) buttons.put(43, event -> event.getWhoClicked().closeInventory());
     }
 
     private void openInput(InventoryClickEvent event, Validator validator, String name)
@@ -191,10 +199,12 @@ public final class SoundInventory implements PMSInventory
         inventory.setItem(33, parseItemStack("Permission Required", options.getPermissionRequired()));
         inventory.setItem(35, parseItemStack("Permission To Listen", options.getPermissionToListen()));
 
-        inventory.setItem(37, parseItemStack("Play", sound.getSound()));
         if (parentName != null) {
+            inventory.setItem(37, parseItemStack("Remove", parentName));
+            inventory.setItem(40, parseItemStack("Play", sound.getSound()));
             inventory.setItem(43, parseItemStack("Done.Parent", parentName));
         } else {
+            inventory.setItem(37, parseItemStack("Play", sound.getSound()));
             inventory.setItem(43, InventoryUtils.getItemStack("Sound Inventory.Items.Done.Default"));
         }
     }
