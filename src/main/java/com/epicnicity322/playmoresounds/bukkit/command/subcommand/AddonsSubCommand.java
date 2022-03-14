@@ -22,7 +22,7 @@ import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
 import com.epicnicity322.epicpluginlib.bukkit.lang.MessageSender;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.inventory.AddonsInventory;
+import com.epicnicity322.playmoresounds.bukkit.gui.inventories.AddonsInventory;
 import com.epicnicity322.playmoresounds.bukkit.util.UniqueRunnable;
 import com.epicnicity322.playmoresounds.core.addons.PMSAddon;
 import org.bukkit.command.CommandSender;

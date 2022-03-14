@@ -16,11 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.epicnicity322.playmoresounds.bukkit.inventory.sounds;
+package com.epicnicity322.playmoresounds.bukkit.gui.inventories;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.inventory.InventoryUtils;
-import com.epicnicity322.playmoresounds.bukkit.inventory.PMSInventory;
+import com.epicnicity322.playmoresounds.bukkit.gui.InventoryUtils;
+import com.epicnicity322.playmoresounds.bukkit.gui.PMSInventory;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;

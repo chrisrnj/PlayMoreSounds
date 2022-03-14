@@ -16,8 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.epicnicity322.playmoresounds.bukkit.inventory;
+package com.epicnicity322.playmoresounds.bukkit.gui.inventories;
 
+import com.epicnicity322.playmoresounds.bukkit.gui.InventoryUtils;
+import com.epicnicity322.playmoresounds.bukkit.gui.PMSInventory;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryClickEvent;

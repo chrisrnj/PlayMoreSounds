@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.epicnicity322.playmoresounds.bukkit.inventory;
+package com.epicnicity322.playmoresounds.bukkit.gui.inventories;
 
 import com.epicnicity322.epicpluginlib.core.tools.Downloader;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
@@ -24,6 +24,8 @@ import com.epicnicity322.epicpluginlib.core.util.PathUtils;
 import com.epicnicity322.epicpluginlib.core.util.ZipUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.subcommand.AddonsSubCommand;
+import com.epicnicity322.playmoresounds.bukkit.gui.InventoryUtils;
+import com.epicnicity322.playmoresounds.bukkit.gui.PMSInventory;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
 import com.epicnicity322.playmoresounds.core.addons.PMSAddon;

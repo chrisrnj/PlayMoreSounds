@@ -16,12 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.epicnicity322.playmoresounds.bukkit.inventory;
+package com.epicnicity322.playmoresounds.bukkit.gui.inventories;
 
 import com.epicnicity322.epicpluginlib.bukkit.reflection.ReflectionUtil;
 import com.epicnicity322.epicpluginlib.bukkit.reflection.type.PackageType;
 import com.epicnicity322.epicpluginlib.bukkit.reflection.type.SubPackageType;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.bukkit.gui.InventoryUtils;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.network.chat.ChatComponentText;
 import net.minecraft.network.protocol.Packet;

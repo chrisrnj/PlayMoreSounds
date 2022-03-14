@@ -21,7 +21,7 @@ package com.epicnicity322.playmoresounds.bukkit.command.subcommand;
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.inventory.ListInventory;
+import com.epicnicity322.playmoresounds.bukkit.gui.inventories.ListInventory;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.sound.SoundType;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
