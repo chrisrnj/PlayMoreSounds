@@ -219,7 +219,7 @@ public class RichSoundInventory implements PMSInventory
 
         inventory.setItem(4, infoItem);
         inventory.setItem(8, parseItemStack("Cancellable", Boolean.toString(richSound.isCancellable())));
-        inventory.setItem(inventory.getSize() - 1, InventoryUtils.getItemStack("Rich Sound Inventory.Items.Save"));
+        inventory.setItem(inventory.getSize() - 1, parseItemStack("Save", savePath.toString()));
     }
 
     private void fillChildSounds(int page)
