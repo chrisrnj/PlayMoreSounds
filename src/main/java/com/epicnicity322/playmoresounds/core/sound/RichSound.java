@@ -140,12 +140,13 @@ public abstract class RichSound<T extends Sound>
     }
 
     /**
-     * Sets the properties of this sound to a configuration.
+     * Sets the properties of this rich sound to a configuration. Keys set by this method are the same used to create a
+     * rich sound with {@link #RichSound(ConfigurationSection)}.
      * <p>
      * If {@link #getName()} is blank, the properties are applied to the configuration's root, otherwise a section with
      * the name is created and properties are applied there.
      * <p>
-     * Sections returned by this method are valid to be used in {@link #RichSound(ConfigurationSection)} constructor.
+     * Default properties are ignored.
      *
      * @param configuration The configuration to apply properties and child sounds.
      * @return The section the properties were applied.

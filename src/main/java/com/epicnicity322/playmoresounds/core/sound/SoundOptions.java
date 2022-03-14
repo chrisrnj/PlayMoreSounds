@@ -146,20 +146,19 @@ public class SoundOptions
     }
 
     /**
-     * Sets the sound properties to the specified section.
+     * Sets the sound properties to the specified section. Keys set by this method are the same used to create sound
+     * options with {@link #SoundOptions(ConfigurationSection)}.
      * <p>
-     * Default values are ignored.
-     * <p>
-     * Keys set by this method are the same used to create sound options with {@link #SoundOptions(ConfigurationSection)}.
+     * Default properties are ignored.
      *
      * @param section The section to set the properties.
      */
     public void set(@NotNull ConfigurationSection section)
     {
-        if (ignoresDisabled) section.set("Ignores Disabled", true);
+        if (ignoresDisabled || section.contains("Ignores Disabled")) section.set("Ignores Disabled", true);
         section.set("Permission Required", permissionRequired);
         section.set("Permission To Listen", permissionToListen);
-        if (radius != 0.0d) section.set("Radius", radius);
+        if (radius != 0.0d || section.contains("Radius")) section.set("Radius", radius);
     }
 
     /**

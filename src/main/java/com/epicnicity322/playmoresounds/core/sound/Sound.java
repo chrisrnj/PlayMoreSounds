@@ -327,7 +327,11 @@ public class Sound
      * Sets the properties of this sound to the specified section.
      * <p>
      * A configuration section will be created with the name of {@link #getId()}, if it doesn't already exists. And the
-     * properties will be applied to it.
+     * properties will be applied to it. Keys set by this method are the same used to create a sound with {@link #Sound(ConfigurationSection)}.
+     * <p>
+     * Default properties are ignored.
+     * <p>
+     * {@link SoundOptions} are set automatically to 'Options' section through {@link SoundOptions#set(ConfigurationSection)}
      *
      * @param section The section to set the properties.
      * @return The configuration section with this sound's properties.
@@ -338,9 +342,9 @@ public class Sound
         var optionsSection = Objects.requireNonNullElseGet(soundSection.getConfigurationSection("Options"), () -> soundSection.createSection("Options"));
         options.set(optionsSection);
 
-        if (pitch != 1.0f) soundSection.set("Pitch", pitch);
+        if (pitch != 1.0f || soundSection.contains("Pitch")) soundSection.set("Pitch", pitch);
         soundSection.set("Sound", soundType != null ? soundType.name() : sound);
-        if (volume != 10.0f) soundSection.set("Volume", volume);
+        if (volume != 10.0f || soundSection.contains("Volume")) soundSection.set("Volume", volume);
 
         return soundSection;
     }
