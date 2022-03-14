@@ -18,6 +18,7 @@
 
 package com.epicnicity322.playmoresounds.core.sound;
 
+import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +36,8 @@ public abstract class RichSound<T extends Sound>
 
     public RichSound(@NotNull String name, boolean enabled, boolean cancellable, @Nullable Collection<T> childSounds)
     {
+        if (name.isBlank()) throw new IllegalArgumentException("Rich Sound name can't be blank.");
+
         // Checking if there are two child sounds with the same name in the collection.
         var currentNames = new HashSet<String>();
         for (var sound : childSounds) {
@@ -67,9 +70,8 @@ public abstract class RichSound<T extends Sound>
             for (Map.Entry<String, Object> node : sounds.getNodes().entrySet()) {
                 if (!(node.getValue() instanceof ConfigurationSection childSoundSection)) continue;
                 // A RichSound can not have two sounds with the same ID.
-                if (currentNames.contains(node.getKey())) continue;
+                if (!currentNames.add(node.getKey())) continue;
 
-                currentNames.add(node.getKey());
                 childSounds.add(newCoreSound(childSoundSection));
             }
         }
@@ -137,6 +139,36 @@ public abstract class RichSound<T extends Sound>
         childSounds.removeIf(sound -> sound.getId().equals(id));
     }
 
+    /**
+     * Sets the properties of this sound to a configuration.
+     * <p>
+     * If {@link #getName()} is blank, the properties are applied to the configuration's root, otherwise a section with
+     * the name is created and properties are applied there.
+     * <p>
+     * Sections returned by this method are valid to be used in {@link #RichSound(ConfigurationSection)} constructor.
+     *
+     * @param configuration The configuration to apply properties and child sounds.
+     * @return The section the properties were applied.
+     */
+    public @NotNull ConfigurationSection set(@NotNull Configuration configuration)
+    {
+        ConfigurationSection section;
+
+        if (name.isBlank()) {
+            section = configuration;
+        } else {
+            section = Objects.requireNonNullElseGet(configuration.getConfigurationSection(name), () -> configuration.createSection(name));
+        }
+
+        section.set("Enabled", enabled);
+        section.set("Cancellable", cancellable);
+
+        ConfigurationSection sounds = Objects.requireNonNullElseGet(section.getConfigurationSection("Sounds"), () -> section.createSection("Sounds"));
+
+        for (T childSound : childSounds) childSound.set(sounds);
+        return section;
+    }
+
     @Override
     public boolean equals(@Nullable Object o)
     {
@@ -161,20 +193,17 @@ public abstract class RichSound<T extends Sound>
     {
         StringBuilder string = new StringBuilder();
 
-        string.append(getClass().getName()).append("{").append("name='").append(name).append('\'');
+        string.append(getClass().getSimpleName()).append("{").append("name='").append(name).append('\'');
 
         if (section != null) {
-            // Don't wanna print a big mess with all the nodes of this section
-            string.append(", section-path='").append(section.getPath()).append('\'');
-
             section.getRoot().getFilePath().ifPresent(path -> string.append(", section-root='").append(path.toAbsolutePath()).append('\''));
+            if (section.getParent() != null) string.append(", section-path='").append(section.getPath()).append('\'');
         }
 
         string.append(", enabled=").append(enabled)
                 .append(", cancellable=").append(cancellable)
-                .append(", childSounds=").append(childSounds);
-
-        string.append('}');
+                .append(", childSounds=").append(childSounds)
+                .append('}');
 
         return string.toString();
     }

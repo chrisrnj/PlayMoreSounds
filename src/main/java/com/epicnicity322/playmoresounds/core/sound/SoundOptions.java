@@ -40,28 +40,34 @@ public class SoundOptions
      * @param radius             A radius of blocks the sound will be heard. Set 0 to play to only the player, -1 to all
      *                           players online, -2 to all players in the {@link org.bukkit.World}.
      */
-    public SoundOptions(boolean ignoresDisabled, @Nullable String permissionToListen, @Nullable String permissionRequired,
+    public SoundOptions(boolean ignoresDisabled, @Nullable String permissionRequired, @Nullable String permissionToListen,
                         double radius)
     {
-        setIgnoresDisabled(ignoresDisabled);
-        setPermissionToListen(permissionToListen);
-        setPermissionRequired(permissionRequired);
-        setRadius(radius);
+        this.ignoresDisabled = ignoresDisabled;
+        this.permissionRequired = permissionRequired != null && permissionRequired.isBlank() ? null : permissionRequired;
+        this.permissionToListen = permissionToListen != null && permissionToListen.isBlank() ? null : permissionToListen;
+        this.radius = radius;
     }
 
     /**
-     * Create a {@link SoundOptions} based on a configuration section. In PlayMoreSounds this section is named 'Options',
-     * it can have the following keys: Permission Required, Permission To Listen, Radius, Ignores Disabled,
-     * All of them are optional, see with more details what key does what on PlayMoreSounds wiki.
+     * Create a {@link SoundOptions} based on the keys of a {@link ConfigurationSection}. In PlayMoreSounds configurations,
+     * these are in the 'Options' section.
+     * The properties are get from the keys 'Ignores Disabled', 'Permission Required', 'Permission To Listen' and 'Radius'.
+     * <p>
+     * All keys are optional, if any is missing the default value is used.
      *
      * @param section The section where the options are.
      */
     public SoundOptions(@NotNull ConfigurationSection section)
     {
-        setPermissionRequired(section.getString("Permission Required").orElse(null));
-        setPermissionToListen(section.getString("Permission To Listen").orElse(null));
-        setRadius(section.getNumber("Radius").orElse(0).doubleValue());
-        ignoresDisabled = section.getBoolean("Ignores Disabled").orElse(false);
+        this.ignoresDisabled = section.getBoolean("Ignores Disabled").orElse(false);
+
+        String permissionRequired = section.getString("Permission Required").orElse(null),
+                permissionToListen = section.getString("Permission To Listen").orElse(null);
+
+        this.permissionRequired = permissionRequired != null && permissionRequired.isBlank() ? null : permissionRequired;
+        this.permissionToListen = permissionToListen != null && permissionToListen.isBlank() ? null : permissionToListen;
+        this.radius = section.getNumber("Radius").orElse(0).doubleValue();
     }
 
     /**
@@ -80,6 +86,23 @@ public class SoundOptions
     }
 
     /**
+     * Gets the value of Permission Required option.
+     * <p>
+     * The Permission Required option allows the sound to play only if the player has this permission.
+     *
+     * @return The permission the player needs to play the sound.
+     */
+    public @Nullable String getPermissionRequired()
+    {
+        return permissionRequired;
+    }
+
+    public void setPermissionRequired(@Nullable String permissionRequired)
+    {
+        this.permissionRequired = permissionRequired != null && permissionRequired.isBlank() ? null : permissionRequired;
+    }
+
+    /**
      * Gets the value of Permission To Listen option.
      * <p>
      * The Permission To Listen option allows the sound to be played normally, but only who has this permission can hear
@@ -94,38 +117,11 @@ public class SoundOptions
 
     public void setPermissionToListen(@Nullable String permissionToListen)
     {
-        if (permissionToListen != null && permissionToListen.trim().isEmpty())
-            this.permissionToListen = null;
-        else
-            this.permissionToListen = permissionToListen;
+        this.permissionToListen = permissionToListen != null && permissionToListen.isBlank() ? null : permissionToListen;
     }
 
     /**
-     * Gets the value of Permission Required option.
-     * <p>
-     * The Permission Required option allows the sound to play only if the player has this permission.
-     *
-     * @return The permission the player needs to play the sound.
-     */
-    public @Nullable String getPermissionRequired()
-    {
-        return permissionRequired;
-    }
-
-    public void setPermissionRequired(@Nullable String permissionRequired)
-    {
-        if (permissionRequired != null && permissionRequired.trim().isEmpty())
-            this.permissionRequired = null;
-        else
-            this.permissionRequired = permissionRequired;
-    }
-
-    /**
-     * A radius says who will hear the sound.
-     * If greater than 0 then everyone in that range of blocks will hear it,
-     * if equal to 0 then the player who played the sound will hear it,
-     * if equal to -1 then everyone in the server will hear it,
-     * if equal to -2 then everyone in the world will hear it.
+     * A radius in blocks where the sound will be heard.
      *
      * @return The radius of the sound.
      */
@@ -134,9 +130,36 @@ public class SoundOptions
         return radius;
     }
 
+    /**
+     * Set the radius in blocks the sound will be able to be heard.
+     * <ul>
+     *     <li>Use 0 to play only to the source player.</li>
+     *     <li>Use -1 to play to everyone in the server.</li>
+     *     <li>Use -2 to play to everyone in the world.</li>
+     * </ul>
+     *
+     * @param radius The radius to be set.
+     */
     public void setRadius(double radius)
     {
         this.radius = radius;
+    }
+
+    /**
+     * Sets the sound properties to the specified section.
+     * <p>
+     * Default values are ignored.
+     * <p>
+     * Keys set by this method are the same used to create sound options with {@link #SoundOptions(ConfigurationSection)}.
+     *
+     * @param section The section to set the properties.
+     */
+    public void set(@NotNull ConfigurationSection section)
+    {
+        if (ignoresDisabled) section.set("Ignores Disabled", true);
+        section.set("Permission Required", permissionRequired);
+        section.set("Permission To Listen", permissionToListen);
+        if (radius != 0.0d) section.set("Radius", radius);
     }
 
     /**
@@ -152,25 +175,25 @@ public class SoundOptions
         if (this == o) return true;
         if (!(o instanceof SoundOptions options)) return false;
 
-        return ignoresDisabled() == options.ignoresDisabled() &&
-                Double.compare(options.getRadius(), getRadius()) == 0 &&
-                Objects.equals(getPermissionToListen(), options.getPermissionToListen()) &&
-                Objects.equals(getPermissionRequired(), options.getPermissionRequired());
+        return ignoresDisabled == options.ignoresDisabled &&
+                Double.compare(radius, options.radius) == 0 &&
+                Objects.equals(permissionRequired, options.permissionRequired) &&
+                Objects.equals(permissionToListen, options.permissionToListen);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(ignoresDisabled(), getPermissionToListen(), getPermissionRequired(), getRadius());
+        return Objects.hash(ignoresDisabled, permissionRequired, permissionToListen, radius);
     }
 
     @Override
     public @NotNull String toString()
     {
-        return getClass().getName() + "{" +
+        return getClass().getSimpleName() + "{" +
                 "ignoresDisabled=" + ignoresDisabled +
-                ", permissionToListen='" + permissionToListen + '\'' +
                 ", permissionRequired='" + permissionRequired + '\'' +
+                ", permissionToListen='" + permissionToListen + '\'' +
                 ", radius=" + radius +
                 '}';
     }

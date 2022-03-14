@@ -30,7 +30,7 @@ import java.util.Optional;
 
 public class Sound
 {
-    private static final @NotNull HashMap<String, SoundCategory> categories = new HashMap<>();
+    private static final @NotNull HashMap<String, SoundCategory> categories = new HashMap<>(SoundCategory.values().length);
 
     static {
         for (SoundCategory category : SoundCategory.values()) {
@@ -48,74 +48,110 @@ public class Sound
     private long delay;
     private @NotNull SoundOptions options;
 
-    public Sound(@Nullable String id, @NotNull String sound, @Nullable SoundCategory category, float volume, float pitch, long delay, @Nullable SoundOptions options)
+    /**
+     * Creates a sound with random {@link #getId()}.
+     *
+     * @see #Sound(String, SoundCategory, float, float, long, SoundOptions)
+     */
+    public Sound(@NotNull String sound, @Nullable SoundCategory category, float volume, float pitch, long delay, @Nullable SoundOptions options)
     {
-        this.section = null;
-        this.id = id == null ? PMSHelper.getRandomString(6) : id;
-
-        // Checking if sound should be transformed to SoundType.
-        if (SoundType.getPresentSoundNames().contains(sound)) {
-            SoundType type = SoundType.valueOf(sound);
-
-            this.sound = type.getSound().orElse("block.note_block.pling");
-            soundType = type;
-        } else {
-            if (!PMSHelper.isNamespacedKey(sound))
-                throw new IllegalArgumentException("Sound is not a valid namespaced key.");
-
-            this.sound = sound;
-        }
-
-        this.category = Objects.requireNonNullElse(category, SoundCategory.MASTER);
-        this.options = Objects.requireNonNullElseGet(options, () -> new SoundOptions(false, null, null, 0.0));
-        this.volume = volume;
-        this.pitch = pitch;
-        this.delay = delay;
+        this(null, sound, category, volume, pitch, delay, options);
     }
 
     /**
-     * Creates an instance for {@link Sound} based on the keys of a {@link ConfigurationSection}. This is the section
-     * where the keys Delay, Options, Pitch, Sound and Volume are. Options are automatically converted based on the rules
-     * set on {@link SoundOptions#SoundOptions(ConfigurationSection)}.
+     * A sound that can be played.
      *
-     * @param section The section to get the keys for this sound's values.
-     * @throws IllegalArgumentException If the section does not contain a 'Sound' key with string as value.
+     * @param id       The id of this sound. If null or a blank string, a random string is get.
+     * @param sound    The sound to be played. {@link SoundType#getPresentSoundNames()} contains this string, it is automatically converted to the version dependent sound.
+     * @param category The category of this sound. Null for default to {@link SoundCategory#MASTER}.
+     * @param volume   The volume of this sound.
+     * @param pitch    The pitch of this sound, values greater than 2 or lower than 0 have no difference.
+     * @param delay    The delay to wait before playing this sound.
+     * @param options  The options of this sound, null for default values.
+     * @throws IllegalArgumentException If sound parameter is not a {@link SoundType} nor a valid Minecraft namespaced key.
+     * @see PMSHelper#isNamespacedKey(String)
+     */
+    public Sound(@Nullable String id, @NotNull String sound, @Nullable SoundCategory category, float volume, float pitch, long delay, @Nullable SoundOptions options)
+    {
+        this.soundType = parseSound(sound);
+
+        if (soundType != null) {
+            this.sound = soundType.getSound().orElse("block.note_block.pling");
+        } else {
+            this.sound = sound;
+        }
+
+        this.section = null;
+        this.id = id == null || id.isBlank() ? PMSHelper.getRandomString(6) : id;
+        this.category = Objects.requireNonNullElse(category, SoundCategory.MASTER);
+        this.delay = delay;
+        this.options = Objects.requireNonNullElseGet(options, () -> new SoundOptions(false, null, null, 0.0));
+        this.pitch = pitch;
+        this.volume = volume;
+    }
+
+    /**
+     * Creates a {@link Sound} based on the keys of a {@link ConfigurationSection}.
+     * The properties are get from the keys 'Category', 'Delay', 'Pitch', 'Sound' and 'Volume'. {@link SoundOptions} are
+     * automatically get from the section 'Options'.
+     * <p>
+     * The only required key is 'Sound', all the others are optional and default values are used in case any is missing.
+     *
+     * @param section The section to get the keys for this Sound's values.
+     * @throws IllegalArgumentException If the section does not have a parent (or is a {@link com.epicnicity322.yamlhandler.Configuration}).
+     * @throws IllegalArgumentException If the section does not contain a 'Sound' string key, or if the sound is not a valid namespaced key.
      * @see SoundOptions
      */
     public Sound(@NotNull ConfigurationSection section)
     {
-        this.section = section;
-        this.id = section.getName();
+        if (section.getParent() == null)
+            throw new IllegalArgumentException("Section parameter must not be a Configuration.");
 
         String sound = section.getString("Sound").orElseThrow(() -> new IllegalArgumentException("Section must contain a Sound key."));
+        this.soundType = parseSound(sound);
 
-        // Checking if sound should be transformed to SoundType.
-        if (SoundType.getPresentSoundNames().contains(sound)) {
-            SoundType type = SoundType.valueOf(sound);
-
-            this.sound = type.getSound().orElse("block.note_block.pling");
-            soundType = type;
+        if (soundType != null) {
+            this.sound = soundType.getSound().orElse("block.note_block.pling");
         } else {
-            if (!PMSHelper.isNamespacedKey(sound))
-                throw new IllegalArgumentException("Sound is not a valid namespaced key.");
-
             this.sound = sound;
         }
 
-        // If the category doesn't exist, then use MASTER as default.
-        category = Objects.requireNonNullElse(categories.get(section.getString("Category").orElse("MASTER").toUpperCase(Locale.ROOT)), SoundCategory.MASTER);
-        volume = section.getNumber("Volume").orElse(10).floatValue();
-        pitch = section.getNumber("Pitch").orElse(1).floatValue();
-        delay = section.getNumber("Delay").orElse(0).longValue();
+        this.section = section;
+        this.id = section.getName();
 
-        ConfigurationSection options = section.getConfigurationSection("Options");
+        this.category = categories.getOrDefault(section.getString("Category").orElse("MASTER").toUpperCase(Locale.ROOT), SoundCategory.MASTER);
+        this.delay = section.getNumber("Delay").orElse(0).longValue();
+        this.pitch = section.getNumber("Pitch").orElse(1).floatValue();
+        this.volume = section.getNumber("Volume").orElse(10).floatValue();
+
+        var options = section.getConfigurationSection("Options");
 
         // Assigning default options in case the sound is missing them.
         if (options == null)
             this.options = new SoundOptions(false, null, null, 0.0);
         else
             this.options = new SoundOptions(options);
+    }
 
+    /**
+     * Validates if sound parameter is a {@link SoundType} or a valid namespaced key.
+     *
+     * @param sound The sound to validate.
+     * @return The sound type if one was found.
+     * @throws IllegalArgumentException If sound is neither a {@link SoundType} nor a valid namespaced key.
+     * @see PMSHelper#isNamespacedKey(String)
+     */
+    private @Nullable SoundType parseSound(@NotNull String sound)
+    {
+        // Checking if sound should be transformed to SoundType.
+        if (SoundType.getPresentSoundNames().contains(sound)) {
+            return SoundType.valueOf(sound);
+        } else {
+            if (!PMSHelper.isNamespacedKey(sound)) {
+                throw new IllegalArgumentException("Sound is not a valid namespaced key.");
+            }
+            return null;
+        }
     }
 
     /**
@@ -182,25 +218,21 @@ public class Sound
      * If this is a {@link SoundType} name, it converts to it using {@link SoundType#valueOf(String)} and updates the
      * value of {@link #getSoundType()}.
      * <p>
-     * If this is either a custom sound or minecraft key sound, this will only be set if the string meets the rules of
-     * a minecraft key. A {@link SoundType} will not be set in this case.
+     * If this is either a custom sound or minecraft key sound, this will only be set if the string meets the rules of a
+     * namespaced key.
      *
      * @param sound The custom sound, minecraft key, or {@link SoundType} name.
-     * @throws IllegalArgumentException If sound is neither a {@link SoundType} nor a valid minecraft key.
+     * @throws IllegalArgumentException If sound is neither a {@link SoundType} nor a valid namespaced key.
      * @see #setSoundType(SoundType)
      * @see PMSHelper#isNamespacedKey(String)
      */
     public void setSound(@NotNull String sound)
     {
-        if (SoundType.getPresentSoundNames().contains(sound)) {
-            SoundType type = SoundType.valueOf(sound);
+        this.soundType = parseSound(sound);
 
-            this.sound = type.getSound().orElse("block.note_block.pling");
-            soundType = type;
+        if (soundType != null) {
+            this.sound = soundType.getSound().orElse("block.note_block.pling");
         } else {
-            if (!PMSHelper.isNamespacedKey(sound))
-                throw new IllegalArgumentException("Sound is not a valid namespaced key.");
-
             this.sound = sound;
         }
     }
@@ -291,25 +323,48 @@ public class Sound
         this.options = Objects.requireNonNullElseGet(options, () -> new SoundOptions(false, null, null, 0.0));
     }
 
+    /**
+     * Sets the properties of this sound to the specified section.
+     * <p>
+     * A configuration section will be created with the name of {@link #getId()}, if it doesn't already exists. And the
+     * properties will be applied to it.
+     *
+     * @param section The section to set the properties.
+     * @return The configuration section with this sound's properties.
+     */
+    public @NotNull ConfigurationSection set(@NotNull ConfigurationSection section)
+    {
+        var soundSection = Objects.requireNonNullElseGet(section.getConfigurationSection(id), () -> section.createSection(id));
+        var optionsSection = Objects.requireNonNullElseGet(soundSection.getConfigurationSection("Options"), () -> soundSection.createSection("Options"));
+        options.set(optionsSection);
+
+        if (pitch != 1.0f) soundSection.set("Pitch", pitch);
+        soundSection.set("Sound", soundType != null ? soundType.name() : sound);
+        if (volume != 10.0f) soundSection.set("Volume", volume);
+
+        return soundSection;
+    }
+
     @Override
     public @NotNull String toString()
     {
         StringBuilder string = new StringBuilder();
 
-        string.append(getClass().getName()).append("{sound='").append(sound).append('\'')
+        string.append(getClass().getSimpleName()).append("{id='").append(id).append('\'');
+
+        if (section != null) {
+            section.getRoot().getFilePath().ifPresent(path -> string.append(", section-root='").append(path.toAbsolutePath()).append('\''));
+            // Sounds always have a path, because a check for ConfigurationSection#getParent is made on constructor.
+            string.append(", section-path='").append(section.getPath()).append('\'');
+        }
+
+        string.append(", sound='").append(sound).append('\'')
+                .append(", category=").append(category.name())
                 .append(", volume=").append(volume)
                 .append(", pitch=").append(pitch)
                 .append(", delay=").append(delay)
-                .append(", options=").append(options);
-
-        if (section != null) {
-            // Don't wanna print a big mess with all the nodes of this section
-            string.append(", section-path='").append(section.getPath()).append('\'');
-
-            section.getRoot().getFilePath().ifPresent(path -> string.append(", section-root='").append(path.toAbsolutePath()).append('\''));
-        }
-
-        string.append('}');
+                .append(", options=").append(options)
+                .append('}');
 
         return string.toString();
     }
@@ -326,10 +381,10 @@ public class Sound
         if (this == o) return true;
         if (!(o instanceof Sound sound1)) return false;
 
-        return Float.compare(sound1.volume, volume) == 0 &&
-                Float.compare(sound1.pitch, pitch) == 0 &&
-                delay == sound1.delay &&
+        return delay == sound1.delay &&
                 category == sound1.category &&
+                Float.compare(sound1.volume, volume) == 0 &&
+                Float.compare(sound1.pitch, pitch) == 0 &&
                 sound.equals(sound1.sound) &&
                 options.equals(sound1.options);
     }
