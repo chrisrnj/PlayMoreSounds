@@ -23,7 +23,7 @@ import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.epicpluginlib.core.util.PathUtils;
 import com.epicnicity322.epicpluginlib.core.util.ZipUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.command.subcommand.AddonsSubCommand;
+import com.epicnicity322.playmoresounds.bukkit.command.subcommands.AddonsSubCommand;
 import com.epicnicity322.playmoresounds.bukkit.gui.InventoryUtils;
 import com.epicnicity322.playmoresounds.bukkit.gui.PMSInventory;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;

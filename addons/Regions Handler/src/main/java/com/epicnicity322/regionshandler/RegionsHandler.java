@@ -20,7 +20,7 @@ package com.epicnicity322.regionshandler;
 import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.nbssongplayer.NBSSongPlayer;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.listener.OnPlayerResourcePackStatus;
+import com.epicnicity322.playmoresounds.bukkit.listeners.OnPlayerResourcePackStatus;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
 import com.epicnicity322.playmoresounds.bukkit.sound.SoundManager;

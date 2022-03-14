@@ -21,7 +21,7 @@ import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.epicpluginlib.core.util.PathUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandLoader;
-import com.epicnicity322.playmoresounds.bukkit.command.subcommand.ReloadSubCommand;
+import com.epicnicity322.playmoresounds.bukkit.command.subcommands.ReloadSubCommand;
 import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionLeaveEvent;
 import com.epicnicity322.playmoresounds.bukkit.sound.events.PlaySoundEvent;

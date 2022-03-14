@@ -20,7 +20,7 @@ package com.epicnicity322.playmoresounds.bukkit.util;
 
 import com.epicnicity322.epicpluginlib.bukkit.reflection.ReflectionUtil;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.listener.*;
+import com.epicnicity322.playmoresounds.bukkit.listeners.*;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;

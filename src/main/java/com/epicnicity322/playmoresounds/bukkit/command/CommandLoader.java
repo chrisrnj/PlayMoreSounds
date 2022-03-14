@@ -21,7 +21,7 @@ package com.epicnicity322.playmoresounds.bukkit.command;
 import com.epicnicity322.epicpluginlib.bukkit.command.Command;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandManager;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.command.subcommand.*;
+import com.epicnicity322.playmoresounds.bukkit.command.subcommands.*;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
