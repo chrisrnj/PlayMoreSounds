@@ -73,9 +73,9 @@ public class RichSoundInventory implements PMSInventory
         PlayMoreSounds.onReload(materialsUpdater);
     }
 
+    protected final @NotNull Configuration save;
     private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>();
     private final @NotNull PlayableRichSound richSound;
-    protected final @NotNull Configuration save;
     private final @NotNull Path savePath;
     private final @NotNull HashMap<PlayableSound, SoundInventory> childInventories;
     private Inventory inventory;
@@ -103,7 +103,7 @@ public class RichSoundInventory implements PMSInventory
 
         this.richSound = richSound;
         this.save = save;
-        this.savePath = savePath.get().getFileName();
+        this.savePath = savePath.get();
         this.childInventories = new HashMap<>(richSound.getChildSounds().size());
 
         // Cache-ing the child inventories.
@@ -203,7 +203,7 @@ public class RichSoundInventory implements PMSInventory
             try {
                 save();
             } catch (Exception e) {
-                PlayMoreSounds.getLanguage().send(event.getWhoClicked(), PlayMoreSounds.getLanguage().get("Rich Sound Inventory.Items.Save.Error").replace("<richsound>", richSound.getName()).replace("<config>", savePath.toString()));
+                PlayMoreSounds.getLanguage().send(event.getWhoClicked(), PlayMoreSounds.getLanguage().get("Rich Sound Inventory.Items.Save.Error").replace("<richsound>", richSound.getName()).replace("<config>", savePath.getFileName().toString()));
                 PlayMoreSoundsCore.getErrorHandler().report(e, "RichSound: " + richSound + "\nSaving through GUI exception:");
             }
             event.getWhoClicked().closeInventory();
@@ -227,6 +227,7 @@ public class RichSoundInventory implements PMSInventory
     {
         inventory.setItem(0, InventoryUtils.getItemStack("Rich Sound Inventory.Items.Status." + (richSound.isEnabled() ? "Enabled" : "Disabled")));
 
+        String configName = savePath.getFileName().toString();
         // Replacing variables of info item.
         ItemStack infoItem = InventoryUtils.getItemStack("Rich Sound Inventory.Items.Info");
         ItemMeta meta = infoItem.getItemMeta();
@@ -237,7 +238,7 @@ public class RichSoundInventory implements PMSInventory
             newLore.add(line
                     .replace("<name>", richSound.getName())
                     .replace("<child-amount>", Integer.toString(richSound.getChildSounds().size()))
-                    .replace("<config>", savePath.toString()));
+                    .replace("<config>", configName));
         }
 
         meta.setLore(newLore);
@@ -245,7 +246,7 @@ public class RichSoundInventory implements PMSInventory
 
         inventory.setItem(4, infoItem);
         inventory.setItem(8, parseItemStack("Cancellable", Boolean.toString(richSound.isCancellable())));
-        inventory.setItem(inventory.getSize() - 1, parseItemStack("Save", savePath.toString()));
+        inventory.setItem(inventory.getSize() - 1, parseItemStack("Save", configName));
     }
 
     private void fillChildSounds(int page)
