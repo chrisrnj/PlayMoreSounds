@@ -18,6 +18,7 @@
 
 package com.epicnicity322.playmoresounds.bukkit.gui.inventories;
 
+import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.gui.InventoryUtils;
 import com.epicnicity322.playmoresounds.bukkit.gui.PMSInventory;
@@ -38,14 +39,13 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -73,37 +73,17 @@ public class RichSoundInventory implements PMSInventory
         PlayMoreSounds.onReload(materialsUpdater);
     }
 
-    protected final @NotNull Configuration save;
+    protected final @NotNull ConfigurationHolder save;
     private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>();
     private final @NotNull PlayableRichSound richSound;
-    private final @NotNull Path savePath;
     private final @NotNull HashMap<PlayableSound, SoundInventory> childInventories;
     private Inventory inventory;
     private HashMap<Integer, ArrayList<PlayableSound>> childSoundPages;
 
-    public RichSoundInventory(@NotNull PlayableRichSound richSound)
+    public RichSoundInventory(@NotNull PlayableRichSound richSound, @NotNull ConfigurationHolder save)
     {
-        this(richSound, null);
-    }
-
-    public RichSoundInventory(@NotNull PlayableRichSound richSound, @Nullable Configuration save)
-    {
-        if (save == null) {
-            if (richSound.getSection() == null) {
-                throw new IllegalArgumentException("The provided sound does not have a section. Please provide a configuration to save this sound.");
-            } else {
-                save = richSound.getSection().getRoot();
-            }
-        }
-
-        Optional<Path> savePath = save.getFilePath();
-
-        if (savePath.isEmpty())
-            throw new IllegalArgumentException("The save configuration does not have a path to save the sound.");
-
         this.richSound = richSound;
         this.save = save;
-        this.savePath = savePath.get();
         this.childInventories = new HashMap<>(richSound.getChildSounds().size());
 
         // Cache-ing the child inventories.
@@ -203,7 +183,7 @@ public class RichSoundInventory implements PMSInventory
             try {
                 save();
             } catch (Exception e) {
-                PlayMoreSounds.getLanguage().send(event.getWhoClicked(), PlayMoreSounds.getLanguage().get("Rich Sound Inventory.Items.Save.Error").replace("<richsound>", richSound.getName()).replace("<config>", savePath.getFileName().toString()));
+                PlayMoreSounds.getLanguage().send(event.getWhoClicked(), PlayMoreSounds.getLanguage().get("Rich Sound Inventory.Items.Save.Error").replace("<richsound>", richSound.getName()).replace("<config>", save.getPath().getFileName().toString()));
                 PlayMoreSoundsCore.getErrorHandler().report(e, "RichSound: " + richSound + "\nSaving through GUI exception:");
             }
             event.getWhoClicked().closeInventory();
@@ -219,15 +199,19 @@ public class RichSoundInventory implements PMSInventory
 
     protected void save() throws IOException
     {
-        richSound.set(save);
-        save.save(savePath);
+        Configuration config = save.getConfiguration();
+        Path path = save.getPath();
+
+        richSound.set(config);
+        Files.deleteIfExists(path);
+        config.save(path);
     }
 
     protected void updateButtonsItems()
     {
         inventory.setItem(0, InventoryUtils.getItemStack("Rich Sound Inventory.Items.Status." + (richSound.isEnabled() ? "Enabled" : "Disabled")));
 
-        String configName = savePath.getFileName().toString();
+        String configName = save.getPath().getFileName().toString();
         // Replacing variables of info item.
         ItemStack infoItem = InventoryUtils.getItemStack("Rich Sound Inventory.Items.Info");
         ItemMeta meta = infoItem.getItemMeta();
