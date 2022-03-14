@@ -125,9 +125,9 @@ public final class InventoryUtils
             if (previous != null && !previous.getType().isAir()) continue;
 
             var item = new ItemStack(material);
-            if (item.hasItemMeta()) {
-                var meta = item.getItemMeta();
+            ItemMeta meta = item.getItemMeta();
 
+            if (meta != null) {
                 meta.setDisplayName(" ");
                 meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
                 item.setItemMeta(meta);
@@ -157,9 +157,9 @@ public final class InventoryUtils
 
         for (int slot = from_index; slot <= to_index; ++slot) {
             var item = new ItemStack(material);
-            if (item.hasItemMeta()) {
-                var meta = item.getItemMeta();
+            ItemMeta meta = item.getItemMeta();
 
+            if (meta != null) {
                 meta.setDisplayName(" ");
                 meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
                 item.setItemMeta(meta);
