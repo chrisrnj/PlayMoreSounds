@@ -1227,6 +1227,7 @@ public enum Configurations
             "        <line>&7Pitch:&f <pitch>\n" +
             "        <line>&8Click to edit or remove.\n" +
             "    Save:\n" +
+            "      Error: '&cFailed to save the sound <richsound> to <config>.'\n" +
             "      Display Name: '&2&lSave'\n" +
             "      Lore: >-\n" +
             "        &7Click to save this sound to the\n" +
