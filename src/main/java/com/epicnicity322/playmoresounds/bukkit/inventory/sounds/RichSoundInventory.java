@@ -16,11 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.epicnicity322.playmoresounds.bukkit.inventory;
+package com.epicnicity322.playmoresounds.bukkit.inventory.sounds;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.bukkit.inventory.InventoryUtils;
+import com.epicnicity322.playmoresounds.bukkit.inventory.PMSInventory;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
+import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.sound.SoundCategory;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
@@ -37,6 +40,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,7 +75,7 @@ public class RichSoundInventory implements PMSInventory
 
     private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>();
     private final @NotNull PlayableRichSound richSound;
-    private final @NotNull Configuration save;
+    protected final @NotNull Configuration save;
     private final @NotNull Path savePath;
     private final @NotNull HashMap<PlayableSound, SoundInventory> childInventories;
     private Inventory inventory;
@@ -196,14 +200,12 @@ public class RichSoundInventory implements PMSInventory
 
         // Setting save button.
         buttons.put(inventorySize - 1, event -> {
-            //TODO: Create set and save methods
-//            try {
-//                set();
-//                save();
-//            } catch (Exception e) {
-//                PlayMoreSounds.getLanguage().send(event.getWhoClicked(), PlayMoreSounds.getLanguage().get("Rich Sound Inventory.Items.Save.Error").replace("<richsound>", richSound.getName()));
-//                PlayMoreSoundsCore.getErrorHandler().report(e, "RichSound: " + richSound + "\nSaving through GUI exception:");
-//            }
+            try {
+                save();
+            } catch (Exception e) {
+                PlayMoreSounds.getLanguage().send(event.getWhoClicked(), PlayMoreSounds.getLanguage().get("Rich Sound Inventory.Items.Save.Error").replace("<richsound>", richSound.getName()).replace("<config>", savePath.toString()));
+                PlayMoreSoundsCore.getErrorHandler().report(e, "RichSound: " + richSound + "\nSaving through GUI exception:");
+            }
             event.getWhoClicked().closeInventory();
         });
 
@@ -213,6 +215,12 @@ public class RichSoundInventory implements PMSInventory
                 openInventory(viewer);
             }
         }
+    }
+
+    protected void save() throws IOException
+    {
+        richSound.set(save);
+        save.save(savePath);
     }
 
     protected void updateButtonsItems()
