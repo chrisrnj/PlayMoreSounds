@@ -585,6 +585,9 @@ public enum Configurations
             "    Permission To Listen:\n" +
             "      Material: WRITABLE_BOOK\n" +
             "      Glowing: false\n" +
+            "    Remove:\n" +
+            "      Material: RED_CONCRETE\n" +
+            "      Glowing: false\n" +
             "    Play:\n" +
             "      Material: MUSIC_DISC_13\n" +
             "      Glowing: false\n" +
@@ -1187,12 +1190,12 @@ public enum Configurations
             "        Display Name: '&a&lEnabled'\n" +
             "        Lore: '&7This sound is enabled and will<line>&7play normally.'\n" +
             "      Disabled:\n" +
-            "        Display Name: '&c&lDisabled'\n" +
+            "        Display Name: '&4&lDisabled'\n" +
             "        Lore: >-\n" +
             "          &7 This sound is disabled and will\n" +
             "          <line>&7not play. Events that play this\n" +
-            "          <line>&7sound will be unregistered on plugin\n" +
-            "          <line>&7reload.\n" +
+            "          <line>&7sound will be unregistered on\n" +
+            "          <line>&7plugin reload.\n" +
             "    Info:\n" +
             "      Display Name: '&8&lInfo'\n" +
             "      Lore: >-\n" +
@@ -1200,7 +1203,7 @@ public enum Configurations
             "        <line>&7Config:&f <config>\n" +
             "        <line>&7Child Sounds:&f <child-amount>\n" +
             "    Cancellable:\n" +
-            "      Display Name: '&b&lCancellable'\n" +
+            "      Display Name: '&c&lCancellable'\n" +
             "      Lore: >-\n" +
             "        &7Current:&f <value>\n" +
             "        <line>&7Cancellable helps add compatibility\n" +
@@ -1225,8 +1228,10 @@ public enum Configurations
             "        <line>&8Click to edit or remove.\n" +
             "    Save:\n" +
             "      Display Name: '&2&lSave'\n" +
-            "      Lore: '&7Click to save this sound to the<line>&7configuration <config>.'\n" +
-            "  Title: '&1Rich Sound <richsound>'\n" +
+            "      Lore: >-\n" +
+            "        &7Click to save this sound to the\n" +
+            "        <line>&7configuration <value>.\n" +
+            "  Title: '&1Rich Sound: &9<richsound>'\n" +
             "\n" +
             "Sound Inventory:\n" +
             "  Items:\n" +
@@ -1322,6 +1327,9 @@ public enum Configurations
             "        <line>&7Input 'null' for no permission.\n" +
             "      Input:\n" +
             "        Title: '&9Permission to listen'\n" +
+            "    Remove:\n" +
+            "      Display Name: '&4&lRemove'\n" +
+            "      Lore: '&7Remove this sound from <value>.'\n" +
             "    Play:\n" +
             "      Display Name: '&6&lPlay'\n" +
             "      Lore: '&7Click to play &f<value>&7.'\n" +
@@ -1333,8 +1341,8 @@ public enum Configurations
             "        Display Name: '&2&lDone'\n" +
             "        Lore: '&7Click to save and go back to &f<value>&7.'\n" +
             "  Title:\n" +
-            "    Default: '&1Editing sound <id>'\n" +
-            "    Parent: '&1Sound <id> of <richsound>'\n" +
+            "    Default: '&1Editing sound &9<id>'\n" +
+            "    Parent: '&1Sound &9<id>&1 of <richsound>'\n" +
             "\n" +
             "Stop Sound:\n" +
             "  Success:\n" +
