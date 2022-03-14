@@ -166,7 +166,17 @@ public abstract class RichSound<T extends Sound>
 
         ConfigurationSection sounds = Objects.requireNonNullElseGet(section.getConfigurationSection("Sounds"), () -> section.createSection("Sounds"));
 
-        for (T childSound : childSounds) childSound.set(sounds);
+        // Removing previous child sounds.
+        for (Map.Entry<String, Object> sound : sounds.getNodes().entrySet()) {
+            if (sound.getValue() instanceof ConfigurationSection && getChildSound(sound.getKey()) == null) {
+                sounds.set(sound.getKey(), null);
+            }
+        }
+
+        // Setting child sounds.
+        for (T childSound : childSounds) {
+            childSound.set(sounds);
+        }
         return section;
     }
 
