@@ -77,6 +77,7 @@ public class RichSoundInventory implements PMSInventory
     private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>();
     private final @NotNull PlayableRichSound richSound;
     private final @NotNull HashMap<PlayableSound, SoundInventory> childInventories;
+    private final boolean reload;
     private Inventory inventory;
     private HashMap<Integer, ArrayList<PlayableSound>> childSoundPages;
 
@@ -85,6 +86,7 @@ public class RichSoundInventory implements PMSInventory
         this.richSound = richSound;
         this.save = save;
         this.childInventories = new HashMap<>(richSound.getChildSounds().size());
+        this.reload = Configurations.getConfigurationLoader().getConfigurations().contains(save);
 
         // Cache-ing the child inventories.
         for (PlayableSound sound : richSound.getChildSounds()) {
@@ -131,11 +133,11 @@ public class RichSoundInventory implements PMSInventory
         return soundMaterials.get(next);
     }
 
-    private static ItemStack parseItemStack(String name, String value)
+    static ItemStack parseItemStack(String inventory, String name, String value)
     {
         if (value == null) value = "null";
 
-        ItemStack itemStack = InventoryUtils.getItemStack("Rich Sound Inventory.Items." + name);
+        ItemStack itemStack = InventoryUtils.getItemStack(inventory + ".Items." + name);
         ItemMeta meta = itemStack.getItemMeta();
         meta.setDisplayName(meta.getDisplayName().replace("<value>", value));
 
@@ -147,6 +149,11 @@ public class RichSoundInventory implements PMSInventory
         meta.setLore(lore);
         itemStack.setItemMeta(meta);
         return itemStack;
+    }
+
+    private static ItemStack parseItemStack(String name, String value)
+    {
+        return parseItemStack("Rich Sound Inventory", name, value);
     }
 
     void updateInventory()
@@ -205,6 +212,10 @@ public class RichSoundInventory implements PMSInventory
         richSound.set(config);
         Files.deleteIfExists(path);
         config.save(path);
+
+        if (reload) {
+            PlayMoreSounds.reload();
+        }
     }
 
     protected void updateButtonsItems()
