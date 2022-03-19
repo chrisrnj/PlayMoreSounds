@@ -58,9 +58,10 @@ public class PlayableRichSound extends RichSound<PlayableSound> implements Playa
 
             Bukkit.getPluginManager().callEvent(event);
 
-            if (!event.isCancelled())
-                for (PlayableSound s : getChildSounds())
-                    s.play(player, event.getLocation());
+            if (event.isCancelled()) return;
+
+            for (PlayableSound s : getChildSounds())
+                s.play(player, event.getLocation());
         }
     }
 
@@ -80,36 +81,23 @@ public class PlayableRichSound extends RichSound<PlayableSound> implements Playa
     public @NotNull BukkitRunnable playInLoop(@Nullable Player player, @NotNull Supplier<Location> sourceLocation, long delay, long period, @Nullable Supplier<Boolean> breaker)
     {
         var main = PlayMoreSounds.getInstance();
+        if (main == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
-        if (main == null)
-            throw new IllegalStateException("PlayMoreSounds is not loaded.");
+        Supplier<Boolean> finalBreaker = () -> !isEnabled() || getChildSounds().isEmpty() || (breaker != null && breaker.get());
 
-        BukkitRunnable runnable;
-
-        // The runnable will not check if the breaker is null on each loop.
-        if (breaker == null)
-            runnable = new BukkitRunnable()
+        BukkitRunnable runnable = new BukkitRunnable()
+        {
+            @Override
+            public void run()
             {
-                @Override
-                public void run()
-                {
-                    play(player, sourceLocation.get());
+                if (finalBreaker.get()) {
+                    if (!isCancelled()) cancel();
+                    return;
                 }
-            };
-        else
-            runnable = new BukkitRunnable()
-            {
-                @Override
-                public void run()
-                {
-                    if (breaker.get()) {
-                        cancel();
-                        return;
-                    }
 
-                    play(player, sourceLocation.get());
-                }
-            };
+                play(player, sourceLocation.get());
+            }
+        };
 
         if (isEnabled() && !getChildSounds().isEmpty())
             runnable.runTaskTimer(main, delay, period);
