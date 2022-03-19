@@ -29,13 +29,14 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
 
-public class PlayableSound extends Sound implements Playable
+public class PlayableSound extends Sound implements Delayable
 {
     public PlayableSound(@Nullable String id, @NotNull String sound, @Nullable SoundCategory category, float volume, float pitch, long delay, @Nullable SoundOptions options)
     {
@@ -66,7 +67,7 @@ public class PlayableSound extends Sound implements Playable
     }
 
     @Override
-    public void play(@Nullable Player player, @NotNull Location location)
+    public @Nullable BukkitTask playDelayable(@Nullable Player player, @NotNull Location sourceLocation)
     {
         var options = getOptions();
         double radius = options.getRadius();
@@ -75,7 +76,7 @@ public class PlayableSound extends Sound implements Playable
             var permission = options.getPermissionRequired();
 
             if (permission != null && !player.hasPermission(permission)) {
-                return;
+                return null;
             }
             if (player.getGameMode() == GameMode.SPECTATOR || (player.hasPotionEffect(PotionEffectType.INVISIBILITY) && player.hasPermission("playmoresounds.bypass.invisibility"))) {
                 radius = 0;
@@ -85,12 +86,13 @@ public class PlayableSound extends Sound implements Playable
         Collection<Player> listeners;
 
         if (player != null && radius == 0) listeners = Collections.singleton(player);
-        else listeners = SoundManager.getInRange(radius, location);
+        else listeners = SoundManager.getInRange(radius, sourceLocation);
 
         if (getDelay() == 0) {
-            play(player, listeners, location);
+            play(player, listeners, sourceLocation);
+            return null;
         } else {
-            Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> play(player, listeners, location), getDelay());
+            return Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> play(player, listeners, sourceLocation), getDelay());
         }
     }
 
