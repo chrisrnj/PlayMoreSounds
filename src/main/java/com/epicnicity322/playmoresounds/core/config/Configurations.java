@@ -510,6 +510,18 @@ public enum Configurations
             "        Material: GREEN_WOOL\n" +
             "        Glowing: false\n" +
             "\n" +
+            "Editor Inventory:\n" +
+            "  Items:\n" +
+            "    Next Page:\n" +
+            "      Material: SPECTRAL_ARROW\n" +
+            "      Glowing: false\n" +
+            "    Previous Page:\n" +
+            "      Material: SPECTRAL_ARROW\n" +
+            "      Glowing: false\n" +
+            "    Rich Sound:\n" +
+            "      Material: JUKEBOX\n" +
+            "      Glowing: false\n" +
+            "\n" +
             "Rich Sound Inventory:\n" +
             "  Items:\n" +
             "    Status:\n" +
@@ -602,7 +614,7 @@ public enum Configurations
             "Input Getter Inventory:\n" +
             "  Input Item:\n" +
             "    Material: NETHER_STAR\n" +
-            "    Glowing: false", StaticFields.version4_1_2),
+            "    Glowing: false", StaticFields.version5_0),
     DEATH_TYPES(StaticFields.sounds.resolve("death types.yml"), "# Set a sound to play when a player die for a specific cause of death.\n" +
             "#\n" +
             "# To set a sound, just create a configuration section with the name of the cause of\n" +
@@ -1027,6 +1039,9 @@ public enum Configurations
             "  Disc: |-\n" +
             "    &e/<label> disc <id> [target]\n" +
             "    &7 > Gives a configured custom disc.\n" +
+            "  Editor: |-\n" +
+            "    &e/<label> editor\n" +
+            "    &7 > Opens a GUI that allows you to edit sounds in sounds.yml\n" +
             "  Footer: 'View more commands with &7&n/<label> help <next>'\n" +
             "  Header: 'PlayMoreSounds commands (Page <page> of <totalPages>):'\n" +
             "  Help: |-\n" +
@@ -1182,6 +1197,21 @@ public enum Configurations
             "    Declined: '&cYou must accept the resource pack to play on this server.'\n" +
             "    Download Fail: '&cSomething went wrong while downloading the resource pack. Please try joining again.'\n" +
             "  Request Message: '&ePlease download the resource pack to continue.'\n" +
+            "\n" +
+            "Editor Inventory:\n" +
+            "  Items:\n" +
+            "    Next Page:\n" +
+            "      Display Name: '&e&lNext page'\n" +
+            "      Lore: '&7Click to go to page <value>.'\n" +
+            "    Previous Page:\n" +
+            "      Display Name: '&e&lPrevious page'\n" +
+            "      Lore: '&7Click to go to page <value>.'\n" +
+            "    Rich Sound:\n" +
+            "      Display Name: '&5&l<value>'\n" +
+            "      Lore: '&7Click to edit this rich sound.'\n" +
+            "  Title:\n" +
+            "    Default: '&5Sounds in &dsounds.yml'\n" +
+            "    Empty: '&4No sounds found'\n" +
             "\n" +
             "Rich Sound Inventory:\n" +
             "  Items:\n" +
@@ -1389,7 +1419,7 @@ public enum Configurations
             "    Default: '&cSomething went wrong while using updater.'\n" +
             "    Offline: '&cYou are offline or spigotmc.org is down.'\n" +
             "    Timeout: '&cTook too long to establish a connection.'\n" +
-            "  Not Available: '&eNo updates available.'", StaticFields.version4_1_2),
+            "  Not Available: '&eNo updates available.'", StaticFields.version5_0),
     LANGUAGE_ES_LA(StaticFields.lang.resolve("Language ES-LA.yml"), "#Idioma ES-LA\n" +
             "#Traductor: Epicnicity322\n" +
             "Version: '" + PlayMoreSoundsVersion.version + "'\n" +
@@ -1727,7 +1757,7 @@ public enum Configurations
             "    Default: '&cAlgo salió mal al usar el actualizador.'\n" +
             "    Offline: '&cEstá desconectado o spigot.org está caído.'\n" +
             "    Timeout: '&cTomó demasiado tiempo para establecer una conexión.'\n" +
-            "  Not Available: '&eNo hay actualizaciones disponibles.'", StaticFields.version4_1_2),
+            "  Not Available: '&eNo hay actualizaciones disponibles.'", StaticFields.version5_0),
     LANGUAGE_PT_BR(StaticFields.lang.resolve("Language PT-BR.yml"), "#Linguagem PT-BR\n" +
             "#Tradutor: Epicnicity322\n" +
             "Version: '" + PlayMoreSoundsVersion.version + "'\n" +
@@ -2065,7 +2095,7 @@ public enum Configurations
             "    Default: '&cAlgo de errado ocorreu ao usar o atualizador.'\n" +
             "    Offline: '&cVocê está offline ou spigot.org caiu.'\n" +
             "    Timeout: '&cLevou tempo demais para estabelecer uma conexão.'\n" +
-            "  Not Available: '&eNenhuma atualização disponível.'", StaticFields.version4_1_2),
+            "  Not Available: '&eNenhuma atualização disponível.'", StaticFields.version5_0),
     LANGUAGE_ZH_CN(StaticFields.lang.resolve("Language ZH-CN.yml"), "#语言ZH-CN\n" +
             "#译者：秋风残叶\n" +
             "Version: '" + PlayMoreSoundsVersion.version + "'\n" +
@@ -2403,7 +2433,7 @@ public enum Configurations
             "    Default: '&c更新失败，请检查网络'\n" +
             "    Offline: '&c您当前未连接网络，或者您的防火墙拦截了联网请求，更新失败'\n" +
             "    Timeout: '&c连接超时，请检查网络'\n" +
-            "  Not Available: '&e没有可用更新'", StaticFields.version4_1_2),
+            "  Not Available: '&e没有可用更新'", StaticFields.version5_0),
     REGIONS(StaticFields.sounds.resolve("regions.yml"), "# Set a sound to play when you enter, exit or stand on a specific region.\n" +
             "#\n" +
             "# Sample:\n" +
@@ -2965,6 +2995,6 @@ public enum Configurations
         private static final @NotNull Version version3_2_0 = new Version("3.2.0");
         private static final @NotNull Version version3_3_0 = new Version("3.3.0");
         private static final @NotNull Version version4_0_0 = new Version("4.0.0");
-        private static final @NotNull Version version4_1_2 = new Version("4.1.2");
+        private static final @NotNull Version version5_0 = new Version("5.0");
     }
 }
