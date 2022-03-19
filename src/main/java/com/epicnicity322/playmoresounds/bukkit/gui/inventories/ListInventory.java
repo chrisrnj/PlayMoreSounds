@@ -91,7 +91,7 @@ public final class ListInventory implements PMSInventory
             buttons.put(8, event -> getListInventory(this.page + 1).openInventory(event.getWhoClicked()));
         }
 
-        InventoryUtils.fill(Material.GLASS_PANE, inventory, 9, count);
+        InventoryUtils.fill(Material.BLACK_STAINED_GLASS_PANE, inventory, 9, count);
 
         ArrayList<String> soundMaterials = config.getCollection("List.Inventory.Items.Sound.Material", Object::toString);
         if (soundMaterials.size() == 0)
