@@ -35,11 +35,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-public final class RedProtectRegions extends PMSAddon implements Listener {
+public final class RedProtectRegions extends PMSAddon implements Listener
+{
     private RegionsHandler handler;
 
     @Override
-    protected void onStart() {
+    protected void onStart()
+    {
         Logger logger = PlayMoreSounds.getConsoleLogger();
 
         if (!Bukkit.getPluginManager().isPluginEnabled("RedProtect")) {
@@ -48,9 +50,11 @@ public final class RedProtectRegions extends PMSAddon implements Listener {
             return;
         }
 
-        handler = new RegionsHandler("RedProtect", this, new RegionsHandler.InsideChecker() {
+        handler = new RegionsHandler("RedProtect", this, new RegionsHandler.InsideChecker()
+        {
             @Override
-            protected boolean isPlayerInside(@NotNull Player player, @NotNull String regionId) {
+            protected boolean isPlayerInside(@NotNull Player player, @NotNull String regionId)
+            {
                 Region region = RedProtect.get().getAPI().getRegion(player.getLocation());
                 if (region == null) return false;
                 return region.getID().equals(regionId);
@@ -142,7 +146,8 @@ public final class RedProtectRegions extends PMSAddon implements Listener {
     }
 
     @EventHandler
-    public void onEnterExitRegion(EnterExitRegionEvent event) {
+    public void onEnterExitRegion(EnterExitRegionEvent event)
+    {
         Region enterRegion = event.getEnteredRegion();
         Region exitRegion = event.getExitedRegion();
         Player player = event.getPlayer();

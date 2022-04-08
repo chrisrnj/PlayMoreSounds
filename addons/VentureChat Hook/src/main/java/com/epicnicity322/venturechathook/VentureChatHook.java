@@ -30,20 +30,24 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 
-public final class VentureChatHook extends PMSAddon implements Listener {
+public final class VentureChatHook extends PMSAddon implements Listener
+{
     private ChannelsHandler handler;
 
     @Override
-    protected void onStart() {
+    protected void onStart()
+    {
         if (!Bukkit.getPluginManager().isPluginEnabled("VentureChat")) {
             PlayMoreSounds.getConsoleLogger().log("[VentureChat Hook] Addon could not be started because VentureChat plugin failed to enable.", ConsoleLogger.Level.ERROR);
             PlayMoreSounds.getAddonManager().stopAddon(this);
             return;
         }
 
-        handler = new ChannelsHandler("VentureChat", this, new ChannelsHandler.ChannelSoundPreventer() {
+        handler = new ChannelsHandler("VentureChat", this, new ChannelsHandler.ChannelSoundPreventer()
+        {
             @Override
-            protected boolean preventReceivingSound(@NotNull Player receiver, @NotNull Player chatter, @NotNull String channel) {
+            protected boolean preventReceivingSound(@NotNull Player receiver, @NotNull Player chatter, @NotNull String channel)
+            {
                 MineverseChatPlayer mcp = MineverseChatAPI.getMineverseChatPlayer(receiver);
                 return !mcp.isListening(channel) || mcp.getIgnores().contains(chatter.getUniqueId());
             }
@@ -51,7 +55,8 @@ public final class VentureChatHook extends PMSAddon implements Listener {
     }
 
     @EventHandler
-    public void onVentureChat(VentureChatEvent event) {
+    public void onVentureChat(VentureChatEvent event)
+    {
         handler.onChat(event.getMineverseChatPlayer().getPlayer(), event.getChannel().getName(), event.getChat());
     }
 }

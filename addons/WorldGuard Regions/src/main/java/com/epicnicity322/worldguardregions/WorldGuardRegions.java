@@ -46,13 +46,15 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.HashMap;
 
-public final class WorldGuardRegions extends PMSAddon implements Listener {
+public final class WorldGuardRegions extends PMSAddon implements Listener
+{
     private static final @NotNull HashMap<World, com.sk89q.worldedit.world.World> cachedWorlds = new HashMap<>();
     private static RegionContainer container;
     private static RegionsHandler handler;
 
     @Override
-    protected void onStart() {
+    protected void onStart()
+    {
         Logger logger = PlayMoreSounds.getConsoleLogger();
 
         if (!Bukkit.getPluginManager().isPluginEnabled("WorldGuard")) {
@@ -62,9 +64,11 @@ public final class WorldGuardRegions extends PMSAddon implements Listener {
         }
 
         container = WorldGuard.getInstance().getPlatform().getRegionContainer();
-        handler = new RegionsHandler("WorldGuard", this, new RegionsHandler.InsideChecker() {
+        handler = new RegionsHandler("WorldGuard", this, new RegionsHandler.InsideChecker()
+        {
             @Override
-            protected boolean isPlayerInside(@NotNull Player player, @NotNull String regionId) {
+            protected boolean isPlayerInside(@NotNull Player player, @NotNull String regionId)
+            {
                 RegionManager manager = getManager(player.getWorld());
                 if (manager == null) return false;
                 ProtectedRegion region = manager.getRegion(regionId);
@@ -156,7 +160,8 @@ public final class WorldGuardRegions extends PMSAddon implements Listener {
         }
     }
 
-    private @Nullable RegionManager getManager(World world) {
+    private @Nullable RegionManager getManager(World world)
+    {
         com.sk89q.worldedit.world.World weWorld = cachedWorlds.get(world);
 
         if (weWorld == null) {
@@ -168,7 +173,8 @@ public final class WorldGuardRegions extends PMSAddon implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerMove(PlayerMoveEvent event) {
+    public void onPlayerMove(PlayerMoveEvent event)
+    {
         Location from = event.getFrom();
         Location to = event.getTo();
 
@@ -192,12 +198,14 @@ public final class WorldGuardRegions extends PMSAddon implements Listener {
         }
     }
 
-    private void delay(Runnable runnable) {
+    private void delay(Runnable runnable)
+    {
         Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), runnable, 1);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerTeleport(PlayerTeleportEvent event) {
+    public void onPlayerTeleport(PlayerTeleportEvent event)
+    {
         Location from = event.getFrom();
         Location to = event.getTo();
 
@@ -245,7 +253,8 @@ public final class WorldGuardRegions extends PMSAddon implements Listener {
     }
 
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
+    public void onPlayerJoin(PlayerJoinEvent event)
+    {
         Player player = event.getPlayer();
         Location loc = player.getLocation();
         RegionManager manager = getManager(loc.getWorld());
@@ -259,7 +268,8 @@ public final class WorldGuardRegions extends PMSAddon implements Listener {
     }
 
     @EventHandler
-    public void onPlayerLeave(PlayerQuitEvent event) {
+    public void onPlayerLeave(PlayerQuitEvent event)
+    {
         Player player = event.getPlayer();
         Location loc = player.getLocation();
         RegionManager manager = getManager(loc.getWorld());

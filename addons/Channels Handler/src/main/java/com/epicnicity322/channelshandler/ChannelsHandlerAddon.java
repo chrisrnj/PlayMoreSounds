@@ -25,7 +25,8 @@ import com.epicnicity322.playmoresounds.core.addons.AddonDescription;
 import com.epicnicity322.playmoresounds.core.addons.PMSAddon;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 
-public final class ChannelsHandlerAddon extends PMSAddon {
+public final class ChannelsHandlerAddon extends PMSAddon
+{
     public static final ConfigurationHolder CHANNELS_CONFIG = new ConfigurationHolder(Configurations.BIOMES.getConfigurationHolder().getPath().getParent().resolve("channels.yml"),
             "# Play sounds when players talk in specific channels.\n" +
                     "\n" +
@@ -130,7 +131,8 @@ public final class ChannelsHandlerAddon extends PMSAddon {
                     "Version: '" + PlayMoreSoundsVersion.version + "'");
 
     @Override
-    protected void onStart() {
+    protected void onStart()
+    {
         Configurations.getConfigurationLoader().registerConfiguration(CHANNELS_CONFIG, null, PlayMoreSoundsVersion.getVersion());
         int dependingAddons = 0;
 

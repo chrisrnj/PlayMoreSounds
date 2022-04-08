@@ -55,7 +55,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public final class CustomDiscs extends PMSAddon {
+public final class CustomDiscs extends PMSAddon
+{
     public static final @NotNull ConfigurationHolder CUSTOM_DISCS_CONFIG = new ConfigurationHolder(Configurations.BIOMES.getConfigurationHolder().getPath().getParent().resolve("custom discs.yml"), "# Set a sound to play when a player clicks at a jukebox with a specific item.\n" +
             "#\n" +
             "# Warnings: \n" +
@@ -117,9 +118,11 @@ public final class CustomDiscs extends PMSAddon {
     private static final @NotNull HashMap<ItemStack, PlayableRichSound> customDiscsSounds = new HashMap<>();
     private static final @NotNull NamespacedKey customDiscNBT = new NamespacedKey(PlayMoreSounds.getInstance(), "customdisc");
     private static boolean NBS_SONG_PLAYER = false;
-    private static final @NotNull Listener listener = new Listener() {
+    private static final @NotNull Listener listener = new Listener()
+    {
         @EventHandler(priority = EventPriority.NORMAL)
-        public void onPlayerInteract(PlayerInteractEvent event) {
+        public void onPlayerInteract(PlayerInteractEvent event)
+        {
             if ((event.getAction() != Action.LEFT_CLICK_BLOCK && event.getAction() != Action.RIGHT_CLICK_BLOCK) || event.useInteractedBlock() == Event.Result.DENY)
                 return;
 
@@ -187,7 +190,8 @@ public final class CustomDiscs extends PMSAddon {
         }
     };
 
-    public static void reload() {
+    public static void reload()
+    {
         if (!VersionUtils.hasPersistentData())
             throw new UnsupportedOperationException("Custom Discs is not compatible with versions lower than 1.14");
 
@@ -249,7 +253,8 @@ public final class CustomDiscs extends PMSAddon {
      * @param id The id of the custom disc.
      * @return The custom disc item or null if the disc was not found or is not loaded.
      */
-    public static @Nullable ItemStack getCustomDisc(@NotNull String id) {
+    public static @Nullable ItemStack getCustomDisc(@NotNull String id)
+    {
         ItemStack item = customDiscs.get(id);
 
         if (item == null)
@@ -259,7 +264,8 @@ public final class CustomDiscs extends PMSAddon {
     }
 
     @Override
-    protected void onStart() {
+    protected void onStart()
+    {
         if (!VersionUtils.hasPersistentData()) {
             PlayMoreSounds.getConsoleLogger().log("[Custom Discs] Custom Discs addon is not compatible with versions lower than 1.14.", ConsoleLogger.Level.ERROR);
             return;
