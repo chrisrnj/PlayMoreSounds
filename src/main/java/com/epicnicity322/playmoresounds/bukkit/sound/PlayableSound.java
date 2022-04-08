@@ -19,7 +19,7 @@
 package com.epicnicity322.playmoresounds.bukkit.sound;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.events.PlaySoundEvent;
+import com.epicnicity322.playmoresounds.bukkit.sound.events.HearSoundEvent;
 import com.epicnicity322.playmoresounds.core.sound.Sound;
 import com.epicnicity322.playmoresounds.core.sound.SoundCategory;
 import com.epicnicity322.playmoresounds.core.sound.SoundOptions;
@@ -67,51 +67,62 @@ public class PlayableSound extends Sound implements Delayable
     }
 
     @Override
-    public @Nullable BukkitTask playDelayable(@Nullable Player player, @NotNull Location sourceLocation)
+    public @NotNull PlayResult playDelayable(@Nullable Player player, @NotNull Location sourceLocation)
     {
-        var options = getOptions();
-        double radius = options.getRadius();
+        SoundOptions options = getOptions();
+        final Collection<Player> listeners;
 
         if (player != null) {
-            var permission = options.getPermissionRequired();
+            String permission = options.getPermissionRequired();
 
             if (permission != null && !player.hasPermission(permission)) {
                 return null;
             }
-            if (player.getGameMode() == GameMode.SPECTATOR || (player.hasPotionEffect(PotionEffectType.INVISIBILITY) && player.hasPermission("playmoresounds.bypass.invisibility"))) {
-                radius = 0;
+
+            // Sound should only be played to the source player if radius is 0, the game mode is spectator, or if they are valid to be in invisibility mode.
+            if (options.getRadius() == 0.0 || player.getGameMode() == GameMode.SPECTATOR || (player.hasPotionEffect(PotionEffectType.INVISIBILITY) && player.hasPermission("playmoresounds.bypass.invisibility"))) {
+                listeners = Collections.singleton(player);
+            } else {
+                listeners = SoundManager.getInRange(options.getRadius(), sourceLocation);
             }
+        } else {
+            listeners = SoundManager.getInRange(options.getRadius(), sourceLocation);
         }
 
-        Collection<Player> listeners;
-
-        if (player != null && radius == 0) listeners = Collections.singleton(player);
-        else listeners = SoundManager.getInRange(radius, sourceLocation);
+        final BukkitTask task;
 
         if (getDelay() == 0) {
             play(player, listeners, sourceLocation);
-            return null;
+            task = null;
         } else {
-            return Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> play(player, listeners, sourceLocation), getDelay());
+            task = Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> play(player, listeners, sourceLocation), getDelay());
         }
+
+        return new PlayResult(listeners, task);
     }
 
     private void play(@Nullable Player sourcePlayer, @NotNull Collection<Player> listeners, @NotNull Location soundLocation)
     {
-        var options = getOptions();
+        SoundOptions options = getOptions();
+        // Radius -1 and -2 should play sounds globally.
+        boolean global = options.getRadius() == -1.0 || options.getRadius() == -2.0;
+        // Event listeners for HearSoundEvent may not modify this collection.
+        listeners = Collections.unmodifiableCollection(listeners);
 
         for (Player listener : listeners) {
             // Validating if listener is allowed to hear this sound.
             if ((options.ignoresDisabled() || SoundManager.getSoundsState(listener))
                     && (options.getPermissionToListen() == null || listener.hasPermission(options.getPermissionToListen()))
                     && (sourcePlayer == null || listener.canSee(sourcePlayer))) {
-                Location finalLocation = soundLocation;
+                final Location finalLocation;
 
-                // Radius lower than 0 is global and must be set to the listener's location.
-                if (options.getRadius() < 0)
+                if (global) {
                     finalLocation = listener.getLocation();
+                } else {
+                    finalLocation = soundLocation;
+                }
 
-                var event = new PlaySoundEvent(this, listener, finalLocation, listeners, sourcePlayer, soundLocation);
+                var event = new HearSoundEvent(this, listener, finalLocation, listeners, sourcePlayer);
 
                 Bukkit.getPluginManager().callEvent(event);
 
