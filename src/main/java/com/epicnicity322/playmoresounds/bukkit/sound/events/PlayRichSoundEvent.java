@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Called when a config sound is played. Rich sounds can only be played through configuration sections.
  *
- * @see PlaySoundEvent
+ * @see HearSoundEvent
  */
 public class PlayRichSoundEvent extends Event implements Cancellable
 {

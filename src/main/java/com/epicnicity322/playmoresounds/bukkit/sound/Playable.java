@@ -29,7 +29,7 @@ public interface Playable
     /**
      * Plays a sound in a specific location. If your {@link SoundOptions#getRadius()} is 0, then the sound is not played.
      *
-     * @param sourceLocation The location where the sound will play. May change depending on {@link SoundOptions#getRelativeLocation()}.
+     * @param sourceLocation The location where the sound will play.
      */
     default void play(@NotNull Location sourceLocation)
     {
@@ -52,7 +52,7 @@ public interface Playable
      * sound may play to other players.
      *
      * @param player         The player to play the sound.
-     * @param sourceLocation The location where the sound will play. May change depending on {@link SoundOptions#getRelativeLocation()}.
+     * @param sourceLocation The location where the sound will play.
      */
     void play(@Nullable Player player, @NotNull Location sourceLocation);
 }
