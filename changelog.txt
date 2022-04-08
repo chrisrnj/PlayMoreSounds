@@ -1,13 +1,17 @@
 Changes with * at the start are the ones that are currently under development, the rest is already added.
 
+Sound playing changes:
+- Add radius -3: Plays sound to all players in the world, but not globally.
+- Sounds will avoid checking for players spectator game mode and invisibility effect if the radius is already set to 0, improving performance.
+
 Sound Editing GUI:
 - You can now edit sounds using a GUI!
 - Use the command /pms edit to navigate through sounds.yml sounds and edit them.
 - Inputs will be given through a fancy Anvil inventory.
-- In a region you can use the command /pms rg set sound to set a sound to play in this region, for loop, enter or leave.
+*- In a region you can use the command /pms rg set sound to set a sound to play in this region, for loop, enter or leave.
 
 Fixes:
-*- Fix log sounds dev option giving an error when the entity making a sound is null.
+- Fix log sounds dev option giving an error when the entity making a sound is null.
 - Fix addons inventory not being able to be open after an error.
 - Fix addons inventory giving key not found when informing the user that the latest addons are unsupported, and the addons made for the current PlayMoreSounds version will be downloaded.
 
