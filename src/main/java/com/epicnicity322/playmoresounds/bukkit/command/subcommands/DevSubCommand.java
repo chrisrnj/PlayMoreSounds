@@ -26,8 +26,8 @@ import com.epicnicity322.playmoresounds.bukkit.gui.inventories.RichSoundInventor
 import com.epicnicity322.playmoresounds.bukkit.listeners.OnPlayerInteract;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
+import com.epicnicity322.playmoresounds.bukkit.sound.events.HearSoundEvent;
 import com.epicnicity322.playmoresounds.bukkit.sound.events.PlayRichSoundEvent;
-import com.epicnicity322.playmoresounds.bukkit.sound.events.PlaySoundEvent;
 import com.epicnicity322.playmoresounds.bukkit.util.ListenerRegister;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
@@ -60,24 +60,40 @@ public final class DevSubCommand extends Command
         {
             var logger = PlayMoreSounds.getConsoleLogger();
             var sound = event.getRichSound();
+            var player = event.getPlayer();
+            String name = "null";
+            String uuid = "null";
+
+            if (player != null) {
+                name = player.getName();
+                uuid = player.getUniqueId().toString();
+            }
 
             if (event.isCancelled()) {
-                logger.log("RICH SOUND EVENT CANCELLED -> " + sound + " | TO PLAYER/UUID -> " + event.getPlayer().getName() + "/" + event.getPlayer().getUniqueId());
+                logger.log("RICH SOUND EVENT CANCELLED -> " + sound + " | TO PLAYER/UUID -> " + name + "/" + uuid);
             } else {
-                logger.log("PLAYING RICH SOUND -> " + sound + " | TO PLAYER/UUID -> " + event.getPlayer().getName() + "/" + event.getPlayer().getUniqueId());
+                logger.log("PLAYING RICH SOUND -> " + sound + " | TO PLAYER/UUID -> " + name + "/" + uuid);
             }
         }
 
         @EventHandler(priority = EventPriority.MONITOR)
-        public void onPlaySound(PlaySoundEvent event)
+        public void onPlaySound(HearSoundEvent event)
         {
             var logger = PlayMoreSounds.getConsoleLogger();
             var sound = event.getSound();
+            var player = event.getPlayer();
+            String name = "null";
+            String uuid = "null";
+
+            if (player != null) {
+                name = player.getName();
+                uuid = player.getUniqueId().toString();
+            }
 
             if (event.isCancelled()) {
-                logger.log("HEAR SOUND EVENT CANCELLED -> " + sound + " | TO PLAYER/UUID -> " + event.getPlayer().getName() + "/" + event.getPlayer().getUniqueId());
+                logger.log("HEAR SOUND EVENT CANCELLED -> " + sound + " | TO PLAYER/UUID -> " + name + "/" + uuid);
             } else {
-                logger.log("PLAYING SOUND -> " + sound + " | TO PLAYER/UUID -> " + event.getPlayer().getName() + "/" + event.getPlayer().getUniqueId());
+                logger.log("PLAYING SOUND -> " + sound + " | TO PLAYER/UUID -> " + name + "/" + uuid);
             }
         }
     };
