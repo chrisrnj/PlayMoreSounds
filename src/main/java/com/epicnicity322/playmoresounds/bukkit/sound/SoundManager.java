@@ -132,10 +132,10 @@ public final class SoundManager
     /**
      * Gets a collection of players inside a radius range.
      * <ul>
-     * <li>Radius == -2 - All players in the world.</li>
-     * <li>Radius == -1 - All players in the server.</li>
-     * <li>Radius > 0   - All players that have their location's distance in blocks lower than the {@param radius}.</li>
-     * <li>Otherwise    - Empty.</li>
+     * <li>Radius = 0  - Empty</li>
+     * <li>Radius > 0  - All players in the world that are within a range of blocks the size of the {@param radius}.</li>
+     * <li>Radius = -1 - All players in the server.</li>
+     * <li>Radius < -1 - All players in the world.</li>
      * </ul>
      *
      * @param radius   The range of blocks to get the players.
@@ -144,7 +144,7 @@ public final class SoundManager
      */
     public static @NotNull Collection<Player> getInRange(double radius, @NotNull Location location)
     {
-        if (radius > 0) {
+        if (radius > 0.0) {
             radius = square(radius);
             var inRadius = new HashSet<Player>();
 
@@ -155,17 +155,16 @@ public final class SoundManager
             }
 
             return inRadius;
-        } else if (radius == -1) {
+        } else if (radius == -1.0) {
             // Creating new HashSet because Bukkit#getOnlinePlayers is not immutable.
             return new HashSet<>(Bukkit.getOnlinePlayers());
-        } else if (radius == -2) {
+        } else if (radius < -1.0) {
             return location.getWorld().getPlayers();
         } else {
             return new HashSet<>();
         }
     }
 
-    //Avoiding checks for different worlds.
     private static double distance(Location loc1, Location loc2)
     {
         return square(loc1.getX() - loc2.getX()) + square(loc1.getY() - loc2.getY()) + square(loc1.getZ() - loc2.getZ());
