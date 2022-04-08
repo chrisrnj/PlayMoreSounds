@@ -25,6 +25,8 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
+
 public interface Delayable extends Playable
 {
     @Override
@@ -33,12 +35,12 @@ public interface Delayable extends Playable
         playDelayable(player, sourceLocation);
     }
 
-    default @Nullable BukkitTask playDelayable(@NotNull Location sourceLocation)
+    default @Nullable PlayResult playDelayable(@NotNull Location sourceLocation)
     {
         return playDelayable(null, sourceLocation);
     }
 
-    default @Nullable BukkitTask playDelayable(@NotNull Player player)
+    default @Nullable PlayResult playDelayable(@NotNull Player player)
     {
         return playDelayable(player, player.getLocation());
     }
@@ -51,5 +53,9 @@ public interface Delayable extends Playable
      * @param sourceLocation The location where the sound will play.
      * @return A {@link BukkitTask} if the sound was tasked to be played with a delay greater than 0.
      */
-    @Nullable BukkitTask playDelayable(@Nullable Player player, @NotNull Location sourceLocation);
+    @Nullable PlayResult playDelayable(@Nullable Player player, @NotNull Location sourceLocation);
+
+    record PlayResult(@NotNull Collection<Player> listeners, @Nullable BukkitTask delayedTask)
+    {
+    }
 }
