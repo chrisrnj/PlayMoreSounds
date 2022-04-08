@@ -84,10 +84,15 @@ public class Sound
         this.section = null;
         this.id = id == null || id.isBlank() ? PMSHelper.getRandomString(6) : id;
         this.category = Objects.requireNonNullElse(category, SoundCategory.MASTER);
-        this.delay = delay;
         this.options = Objects.requireNonNullElseGet(options, () -> new SoundOptions(false, null, null, 0.0));
         this.pitch = pitch;
         this.volume = volume;
+
+        if (delay < 0) {
+            this.delay = 0;
+        } else {
+            this.delay = delay;
+        }
     }
 
     /**
@@ -118,11 +123,17 @@ public class Sound
 
         this.section = section;
         this.id = section.getName();
-
         this.category = categories.getOrDefault(section.getString("Category").orElse("MASTER").toUpperCase(Locale.ROOT), SoundCategory.MASTER);
-        this.delay = section.getNumber("Delay").orElse(0).longValue();
         this.pitch = section.getNumber("Pitch").orElse(1).floatValue();
         this.volume = section.getNumber("Volume").orElse(10).floatValue();
+
+        long delay = section.getNumber("Delay").orElse(0).longValue();
+
+        if (delay < 0) {
+            this.delay = 0;
+        } else {
+            this.delay = delay;
+        }
 
         var options = section.getConfigurationSection("Options");
 
@@ -302,7 +313,11 @@ public class Sound
      */
     public void setDelay(long delay)
     {
-        this.delay = delay;
+        if (delay < 0) {
+            this.delay = 0;
+        } else {
+            this.delay = delay;
+        }
     }
 
     /**
