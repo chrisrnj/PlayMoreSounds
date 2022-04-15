@@ -26,8 +26,8 @@ import com.epicnicity322.playmoresounds.bukkit.gui.inventories.RichSoundInventor
 import com.epicnicity322.playmoresounds.bukkit.listeners.OnPlayerInteract;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
-import com.epicnicity322.playmoresounds.bukkit.sound.events.HearSoundEvent;
-import com.epicnicity322.playmoresounds.bukkit.sound.events.PlayRichSoundEvent;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayRichSoundEvent;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlaySoundEvent;
 import com.epicnicity322.playmoresounds.bukkit.util.ListenerRegister;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
@@ -60,7 +60,7 @@ public final class DevSubCommand extends Command
         {
             var logger = PlayMoreSounds.getConsoleLogger();
             var sound = event.getRichSound();
-            var player = event.getPlayer();
+            var player = event.getSourcePlayer();
             String name = "null";
             String uuid = "null";
 
@@ -77,11 +77,11 @@ public final class DevSubCommand extends Command
         }
 
         @EventHandler(priority = EventPriority.MONITOR)
-        public void onPlaySound(HearSoundEvent event)
+        public void onPlaySound(PlaySoundEvent event)
         {
             var logger = PlayMoreSounds.getConsoleLogger();
             var sound = event.getSound();
-            var player = event.getPlayer();
+            var player = event.getSourcePlayer();
             String name = "null";
             String uuid = "null";
 
@@ -91,9 +91,9 @@ public final class DevSubCommand extends Command
             }
 
             if (event.isCancelled()) {
-                logger.log("HEAR SOUND EVENT CANCELLED -> " + sound + " | TO PLAYER/UUID -> " + name + "/" + uuid);
+                logger.log("SOUND EVENT CANCELLED -> " + sound + " | FROM PLAYER/UUID -> " + name + "/" + uuid + " | AT LOCATION -> " + event.getLocation() + " | TO LISTENER(S) -> " + event.getValidListeners());
             } else {
-                logger.log("PLAYING SOUND -> " + sound + " | TO PLAYER/UUID -> " + name + "/" + uuid);
+                logger.log("PLAYING SOUND -> " + sound + " | FROM PLAYER/UUID -> " + name + "/" + uuid + " | AT LOCATION -> " + event.getLocation() + " | TO LISTENER(S) -> " + event.getValidListeners());
             }
         }
     };
@@ -121,8 +121,10 @@ public final class DevSubCommand extends Command
         String command = join(args);
 
         switch (command) {
-            case "test edit" -> new RichSoundInventory(ListenerRegister.getListeners().stream().filter(l -> l.getName().equals("Change Held Item")).findFirst().orElseThrow().getRichSound(), Configurations.SOUNDS.getConfigurationHolder()).openInventory((Player) sender);
-            case "open anvil" -> new InputGetterInventory((Player) sender, "Testing", sender::sendMessage).openInventory();
+            case "test edit" ->
+                    new RichSoundInventory(ListenerRegister.getListeners().stream().filter(l -> l.getName().equals("Change Held Item")).findFirst().orElseThrow().getRichSound(), Configurations.SOUNDS.getConfigurationHolder()).openInventory((Player) sender);
+            case "open anvil" ->
+                    new InputGetterInventory((Player) sender, "Testing", sender::sendMessage).openInventory();
             case "register addons" -> {
                 try {
                     PlayMoreSounds.getAddonManager().registerAddons();
@@ -130,7 +132,8 @@ public final class DevSubCommand extends Command
                     e.printStackTrace();
                 }
             }
-            case "experimental addon commands" -> AddonsSubCommand.experimentalCommands.set(!AddonsSubCommand.experimentalCommands.get());
+            case "experimental addon commands" ->
+                    AddonsSubCommand.experimentalCommands.set(!AddonsSubCommand.experimentalCommands.get());
             case "stop all addons" -> PlayMoreSounds.getAddonManager().stopAddons();
             case "log sounds" -> {
                 if (soundLoggerRegistered.get()) {
