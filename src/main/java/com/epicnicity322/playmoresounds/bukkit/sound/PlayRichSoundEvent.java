@@ -26,6 +26,8 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 /**
  * Called when a rich sound is played. Rich sounds can have multiple inner sounds.
  *
@@ -95,9 +97,13 @@ public class PlayRichSoundEvent extends Event implements Cancellable
      * is global.
      *
      * @param location The location the sound should play, if this is not a global sound.
+     * @throws IllegalArgumentException If the new location is in a different world than the previous.
      */
     public void setLocation(@NotNull Location location)
     {
+        if (!Objects.equals(this.location.getWorld(), location.getWorld()))
+            throw new IllegalArgumentException("New location world is not the same as previous location's world.");
+
         this.location = location;
     }
 

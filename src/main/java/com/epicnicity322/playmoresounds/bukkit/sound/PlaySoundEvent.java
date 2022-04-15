@@ -128,7 +128,7 @@ public class PlaySoundEvent extends Event implements Cancellable
     public void setLocation(@NotNull Location location)
     {
         if (!Objects.equals(this.location.getWorld(), location.getWorld()))
-            throw new IllegalArgumentException("New location world is not the same as previous location world.");
+            throw new IllegalArgumentException("New location world is not the same as previous location's world.");
 
         this.location = location;
     }
