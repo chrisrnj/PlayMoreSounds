@@ -3,6 +3,8 @@ Changes with * at the start are the ones that are currently under development, t
 Sound playing changes:
 - Add radius -3: Plays sound to all players in the world, but not globally.
 - Sounds will avoid checking for players spectator game mode and invisibility effect if the radius is already set to 0, improving performance.
+- PlaySoundEvent was reworked so it isn't called for every listener, this considerably improves sound playing performance.
+- PlaySoundEvent and PlayRichSoundEvent classes were moved to the same package as Playable sounds, this allows the sounds to get the event's location without calling Location#clone, saving performance.
 
 Sound Editing GUI:
 - You can now edit sounds using a GUI!
