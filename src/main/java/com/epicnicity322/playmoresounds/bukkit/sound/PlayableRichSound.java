@@ -19,7 +19,6 @@
 package com.epicnicity322.playmoresounds.bukkit.sound;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.events.PlayRichSoundEvent;
 import com.epicnicity322.playmoresounds.core.sound.RichSound;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import org.bukkit.Bukkit;
@@ -61,13 +60,14 @@ public class PlayableRichSound extends RichSound<PlayableSound> implements Playa
             if (event.isCancelled()) return;
 
             for (PlayableSound s : getChildSounds())
-                s.play(player, event.getLocation());
+                s.play(player, event.location);
         }
     }
 
     /**
      * Plays the sound repeatedly after the time set on period.
-     * The {@link BukkitRunnable} will not run if this sound is disabled or has no child sounds.
+     * The {@link BukkitRunnable} will be cancelled if the sound is disabled, has no child sounds or if the player is no
+     * longer online, in case there is one.
      * {@link PlayRichSoundEvent} will be called for every time the sound is played by this loop.
      *
      * @param player         The player to play the sound.
@@ -83,7 +83,8 @@ public class PlayableRichSound extends RichSound<PlayableSound> implements Playa
         var main = PlayMoreSounds.getInstance();
         if (main == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
-        Supplier<Boolean> finalBreaker = () -> !isEnabled() || getChildSounds().isEmpty() || (breaker != null && breaker.get());
+        Supplier<Boolean> finalBreaker = () -> !isEnabled() || getChildSounds().isEmpty()
+                || (player != null && player.isOnline()) || (breaker != null && breaker.get());
 
         BukkitRunnable runnable = new BukkitRunnable()
         {
