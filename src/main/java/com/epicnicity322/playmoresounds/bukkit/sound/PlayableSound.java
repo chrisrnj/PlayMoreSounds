@@ -19,7 +19,6 @@
 package com.epicnicity322.playmoresounds.bukkit.sound;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.sound.events.HearSoundEvent;
 import com.epicnicity322.playmoresounds.core.sound.Sound;
 import com.epicnicity322.playmoresounds.core.sound.SoundCategory;
 import com.epicnicity322.playmoresounds.core.sound.SoundOptions;
@@ -29,7 +28,6 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,7 +74,7 @@ public class PlayableSound extends Sound implements Delayable
             String permission = options.getPermissionRequired();
 
             if (permission != null && !player.hasPermission(permission)) {
-                return null;
+                return new PlayResult(Collections.emptySet(), null);
             }
 
             // Sound should only be played to the source player if radius is 0, the game mode is spectator, or if they are valid to be in invisibility mode.
@@ -89,45 +87,31 @@ public class PlayableSound extends Sound implements Delayable
             listeners = SoundManager.getInRange(options.getRadius(), sourceLocation);
         }
 
-        final BukkitTask task;
-
         if (getDelay() == 0) {
             play(player, listeners, sourceLocation);
-            task = null;
+            return new PlayResult(listeners, null);
         } else {
-            task = Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> play(player, listeners, sourceLocation), getDelay());
+            return new PlayResult(listeners, Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> play(player, listeners, sourceLocation), getDelay()));
         }
-
-        return new PlayResult(listeners, task);
     }
 
     private void play(@Nullable Player sourcePlayer, @NotNull Collection<Player> listeners, @NotNull Location soundLocation)
     {
-        SoundOptions options = getOptions();
-        // Radius -1 and -2 should play sounds globally.
-        boolean global = options.getRadius() == -1.0 || options.getRadius() == -2.0;
-        // Event listeners for HearSoundEvent may not modify this collection.
-        listeners = Collections.unmodifiableCollection(listeners);
+        // Calling PlaySoundEvent.
+        var event = new PlaySoundEvent(this, sourcePlayer, soundLocation, listeners, getOptions().getRadius() == -1.0 || getOptions().getRadius() == -2.0);
 
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled()) return;
+
+        // Playing the sound to the valid listeners.
         for (Player listener : listeners) {
-            // Validating if listener is allowed to hear this sound.
-            if ((options.ignoresDisabled() || SoundManager.getSoundsState(listener))
-                    && (options.getPermissionToListen() == null || listener.hasPermission(options.getPermissionToListen()))
-                    && (sourcePlayer == null || listener.canSee(sourcePlayer))) {
-                final Location finalLocation;
+            if (!event.validateListener(listener)) continue;
 
-                if (global) {
-                    finalLocation = listener.getLocation();
-                } else {
-                    finalLocation = soundLocation;
-                }
-
-                var event = new HearSoundEvent(this, listener, finalLocation, listeners, sourcePlayer);
-
-                Bukkit.getPluginManager().callEvent(event);
-
-                if (!event.isCancelled())
-                    listener.playSound(event.getLocation(), getSound(), getCategory().asBukkit(), getVolume(), getPitch());
+            if (event.playingGlobally()) {
+                listener.playSound(listener.getLocation(), getSound(), getCategory().asBukkit(), getVolume(), getPitch());
+            } else {
+                listener.playSound(event.location, getSound(), getCategory().asBukkit(), getVolume(), getPitch());
             }
         }
     }
