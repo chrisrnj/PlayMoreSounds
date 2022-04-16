@@ -36,12 +36,12 @@ public interface Delayable extends Playable
         playDelayable(player, sourceLocation);
     }
 
-    default @Nullable PlayResult<?> playDelayable(@NotNull Location sourceLocation)
+    default @NotNull PlayResult<?> playDelayable(@NotNull Location sourceLocation)
     {
         return playDelayable(null, sourceLocation);
     }
 
-    default @Nullable PlayResult<?> playDelayable(@NotNull Player player)
+    default @NotNull PlayResult<?> playDelayable(@NotNull Player player)
     {
         return playDelayable(player, player.getLocation());
     }
@@ -54,7 +54,7 @@ public interface Delayable extends Playable
      * @param sourceLocation The location where the sound will play.
      * @return A {@link BukkitTask} if the sound was tasked to be played with a delay greater than 0.
      */
-    @Nullable PlayResult<?> playDelayable(@Nullable Player player, @NotNull Location sourceLocation);
+    @NotNull PlayResult<?> playDelayable(@Nullable Player player, @NotNull Location sourceLocation);
 
     interface PlayResult<T>
     {
