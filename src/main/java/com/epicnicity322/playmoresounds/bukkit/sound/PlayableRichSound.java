@@ -25,13 +25,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.function.Supplier;
 
-public class PlayableRichSound extends RichSound<PlayableSound> implements Playable
+public class PlayableRichSound extends RichSound<PlayableSound> implements Delayable
 {
     public PlayableRichSound(@NotNull String name, boolean enabled, boolean cancellable, @Nullable Collection<PlayableSound> childSounds)
     {
@@ -62,6 +66,31 @@ public class PlayableRichSound extends RichSound<PlayableSound> implements Playa
             for (PlayableSound s : getChildSounds())
                 s.play(player, event.location);
         }
+    }
+
+    @Override
+    public @NotNull RichPlayResult playDelayable(@Nullable Player player, @NotNull Location sourceLocation)
+    {
+        if (isEnabled() && !getChildSounds().isEmpty()) {
+            var event = new PlayRichSoundEvent(player, sourceLocation, this);
+
+            Bukkit.getPluginManager().callEvent(event);
+
+            if (event.isCancelled()) return new RichPlayResult(Collections.emptyList(), Collections.emptyList());
+
+            var listeners = new HashSet<Player>();
+            var tasks = new ArrayList<BukkitTask>();
+
+            for (PlayableSound s : getChildSounds()) {
+                ChildPlayResult result = s.playDelayable(player, event.location);
+                listeners.addAll(result.listeners());
+                if (result.delayedTask() != null) tasks.add(result.delayedTask());
+            }
+
+            return new RichPlayResult(listeners, tasks);
+        }
+
+        return new RichPlayResult(Collections.emptyList(), Collections.emptyList());
     }
 
     /**

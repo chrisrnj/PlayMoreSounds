@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface Delayable extends Playable
 {
@@ -35,12 +36,12 @@ public interface Delayable extends Playable
         playDelayable(player, sourceLocation);
     }
 
-    default @Nullable PlayResult playDelayable(@NotNull Location sourceLocation)
+    default @Nullable PlayResult<?> playDelayable(@NotNull Location sourceLocation)
     {
         return playDelayable(null, sourceLocation);
     }
 
-    default @Nullable PlayResult playDelayable(@NotNull Player player)
+    default @Nullable PlayResult<?> playDelayable(@NotNull Player player)
     {
         return playDelayable(player, player.getLocation());
     }
@@ -53,9 +54,28 @@ public interface Delayable extends Playable
      * @param sourceLocation The location where the sound will play.
      * @return A {@link BukkitTask} if the sound was tasked to be played with a delay greater than 0.
      */
-    @Nullable PlayResult playDelayable(@Nullable Player player, @NotNull Location sourceLocation);
+    @Nullable PlayResult<?> playDelayable(@Nullable Player player, @NotNull Location sourceLocation);
 
-    record PlayResult(@NotNull Collection<Player> listeners, @Nullable BukkitTask delayedTask)
+    interface PlayResult<T>
     {
+        @NotNull T get();
+    }
+
+    record ChildPlayResult(@NotNull Collection<Player> listeners,
+                           @Nullable BukkitTask delayedTask) implements PlayResult<ChildPlayResult>
+    {
+        public @NotNull ChildPlayResult get()
+        {
+            return this;
+        }
+    }
+
+    record RichPlayResult(@NotNull Collection<Player> listeners,
+                          @Nullable List<BukkitTask> delayedTasks) implements PlayResult<RichPlayResult>
+    {
+        public @NotNull RichPlayResult get()
+        {
+            return this;
+        }
     }
 }

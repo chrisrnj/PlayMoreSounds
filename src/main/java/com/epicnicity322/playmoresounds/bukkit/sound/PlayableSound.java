@@ -65,7 +65,7 @@ public class PlayableSound extends Sound implements Delayable
     }
 
     @Override
-    public @NotNull PlayResult playDelayable(@Nullable Player player, @NotNull Location sourceLocation)
+    public @NotNull ChildPlayResult playDelayable(@Nullable Player player, @NotNull Location sourceLocation)
     {
         SoundOptions options = getOptions();
         final Collection<Player> listeners;
@@ -74,7 +74,7 @@ public class PlayableSound extends Sound implements Delayable
             String permission = options.getPermissionRequired();
 
             if (permission != null && !player.hasPermission(permission)) {
-                return new PlayResult(Collections.emptySet(), null);
+                return new ChildPlayResult(Collections.emptySet(), null);
             }
 
             // Sound should only be played to the source player if radius is 0, the game mode is spectator, or if they are valid to be in invisibility mode.
@@ -89,9 +89,9 @@ public class PlayableSound extends Sound implements Delayable
 
         if (getDelay() == 0) {
             play(player, listeners, sourceLocation);
-            return new PlayResult(listeners, null);
+            return new ChildPlayResult(listeners, null);
         } else {
-            return new PlayResult(listeners, Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> play(player, listeners, sourceLocation), getDelay()));
+            return new ChildPlayResult(listeners, Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> play(player, listeners, sourceLocation), getDelay()));
         }
     }
 
