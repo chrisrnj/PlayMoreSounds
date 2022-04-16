@@ -29,10 +29,13 @@ import org.spongepowered.api.scheduler.ScheduledTask;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.world.server.ServerLocation;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.function.Supplier;
 
-public class PlayableRichSound extends RichSound<PlayableSound> implements Playable
+public class PlayableRichSound extends RichSound<PlayableSound> implements Delayable
 {
     public PlayableRichSound(@NotNull String name, boolean enabled, boolean cancellable, @Nullable Collection<PlayableSound> childSounds)
     {
@@ -58,6 +61,25 @@ public class PlayableRichSound extends RichSound<PlayableSound> implements Playa
         }
     }
 
+    @Override
+    public @NotNull RichPlayResult playDelayable(@Nullable ServerPlayer player, @NotNull ServerLocation sourceLocation)
+    {
+        if (isEnabled() && !getChildSounds().isEmpty()) {
+            var listeners = new HashSet<ServerPlayer>();
+            var tasks = new ArrayList<ScheduledTask>();
+
+            for (PlayableSound s : getChildSounds()) {
+                ChildPlayResult result = s.playDelayable(player, sourceLocation);
+                listeners.addAll(result.listeners());
+                if (result.delayedTask() != null) tasks.add(result.delayedTask());
+            }
+
+            return new RichPlayResult(listeners, tasks);
+        }
+
+        return new RichPlayResult(Collections.emptyList(), Collections.emptyList());
+    }
+
     /**
      * Plays the sound repeatedly after the time set on period.
      * The {@link ScheduledTask} will be cancelled if this sound is disabled or has no child sounds.
@@ -74,10 +96,13 @@ public class PlayableRichSound extends RichSound<PlayableSound> implements Playa
     {
         if (!Sponge.isServerAvailable()) throw new IllegalStateException("Server is not available.");
 
+        Supplier<Boolean> finalBreaker = () -> !isEnabled() || getChildSounds().isEmpty()
+                || (player != null && player.isOnline()) || (breaker != null && breaker.get());
+
         return Sponge.server().scheduler().submit(
                 Task.builder()
                         .execute(task -> {
-                            if (!isEnabled() || getChildSounds().isEmpty() || (breaker != null && breaker.get())) {
+                            if (finalBreaker.get()) {
                                 task.cancel();
                                 return;
                             }

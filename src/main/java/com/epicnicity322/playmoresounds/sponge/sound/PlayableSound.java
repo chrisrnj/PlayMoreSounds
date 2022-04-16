@@ -38,7 +38,7 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 
-public class PlayableSound extends Sound implements Playable
+public class PlayableSound extends Sound implements Delayable
 {
     private @NotNull net.kyori.adventure.sound.Sound kyoriSound;
     private @NotNull Duration delay;
@@ -98,63 +98,73 @@ public class PlayableSound extends Sound implements Playable
     }
 
     @Override
-    public void play(@Nullable ServerPlayer player, @NotNull ServerLocation location)
+    public @NotNull ChildPlayResult playDelayable(@Nullable ServerPlayer player, @NotNull ServerLocation location)
     {
-        var options = getOptions();
-        double radius = options.getRadius();
+        SoundOptions options = getOptions();
+        final Collection<ServerPlayer> listeners;
 
         if (player != null) {
-            var permission = options.getPermissionRequired();
+            String permission = options.getPermissionRequired();
 
             if (permission != null && !player.hasPermission(permission)) {
-                return;
+                return new ChildPlayResult(Collections.emptySet(), null);
             }
 
-            if (player.gameMode().get().equals(GameModes.SPECTATOR.get())) {
-                radius = 0;
-            } else if (player.hasPermission("playmoresounds.bypass.invisibility")) {
-                for (PotionEffect potionEffect : player.potionEffects()) {
-                    if (potionEffect.type().equals(PotionEffectTypes.INVISIBILITY.get())) {
-                        radius = 0;
-                        break;
-                    }
-                }
+            // Sound should only be played to the source player if radius is 0, the game mode is spectator, or if they are valid to be in invisibility mode.
+            if (options.getRadius() == 0.0 || player.gameMode().get().equals(GameModes.SPECTATOR.get()) || ignoreInvisible(player)) {
+                listeners = Collections.singleton(player);
+            } else {
+                listeners = SoundManager.getInRange(options.getRadius(), location);
             }
+        } else {
+            listeners = SoundManager.getInRange(options.getRadius(), location);
         }
-
-        Collection<ServerPlayer> listeners;
-
-        if (player != null && radius == 0) listeners = Collections.singleton(player);
-        else listeners = SoundManager.getInRange(radius, location);
 
         if (getDelay() == 0) {
             play(player, listeners, location);
+            return new ChildPlayResult(listeners, null);
         } else {
-            Sponge.server().scheduler().submit(
-                    Task.builder()
-                            .delay(delay)
-                            .execute(() -> play(player, listeners, location))
-                            .build());
+            return new ChildPlayResult(listeners,
+                    Sponge.server().scheduler().submit(
+                            Task.builder()
+                                    .delay(delay)
+                                    .execute(() -> play(player, listeners, location))
+                                    .build()));
         }
     }
 
     private void play(@Nullable ServerPlayer sourcePlayer, @NotNull Collection<ServerPlayer> listeners, @NotNull ServerLocation soundLocation)
     {
-        var options = getOptions();
+        SoundOptions options = getOptions();
+        boolean global = options.getRadius() == -1.0 || options.getRadius() == -2.0;
 
         for (ServerPlayer listener : listeners) {
             // Validating if listener is allowed to hear this sound.
             if ((options.ignoresDisabled() || SoundManager.getSoundsState(listener))
                     && (options.getPermissionToListen() == null || listener.hasPermission(options.getPermissionToListen()))
                     && (sourcePlayer == null || listener.canSee(sourcePlayer))) {
-                ServerLocation finalLocation = soundLocation;
+                final ServerLocation finalLocation;
 
-                // Radius lower than 0 is global and must be set to the listener's location.
-                if (options.getRadius() < 0)
+                if (global) {
                     finalLocation = listener.serverLocation();
+                } else {
+                    finalLocation = soundLocation;
+                }
 
                 listener.playSound(kyoriSound, finalLocation.x(), finalLocation.y(), finalLocation.z());
             }
         }
+    }
+
+    private boolean ignoreInvisible(@NotNull ServerPlayer player)
+    {
+        if (!player.hasPermission("playmoresounds.bypass.invisibility")) return false;
+
+        for (PotionEffect potionEffect : player.potionEffects()) {
+            if (potionEffect.type().equals(PotionEffectTypes.INVISIBILITY.get())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
