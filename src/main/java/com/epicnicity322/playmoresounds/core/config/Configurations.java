@@ -1176,6 +1176,37 @@ public enum Configurations
             "      Position:\n" +
             "        First: '&6First position selected! World: &e<w>&6, X: &e<x>&6, Y: &e<y>&6, Z: &e<z>&6.'\n" +
             "        Second: '&6Second position selected! World: &e<w>&6, X: &e<x>&6, Y: &e<y>&6, Z: &e<z>&6.'\n" +
+            "    Sounds:\n" +
+            "      Editing:\n" +
+            "        Default: '&7Editing sounds of region: &f<region>&7.'\n" +
+            "        Multiple: '&7Editing sounds of first region found at your location: &f<region>&7.'\n" +
+            "      Error:\n" +
+            "        No Regions: '&cNo regions found on this location. Use &7/<label> <label2> set <label4> <region>&c to edit sounds of a specific region.'\n" +
+            "        No Owning Regions: '&cYou don''t own any regions at this location.'\n" +
+            "      Inventory:\n" +
+            "        Items:\n" +
+            "          Enter Sound:\n" +
+            "            Display Name: '&a&lEnter Sound'\n" +
+            "            Lore: >-\n" +
+            "              &7 The sound that plays when someone\n" +
+            "              <line>&7enters &f<region>&7 region.\n" +
+            "          Loop Sound:\n" +
+            "            Display Name: '&8&lLoop Sound'\n" +
+            "            Lore: >-\n" +
+            "              &7 The sound that plays repeatedly\n" +
+            "              <line>&7when someone is in &f<region>&7\n" +
+            "              <line>&7region.\n" +
+            "          Leave Sound:\n" +
+            "            Display Name: '&c&lLeave Sound'\n" +
+            "            Lore: >-\n" +
+            "              &7 The sound that plays when someone\n" +
+            "              <line>&7leaves &f<region>&7 region.\n" +
+            "          Edit:\n" +
+            "            Display Name: '&9&lEdit'\n" +
+            "            Lore: '&7Edit <sound>&7.'\n" +
+            "          Remove:\n" +
+            "            Display Name: '&9&lEdit'\n" +
+            "            Lore: '&7Edit <sound>&7.'\n" +
             "  Teleport:\n" +
             "    Success: '&aYou were teleported to region <region>.'\n" +
             "  Wand:\n" +

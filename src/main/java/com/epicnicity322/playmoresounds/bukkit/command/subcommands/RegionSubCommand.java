@@ -23,6 +23,7 @@ import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
 import com.epicnicity322.epicpluginlib.core.util.StringUtils;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.command.CommandUtils;
+import com.epicnicity322.playmoresounds.bukkit.gui.inventories.RegionSoundInventory;
 import com.epicnicity322.playmoresounds.bukkit.listeners.OnPlayerInteract;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
 import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
@@ -303,7 +304,7 @@ public final class RegionSubCommand extends Command implements Helpable
         } else {
             if (sender instanceof Player player) {
                 var location = player.getLocation();
-                regions = RegionManager.getRegions().stream().filter(region -> region.isInside(location)).collect(Collectors.toSet());
+                regions = RegionManager.getRegions(location);
 
                 if (regions.isEmpty()) {
                     lang.send(sender, lang.get("Region.Info.Error.No Regions"));
@@ -587,10 +588,20 @@ public final class RegionSubCommand extends Command implements Helpable
                 }
                 return;
             }
+            case "sounds", "sound" -> {
+                if (!sender.hasPermission("playmoresounds.region.sound.enter") && !sender.hasPermission("playmoresounds.region.sound.leave")
+                        && !sender.hasPermission("playmoresounds.region.sound.loop")) {
+                    lang.send(sender, lang.get("General.No Permission"));
+                    return;
+                }
+
+                sounds(label, sender, args);
+                return;
+            }
             case "p1", "pone", "one", "position1", "positionone", "firstposition", "first" -> p1 = true;
             case "p2", "ptwo", "two", "position2", "positiontwo", "secondposition", "second" -> p1 = false;
             default -> {
-                lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", args[1] + " <p1|p2|description>"));
+                lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", args[1] + " <p1|p2|description|sound>"));
                 return;
             }
         }
@@ -676,6 +687,50 @@ public final class RegionSubCommand extends Command implements Helpable
 
         ((Player) sender).getInventory().addItem(wand);
         lang.send(sender, lang.get("Region.Wand.Success"));
+    }
+
+    private void sounds(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
+    {
+        var lang = PlayMoreSounds.getLanguage();
+
+        if (!(sender instanceof Player player)) {
+            lang.send(sender, lang.get("General.Not A Player"));
+            return;
+        }
+
+        final SoundRegion region;
+        boolean multipleFound = false;
+
+        if (args.length > 3) {
+            region = getRegion(args[3], sender, "playmoresounds.region.sound.others");
+
+            if (region == null) {
+                lang.send(sender, lang.get("Region.General.Error.Not Found." + (args[3].contains("-") ? "UUID" : "Name")).replace("<label>", label).replace("<label2>", args[0]));
+                return;
+            }
+        } else {
+            Set<SoundRegion> locationRegions = RegionManager.getRegions(player.getLocation());
+
+            if (locationRegions.isEmpty()) {
+                lang.send(sender, lang.get("Region.Set.Sounds.Error.No Regions").replace("<label>", label).replace("<label2>", args[0]).replace("<label4>", args[2]));
+                return;
+            }
+
+            if (!sender.hasPermission("playmoresounds.region.sound.others")) {
+                locationRegions.removeIf(otherRegion -> !Objects.equals(otherRegion.getCreator(), player.getUniqueId()));
+
+                if (locationRegions.isEmpty()) {
+                    lang.send(sender, lang.get("Region.Set.Sounds.Error.No Owning Regions"));
+                    return;
+                }
+            }
+
+            region = locationRegions.iterator().next();
+            if (locationRegions.size() > 1) multipleFound = true;
+        }
+
+        lang.send(sender, lang.get("Region.Set.Sounds.Editing." + (multipleFound ? "Multiple" : "Default")).replace("<region>", region.getName()));
+        new RegionSoundInventory(region, player).openInventory();
     }
 
     /**
