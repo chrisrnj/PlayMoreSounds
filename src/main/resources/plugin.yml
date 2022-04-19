@@ -20,9 +20,72 @@ permissions:
     description: Player recommended permissions.
     default: true
     children:
+      playmoresounds.player.regions: true
+      playmoresounds.confirm: true
       playmoresounds.disc.use: true
       playmoresounds.help: true
       playmoresounds.listen.teleport: true
       playmoresounds.reproduce.teleport: true
       playmoresounds.toggle: true
       playmoresounds.toggle.check: true
+
+  playmoresounds.admin:
+    description: Admin recommended permissions.
+    default: op
+    children:
+      playmoresounds.player: true
+      playmoresounds.player.fun: true
+      playmoresounds.admin.regions: true
+      playmoresounds.bypass.invisibility: true
+      playmoresounds.disc.give: true
+      playmoresounds.disc.give.others: true
+      playmoresounds.editor: true
+      playmoresounds.play.others: true
+      playmoresounds.stopsound.others: true
+      playmoresounds.toggle.others: true
+      playmoresounds.toggle.check.others: true
+      playmoresounds.update: true
+      playmoresounds.update.joinmessage: true
+
+  playmoresounds.player.fun:
+    description: Permissions that allows players to play and stop sounds only for themselves.
+    default: false
+    children:
+      playmoresounds.list: true
+      playmoresounds.list.gui: true
+      playmoresounds.play: true
+      playmoresounds.stopsound: true
+
+  playmoresounds.player.regions:
+    description: Recommended player permissions for creating, setting sounds and teleporting to regions.
+    default: false
+    children:
+      playmoresounds.region: true
+      playmoresounds.region.create: true
+      playmoresounds.region.description: true
+      playmoresounds.region.info: true
+      playmoresounds.region.list: true
+      playmoresounds.region.remove: true
+      playmoresounds.region.rename: true
+      playmoresounds.region.select.wand: true
+      playmoresounds.region.sound.enter: true
+      playmoresounds.region.sound.loop: true
+      playmoresounds.region.sound.leave: true
+      playmoresounds.region.teleport: true
+
+  playmoresounds.admin.regions:
+    description: Recommended admin permissions for managing other player's regions.
+    default: false
+    children:
+      playmoresounds.player.regions: true
+      playmoresounds.region.create.unlimited.area: true
+      playmoresounds.region.create.unlimited.regions: true
+      playmoresounds.region.description.others: true
+      playmoresounds.region.list.others: true
+      playmoresounds.region.remove.others: true
+      playmoresounds.region.rename.others: true
+      playmoresounds.region.select.command: true
+      playmoresounds.region.select.overlap: true
+      playmoresounds.region.sound.others: true
+      playmoresounds.region.teleport.others: true
+      playmoresounds.region.wand: true
