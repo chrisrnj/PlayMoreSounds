@@ -69,9 +69,8 @@ permissions:
       playmoresounds.region.rename: true
       playmoresounds.region.select.wand: true
       playmoresounds.region.sound.enter: true
-      playmoresounds.region.sound.loop: true
       playmoresounds.region.sound.leave: true
-      playmoresounds.region.teleport: true
+      playmoresounds.region.sound.loop: true
 
   playmoresounds.admin.regions:
     description: Recommended admin permissions for managing other player's regions.
@@ -87,5 +86,6 @@ permissions:
       playmoresounds.region.select.command: true
       playmoresounds.region.select.overlap: true
       playmoresounds.region.sound.others: true
+      playmoresounds.region.teleport: true
       playmoresounds.region.teleport.others: true
       playmoresounds.region.wand: true
