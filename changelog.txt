@@ -6,6 +6,15 @@ Sound playing changes:
 - PlaySoundEvent was reworked so it isn't called for every listener, this considerably improves sound playing performance.
 - PlaySoundEvent and PlayRichSoundEvent classes were moved to the same package as Playable sounds, this allows the sounds to get the event's location without calling Location#clone, saving performance.
 
+Regions:
+- Complete overhaul region commands to fix issues and do minor optimizations.
+- Fix error if there is a console-made region present and you try to create a region without the permission 'playmoresounds.region.create.unlimited.regions'.
+- Fix error if you try to get info of a region from a player that was purged from the server's files.
+- Remove "description" as an alias for info region command to avoid confusion.
+- Add "/pms region set sounds" command to allow players to add sounds to their own regions in-game through a GUI.
+- Made so "/pms region list" accepts offline players as arguments, and "CONSOLE/null" to list console-made regions.
+*- Regions will now store enter/leave/loop sounds in their own data files, instead of regions.yml. Once you update, PlayMoreSounds will detect if there are valid region sounds in your old regions.yml file, then ask you to confirm the automatic conversion to the new place of region sounds.
+
 Sound Editing GUI:
 - You can now edit sounds using a GUI!
 - Use the command /pms edit to navigate through sounds.yml sounds and edit them.
