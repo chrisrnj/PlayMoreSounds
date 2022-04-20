@@ -33,6 +33,7 @@ import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.util.PMSHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Particle;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -97,69 +98,46 @@ public final class RegionSubCommand extends Command implements Helpable
 
     @Override public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
-        var lang = PlayMoreSounds.getLanguage();
         switch (args[1].toLowerCase()) {
             case "create", "new" -> {
-                if (!sender.hasPermission("playmoresounds.region.create")) {
-                    lang.send(sender, lang.get("General.No Permission"));
-                    return;
-                }
+                if (!CommandUtils.parsePermission(sender, "playmoresounds.region.create")) return;
 
                 new Thread(() -> create(label, sender, args), "Region Builder").start();
             }
-            case "info", "description" -> {
-                if (!sender.hasPermission("playmoresounds.region.info")) {
-                    lang.send(sender, lang.get("General.No Permission"));
-                    return;
-                }
+            case "info" -> {
+                if (!CommandUtils.parsePermission(sender, "playmoresounds.region.info")) return;
 
                 info(label, sender, args);
             }
             case "list", "l" -> {
-                if (!sender.hasPermission("playmoresounds.region.list")) {
-                    lang.send(sender, lang.get("General.No Permission"));
-                    return;
-                }
+                if (!CommandUtils.parsePermission(sender, "playmoresounds.region.list")) return;
 
                 list(label, sender, args);
             }
             case "remove", "delete", "rm", "del" -> {
-                if (!sender.hasPermission("playmoresounds.region.remove")) {
-                    lang.send(sender, lang.get("General.No Permission"));
-                    return;
-                }
+                if (!CommandUtils.parsePermission(sender, "playmoresounds.region.remove")) return;
 
                 remove(label, sender, args);
             }
             case "rename", "newname", "setname", "rn" -> {
-                if (!sender.hasPermission("playmoresounds.region.rename")) {
-                    lang.send(sender, lang.get("General.No Permission"));
-                    return;
-                }
+                if (!CommandUtils.parsePermission(sender, "playmoresounds.region.rename")) return;
 
                 rename(label, sender, args);
             }
             case "set" -> {
-                if (!sender.hasPermission("playmoresounds.region.description") && !sender.hasPermission("playmoresounds.region.select.command")) {
-                    lang.send(sender, lang.get("General.No Permission"));
+                if (!CommandUtils.parsePermission(sender, "playmoresounds.region.description", "playmoresounds.region.select.command",
+                        "playmoresounds.region.sound.enter", "playmoresounds.region.sound.leave", "playmoresounds.region.sound.loop"))
                     return;
-                }
 
                 set(label, sender, args);
             }
             case "teleport", "tp" -> {
-                if (!sender.hasPermission("playmoresounds.region.teleport")) {
-                    lang.send(sender, lang.get("General.No Permission"));
-                    return;
-                }
+                if (!CommandUtils.parsePermission(sender, "playmoresounds.region.teleport")) return;
 
                 teleport(label, sender, args);
             }
             case "wand", "tool", "wandtool", "selectiontool" -> {
-                if (!sender.hasPermission("playmoresounds.region.wand")) {
-                    lang.send(sender, lang.get("General.No Permission"));
-                    return;
-                }
+                if (!CommandUtils.parsePermission(sender, "playmoresounds.region.wand")) return;
 
                 wand(sender);
             }
@@ -211,7 +189,7 @@ public final class RegionSubCommand extends Command implements Helpable
         String description;
 
         if (args.length > 3 && sender.hasPermission("playmoresounds.region.description")) {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
             for (int i = 3; i < args.length; ++i)
                 builder.append(" ").append(args[i]);
@@ -222,16 +200,13 @@ public final class RegionSubCommand extends Command implements Helpable
         var region = new SoundRegion(name, selected[0], selected[1], creator, description);
 
         // Checking if the player exceeds the max created regions specified on config.
-        if (sender instanceof Player) {
-            if (!sender.hasPermission("playmoresounds.region.create.unlimited.regions")) {
-                UUID playerId = ((Player) sender).getUniqueId();
-                long amount = RegionManager.getRegions().stream().filter(soundRegion -> soundRegion.getCreator().equals(playerId)).count();
-                long maxAmount = config.getNumber("Sounds Regions.Max Regions").orElse(5).longValue();
+        if (!sender.hasPermission("playmoresounds.region.create.unlimited.regions")) {
+            long amount = RegionManager.getRegions().stream().filter(soundRegion -> Objects.equals(soundRegion.getCreator(), creator)).count();
+            long maxAmount = config.getNumber("Sounds Regions.Max Regions").orElse(5).longValue();
 
-                if (amount >= maxAmount) {
-                    lang.send(sender, lang.get("Region.Create.Error.Max Regions").replace("<max>", Long.toString(maxAmount)));
-                    return;
-                }
+            if (amount >= maxAmount) {
+                lang.send(sender, lang.get("Region.Create.Error.Max Regions").replace("<max>", Long.toString(maxAmount)));
+                return;
             }
         }
 
@@ -244,7 +219,7 @@ public final class RegionSubCommand extends Command implements Helpable
             long ySize = max.getBlockY() - min.getBlockY();
             long zSize = max.getBlockZ() - min.getBlockZ();
 
-            long maxArea = config.getNumber("Sound Regions.Max Area").orElse(1000000).longValue();
+            long maxArea = config.getNumber("Sound Regions.Max Area").orElse(15625).longValue();
 
             if (xSize * ySize * zSize > maxArea) {
                 lang.send(sender, lang.get("Region.Create.Error.Max Area").replace("<max>", Long.toString(maxArea)));
@@ -276,7 +251,7 @@ public final class RegionSubCommand extends Command implements Helpable
 
         try {
             RegionManager.save(region);
-            lang.send(sender, lang.get("Region.Create.Success").replace("<name>", name));
+            lang.send(sender, lang.get("Region.Create.Success").replace("<name>", name).replace("<label>", label).replace("<label2>", args[0]));
             OnPlayerInteract.selectDiagonal(creator, null, true);
             OnPlayerInteract.selectDiagonal(creator, null, false);
         } catch (IOException e) {
@@ -304,7 +279,7 @@ public final class RegionSubCommand extends Command implements Helpable
         } else {
             if (sender instanceof Player player) {
                 var location = player.getLocation();
-                regions = RegionManager.getRegions(location);
+                regions = RegionManager.getRegionsAt(location);
 
                 if (regions.isEmpty()) {
                     lang.send(sender, lang.get("Region.Info.Error.No Regions"));
@@ -320,18 +295,18 @@ public final class RegionSubCommand extends Command implements Helpable
 
         for (SoundRegion region : regions) {
             // Checking if particles should be sent.
-            if (sender instanceof Player && showingBorders.get() < config.getNumber("Sound Regions.Border.Max Showing Borders").orElse(30).intValue()) {
-                int count;
+            if (sender instanceof Player player && showingBorders.get() < config.getNumber("Sound Regions.Border.Max Showing Borders").orElse(10).intValue()) {
+                int particleCount;
                 double r, g, b;
 
-                // If the player is standing on multiple regions, they should make different color particles.
+                // If there is more than one region, each region must have a different particle color.
                 if (regions.size() == 1) {
-                    count = 1;
+                    particleCount = 1;
                     r = 0;
                     g = 0;
                     b = 0;
                 } else {
-                    count = 0;
+                    particleCount = 0;
                     r = random.nextDouble();
                     g = random.nextDouble();
                     b = random.nextDouble();
@@ -339,19 +314,19 @@ public final class RegionSubCommand extends Command implements Helpable
 
                 showingBorders.incrementAndGet();
 
-                BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+                BukkitTask repeatingTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
                     for (Location border : region.getBorder())
-                        ((Player) sender).spawnParticle(Particle.NOTE, border, count, r, g, b);
+                        player.spawnParticle(Particle.NOTE, border, particleCount, r, g, b);
                 }, 0, 5);
 
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    task.cancel();
+                    repeatingTask.cancel();
                     showingBorders.decrementAndGet();
-                }, config.getNumber("Sound Regions.Border.Showing Time").orElse(100).longValue());
+                }, config.getNumber("Sound Regions.Border.Showing Time").orElse(140).longValue());
             }
 
             lang.send(sender, lang.get("Region.Info.Header").replace("<name>", region.getName()));
-            lang.send(sender, false, lang.get("Region.Info.Owner").replace("<owner>", region.getCreator() == null ? "CONSOLE" : Bukkit.getOfflinePlayer(region.getCreator()).getName()));
+            lang.send(sender, false, lang.get("Region.Info.Owner").replace("<owner>", findOwner(region.getCreator())));
             lang.send(sender, false, lang.get("Region.Info.Id").replace("<uuid>", region.getId().toString()));
             lang.send(sender, false, lang.get("Region.Info.World").replace("<world>", region.getMaxDiagonal().getWorld().getName()));
             lang.send(sender, false, lang.get("Region.Info.Creation Date").replace("<date>", region.getCreationDate().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"))));
@@ -359,55 +334,72 @@ public final class RegionSubCommand extends Command implements Helpable
         }
     }
 
+    /**
+     * @return "CONSOLE" if the creator is null, the player's name if one with this {@link UUID} was found, or the {@link UUID}
+     * itself if no player was found.
+     */
+    private @NotNull String findOwner(@Nullable UUID creator)
+    {
+        if (creator == null) return "CONSOLE";
+
+        var player = Bukkit.getOfflinePlayer(creator);
+
+        if (player != null) {
+            return player.getName();
+        } else {
+            return creator.toString();
+        }
+    }
+
+    private Set<SoundRegion> getSenderRegions(CommandSender sender)
+    {
+        if (sender instanceof Player player) return RegionManager.getRegionsOf(player.getUniqueId());
+        else return RegionManager.getRegionsOf(null);
+    }
+
     private void list(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
         var lang = PlayMoreSounds.getLanguage();
+
         Set<SoundRegion> regions;
         String who;
 
+        // Getting the regions.
         if (args.length > 2) {
-            HashSet<Player> targets;
-
-            if (sender instanceof Player) {
-                targets = CommandUtils.getTargets(sender, args, 2, "", "playmoresounds.region.list.others");
-
-                if (targets == null) return;
-
-                who = CommandUtils.getWho(targets, sender);
+            String specific = args[2];
+            if (specific.equalsIgnoreCase("me") || specific.equalsIgnoreCase(sender.getName())) {
+                regions = getSenderRegions(sender);
+                who = null;
             } else {
-                String target = args[2].toLowerCase();
+                if (!sender.hasPermission("playmoresounds.region.list.others")) {
+                    lang.send(sender, lang.get("Region.List.Error.Others"));
+                    return;
+                }
 
-                if (target.equals("me") || target.equals("self") || target.equals("myself")) {
-                    targets = new HashSet<>();
-
-                    who = lang.get("General.You");
+                if (specific.equalsIgnoreCase("console")) {
+                    regions = RegionManager.getRegionsOf(null);
+                    who = "CONSOLE";
                 } else {
-                    targets = CommandUtils.getTargets(sender, args, 2, "", "playmoresounds.region.list.others");
+                    OfflinePlayer player;
 
-                    if (targets == null) return;
+                    if (PlayMoreSoundsCore.isPaper()) {
+                        player = Bukkit.getOfflinePlayerIfCached(specific);
+                    } else {
+                        player = Bukkit.getPlayer(specific);
+                    }
 
-                    who = CommandUtils.getWho(targets, sender);
+                    if (player == null) {
+                        lang.send(sender, lang.get("General.Player Not Found").replace("<player>", specific));
+                        return;
+                    } else {
+                        regions = RegionManager.getRegionsOf(player.getUniqueId());
+                        who = player.getName().equals(sender.getName()) ? null : player.getName();
+                    }
                 }
             }
-
-            var uuidTargets = new HashSet<UUID>();
-
-            targets.forEach(target -> uuidTargets.add(target.getUniqueId()));
-
-            regions = RegionManager.getRegions().stream().filter(region -> {
-                if (targets.isEmpty()) return region.getCreator() == null;
-                else return uuidTargets.contains(region.getCreator());
-            }).collect(Collectors.toSet());
         } else {
-            if (sender instanceof Player) {
-                UUID id = ((Player) sender).getUniqueId();
-
-                regions = RegionManager.getRegions().stream().filter(region -> region.getCreator().equals(id)).collect(Collectors.toSet());
-            } else {
-                regions = RegionManager.getRegions().stream().filter(region -> region.getCreator() == null).collect(Collectors.toSet());
-            }
-
-            who = lang.get("General.You");
+            regions = getSenderRegions(sender);
+            who = null;
         }
 
         if (regions.isEmpty()) {
@@ -431,20 +423,22 @@ public final class RegionSubCommand extends Command implements Helpable
         HashMap<Integer, ArrayList<SoundRegion>> pages = PMSHelper.splitIntoPages(regions, 5);
 
         if (page > pages.size()) {
-            lang.send(sender, lang.get("Region.List.Error.Not Exists").replace("<page>", Long.toString(page)).replace("<totalPages>", Integer.toString(pages.size())));
+            lang.send(sender, lang.get("Region.List.Error.Not Exists").replace("<page>", Integer.toString(page)).replace("<totalPages>", Integer.toString(pages.size())));
             return;
         }
 
-        if (who.equals(lang.get("General.You")))
-            lang.send(sender, lang.get("Region.List.Header.Default").replace("<page>", Long.toString(page)).replace("<totalPages>", Integer.toString(pages.size())));
-        else
-            lang.send(sender, lang.get("Region.List.Header.Player").replace("<targets>", who).replace("<page>", Long.toString(page)).replace("<totalPages>", Integer.toString(pages.size())));
+        if (who == null) {
+            lang.send(sender, lang.get("Region.List.Header.Default").replace("<page>", Integer.toString(page)).replace("<totalPages>", Integer.toString(pages.size())));
+        } else {
+            lang.send(sender, lang.get("Region.List.Header.Player").replace("<targets>", who).replace("<page>", Integer.toString(page)).replace("<totalPages>", Integer.toString(pages.size())));
+        }
 
         for (SoundRegion region : pages.get(page))
             lang.send(sender, false, lang.get("Region.List.Region").replace("<uuid>", region.getId().toString()).replace("<name>", region.getName()));
 
-        if (page < pages.size())
-            lang.send(sender, false, lang.get("Region.List.Footer").replace("<label>", label).replace("<label2>", args[0]).replace("<label3>", args[1]).replace("<label4>", args.length > 2 ? args[2] : "me").replace("<next>", Long.toString(page + 1)));
+        if (page != pages.size()) {
+            lang.send(sender, false, lang.get("Region.List.Footer").replace("<label>", label).replace("<label2>", args[0]).replace("<label3>", args[1]).replace("<label4>", args.length > 2 ? args[2] : "me").replace("<next>", Integer.toString(page + 1)));
+        }
     }
 
     private void remove(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
@@ -547,10 +541,9 @@ public final class RegionSubCommand extends Command implements Helpable
         final boolean p1;
 
         switch (args[2].toLowerCase()) {
-            case "description", "desc", "info", "information" -> {
-                if (!sender.hasPermission("playmoresounds.region.description")) {
+            case "description", "desc" -> {
+                if (!CommandUtils.parsePermission(sender, "playmoresounds.region.description")) {
                     lang.send(sender, lang.get("General.No Permission"));
-                    return;
                 }
 
                 if (args.length < 5) {
@@ -589,9 +582,7 @@ public final class RegionSubCommand extends Command implements Helpable
                 return;
             }
             case "sounds", "sound" -> {
-                if (!sender.hasPermission("playmoresounds.region.sound.enter") && !sender.hasPermission("playmoresounds.region.sound.leave")
-                        && !sender.hasPermission("playmoresounds.region.sound.loop")) {
-                    lang.send(sender, lang.get("General.No Permission"));
+                if (!CommandUtils.parsePermission(sender, "playmoresounds.region.sound.enter", "playmoresounds.region.sound.leave", "playmoresounds.region.sound.loop")) {
                     return;
                 }
 
@@ -606,8 +597,7 @@ public final class RegionSubCommand extends Command implements Helpable
             }
         }
 
-        if (!sender.hasPermission("playmoresounds.region.select.command")) {
-            lang.send(sender, lang.get("General.No Permission"));
+        if (!CommandUtils.parsePermission(sender, "playmoresounds.region.select.command")) {
             return;
         }
 
@@ -709,7 +699,7 @@ public final class RegionSubCommand extends Command implements Helpable
                 return;
             }
         } else {
-            Set<SoundRegion> locationRegions = RegionManager.getRegions(player.getLocation());
+            Set<SoundRegion> locationRegions = RegionManager.getRegionsAt(player.getLocation());
 
             if (locationRegions.isEmpty()) {
                 lang.send(sender, lang.get("Region.Set.Sounds.Error.No Regions").replace("<label>", label).replace("<label2>", args[0]).replace("<label4>", args[2]));
