@@ -31,13 +31,12 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -116,9 +115,26 @@ public final class RegionManager
         return unmodifiableRegions;
     }
 
-    public static @NotNull Set<SoundRegion> getRegions(@NotNull Location location)
+    /**
+     * Gets all regions that are in this location.
+     *
+     * @param location The location to check if there's a region.
+     * @return The regions in this location.
+     */
+    public static @NotNull Set<SoundRegion> getRegionsAt(@NotNull Location location)
     {
         return regions.stream().filter(region -> region.isInside(location)).collect(Collectors.toSet());
+    }
+
+    /**
+     * Gets all regions made by the specified creator.
+     *
+     * @param creator The creator's {@link UUID}, null for console.
+     * @return The regions made by this creator.
+     */
+    public static @NotNull Set<SoundRegion> getRegionsOf(@Nullable UUID creator)
+    {
+        return regions.stream().filter(region -> Objects.equals(region.getCreator(), creator)).collect(Collectors.toSet());
     }
 
     /**
