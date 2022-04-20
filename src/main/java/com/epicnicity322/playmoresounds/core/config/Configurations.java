@@ -417,7 +417,7 @@ public enum Configurations
             "  # The border particles of \"/pms region info\"\n" +
             "  Border:\n" +
             "    # A limit of how many players can see borders at once, for performance.\n" +
-            "    Max Showing Borders: 30\n" +
+            "    Max Showing Borders: 10\n" +
             "    # The time in ticks of how long the border should be shown.\n" +
             "    Showing Time: 140\n" +
             "  # The max area in m³ a region can have.\n" +
@@ -425,7 +425,7 @@ public enum Configurations
             "  Max Area: 15625\n" +
             "  # The max characters a region name can have.\n" +
             "  Max Name Characters: 20\n" +
-            "  # The max regions a single player can have.\n" +
+            "  # The max amount of regions a single player can have.\n" +
             "  # Use permission 'playmoresounds.region.create.unlimited.regions' to bypass.\n" +
             "  Max Regions: 5\n" +
             "  # The region selection tool properties.\n" +
@@ -1124,7 +1124,7 @@ public enum Configurations
             "      Max Area: '&cThe selected area exceeds the maximum of <max> blocks.'\n" +
             "      Max Regions: '&cYou cannot create more than <max> regions.'\n" +
             "      Not Selected: '&cYou did not select positions, type &7&n/<label> <label2> wand&c to get the region selection tool.'\n" +
-            "    Success: '&aThe region &7<name>&a was created successfully.'\n" +
+            "    Success: '&aThe region &7<name>&a was created successfully. Use &e&n/<label> <label2> set sounds&a to add sounds to this region.'\n" +
             "  General:\n" +
             "    Error:\n" +
             "      Illegal Characters: '&cRegion names can only have alpha-numeric characters.'\n" +
@@ -1146,11 +1146,12 @@ public enum Configurations
             "    Error:\n" +
             "      No Regions: '&c<targets> have no regions.'\n" +
             "      Not Exists: '&cThe page &7<page>&c doesn''t exist! Max: <totalPages>.'\n" +
+            "      Others: '&4You can not list regions made by other players.'\n" +
             "    Footer: '&8Type &7/<label> <label2> <label3> <label4> <next>&8 to see more regions.'\n" +
             "    Header:\n" +
             "      Default: '&8Your regions [Page <page> of <totalPages>]:'\n" +
             "      Player: '&8Regions of <targets> [Page <page> of <totalPages>]:'\n" +
-            "    Region: '&7- <uuid>: &f<name>'\n" +
+            "    Region: '&7- <name>: &f<uuid>'\n" +
             "  Region: region\n" +
             "  Remove:\n" +
             "    Confirm: '&aType &7/<label> confirm&a to confirm the removal of the region &7<region>&a.'\n" +
@@ -1181,7 +1182,7 @@ public enum Configurations
             "        Default: '&7Editing sounds of region: &f<region>&7.'\n" +
             "        Multiple: '&7Editing sounds of first region found at your location: &f<region>&7.'\n" +
             "      Error:\n" +
-            "        No Regions: '&cNo regions found on this location. Use &7/<label> <label2> set <label4> <region>&c to edit sounds of a specific region.'\n" +
+            "        No Regions: '&cNo regions found at this location. Use &7/<label> <label2> set <label4> <region>&c to edit sounds of a specific region.'\n" +
             "        No Owning Regions: '&cYou don''t own any regions at this location.'\n" +
             "      Inventory:\n" +
             "        Items:\n" +
@@ -1696,7 +1697,7 @@ public enum Configurations
             "    Header:\n" +
             "      Default: '&8Sus regiones [Página <page> de <totalPages>]:'\n" +
             "      Player: '&8Regiones de <targets> [Página <page> de <totalPages>]:'\n" +
-            "    Region: '&7- <uuid>: &f<name>'\n" +
+            "    Region: '&7- <name>: &f<uuid>'\n" +
             "  Region: región\n" +
             "  Remove:\n" +
             "    Confirm: '&aUse &7/<label> confirm&a para confirmar la eliminación de la región &7<region>&a.'\n" +
@@ -2034,7 +2035,7 @@ public enum Configurations
             "    Header:\n" +
             "      Default: '&8Suas regiões [Página <page> de <totalPages>]:'\n" +
             "      Player: '&8Regiões de <targets> [Página <page> de <totalPages>]:'\n" +
-            "    Region: '&7- <uuid>: &f<name>'\n" +
+            "    Region: '&7- <name>: &f<uuid>'\n" +
             "  Region: região\n" +
             "  Remove:\n" +
             "    Confirm: '&aDigite &7/<label> confirm&a para confirmar a remoção da região &7<region>&a.'\n" +
@@ -2372,7 +2373,7 @@ public enum Configurations
             "    Header:\n" +
             "      Default: '&8你的区域 [页 <page> / <totalPages>]:'\n" +
             "      Player: '&8<targets>的区域 [页 <page> / <totalPages>]:'\n" +
-            "    Region: '&7- <uuid>: &f<name>'\n" +
+            "    Region: '&7- <name>: &f<uuid>'\n" +
             "  Region: 区域\n" +
             "  Remove:\n" +
             "    Confirm: '&a请输入 &7/<label> confirm&a 确认删除区域 &7<region>&a.'\n" +
