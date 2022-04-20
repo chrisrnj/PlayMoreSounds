@@ -205,4 +205,23 @@ public final class CommandUtils
                 possibleCompletions.add(selfArg);
         }
     }
+
+    /**
+     * Checks if sender has all specified permissions, sending a message if they don't.
+     *
+     * @param sender      The sender to check for permissions.
+     * @param permissions The permissions the sender must have.
+     * @return True if sender has all permissions, false otherwise.
+     */
+    public static boolean parsePermission(@NotNull CommandSender sender, @NotNull String... permissions)
+    {
+        for (String permission : permissions) {
+            if (!sender.hasPermission(permission)) {
+                PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
