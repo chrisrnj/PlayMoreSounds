@@ -18,6 +18,7 @@
 
 package com.epicnicity322.playmoresounds.core;
 
+import com.epicnicity322.epicpluginlib.bukkit.reflection.ReflectionUtil;
 import com.epicnicity322.epicpluginlib.core.EpicPluginLib;
 import com.epicnicity322.epicpluginlib.core.logger.ErrorHandler;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
@@ -30,7 +31,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
@@ -39,12 +39,15 @@ public final class PlayMoreSoundsCore
 {
     private static final @NotNull Path folder;
     private static final @NotNull ErrorHandler errorHandler;
+    private static final boolean papermc;
 
     static {
         if (EpicPluginLib.Platform.getPlatform() == EpicPluginLib.Platform.BUKKIT) {
-            folder = Paths.get("plugins").resolve("PlayMoreSounds");
+            folder = Path.of("plugins", "PlayMoreSounds");
+            papermc = ReflectionUtil.getClass("com.destroystokyo.paper.PaperConfig") != null;
         } else {
-            folder = Paths.get("config").resolve("playmoresounds");
+            folder = Path.of("config", "playmoresounds");
+            papermc = false;
         }
 
         if (Files.notExists(folder)) {
@@ -99,6 +102,14 @@ public final class PlayMoreSoundsCore
         } catch (IOException ex) {
             errorHandler.report(ex, "Fail to create available sounds file:");
         }
+    }
+
+    /**
+     * If the running server implementation is PaperMC or a fork of PaperMC.
+     */
+    public static boolean isPaper()
+    {
+        return papermc;
     }
 
     /**
