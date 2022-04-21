@@ -246,7 +246,7 @@ public final class DevSubCommand extends Command
                         var region = new SoundRegion(name, selected[0], selected[1], creator, null);
                         try {
                             RegionManager.save(region);
-                            lang.send(sender, lang.get("Region.Create.Success").replace("<name>", name));
+                            lang.send(sender, lang.get("Region.Create.Success").replace("<name>", name).replace("<label>", label).replace("<label2>", "rg"));
                             OnPlayerInteract.selectDiagonal(creator, null, true);
                             OnPlayerInteract.selectDiagonal(creator, null, false);
                         } catch (IOException e) {

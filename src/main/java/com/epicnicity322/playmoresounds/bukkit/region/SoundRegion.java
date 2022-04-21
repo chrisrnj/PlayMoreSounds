@@ -92,6 +92,10 @@ public class SoundRegion
     public SoundRegion(@NotNull String name, @NotNull Location maxDiagonal, @NotNull Location minDiagonal,
                        @Nullable UUID creator, @Nullable String description)
     {
+        if (maxDiagonal.getWorld() == null || minDiagonal.getWorld() == null) {
+            throw new IllegalArgumentException("Provided diagonals do not have a world.");
+        }
+
         id = UUID.randomUUID();
         this.creator = creator;
         this.creationDate = ZonedDateTime.now();

@@ -330,7 +330,7 @@ public final class RegionSubCommand extends Command implements Helpable
             lang.send(sender, false, lang.get("Region.Info.Id").replace("<uuid>", region.getId().toString()));
             lang.send(sender, false, lang.get("Region.Info.World").replace("<world>", region.getMaxDiagonal().getWorld().getName()));
             lang.send(sender, false, lang.get("Region.Info.Creation Date").replace("<date>", region.getCreationDate().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"))));
-            lang.send(sender, false, lang.get("Region.Info.Description").replace("<description>", region.getDescription()));
+            lang.send(sender, false, lang.get("Region.Info.Description").replace("<description>", Objects.requireNonNullElse(region.getDescription(), "null")));
         }
     }
 
@@ -345,7 +345,7 @@ public final class RegionSubCommand extends Command implements Helpable
         var player = Bukkit.getOfflinePlayer(creator);
 
         if (player != null) {
-            return player.getName();
+            return Objects.requireNonNullElse(player.getName(), creator.toString());
         } else {
             return creator.toString();
         }
@@ -403,7 +403,7 @@ public final class RegionSubCommand extends Command implements Helpable
         }
 
         if (regions.isEmpty()) {
-            lang.send(sender, lang.get("Region.List.Error.No Regions").replace("<targets>", who));
+            lang.send(sender, lang.get("Region.List.Error.No Regions").replace("<targets>", who == null ? lang.get("General.You") : who));
             return;
         }
 
