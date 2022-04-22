@@ -61,42 +61,50 @@ public final class RegionSubCommand extends Command implements Helpable
         this.plugin = plugin;
     }
 
-    @Override public @NotNull CommandRunnable onHelp()
+    @Override
+    public @NotNull CommandRunnable onHelp()
     {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Help.Region").replace("<label>", label));
     }
 
-    @Override public @NotNull String getName()
+    @Override
+    public @NotNull String getName()
     {
         return "region";
     }
 
-    @Override public @Nullable String[] getAliases()
+    @Override
+    public @Nullable String[] getAliases()
     {
         return new String[]{"regions", "rg"};
     }
 
-    @Override public @Nullable String getPermission()
+    @Override
+    public @Nullable String getPermission()
     {
         return "playmoresounds.region";
     }
 
-    @Override public int getMinArgsAmount()
+    @Override
+    public int getMinArgsAmount()
     {
         return 2;
     }
 
-    @Override protected @Nullable CommandRunnable getNoPermissionRunnable()
+    @Override
+    protected @Nullable CommandRunnable getNoPermissionRunnable()
     {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
-    @Override protected @Nullable CommandRunnable getNotEnoughArgsRunnable()
+    @Override
+    protected @Nullable CommandRunnable getNotEnoughArgsRunnable()
     {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", "<create|info|list|remove|rename|set|teleport|wand>"));
     }
 
-    @Override public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
+    @Override
+    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
     {
         switch (args[1].toLowerCase()) {
             case "create", "new" -> {
@@ -462,7 +470,8 @@ public final class RegionSubCommand extends Command implements Helpable
 
         ConfirmSubCommand.addPendingConfirmation(sender, new UniqueRunnable(region.getId())
         {
-            @Override public void run()
+            @Override
+            public void run()
             {
                 try {
                     RegionManager.delete(region);

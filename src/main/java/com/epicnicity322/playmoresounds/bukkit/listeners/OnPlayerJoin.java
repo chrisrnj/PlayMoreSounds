@@ -39,12 +39,14 @@ public final class OnPlayerJoin implements Listener
 {
     private static final @NotNull Cancellable cancellableDummy = new Cancellable()
     {
-        @Override public boolean isCancelled()
+        @Override
+        public boolean isCancelled()
         {
             return false;
         }
 
-        @Override public void setCancelled(boolean cancel)
+        @Override
+        public void setCancelled(boolean cancel)
         {
         }
     };

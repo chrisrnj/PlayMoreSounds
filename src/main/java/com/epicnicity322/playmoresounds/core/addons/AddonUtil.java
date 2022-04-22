@@ -71,14 +71,16 @@ final class AddonUtil
 
     private record Node(AddonDescription addon, Set<AddonDescription> dependants)
     {
-        @Override public boolean equals(Object o)
+        @Override
+        public boolean equals(Object o)
         {
             if (this == o) return true;
             if (!(o instanceof Node node)) return false;
             return addon.jar.equals(node.addon.jar);
         }
 
-        @Override public int hashCode()
+        @Override
+        public int hashCode()
         {
             return Objects.hash(addon.jar);
         }

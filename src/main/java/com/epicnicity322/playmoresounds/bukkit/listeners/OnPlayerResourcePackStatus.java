@@ -143,7 +143,8 @@ public final class OnPlayerResourcePackStatus implements Listener
                     if (config.getBoolean("Resource Packs.Force.Alert Fail").orElse(false)) {
                         var confirmEntry = new UniqueRunnable(player.getUniqueId())
                         {
-                            @Override public void run()
+                            @Override
+                            public void run()
                             {
                                 ignoreForceForPlayer(player);
                                 String broadcastMessage = lang.getColored("Resource Packs.Download Failed.Allowed").replace("<player>", player.getName());

@@ -112,7 +112,8 @@ public final class UpdateSubCommand extends Command implements Helpable
     {
         new Thread("PMS Update Downloader")
         {
-            @Override public void run()
+            @Override
+            public void run()
             {
                 String downloadedVersion = UpdateManager.downloadLatest(sender, instance);
 

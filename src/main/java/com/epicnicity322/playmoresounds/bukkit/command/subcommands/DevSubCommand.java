@@ -110,7 +110,8 @@ public final class DevSubCommand extends Command
         return "playmoresounds.dev";
     }
 
-    @Override public int getMinArgsAmount()
+    @Override
+    public int getMinArgsAmount()
     {
         return 2;
     }

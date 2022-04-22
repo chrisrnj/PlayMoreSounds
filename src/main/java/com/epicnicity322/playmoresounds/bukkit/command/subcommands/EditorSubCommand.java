@@ -29,7 +29,8 @@ import org.jetbrains.annotations.Nullable;
 
 public final class EditorSubCommand extends Command implements Helpable
 {
-    @Override public @NotNull CommandRunnable onHelp()
+    @Override
+    public @NotNull CommandRunnable onHelp()
     {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Help.Editor").replace("<label>", label));
     }
