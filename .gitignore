@@ -1,4 +1,2 @@
-/target/
-/changelog/
-/.idea/
-/binaries/
+target/
+.idea/
