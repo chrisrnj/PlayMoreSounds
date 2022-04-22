@@ -39,18 +39,20 @@ public abstract class RichSound<T extends Sound>
         if (name.isBlank()) throw new IllegalArgumentException("Rich Sound name can't be blank.");
 
         // Checking if there are two child sounds with the same name in the collection.
-        var currentNames = new HashSet<String>();
-        for (var sound : childSounds) {
-            if (!currentNames.add(sound.getId())) {
-                throw new IllegalArgumentException("Child Sounds collection has two sounds with the same ID.");
+        if (childSounds != null) {
+            var currentNames = new HashSet<String>();
+            for (var sound : childSounds) {
+                if (!currentNames.add(sound.getId())) {
+                    throw new IllegalArgumentException("Child Sounds collection parameter has two sounds with the same ID.");
+                }
             }
         }
 
         this.name = name;
         this.enabled = enabled;
         this.cancellable = cancellable;
-        this.childSounds = childSounds;
-        this.unmodifiableChildSounds = Collections.unmodifiableCollection(childSounds);
+        this.childSounds = Objects.requireNonNullElseGet(childSounds, ArrayList::new);
+        this.unmodifiableChildSounds = Collections.unmodifiableCollection(this.childSounds);
     }
 
     public RichSound(@NotNull ConfigurationSection section)
@@ -146,10 +148,11 @@ public abstract class RichSound<T extends Sound>
      * If {@link #getName()} is blank, the properties are applied to the configuration's root, otherwise a section with
      * the name is created and properties are applied there.
      * <p>
-     * Default properties are ignored.
+     * Properties with default values are ignored.
      *
      * @param configuration The configuration to apply properties and child sounds.
      * @return The section the properties were applied.
+     * @see #setAt(ConfigurationSection)
      */
     public @NotNull ConfigurationSection set(@NotNull Configuration configuration)
     {
@@ -161,6 +164,24 @@ public abstract class RichSound<T extends Sound>
             section = Objects.requireNonNullElseGet(configuration.getConfigurationSection(name), () -> configuration.createSection(name));
         }
 
+        setAt(section);
+        return section;
+    }
+
+    /**
+     * Sets the properties of this rich sound to a configuration section. Keys set by this method are the same used to
+     * create a rich sound with {@link #RichSound(ConfigurationSection)}.
+     * <p>
+     * The name property is not saved, because according to {@link #RichSound(ConfigurationSection)} constructor, the
+     * rich sound's name is the same as the path to the {@link ConfigurationSection}. If you'd like to save the sound to
+     * a section with the same name of this sound, use {@link #set(Configuration)} method.
+     * <p>
+     * Properties with default values are ignored.
+     *
+     * @param section The section to apply properties and child sounds.
+     */
+    public void setAt(@NotNull ConfigurationSection section)
+    {
         section.set("Enabled", enabled);
         section.set("Cancellable", cancellable);
 
@@ -177,7 +198,6 @@ public abstract class RichSound<T extends Sound>
         for (T childSound : childSounds) {
             childSound.set(sounds);
         }
-        return section;
     }
 
     @Override
