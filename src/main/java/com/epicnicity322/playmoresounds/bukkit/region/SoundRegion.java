@@ -18,7 +18,9 @@
 
 package com.epicnicity322.playmoresounds.bukkit.region;
 
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.yamlhandler.Configuration;
+import com.epicnicity322.yamlhandler.YamlConfigurationLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -33,7 +35,7 @@ import java.util.regex.Pattern;
 
 public class SoundRegion
 {
-    public static final @NotNull Pattern ALLOWED_REGION_NAME_CHARS = Pattern.compile("^[A-Za-z0-9_]+$");
+    public static final @NotNull Pattern ALLOWED_REGION_NAME_CHARS = Pattern.compile("^\\w+$");
     private final @NotNull UUID id;
     private final @Nullable UUID creator;
     private final @NotNull ZonedDateTime creationDate;
@@ -42,6 +44,9 @@ public class SoundRegion
     private @NotNull Location maxDiagonal;
     private Location minDiagonal;
     private Set<Location> border;
+    private @Nullable PlayableRichSound enterSound;
+    private @Nullable PlayableRichSound leaveSound;
+    private @Nullable PlayableRichSound loopSound;
 
     /**
      * Loads a sound region from a configuration file. This configuration file must have the name of an {@link UUID} and
@@ -67,17 +72,26 @@ public class SoundRegion
         description = data.getString("Description").orElse(null);
 
         World world = Objects.requireNonNull(Bukkit.getWorld(UUID.fromString(data.getString("World").orElseThrow(invalidRegionData))), "The world this region is in does not exist or is not loaded.");
-        var first = data.getConfigurationSection("Diagonals.First");
-        var second = data.getConfigurationSection("Diagonals.Second");
+        var max = data.getConfigurationSection("Diagonals.Max");
+        var min = data.getConfigurationSection("Diagonals.Min");
 
-        if (first == null || second == null) {
-            throw invalidRegionData.get();
-        }
+        if (max == null) max = data.getConfigurationSection("Diagonals.First");
+        if (min == null) min = data.getConfigurationSection("Diagonals.Second");
 
-        maxDiagonal = new Location(world, first.getNumber("X").orElseThrow(invalidRegionData).doubleValue(),
-                first.getNumber("Y").orElseThrow(invalidRegionData).doubleValue(), first.getNumber("Z").orElseThrow(invalidRegionData).doubleValue());
-        setMinDiagonal(new Location(world, second.getNumber("X").orElseThrow(invalidRegionData).doubleValue(),
-                second.getNumber("Y").orElseThrow(invalidRegionData).doubleValue(), second.getNumber("Z").orElseThrow(invalidRegionData).doubleValue()));
+        if (max == null || min == null) throw invalidRegionData.get();
+
+        maxDiagonal = new Location(world, max.getNumber("X").orElseThrow(invalidRegionData).doubleValue(),
+                max.getNumber("Y").orElseThrow(invalidRegionData).doubleValue(), max.getNumber("Z").orElseThrow(invalidRegionData).doubleValue());
+        setMinDiagonal(new Location(world, min.getNumber("X").orElseThrow(invalidRegionData).doubleValue(),
+                min.getNumber("Y").orElseThrow(invalidRegionData).doubleValue(), min.getNumber("Z").orElseThrow(invalidRegionData).doubleValue()));
+
+        var enter = data.getConfigurationSection("Enter Sound");
+        var leave = data.getConfigurationSection("Leave Sound");
+        var loop = data.getConfigurationSection("Loop Sound");
+
+        if (enter != null) enterSound = new PlayableRichSound(enter);
+        if (leave != null) leaveSound = new PlayableRichSound(leave);
+        if (loop != null) loopSound = new PlayableRichSound(loop);
     }
 
     /**
@@ -297,6 +311,105 @@ public class SoundRegion
     public void setDescription(@Nullable String description)
     {
         this.description = description;
+    }
+
+    /**
+     * @return The sound that plays when a player enters this region.
+     */
+    public @Nullable PlayableRichSound getEnterSound()
+    {
+        return enterSound;
+    }
+
+    /**
+     * Sets the enter sound of this region.
+     *
+     * @param enterSound The sound to play when a player enters this region.
+     */
+    public void setEnterSound(@Nullable PlayableRichSound enterSound)
+    {
+        if (enterSound == null) {
+            this.enterSound = null;
+            return;
+        }
+
+        var section = new Configuration(new YamlConfigurationLoader()).createSection("Enter Sound");
+        var oldSection = enterSound.getSection();
+
+        if (oldSection != null) {
+            section.set("Prevent Default Sound", oldSection.getBoolean("Prevent Default Sound").orElse(false));
+            section.set("Stop On Exit.Enabled", oldSection.getBoolean("Stop On Exit.Enabled").orElse(false));
+            section.set("Stop On Exit.Delay", oldSection.getNumber("Stop On Exit.Delay").orElse(0L).longValue());
+        }
+
+        enterSound.setAt(section);
+        this.enterSound = new PlayableRichSound(section);
+    }
+
+    /**
+     * @return The sound that plays when a player leaves this region.
+     */
+    public @Nullable PlayableRichSound getLeaveSound()
+    {
+        return leaveSound;
+    }
+
+    /**
+     * Sets the leave sound of this region.
+     *
+     * @param leaveSound The sound to play when a player leaves this region.
+     */
+    public void setLeaveSound(@Nullable PlayableRichSound leaveSound)
+    {
+        if (leaveSound == null) {
+            this.leaveSound = null;
+            return;
+        }
+
+        var section = new Configuration(new YamlConfigurationLoader()).createSection("Leave Sound");
+        var oldSection = leaveSound.getSection();
+
+        if (oldSection != null) {
+            section.set("Prevent Default Sound", oldSection.getBoolean("Prevent Default Sound").orElse(false));
+        }
+
+        leaveSound.setAt(section);
+        this.leaveSound = new PlayableRichSound(section);
+    }
+
+    /**
+     * @return The sound that plays in loop while a player is inside this region.
+     */
+    public @Nullable PlayableRichSound getLoopSound()
+    {
+        return loopSound;
+    }
+
+    /**
+     * Sets the loop sound of this region.
+     *
+     * @param loopSound The sound to play while a player is in this region.
+     */
+    public void setLoopSound(@Nullable PlayableRichSound loopSound)
+    {
+        if (loopSound == null) {
+            this.loopSound = null;
+            return;
+        }
+
+        var section = new Configuration(new YamlConfigurationLoader()).createSection("Loop Sound");
+        var oldSection = loopSound.getSection();
+
+        if (oldSection != null) {
+            section.set("Delay", oldSection.getNumber("Delay").orElse(0L).longValue());
+            section.set("Period", oldSection.getNumber("Period").orElse(100L).longValue());
+            section.set("Prevent Default Sound", oldSection.getBoolean("Prevent Default Sound").orElse(false));
+            section.set("Stop On Exit.Enabled", oldSection.getBoolean("Stop On Exit.Enabled").orElse(false));
+            section.set("Stop On Exit.Delay", oldSection.getNumber("Stop On Exit.Delay").orElse(0L).longValue());
+        }
+
+        loopSound.setAt(section);
+        this.loopSound = new PlayableRichSound(section);
     }
 
     /**
