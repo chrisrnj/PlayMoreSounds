@@ -18,6 +18,7 @@
 
 package com.epicnicity322.playmoresounds.core.addons;
 
+import com.epicnicity322.epicpluginlib.core.EpicPluginLib;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
 import com.epicnicity322.playmoresounds.core.addons.exceptions.InvalidAddonException;
@@ -35,13 +36,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 
 public class AddonDescription
 {
     private static final @NotNull Pattern duplicatedSpaces = Pattern.compile(" +");
-    private static final @NotNull Pattern notAlphaNumericAndSpace = Pattern.compile("[^A-Za-z0-9\\s]");
+    private static final @NotNull Pattern notAlphaNumericAndSpace = Pattern.compile("[^A-Za-z\\d\\s]");
     private static final @NotNull Pattern notLetters = Pattern.compile("[^A-Za-z]");
     private static final @NotNull YamlConfigurationLoader loader = new YamlConfigurationLoader();
     final @NotNull Path jar;
@@ -62,56 +64,70 @@ public class AddonDescription
         this.jar = jar;
 
         // Getting the description file.
-        var jarFile = new JarFile(jar.toFile());
-        var entry = jarFile.getJarEntry("pmsaddon.yml");
+        try (var jarFile = new JarFile(jar.toFile())) {
+            var entry = jarFile.getJarEntry("pmsaddon.yml");
+            var fileName = jar.getFileName().toString();
 
-        var fileName = jar.getFileName().toString();
-
-        if (entry == null)
-            throw new InvalidAddonException(new FileNotFoundException("The jar '" + fileName + "' in addons folder does not contain a description file."));
-
-        try {
-            Configuration description = loader.load(new InputStreamReader(jarFile.getInputStream(entry)));
+            if (entry == null)
+                throw new InvalidAddonException(new FileNotFoundException("The jar '" + fileName + "' in addons folder does not contain a description file."));
 
             try {
-                name = parseName(description.getString("Name").orElseThrow(() -> new InvalidAddonException("The addon '" + fileName + "' does not contain 'Name' property in description.")));
-            } catch (IllegalArgumentException ex) {
-                throw new InvalidAddonException("The addon '" + fileName + "' has an invalid name: " + ex.getMessage(), ex);
-            }
+                Configuration description = loader.load(new InputStreamReader(jarFile.getInputStream(entry)));
 
-            mainClass = description.getString("Main Class").orElseThrow(() -> new InvalidAddonException("The addon '" + name + "' does not contain 'Main Class' property in description."));
-
-            Optional<String> startTime = description.getString("Start Time");
-
-            if (startTime.isPresent())
                 try {
-                    this.startTime = StartTime.valueOf(startTime.get());
+                    name = parseName(description.getString("Name").orElseThrow(() -> new InvalidAddonException("The addon '" + fileName + "' does not contain 'Name' property in description.")));
                 } catch (IllegalArgumentException ex) {
-                    throw new InvalidAddonException("The addon '" + name + "' has an invalid start time.", ex);
+                    throw new InvalidAddonException("The addon '" + fileName + "' has an invalid name: " + ex.getMessage(), ex);
                 }
-            else
-                this.startTime = StartTime.SERVER_LOAD_COMPLETE;
 
-            try {
-                version = new Version(description.getString("Version").orElse("1.0"));
-            } catch (IllegalArgumentException ex) {
-                throw new InvalidAddonException("The addon '" + name + "' has an invalid version defined for Version key.", ex);
+                Optional<String> mainClass = description.getString("Main Class");
+
+                if (mainClass.isPresent()) {
+                    this.mainClass = mainClass.get();
+                } else {
+                    Supplier<InvalidAddonException> noMainClass = () -> new InvalidAddonException("The addon '" + name + "' does not contain 'Main Class' property in description.");
+
+                    switch (EpicPluginLib.Platform.getPlatform()) {
+                        case BUKKIT ->
+                                this.mainClass = description.getString("Bukkit Main Class").orElseThrow(noMainClass);
+                        case SPONGE ->
+                                this.mainClass = description.getString("Sponge Main Class").orElseThrow(noMainClass);
+                        default ->
+                                throw new UnsupportedOperationException("PlayMoreSounds is running on an unsupported platform and the addon '" + name + "' has not specified a general 'Main Class' property in description.");
+                    }
+                }
+
+                Optional<String> startTime = description.getString("Start Time");
+
+                if (startTime.isPresent())
+                    try {
+                        this.startTime = StartTime.valueOf(startTime.get());
+                    } catch (IllegalArgumentException ex) {
+                        throw new InvalidAddonException("The addon '" + name + "' has an invalid start time.", ex);
+                    }
+                else this.startTime = StartTime.SERVER_LOAD_COMPLETE;
+
+                try {
+                    version = new Version(description.getString("Version").orElse("1.0"));
+                } catch (IllegalArgumentException ex) {
+                    throw new InvalidAddonException("The addon '" + name + "' has an invalid version defined for Version key.", ex);
+                }
+
+                try {
+                    apiVersion = new Version(description.getString("Api Version").orElse(PlayMoreSoundsVersion.version));
+                } catch (IllegalArgumentException ex) {
+                    throw new InvalidAddonException("The addon '" + name + "' has an invalid version defined for Api Version key.", ex);
+                }
+
+                this.description = description.getString("Description").orElse("I'm a PMSAddon.");
+                authors = Collections.unmodifiableCollection(description.getCollection("Authors", Object::toString));
+                pluginHooks = Collections.unmodifiableCollection(description.getCollection("Plugin Hooks", Object::toString));
+                addonHooks = Collections.unmodifiableCollection(description.getCollection("Addon Hooks", Object::toString));
+                requiredPlugins = Collections.unmodifiableCollection(description.getCollection("Required Plugins", Object::toString));
+                requiredAddons = Collections.unmodifiableCollection(description.getCollection("Required Addons", Object::toString));
+            } catch (InvalidConfigurationException ex) {
+                throw new InvalidAddonException("The addon '" + fileName + "' has a misconfigured description file.", ex);
             }
-
-            try {
-                apiVersion = new Version(description.getString("Api Version").orElse(PlayMoreSoundsVersion.version));
-            } catch (IllegalArgumentException ex) {
-                throw new InvalidAddonException("The addon '" + name + "' has an invalid version defined for Api Version key.", ex);
-            }
-
-            this.description = description.getString("Description").orElse("I'm a PMSAddon.");
-            authors = Collections.unmodifiableCollection(description.getCollection("Authors", Object::toString));
-            pluginHooks = Collections.unmodifiableCollection(description.getCollection("Plugin Hooks", Object::toString));
-            addonHooks = Collections.unmodifiableCollection(description.getCollection("Addon Hooks", Object::toString));
-            requiredPlugins = Collections.unmodifiableCollection(description.getCollection("Required Plugins", Object::toString));
-            requiredAddons = Collections.unmodifiableCollection(description.getCollection("Required Addons", Object::toString));
-        } catch (InvalidConfigurationException ex) {
-            throw new InvalidAddonException("The addon '" + fileName + "' has a misconfigured description file.", ex);
         }
     }
 
