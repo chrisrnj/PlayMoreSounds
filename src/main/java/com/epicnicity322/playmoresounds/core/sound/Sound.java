@@ -341,10 +341,10 @@ public class Sound
     /**
      * Sets the properties of this sound to the specified section.
      * <p>
-     * A configuration section will be created with the name of {@link #getId()}, if it doesn't already exists. And the
+     * A configuration section will be created with the name of {@link #getId()}, if it doesn't already exist. And the
      * properties will be applied to it. Keys set by this method are the same used to create a sound with {@link #Sound(ConfigurationSection)}.
      * <p>
-     * Default properties are ignored.
+     * Properties with default values are ignored.
      * <p>
      * {@link SoundOptions} are set automatically to 'Options' section through {@link SoundOptions#set(ConfigurationSection)}
      *

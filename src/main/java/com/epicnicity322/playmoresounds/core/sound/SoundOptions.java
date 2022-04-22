@@ -149,7 +149,7 @@ public class SoundOptions
      * Sets the sound properties to the specified section. Keys set by this method are the same used to create sound
      * options with {@link #SoundOptions(ConfigurationSection)}.
      * <p>
-     * Default properties are ignored.
+     * Properties with default values are ignored.
      *
      * @param section The section to set the properties.
      */
