@@ -23,6 +23,7 @@ import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
+import com.epicnicity322.yamlhandler.ConfigurationSection;
 import com.epicnicity322.yamlhandler.YamlConfigurationLoader;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -176,15 +177,27 @@ public final class RegionManager
         Location maxDiagonal = region.getMaxDiagonal();
         Location minDiagonal = region.getMinDiagonal();
 
-        data.set("Diagonals.First.X", maxDiagonal.getBlockX());
-        data.set("Diagonals.First.Y", maxDiagonal.getBlockY());
-        data.set("Diagonals.First.Z", maxDiagonal.getBlockZ());
-        data.set("Diagonals.Second.X", minDiagonal.getBlockX());
-        data.set("Diagonals.Second.Y", minDiagonal.getBlockY());
-        data.set("Diagonals.Second.Z", minDiagonal.getBlockZ());
+        data.set("Diagonals.Max.X", maxDiagonal.getBlockX());
+        data.set("Diagonals.Max.Y", maxDiagonal.getBlockY());
+        data.set("Diagonals.Max.Z", maxDiagonal.getBlockZ());
+        data.set("Diagonals.Min.X", minDiagonal.getBlockX());
+        data.set("Diagonals.Min.Y", minDiagonal.getBlockY());
+        data.set("Diagonals.Min.Z", minDiagonal.getBlockZ());
+        // Copying region sounds to the configuration, in case there are any.
+        if (region.getEnterSound() != null) copySettings(region.getEnterSound().getSection(), data);
+        if (region.getLeaveSound() != null) copySettings(region.getLeaveSound().getSection(), data);
+        if (region.getLoopSound() != null) copySettings(region.getLoopSound().getSection(), data);
 
         data.save(regionsFolder.resolve(region.getId() + ".yml"));
         regions.add(region);
+    }
+
+    private static void copySettings(ConfigurationSection section1, ConfigurationSection section2)
+    {
+        if (section1 == null || section2 == null) return;
+        for (Map.Entry<String, Object> node : section1.getAbsoluteNodes().entrySet()) {
+            section2.set(node.getKey(), node.getValue());
+        }
     }
 
     /**
