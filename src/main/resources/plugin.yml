@@ -41,6 +41,8 @@ permissions:
       playmoresounds.disc.give.others: true
       playmoresounds.editor: true
       playmoresounds.play.others: true
+      playmoresounds.resourcepacker.administrator: true
+      playmoresounds.resourcepacker.force.bypass: true
       playmoresounds.stopsound.others: true
       playmoresounds.toggle.others: true
       playmoresounds.toggle.check.others: true
