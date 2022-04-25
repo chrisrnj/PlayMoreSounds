@@ -228,7 +228,7 @@ public final class PlayMoreSounds extends JavaPlugin
         HashMap<ConfigurationHolder, Exception> exceptions = Configurations.getConfigurationLoader().loadConfigurations();
         RegionManager.reload();
         ListenerRegister.loadListeners();
-        WorldTimeListener.load();
+        WorldTimeListener.load(instance);
         UpdateManager.loadUpdater(instance);
         ListInventory.refreshListInventories();
         OnPlayerResourcePackStatus.load(instance);
@@ -307,7 +307,7 @@ public final class PlayMoreSounds extends JavaPlugin
             // Registering region enter and leave event caller.
             pm.registerEvents(new OnPlayerTeleport(this), this);
             // TimeTrigger checks itself it does need to load or not on load method.
-            WorldTimeListener.load();
+            WorldTimeListener.load(this);
 
             logger.log("&6-> &e" + ListenerRegister.loadListeners() + " listeners loaded.");
 
