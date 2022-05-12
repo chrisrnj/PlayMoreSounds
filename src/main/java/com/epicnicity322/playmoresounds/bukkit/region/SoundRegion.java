@@ -19,7 +19,9 @@
 package com.epicnicity322.playmoresounds.bukkit.region;
 
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
 import com.epicnicity322.yamlhandler.Configuration;
+import com.epicnicity322.yamlhandler.ConfigurationSection;
 import com.epicnicity322.yamlhandler.YamlConfigurationLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -39,6 +41,10 @@ public class SoundRegion
     private final @NotNull UUID id;
     private final @Nullable UUID creator;
     private final @NotNull ZonedDateTime creationDate;
+    /**
+     * True to automatically save this region to PlayMoreSounds data folder in case any of the set methods are used.
+     */
+    volatile boolean periodicallySave = false;
     private String name;
     private @Nullable String description;
     private @NotNull Location maxDiagonal;
@@ -189,10 +195,12 @@ public class SoundRegion
      */
     public void setName(@NotNull String name)
     {
+        if (this.name.equals(name)) return;
         if (!ALLOWED_REGION_NAME_CHARS.matcher(name).matches())
             throw new IllegalArgumentException("Specified name is not alpha-numeric.");
 
         this.name = name;
+        addToSave();
     }
 
     /**
@@ -222,10 +230,11 @@ public class SoundRegion
      */
     public void setMaxDiagonal(@NotNull Location loc)
     {
+        if (loc.equals(this.maxDiagonal)) return;
         var world = minDiagonal.getWorld();
 
-        if (loc.getWorld() != world)
-            throw new IllegalArgumentException("First position can not be in a different world than second position.");
+        if (!Objects.equals(world, loc.getWorld()))
+            throw new IllegalArgumentException("Max diagonal can not be in a different world than min diagonal.");
 
         int maxX = Math.max(loc.getBlockX(), maxDiagonal.getBlockX());
         int maxY = Math.max(loc.getBlockY(), maxDiagonal.getBlockY());
@@ -237,6 +246,7 @@ public class SoundRegion
         maxDiagonal = new Location(world, maxX, maxY, maxZ);
         minDiagonal = new Location(world, minX, minY, minZ);
         border = parseBorder();
+        addToSave();
     }
 
     /**
@@ -252,25 +262,27 @@ public class SoundRegion
     /**
      * Calculates the min and max coordinates of this location and max diagonal and updates both.
      *
-     * @param location The location of a diagonal of this sound region.
+     * @param loc The location of a diagonal of this sound region.
      */
-    public void setMinDiagonal(@NotNull Location location)
+    public void setMinDiagonal(@NotNull Location loc)
     {
+        if (loc.equals(this.minDiagonal)) return;
         var world = maxDiagonal.getWorld();
 
-        if (location.getWorld() != world)
-            throw new IllegalArgumentException("Second position can not be in a different world than first position.");
+        if (!Objects.equals(world, loc.getWorld()))
+            throw new IllegalArgumentException("Min diagonal can not be in a different world than max diagonal.");
 
-        int maxX = Math.max(location.getBlockX(), maxDiagonal.getBlockX());
-        int maxY = Math.max(location.getBlockY(), maxDiagonal.getBlockY());
-        int maxZ = Math.max(location.getBlockZ(), maxDiagonal.getBlockZ());
-        int minX = Math.min(location.getBlockX(), maxDiagonal.getBlockX());
-        int minY = Math.min(location.getBlockY(), maxDiagonal.getBlockY());
-        int minZ = Math.min(location.getBlockZ(), maxDiagonal.getBlockZ());
+        int maxX = Math.max(loc.getBlockX(), maxDiagonal.getBlockX());
+        int maxY = Math.max(loc.getBlockY(), maxDiagonal.getBlockY());
+        int maxZ = Math.max(loc.getBlockZ(), maxDiagonal.getBlockZ());
+        int minX = Math.min(loc.getBlockX(), maxDiagonal.getBlockX());
+        int minY = Math.min(loc.getBlockY(), maxDiagonal.getBlockY());
+        int minZ = Math.min(loc.getBlockZ(), maxDiagonal.getBlockZ());
 
         maxDiagonal = new Location(world, maxX, maxY, maxZ);
         minDiagonal = new Location(world, minX, minY, minZ);
         border = parseBorder();
+        addToSave();
     }
 
     /**
@@ -310,7 +322,9 @@ public class SoundRegion
      */
     public void setDescription(@Nullable String description)
     {
+        if (Objects.equals(this.description, description)) return;
         this.description = description;
+        addToSave();
     }
 
     /**
@@ -343,7 +357,8 @@ public class SoundRegion
         }
 
         enterSound.setAt(section);
-        this.enterSound = new PlayableRichSound(section);
+        this.enterSound = new RegionRichSound(section);
+        addToSave();
     }
 
     /**
@@ -374,7 +389,8 @@ public class SoundRegion
         }
 
         leaveSound.setAt(section);
-        this.leaveSound = new PlayableRichSound(section);
+        this.leaveSound = new RegionRichSound(section);
+        addToSave();
     }
 
     /**
@@ -409,24 +425,102 @@ public class SoundRegion
         }
 
         loopSound.setAt(section);
-        this.loopSound = new PlayableRichSound(section);
+        this.loopSound = new RegionRichSound(section);
+        addToSave();
     }
 
-    /**
-     * Checks if the {@link Object} is a {@link SoundRegion} and has the same {@link UUID} as this one.
-     */
+    private void addToSave()
+    {
+        if (periodicallySave) {
+            RegionManager.regionsToSave.add(id.toString());
+            RegionManager.loadAutoSave();
+        }
+    }
+
     @Override
     public boolean equals(Object o)
     {
         if (this == o) return true;
-        if (!(o instanceof SoundRegion that)) return false;
-
-        return id.equals(that.id);
+        if (o == null || getClass() != o.getClass()) return false;
+        SoundRegion that = (SoundRegion) o;
+        return id.equals(that.id) &&
+                Objects.equals(creator, that.creator) &&
+                creationDate.equals(that.creationDate) &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(description, that.description) &&
+                maxDiagonal.equals(that.maxDiagonal) &&
+                Objects.equals(minDiagonal, that.minDiagonal) &&
+                Objects.equals(enterSound, that.enterSound) &&
+                Objects.equals(leaveSound, that.leaveSound) &&
+                Objects.equals(loopSound, that.loopSound);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(id);
+        return Objects.hash(id, creator, creationDate, name, description, maxDiagonal, minDiagonal, enterSound, leaveSound, loopSound);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "SoundRegion{" +
+                "id=" + id +
+                ", creator=" + creator +
+                ", creationDate=" + creationDate +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", maxDiagonal=" + maxDiagonal +
+                ", minDiagonal=" + minDiagonal +
+                ", enterSound=" + enterSound +
+                ", leaveSound=" + leaveSound +
+                ", loopSound=" + loopSound +
+                '}';
+    }
+
+    /**
+     * This sound will automatically add the region to {@link RegionManager#regionsToSave} if any property is changed.
+     */
+    private final class RegionRichSound extends PlayableRichSound
+    {
+        public RegionRichSound(@NotNull ConfigurationSection section)
+        {
+            super(section);
+        }
+
+        @Override
+        public void setCancellable(boolean cancellable)
+        {
+            super.setCancellable(cancellable);
+            addToSave();
+        }
+
+        @Override
+        public void setEnabled(boolean enabled)
+        {
+            super.setEnabled(enabled);
+            addToSave();
+        }
+
+        @Override
+        public void addChildSound(@NotNull PlayableSound childSound)
+        {
+            super.addChildSound(childSound);
+            addToSave();
+        }
+
+        @Override
+        public void removeChildSound(@NotNull String soundId)
+        {
+            super.removeChildSound(soundId);
+            addToSave();
+        }
+
+        @Override
+        public void removeChildSound(@NotNull PlayableSound childSound)
+        {
+            super.removeChildSound(childSound);
+            addToSave();
+        }
     }
 }

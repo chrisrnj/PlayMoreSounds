@@ -31,7 +31,6 @@ import com.epicnicity322.playmoresounds.bukkit.gui.inventories.ListInventory;
 import com.epicnicity322.playmoresounds.bukkit.listeners.*;
 import com.epicnicity322.playmoresounds.bukkit.metrics.Metrics;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
-import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableSound;
 import com.epicnicity322.playmoresounds.bukkit.util.ListenerRegister;
 import com.epicnicity322.playmoresounds.bukkit.util.UpdateManager;
@@ -226,7 +225,7 @@ public final class PlayMoreSounds extends JavaPlugin
         if (instance == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
         HashMap<ConfigurationHolder, Exception> exceptions = Configurations.getConfigurationLoader().loadConfigurations();
-        RegionManager.reload();
+        RegionManager.saveAndUpdate();
         ListenerRegister.loadListeners();
         WorldTimeListener.load(instance);
         UpdateManager.loadUpdater(instance);
@@ -284,11 +283,11 @@ public final class PlayMoreSounds extends JavaPlugin
             } else {
                 logger.log("Unable to load some configurations.", ConsoleLogger.Level.ERROR);
                 exceptions.forEach((config, e) -> errorHandler.report(e, "Configuration: " + config.getPath() + "\nConfig load error:"));
-                success = false;
                 return;
             }
 
-            RegionManager.reload();
+            RegionManager.saveAndUpdate();
+            RegionManager.loadAutoSave();
 
             addonManager.startAddons(StartTime.BEFORE_LISTENERS);
 
@@ -410,23 +409,7 @@ public final class PlayMoreSounds extends JavaPlugin
         // Checking if PlayMoreSounds was already disabled.
         if (disabled) return;
 
-        if (!RegionManager.getRegions().isEmpty()) {
-            logger.log("&eSaving regions...");
-            int count = 0;
-
-            for (SoundRegion region : RegionManager.getRegions()) {
-                try {
-                    RegionManager.save(region);
-                    count++;
-                } catch (Exception e) {
-                    logger.log("Unable to save " + region.getName() + " region.", ConsoleLogger.Level.WARN);
-                }
-            }
-
-            if (count != 0) {
-                logger.log("&e" + count + " regions were saved.");
-            }
-        }
+        RegionManager.saveAndUpdate();
 
         addonManager.stopAddons();
 

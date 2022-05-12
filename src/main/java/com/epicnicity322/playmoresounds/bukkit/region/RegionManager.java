@@ -25,12 +25,15 @@ import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import com.epicnicity322.yamlhandler.YamlConfigurationLoader;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,41 +47,28 @@ import java.util.stream.Stream;
 @SuppressWarnings("deprecation")
 public final class RegionManager
 {
+    /**
+     * Region IDs present in this set will be saved to data folder on {@link #saveAndUpdate()}.
+     */
+    static final @NotNull HashSet<String> regionsToSave = new HashSet<>();
+    /**
+     * Region IDs present in this set will be deleted on {@link #saveAndUpdate()}.
+     */
+    static final @NotNull HashSet<String> regionsToRemove = new HashSet<>();
     private static final @NotNull Path regionsFolder = PlayMoreSoundsCore.getFolder().resolve("Data").resolve("Regions");
     private static final @NotNull HashSet<SoundRegion> regions = new HashSet<>();
     private static final @NotNull Set<SoundRegion> unmodifiableRegions = Collections.unmodifiableSet(regions);
-    private static final @NotNull Runnable regionUpdater;
     private static final @NotNull Runnable wandUpdater;
     private static ItemStack wand;
 
     static {
-        regionUpdater = () -> {
-            regions.clear();
-
-            if (Files.exists(regionsFolder)) {
-                try (Stream<Path> regionFiles = Files.list(regionsFolder)) {
-                    regionFiles.forEach(regionFile -> {
-                        try {
-                            regions.add(new SoundRegion(new YamlConfigurationLoader().load(regionFile)));
-                        } catch (Exception e) {
-                            PlayMoreSounds.getConsoleLogger().log("Error when reading region file \"" + regionFile.getFileName().toString() + "\": " + e.getMessage());
-                            PlayMoreSoundsCore.getErrorHandler().report(e, "Region instantiate from file exception:");
-                        }
-                    });
-                } catch (IOException e) {
-                    PlayMoreSounds.getConsoleLogger().log("Unable to read regions in Data/Regions folder.", ConsoleLogger.Level.ERROR);
-                    PlayMoreSoundsCore.getErrorHandler().report(e, "Region Read Exception:");
-                }
-            }
-        };
-
         wandUpdater = () -> {
             var config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
 
             String materialName = config.getString("Sound Regions.Wand.Material").orElse("FEATHER");
             var material = Material.getMaterial(materialName);
 
-            if (material == null || material.isAir()) {
+            if (material == null || material.isAir() || !material.isItem()) {
                 PlayMoreSounds.getConsoleLogger().log("&cRegion wand has an invalid material: " + material + ". Using default FEATHER.");
                 material = Material.FEATHER;
             }
@@ -96,8 +86,6 @@ public final class RegionManager
             item.setItemMeta(meta);
             wand = item;
         };
-
-        regionUpdater.run();
         wandUpdater.run();
     }
 
@@ -149,18 +137,106 @@ public final class RegionManager
     }
 
     /**
-     * Saves a {@link SoundRegion} in PlayMoreSounds' data folder. If another region with the same {@link java.util.UUID}
-     * was found there, it is deleted and replaced by this one.
-     * <p>
-     * Regions saved by this method are automatically added to {@link #getRegions()}.
+     * Adds a region to {@link #getRegions()}. Regions added by this method are automatically saved periodically and on
+     * PlayMoreSounds disable.
      *
-     * @param region The region to save.
-     * @throws IllegalArgumentException If region is a sub-class of {@link SoundRegion}.
+     * @param region The region object to be saved and managed by PlayMoreSounds.
      */
-    public static void save(@NotNull SoundRegion region) throws IOException
+    public static void add(@NotNull SoundRegion region)
     {
-        delete(region);
+        region.periodicallySave = true;
+        regions.add(region);
+        regionsToSave.add(region.getId().toString());
+        loadAutoSave();
+    }
 
+    /**
+     * Remove a region from {@link #getRegions()}. Once region updater task runs, this region will be removed from
+     * PlayMoreSounds' data files.
+     *
+     * @param region The region to remove.
+     */
+    public static void remove(@NotNull SoundRegion region)
+    {
+        region.periodicallySave = false;
+        regions.remove(region);
+        regionsToRemove.add(region.getId().toString());
+        loadAutoSave();
+    }
+
+    /**
+     * Saves and removes regions that were scheduled in {@link #add(SoundRegion)} and {@link #remove(SoundRegion)} methods.
+     * Then, it updates {@link #getRegions()} set with new {@link SoundRegion} instances based on the saved region files.
+     */
+    public static void saveAndUpdate()
+    {
+        var logger = PlayMoreSounds.getConsoleLogger();
+
+        // Deleting regions scheduled to be removed.
+        for (String id : regionsToRemove) {
+            try {
+                Files.deleteIfExists(regionsFolder.resolve(id + ".yml"));
+            } catch (Exception e) {
+                logger.log("Something went wrong while deleting region '" + id + "'.", ConsoleLogger.Level.ERROR);
+                e.printStackTrace();
+            }
+        }
+        regionsToRemove.clear();
+
+        // Saving scheduled regions, and removing remaining regions in order to update them.
+        regions.removeIf(region -> {
+            String id = region.getId().toString();
+
+            if (regionsToSave.contains(id)) {
+                try {
+                    save(region);
+                    return false;
+                } catch (Exception e) {
+                    logger.log("Something went wrong while saving region '" + id + "'.", ConsoleLogger.Level.ERROR);
+                    e.printStackTrace();
+                    // Removing so it can attempt to load from last save, on the code below.
+                    regionsToSave.remove(id);
+                    return true;
+                }
+            } else {
+                return true;
+            }
+        });
+
+        // Updating instances of regions that weren't just saved. Regions files may change, for example: console might
+        //want to edit region sounds. So, all instances of regions must be updated in case the files changed.
+        if (Files.exists(regionsFolder)) {
+            try (Stream<Path> regionFiles = Files.list(regionsFolder)) {
+                var loader = new YamlConfigurationLoader();
+
+                regionFiles.filter(regionFile -> regionFile.getFileName().toString().endsWith(".yml")).forEach(regionFile -> {
+                    String name = regionFile.getFileName().toString();
+
+                    // Don't want to re-add sound regions that were just saved.
+                    if (regionsToSave.contains(name.substring(0, name.lastIndexOf(".")))) return;
+
+                    try {
+                        var region = new SoundRegion(loader.load(regionFile));
+                        region.periodicallySave = true;
+                        regions.add(region);
+                    } catch (Exception e) {
+                        logger.log("Error while reading region file \"" + name + "\": " + e.getMessage(), ConsoleLogger.Level.WARN);
+                        logger.log("This region could not be loaded.", ConsoleLogger.Level.WARN);
+                        PlayMoreSoundsCore.getErrorHandler().report(e, "File: " + name + "\nRegion instantiate from file exception:");
+                    }
+                });
+            } catch (Exception e) {
+                PlayMoreSounds.getConsoleLogger().log("Unable to read regions in Data/Regions folder.", ConsoleLogger.Level.ERROR);
+                PlayMoreSoundsCore.getErrorHandler().report(e, "Region Read Exception:");
+            }
+        }
+
+        regionsToSave.clear();
+    }
+
+    private static void save(@NotNull SoundRegion region) throws IOException
+    {
+        Files.deleteIfExists(regionsFolder.resolve(region.getId() + ".yml"));
         Configuration data = new Configuration(new YamlConfigurationLoader());
 
         data.set("Name", region.getName());
@@ -189,7 +265,6 @@ public final class RegionManager
         if (region.getLoopSound() != null) copySettings(region.getLoopSound().getSection(), data);
 
         data.save(regionsFolder.resolve(region.getId() + ".yml"));
-        regions.add(region);
     }
 
     private static void copySettings(ConfigurationSection section1, ConfigurationSection section2)
@@ -200,30 +275,29 @@ public final class RegionManager
         }
     }
 
-    /**
-     * Removes the data of this region on PlayMoreSounds' data folder, if it exists.
-     * <p>
-     * Regions deleted by this method are automatically removed from {@link #getRegions()}.
-     *
-     * @param region The region to delete.
-     * @throws IllegalArgumentException If region is a sub-class of {@link SoundRegion}.
-     */
-    public static void delete(@NotNull SoundRegion region) throws IOException
-    {
-        if (region.getClass() != SoundRegion.class)
-            throw new IllegalArgumentException("Region is a sub-class of SoundRegion.");
+    private static @Nullable BukkitRunnable autoSaver;
 
-        Files.deleteIfExists(regionsFolder.resolve(region.getId() + ".yml"));
-        regions.remove(region);
-    }
+    public static synchronized void loadAutoSave() {
+        if (autoSaver != null) return;
+        if (regionsToSave.isEmpty() && regionsToRemove.isEmpty()) return;
 
-    /**
-     * Loads {@link #getRegions()} and {@link #getWand()} based on the regions saved on PlayMoreSounds' data folder and
-     * the wand keys on PlayMoreSounds' main config.
-     */
-    public static void reload()
-    {
-        regionUpdater.run();
-        wandUpdater.run();
+        PlayMoreSounds plugin = PlayMoreSounds.getInstance();
+
+        if (plugin == null) return;
+
+        autoSaver = new BukkitRunnable() {
+            @Override
+            public void run()
+            {
+                if (regionsToSave.isEmpty() && regionsToRemove.isEmpty()) {
+                    cancel();
+                    autoSaver = null;
+                    return;
+                }
+                PlayMoreSounds.getConsoleLogger().log("Saving region changes...");
+                saveAndUpdate();
+            }
+        };
+        autoSaver.runTaskTimerAsynchronously(plugin, 0, 36000);
     }
 }
