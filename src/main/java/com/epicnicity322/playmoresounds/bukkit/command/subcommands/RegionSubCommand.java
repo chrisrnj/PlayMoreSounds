@@ -42,9 +42,10 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -54,6 +55,7 @@ public final class RegionSubCommand extends Command implements Helpable
      * Borders are quite heavy on performance so there is a maximum amount of borders that can be shown at the same time.
      */
     private static final @NotNull AtomicInteger showingBorders = new AtomicInteger(0);
+    private static final ExecutorService regionExecutor = Executors.newSingleThreadExecutor();
     private final @NotNull PlayMoreSounds plugin;
 
     public RegionSubCommand(@NotNull PlayMoreSounds plugin)
@@ -80,7 +82,7 @@ public final class RegionSubCommand extends Command implements Helpable
     }
 
     @Override
-    public @Nullable String getPermission()
+    public @NotNull String getPermission()
     {
         return "playmoresounds.region";
     }
@@ -92,13 +94,13 @@ public final class RegionSubCommand extends Command implements Helpable
     }
 
     @Override
-    protected @Nullable CommandRunnable getNoPermissionRunnable()
+    protected @NotNull CommandRunnable getNoPermissionRunnable()
     {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
     @Override
-    protected @Nullable CommandRunnable getNotEnoughArgsRunnable()
+    protected @NotNull CommandRunnable getNotEnoughArgsRunnable()
     {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", "<create|info|list|remove|rename|set|teleport|wand>"));
     }
@@ -110,7 +112,7 @@ public final class RegionSubCommand extends Command implements Helpable
             case "create", "new" -> {
                 if (!CommandUtils.parsePermission(sender, "playmoresounds.region.create")) return;
 
-                new Thread(() -> create(label, sender, args), "Region Builder").start();
+                regionExecutor.submit(() -> create(label, sender, args));
             }
             case "info" -> {
                 if (!CommandUtils.parsePermission(sender, "playmoresounds.region.info")) return;
@@ -257,15 +259,10 @@ public final class RegionSubCommand extends Command implements Helpable
                         }
         }
 
-        try {
-            RegionManager.save(region);
-            lang.send(sender, lang.get("Region.Create.Success").replace("<name>", name).replace("<label>", label).replace("<label2>", args[0]));
-            OnPlayerInteract.selectDiagonal(creator, null, true);
-            OnPlayerInteract.selectDiagonal(creator, null, false);
-        } catch (IOException e) {
-            lang.send(sender, lang.get("Region.Create.Error.Default").replace("<name>", name));
-            PlayMoreSoundsCore.getErrorHandler().report(e, "Error while creating region \"" + name + "\":");
-        }
+        RegionManager.add(region);
+        lang.send(sender, lang.get("Region.Create.Success").replace("<name>", name).replace("<label>", label).replace("<label2>", args[0]));
+        OnPlayerInteract.selectDiagonal(creator, null, true);
+        OnPlayerInteract.selectDiagonal(creator, null, false);
     }
 
     private void info(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
@@ -352,11 +349,7 @@ public final class RegionSubCommand extends Command implements Helpable
 
         var player = Bukkit.getOfflinePlayer(creator);
 
-        if (player != null) {
-            return Objects.requireNonNullElse(player.getName(), creator.toString());
-        } else {
-            return creator.toString();
-        }
+        return Objects.requireNonNullElse(player.getName(), creator.toString());
     }
 
     private Set<SoundRegion> getSenderRegions(CommandSender sender)
@@ -401,7 +394,7 @@ public final class RegionSubCommand extends Command implements Helpable
                         return;
                     } else {
                         regions = RegionManager.getRegionsOf(player.getUniqueId());
-                        who = player.getName().equals(sender.getName()) ? null : player.getName();
+                        who = Objects.equals(player.getName(), sender.getName()) ? null : player.getName();
                     }
                 }
             }
@@ -473,13 +466,8 @@ public final class RegionSubCommand extends Command implements Helpable
             @Override
             public void run()
             {
-                try {
-                    RegionManager.delete(region);
-                    lang.send(sender, lang.get("Region.Remove.Success").replace("<region>", name));
-                } catch (Exception ex) {
-                    lang.send(sender, lang.get("Region.Remove.Error").replace("<region>", name));
-                    PlayMoreSoundsCore.getErrorHandler().report(ex, "Error while deleting region " + name);
-                }
+                RegionManager.remove(region);
+                lang.send(sender, lang.get("Region.Remove.Success").replace("<region>", name));
             }
         }, lang.get("Region.Remove.Description").replace("<region>", name));
     }
@@ -529,14 +517,7 @@ public final class RegionSubCommand extends Command implements Helpable
         }
 
         region.setName(newName);
-
-        try {
-            RegionManager.save(region);
-            lang.send(sender, lang.get("Region.Rename.Success").replace("<region>", oldName).replace("<newName>", newName));
-        } catch (Exception ex) {
-            lang.send(sender, lang.get("Region.General.Error.Save").replace("<region>", region.getName()));
-            PlayMoreSoundsCore.getErrorHandler().report(ex, region.getName() + " Region Save Error:");
-        }
+        lang.send(sender, lang.get("Region.Rename.Success").replace("<region>", oldName).replace("<newName>", newName));
     }
 
     private void set(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
@@ -581,13 +562,7 @@ public final class RegionSubCommand extends Command implements Helpable
                 }
 
                 region.setDescription(description);
-                try {
-                    RegionManager.save(region);
-                    lang.send(sender, lang.get("Region.Set.Description.Success").replace("<region>", region.getName()).replace("<description>", description));
-                } catch (Exception ex) {
-                    lang.send(sender, lang.get("Region.General.Error.Save").replace("<region>", region.getName()));
-                    PlayMoreSoundsCore.getErrorHandler().report(ex, region.getName() + " Region Save Error:");
-                }
+                lang.send(sender, lang.get("Region.Set.Description.Success").replace("<region>", region.getName()).replace("<description>", description));
                 return;
             }
             case "sounds", "sound" -> {
@@ -678,11 +653,6 @@ public final class RegionSubCommand extends Command implements Helpable
         }
 
         var wand = RegionManager.getWand();
-
-        if (wand == null) {
-            lang.send(sender, lang.get("Region.Wand.Error.Config"));
-            return;
-        }
 
         ((Player) sender).getInventory().addItem(wand);
         lang.send(sender, lang.get("Region.Wand.Success"));
