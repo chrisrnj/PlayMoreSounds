@@ -126,17 +126,17 @@ public abstract class RichSound<T extends Sound>
         return null;
     }
 
-    public final void addChildSound(@NotNull T childSound)
+    public void addChildSound(@NotNull T childSound)
     {
         if (getChildSound(childSound.getId()) == null) childSounds.add(childSound);
     }
 
-    public final void removeChildSound(@NotNull T childSound)
+    public void removeChildSound(@NotNull T childSound)
     {
         childSounds.remove(childSound);
     }
 
-    public final void removeChildSound(@NotNull String id)
+    public void removeChildSound(@NotNull String id)
     {
         childSounds.removeIf(sound -> sound.getId().equals(id));
     }
