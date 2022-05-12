@@ -25,7 +25,6 @@ import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.yamlhandler.Configuration;
 import com.epicnicity322.yamlhandler.ConfigurationSection;
 import com.epicnicity322.yamlhandler.YamlConfigurationLoader;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -33,7 +32,6 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -277,7 +275,8 @@ public final class RegionManager
 
     private static @Nullable BukkitRunnable autoSaver;
 
-    public static synchronized void loadAutoSave() {
+    public static synchronized void loadAutoSave()
+    {
         if (autoSaver != null) return;
         if (regionsToSave.isEmpty() && regionsToRemove.isEmpty()) return;
 
@@ -285,7 +284,8 @@ public final class RegionManager
 
         if (plugin == null) return;
 
-        autoSaver = new BukkitRunnable() {
+        autoSaver = new BukkitRunnable()
+        {
             @Override
             public void run()
             {
@@ -298,6 +298,6 @@ public final class RegionManager
                 saveAndUpdate();
             }
         };
-        autoSaver.runTaskTimerAsynchronously(plugin, 0, 36000);
+        autoSaver.runTaskTimerAsynchronously(plugin, 12000, 36000);
     }
 }
