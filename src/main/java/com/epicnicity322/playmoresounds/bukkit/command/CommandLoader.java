@@ -28,8 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashSet;
 
-public final class CommandLoader
-{
+public final class CommandLoader {
     private static final @NotNull LinkedHashSet<Command> commands = new LinkedHashSet<>();
 
     static {
@@ -66,8 +65,7 @@ public final class CommandLoader
         });
     }
 
-    private CommandLoader()
-    {
+    private CommandLoader() {
     }
 
     /**
@@ -75,16 +73,14 @@ public final class CommandLoader
      *
      * @param command The command to add.
      */
-    public static void addCommand(@NotNull Command command)
-    {
+    public static void addCommand(@NotNull Command command) {
         commands.add(command);
     }
 
     /**
      * @return An immutable set of PlayMoreSounds' registered sub commands.
      */
-    public static @NotNull LinkedHashSet<Command> getCommands()
-    {
+    public static @NotNull LinkedHashSet<Command> getCommands() {
         return new LinkedHashSet<>(commands);
     }
 }

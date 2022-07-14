@@ -34,17 +34,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public final class OnAsyncPlayerChat extends PMSListener
-{
+public final class OnAsyncPlayerChat extends PMSListener {
     private final @NotNull HashMap<String, HashSet<PlayableRichSound>> filtersAndCriteria = new HashMap<>();
 
-    public OnAsyncPlayerChat(@NotNull PlayMoreSounds plugin)
-    {
+    public OnAsyncPlayerChat(@NotNull PlayMoreSounds plugin) {
         super(plugin);
     }
 
-    static boolean matchesFilter(String filter, String criteria, String message)
-    {
+    static boolean matchesFilter(String filter, String criteria, String message) {
         return switch (filter) {
             case "Starts With" -> message.startsWith(criteria);
             case "Ends With" -> message.endsWith(criteria);
@@ -57,14 +54,12 @@ public final class OnAsyncPlayerChat extends PMSListener
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Player Chat";
     }
 
     @Override
-    public void load()
-    {
+    public void load() {
         filtersAndCriteria.clear();
 
         var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
@@ -104,8 +99,7 @@ public final class OnAsyncPlayerChat extends PMSListener
 
     @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onAsyncPlayerChat(AsyncPlayerChatEvent event)
-    {
+    public void onAsyncPlayerChat(AsyncPlayerChatEvent event) {
         var message = event.getMessage();
         var player = event.getPlayer();
         boolean defaultSound = getRichSound() != null;

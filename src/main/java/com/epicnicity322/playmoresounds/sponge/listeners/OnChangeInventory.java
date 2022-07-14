@@ -24,11 +24,9 @@ import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 
-public class OnChangeInventory
-{
+public class OnChangeInventory {
     @Listener
-    public void onChangeInventory(ChangeInventoryEvent.Held event)
-    {
+    public void onChangeInventory(ChangeInventoryEvent.Held event) {
         new PlayableRichSound(Configurations.SOUNDS.getConfigurationHolder().getConfiguration().getConfigurationSection("Change Held Item")).play(event.cause().first(ServerPlayer.class).orElseThrow());
     }
 }

@@ -38,8 +38,7 @@ import org.bukkit.event.Listener;
 
 import java.nio.file.Path;
 
-public final class EssentialsHook extends PMSAddon implements Listener
-{
+public final class EssentialsHook extends PMSAddon implements Listener {
     private boolean registered = false;
     private PlayableRichSound afkSound;
     private PlayableRichSound godSound;
@@ -48,8 +47,7 @@ public final class EssentialsHook extends PMSAddon implements Listener
     private PlayableRichSound leaveSound;
 
     @Override
-    protected void onStart()
-    {
+    protected void onStart() {
         Runnable runnable = () -> {
             Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
             Path path = Configurations.SOUNDS.getConfigurationHolder().getPath();
@@ -157,15 +155,13 @@ public final class EssentialsHook extends PMSAddon implements Listener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onAfkStatusChange(AfkStatusChangeEvent event)
-    {
+    public void onAfkStatusChange(AfkStatusChangeEvent event) {
         if (afkSound != null && (!event.isCancelled() || !afkSound.isCancellable()))
             afkSound.play(event.getAffected().getBase());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onVanishStatusChange(VanishStatusChangeEvent event)
-    {
+    public void onVanishStatusChange(VanishStatusChangeEvent event) {
         if (vanishSound != null) {
             Player player = event.getAffected().getBase();
 
@@ -184,8 +180,7 @@ public final class EssentialsHook extends PMSAddon implements Listener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onGodStatusChange(GodStatusChangeEvent event)
-    {
+    public void onGodStatusChange(GodStatusChangeEvent event) {
         if (godSound != null && (!event.isCancelled() || !godSound.isCancellable()))
             godSound.play(event.getAffected().getBase());
     }

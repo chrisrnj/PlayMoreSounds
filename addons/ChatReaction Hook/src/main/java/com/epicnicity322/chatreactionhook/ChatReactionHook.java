@@ -37,16 +37,14 @@ import org.bukkit.event.Listener;
 
 import java.nio.file.Path;
 
-public class ChatReactionHook extends PMSAddon implements Listener
-{
+public class ChatReactionHook extends PMSAddon implements Listener {
     private boolean registered = false;
     private PlayableRichSound failSound;
     private PlayableRichSound startSound;
     private PlayableRichSound winSound;
 
     @Override
-    protected void onStart()
-    {
+    protected void onStart() {
         Runnable runnable = () -> {
             Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
             Path path = Configurations.SOUNDS.getConfigurationHolder().getPath();
@@ -153,24 +151,21 @@ public class ChatReactionHook extends PMSAddon implements Listener
     }
 
     @EventHandler
-    public void onReactionFail(ReactionFailEvent event)
-    {
+    public void onReactionFail(ReactionFailEvent event) {
         if (failSound != null) {
             Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> failSound.play(Bukkit.getWorlds().get(0).getSpawnLocation()));
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onReactionStart(ReactionStartEvent event)
-    {
+    public void onReactionStart(ReactionStartEvent event) {
         if (startSound != null && (!event.isCancelled() || !startSound.isCancellable())) {
             Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> startSound.play(Bukkit.getWorlds().get(0).getSpawnLocation()));
         }
     }
 
     @EventHandler
-    public void onReactionWin(ReactionWinEvent event)
-    {
+    public void onReactionWin(ReactionWinEvent event) {
         if (winSound != null) {
             Bukkit.getScheduler().runTask(PlayMoreSounds.getInstance(), () -> winSound.play(event.getWinner()));
         }

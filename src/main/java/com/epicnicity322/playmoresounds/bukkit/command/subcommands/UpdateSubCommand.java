@@ -29,42 +29,35 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class UpdateSubCommand extends Command implements Helpable
-{
+public final class UpdateSubCommand extends Command implements Helpable {
     private final @NotNull PlayMoreSounds instance;
 
-    public UpdateSubCommand(@NotNull PlayMoreSounds instance)
-    {
+    public UpdateSubCommand(@NotNull PlayMoreSounds instance) {
         this.instance = instance;
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "update";
     }
 
     @Override
-    public @NotNull CommandRunnable onHelp()
-    {
+    public @NotNull CommandRunnable onHelp() {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Help.Update").replace("<label>", label));
     }
 
     @Override
-    public @Nullable String getPermission()
-    {
+    public @Nullable String getPermission() {
         return "playmoresounds.update";
     }
 
     @Override
-    protected @Nullable CommandRunnable getNoPermissionRunnable()
-    {
+    protected @Nullable CommandRunnable getNoPermissionRunnable() {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
     @Override
-    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
-    {
+    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args) {
         if (args.length > 1 && args[1].equalsIgnoreCase("download")) {
             var lang = PlayMoreSounds.getLanguage();
             if (args.length > 2 && args[2].equalsIgnoreCase("--force")) {
@@ -108,13 +101,10 @@ public final class UpdateSubCommand extends Command implements Helpable
         UpdateManager.check(sender);
     }
 
-    private void download(CommandSender sender)
-    {
-        new Thread("PMS Update Downloader")
-        {
+    private void download(CommandSender sender) {
+        new Thread("PMS Update Downloader") {
             @Override
-            public void run()
-            {
+            public void run() {
                 String downloadedVersion = UpdateManager.downloadLatest(sender, instance);
 
                 if (downloadedVersion != null) {

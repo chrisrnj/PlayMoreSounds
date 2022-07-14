@@ -23,8 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.file.Path;
 import java.util.Objects;
 
-public class PMSAddon
-{
+public class PMSAddon {
     private final @NotNull AddonClassLoader classLoader;
     private final @NotNull Path jar;
     private final @NotNull AddonDescription description;
@@ -32,8 +31,7 @@ public class PMSAddon
     volatile boolean stopped = false;
     volatile boolean loaded = false;
 
-    protected PMSAddon()
-    {
+    protected PMSAddon() {
         var classLoader = getClass().getClassLoader();
         var name = this.getClass().getName();
 
@@ -49,48 +47,42 @@ public class PMSAddon
         description = this.classLoader.description;
     }
 
-    @NotNull AddonClassLoader getClassLoader()
-    {
+    @NotNull AddonClassLoader getClassLoader() {
         return classLoader;
     }
 
     /**
      * @return The path to this addon jar.
      */
-    public final @NotNull Path getJar()
-    {
+    public final @NotNull Path getJar() {
         return jar;
     }
 
     /**
      * @return The description file of this addon.
      */
-    public final @NotNull AddonDescription getDescription()
-    {
+    public final @NotNull AddonDescription getDescription() {
         return description;
     }
 
     /**
      * @return If this addon has already started once.
      */
-    public final boolean hasStarted()
-    {
+    public final boolean hasStarted() {
         return started;
     }
 
     /**
      * @return If this addon has already stopped once.
      */
-    public final boolean hasStopped()
-    {
+    public final boolean hasStopped() {
         return stopped;
     }
 
     /**
      * @return If this addon is loaded.
      */
-    public final boolean isLoaded()
-    {
+    public final boolean isLoaded() {
         return loaded;
     }
 
@@ -99,8 +91,7 @@ public class PMSAddon
      *
      * @throws IllegalStateException If this addon was already started before.
      */
-    protected void onStart()
-    {
+    protected void onStart() {
         if (started)
             throw new IllegalStateException(this + " was already started.");
     }
@@ -110,8 +101,7 @@ public class PMSAddon
      *
      * @throws IllegalStateException If this addon was already stopped before.
      */
-    protected void onStop()
-    {
+    protected void onStop() {
         if (stopped)
             throw new IllegalStateException(this + " was already stopped.");
     }
@@ -120,8 +110,7 @@ public class PMSAddon
      * @return This addon name from {@link AddonDescription#getName()}.
      */
     @Override
-    public String toString()
-    {
+    public String toString() {
         return getDescription().getName();
     }
 
@@ -129,8 +118,7 @@ public class PMSAddon
      * @return If the object is an addon and if has the same jar path as this.
      */
     @Override
-    public boolean equals(Object otherAddon)
-    {
+    public boolean equals(Object otherAddon) {
         if (this == otherAddon) return true;
         if (!(otherAddon instanceof PMSAddon pmsAddon)) return false;
 
@@ -138,8 +126,7 @@ public class PMSAddon
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return Objects.hash(jar);
     }
 }

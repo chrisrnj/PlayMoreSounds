@@ -34,24 +34,20 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class OnInventoryClick extends PMSListener
-{
+public final class OnInventoryClick extends PMSListener {
     private final @NotNull HashMap<String, PlayableRichSound> criteriaSounds = new HashMap<>();
 
-    public OnInventoryClick(@NotNull PlayMoreSounds plugin)
-    {
+    public OnInventoryClick(@NotNull PlayMoreSounds plugin) {
         super(plugin);
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Inventory Click";
     }
 
     @Override
-    public void load()
-    {
+    public void load() {
         criteriaSounds.clear();
 
         var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
@@ -81,8 +77,7 @@ public final class OnInventoryClick extends PMSListener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEvent(InventoryClickEvent event)
-    {
+    public void onEvent(InventoryClickEvent event) {
         if (event.getClickedInventory() == null) return;
 
         var item = event.getCurrentItem();

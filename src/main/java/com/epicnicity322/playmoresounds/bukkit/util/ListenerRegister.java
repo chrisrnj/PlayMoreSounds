@@ -28,8 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public final class ListenerRegister
-{
+public final class ListenerRegister {
     private static final @NotNull HashSet<PMSListener> listeners = new HashSet<>();
     /**
      * Scary sounds of halloween event.
@@ -75,8 +74,7 @@ public final class ListenerRegister
         });
     }
 
-    private ListenerRegister()
-    {
+    private ListenerRegister() {
     }
 
     /**
@@ -84,8 +82,7 @@ public final class ListenerRegister
      *
      * @param listener The listener to add to be registered.
      */
-    public static void addListener(@NotNull PMSListener listener)
-    {
+    public static void addListener(@NotNull PMSListener listener) {
         listeners.add(listener);
     }
 
@@ -94,16 +91,14 @@ public final class ListenerRegister
      *
      * @param listener The listener to remove.
      */
-    public static void removeListener(@NotNull PMSListener listener)
-    {
+    public static void removeListener(@NotNull PMSListener listener) {
         listeners.remove(listener);
     }
 
     /**
      * @return A set with all the listeners that are being loaded on {@link #loadListeners()}.
      */
-    public static @NotNull Set<PMSListener> getListeners()
-    {
+    public static @NotNull Set<PMSListener> getListeners() {
         return Collections.unmodifiableSet(listeners);
     }
 
@@ -112,8 +107,7 @@ public final class ListenerRegister
      *
      * @return The amount of listeners that were loaded.
      */
-    public static int loadListeners()
-    {
+    public static int loadListeners() {
         int loadedListeners = 0;
         boolean halloween = PMSHelper.halloweenEvent();
 

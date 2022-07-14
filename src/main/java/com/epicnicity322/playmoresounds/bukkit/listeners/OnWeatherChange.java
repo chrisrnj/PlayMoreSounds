@@ -29,25 +29,21 @@ import org.bukkit.event.weather.WeatherChangeEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class OnWeatherChange extends PMSListener
-{
+public final class OnWeatherChange extends PMSListener {
     private @Nullable PlayableRichSound stopSound;
     private @Nullable PlayableRichSound startSound;
 
-    public OnWeatherChange(@NotNull PlayMoreSounds plugin)
-    {
+    public OnWeatherChange(@NotNull PlayMoreSounds plugin) {
         super(plugin);
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Weather Rain|Weather Rain End";
     }
 
     @Override
-    public void load()
-    {
+    public void load() {
         var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
         stopSound = getRichSound(sounds.getConfigurationSection("Weather Rain End"));
         startSound = getRichSound(sounds.getConfigurationSection("Weather Rain"));
@@ -66,8 +62,7 @@ public final class OnWeatherChange extends PMSListener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onWeatherChange(WeatherChangeEvent event)
-    {
+    public void onWeatherChange(WeatherChangeEvent event) {
         var sound = event.toWeatherState() ? startSound : stopSound;
 
         if (sound != null && (!event.isCancelled() || !sound.isCancellable()))

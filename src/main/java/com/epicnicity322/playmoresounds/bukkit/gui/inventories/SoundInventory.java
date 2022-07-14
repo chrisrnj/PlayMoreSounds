@@ -43,15 +43,13 @@ import java.util.Locale;
 import java.util.function.Consumer;
 
 @SuppressWarnings("deprecation")
-public final class SoundInventory implements PMSInventory
-{
+public final class SoundInventory implements PMSInventory {
     private final @NotNull Inventory inventory;
     private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>(11);
     private final @NotNull PlayableSound sound;
     private final @Nullable String parentName;
 
-    public SoundInventory(@NotNull PlayableSound sound)
-    {
+    public SoundInventory(@NotNull PlayableSound sound) {
         this.parentName = null;
         this.inventory = Bukkit.createInventory(null, 45, PlayMoreSounds.getLanguage().getColored("Sound Inventory.Title.Default").replace("<id>", sound.getId()));
         this.sound = sound;
@@ -65,8 +63,7 @@ public final class SoundInventory implements PMSInventory
         InventoryUtils.fill(Material.BLACK_STAINED_GLASS_PANE, inventory, 36, 44);
     }
 
-    SoundInventory(@NotNull PlayableSound sound, @NotNull RichSoundInventory parent)
-    {
+    SoundInventory(@NotNull PlayableSound sound, @NotNull RichSoundInventory parent) {
         this.parentName = parent.getRichSound().getName();
         this.inventory = Bukkit.createInventory(null, 45, PlayMoreSounds.getLanguage().getColored("Sound Inventory.Title.Parent")
                 .replace("<id>", sound.getId()).replace("<richsound>", parentName));
@@ -89,8 +86,7 @@ public final class SoundInventory implements PMSInventory
         InventoryUtils.fill(Material.BLACK_STAINED_GLASS_PANE, inventory, 36, 44);
     }
 
-    private void putButtons()
-    {
+    private void putButtons() {
         buttons.put(10, event -> openInput(event, input -> {
             String soundType;
 
@@ -170,8 +166,7 @@ public final class SoundInventory implements PMSInventory
         }, "Permission To Listen"));
     }
 
-    private void openInput(InventoryClickEvent event, Validator validator, String name)
-    {
+    private void openInput(InventoryClickEvent event, Validator validator, String name) {
         HumanEntity player = event.getWhoClicked();
         var lang = PlayMoreSounds.getLanguage();
 
@@ -186,8 +181,7 @@ public final class SoundInventory implements PMSInventory
         }).openInventory();
     }
 
-    private void updateButtonItems()
-    {
+    private void updateButtonItems() {
         inventory.setItem(10, parseItemStack("Sound", sound.getSound()));
         inventory.setItem(12, parseItemStack("Volume", Float.toString(sound.getVolume())));
         inventory.setItem(14, parseItemStack("Pitch", Float.toString(sound.getPitch())));
@@ -211,8 +205,7 @@ public final class SoundInventory implements PMSInventory
         }
     }
 
-    private ItemStack parseItemStack(String name, String value)
-    {
+    private ItemStack parseItemStack(String name, String value) {
         if (value == null) value = "null";
         ItemStack itemStack = InventoryUtils.getItemStack("Sound Inventory.Items." + name);
         ItemMeta meta = itemStack.getItemMeta();
@@ -228,31 +221,26 @@ public final class SoundInventory implements PMSInventory
         return itemStack;
     }
 
-    public @NotNull PlayableSound getSound()
-    {
+    public @NotNull PlayableSound getSound() {
         return sound;
     }
 
     @Override
-    public @NotNull Inventory getInventory()
-    {
+    public @NotNull Inventory getInventory() {
         return inventory;
     }
 
     @Override
-    public @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> getButtons()
-    {
+    public @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> getButtons() {
         return buttons;
     }
 
     @Override
-    public void openInventory(@NotNull HumanEntity humanEntity)
-    {
+    public void openInventory(@NotNull HumanEntity humanEntity) {
         InventoryUtils.openInventory(inventory, buttons, humanEntity);
     }
 
-    private interface Validator
-    {
+    private interface Validator {
         boolean validate(String input);
     }
 }

@@ -31,16 +31,14 @@ import java.time.Month;
 import java.util.*;
 import java.util.regex.Pattern;
 
-public final class PMSHelper
-{
+public final class PMSHelper {
     private static final @NotNull SecureRandom random = new SecureRandom();
     private static final @NotNull String chars = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789";
     private static final int charsLength = chars.length();
     private static final @NotNull Pattern invalidNamespaceCharacters = Pattern.compile("[^a-z0-9_.-]");
     private static final @NotNull Pattern invalidKeyCharacters = Pattern.compile("[^a-z0-9/._-]");
 
-    private PMSHelper()
-    {
+    private PMSHelper() {
     }
 
     /**
@@ -51,8 +49,7 @@ public final class PMSHelper
      * @param prefix        If the config has some main section for sounds, define it here.
      * @return Whether the config has any sound enabled.
      */
-    public static boolean anySoundEnabled(@NotNull Configuration configuration, @Nullable String prefix)
-    {
+    public static boolean anySoundEnabled(@NotNull Configuration configuration, @Nullable String prefix) {
         if (prefix == null) {
             for (Map.Entry<String, Object> node : configuration.getNodes().entrySet()) {
                 var value = node.getValue();
@@ -84,8 +81,7 @@ public final class PMSHelper
      * @return The correct noun that should be used when referring to the amount of elements.
      */
     @Contract(value = "null,null,_ -> null", pure = true)
-    public static String correctNounNumber(String singular, String plural, int size)
-    {
+    public static String correctNounNumber(String singular, String plural, int size) {
         return size == 1 ? singular : plural;
     }
 
@@ -95,8 +91,7 @@ public final class PMSHelper
      * @param length The length the random string should be.
      * @return The random string with random characters.
      */
-    public static @NotNull String getRandomString(int length)
-    {
+    public static @NotNull String getRandomString(int length) {
         StringBuilder builder = new StringBuilder(length);
 
         for (int i = 0; i < length; ++i)
@@ -108,8 +103,7 @@ public final class PMSHelper
     /**
      * @return True if Halloween Event is enabled and today is halloween.
      */
-    public static boolean halloweenEvent()
-    {
+    public static boolean halloweenEvent() {
         var now = LocalDateTime.now();
 
         return now.getMonth() == Month.OCTOBER && now.getDayOfMonth() == 31 && Configurations.CONFIG.getConfigurationHolder().getConfiguration().getBoolean("Halloween Event").orElse(false);
@@ -118,8 +112,7 @@ public final class PMSHelper
     /**
      * @return True if today is christmas
      */
-    public static boolean isChristmas()
-    {
+    public static boolean isChristmas() {
         var now = LocalDateTime.now();
 
         return now.getMonth() == Month.DECEMBER && now.getDayOfMonth() == 25;
@@ -137,8 +130,7 @@ public final class PMSHelper
      * @param <T>        The type of the collection to split.
      * @return The map consisting of the pages.
      */
-    public static <T> @NotNull HashMap<Integer, ArrayList<T>> splitIntoPages(@NotNull Collection<T> collection, int maxPerPage)
-    {
+    public static <T> @NotNull HashMap<Integer, ArrayList<T>> splitIntoPages(@NotNull Collection<T> collection, int maxPerPage) {
         if (collection.isEmpty() || maxPerPage <= 0) {
             // Return 1 page with no entries.
             var emptyPage = new HashMap<Integer, ArrayList<T>>(1);
@@ -176,8 +168,7 @@ public final class PMSHelper
      * @param times  The times to repeat the char.
      * @return A string consisting of only the char repeated the amount of specified times.
      */
-    public static @NotNull String repeatChar(char repeat, long times)
-    {
+    public static @NotNull String repeatChar(char repeat, long times) {
         var builder = new StringBuilder();
 
         for (long l = 0; l < times; ++l) {
@@ -195,8 +186,7 @@ public final class PMSHelper
      * @param namespacedKey The namespaced key to test.
      * @return If the argument is a valid namespaced key.
      */
-    public static boolean isNamespacedKey(@NotNull String namespacedKey)
-    {
+    public static boolean isNamespacedKey(@NotNull String namespacedKey) {
         int colon = namespacedKey.indexOf(":");
 
         if (colon == -1) {

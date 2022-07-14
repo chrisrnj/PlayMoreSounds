@@ -43,8 +43,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @SuppressWarnings("deprecation")
-public final class RegionManager
-{
+public final class RegionManager {
     /**
      * Region IDs present in this set will be saved to data folder on {@link #saveAndUpdate()}.
      */
@@ -58,6 +57,7 @@ public final class RegionManager
     private static final @NotNull Set<SoundRegion> unmodifiableRegions = Collections.unmodifiableSet(regions);
     private static final @NotNull Runnable wandUpdater;
     private static ItemStack wand;
+    private static @Nullable BukkitRunnable autoSaver;
 
     static {
         wandUpdater = () -> {
@@ -87,8 +87,7 @@ public final class RegionManager
         wandUpdater.run();
     }
 
-    private RegionManager()
-    {
+    private RegionManager() {
     }
 
     /**
@@ -97,8 +96,7 @@ public final class RegionManager
      *
      * @return An unmodifiable set of PlayMoreSounds' regions.
      */
-    public static @NotNull Set<SoundRegion> getRegions()
-    {
+    public static @NotNull Set<SoundRegion> getRegions() {
         return unmodifiableRegions;
     }
 
@@ -108,8 +106,7 @@ public final class RegionManager
      * @param location The location to check if there's a region.
      * @return The regions in this location.
      */
-    public static @NotNull Set<SoundRegion> getRegionsAt(@NotNull Location location)
-    {
+    public static @NotNull Set<SoundRegion> getRegionsAt(@NotNull Location location) {
         return regions.stream().filter(region -> region.isInside(location)).collect(Collectors.toSet());
     }
 
@@ -119,8 +116,7 @@ public final class RegionManager
      * @param creator The creator's {@link UUID}, null for console.
      * @return The regions made by this creator.
      */
-    public static @NotNull Set<SoundRegion> getRegionsOf(@Nullable UUID creator)
-    {
+    public static @NotNull Set<SoundRegion> getRegionsOf(@Nullable UUID creator) {
         return regions.stream().filter(region -> Objects.equals(region.getCreator(), creator)).collect(Collectors.toSet());
     }
 
@@ -129,8 +125,7 @@ public final class RegionManager
      *
      * @return An immutable {@link ItemStack} of the region selection tool.
      */
-    public static @NotNull ItemStack getWand()
-    {
+    public static @NotNull ItemStack getWand() {
         return wand.clone();
     }
 
@@ -140,8 +135,7 @@ public final class RegionManager
      *
      * @param region The region object to be saved and managed by PlayMoreSounds.
      */
-    public static void add(@NotNull SoundRegion region)
-    {
+    public static void add(@NotNull SoundRegion region) {
         region.periodicallySave = true;
         regions.add(region);
         regionsToSave.add(region.getId().toString());
@@ -154,8 +148,7 @@ public final class RegionManager
      *
      * @param region The region to remove.
      */
-    public static void remove(@NotNull SoundRegion region)
-    {
+    public static void remove(@NotNull SoundRegion region) {
         region.periodicallySave = false;
         regions.remove(region);
         regionsToRemove.add(region.getId().toString());
@@ -166,8 +159,7 @@ public final class RegionManager
      * Saves and removes regions that were scheduled in {@link #add(SoundRegion)} and {@link #remove(SoundRegion)} methods.
      * Then, it updates {@link #getRegions()} set with new {@link SoundRegion} instances based on the saved region files.
      */
-    public static void saveAndUpdate()
-    {
+    public static void saveAndUpdate() {
         var logger = PlayMoreSounds.getConsoleLogger();
 
         // Deleting regions scheduled to be removed.
@@ -232,8 +224,7 @@ public final class RegionManager
         regionsToSave.clear();
     }
 
-    private static void save(@NotNull SoundRegion region) throws IOException
-    {
+    private static void save(@NotNull SoundRegion region) throws IOException {
         Files.deleteIfExists(regionsFolder.resolve(region.getId() + ".yml"));
         Configuration data = new Configuration(new YamlConfigurationLoader());
 
@@ -265,18 +256,14 @@ public final class RegionManager
         data.save(regionsFolder.resolve(region.getId() + ".yml"));
     }
 
-    private static void copySettings(ConfigurationSection section1, ConfigurationSection section2)
-    {
+    private static void copySettings(ConfigurationSection section1, ConfigurationSection section2) {
         if (section1 == null || section2 == null) return;
         for (Map.Entry<String, Object> node : section1.getAbsoluteNodes().entrySet()) {
             section2.set(node.getKey(), node.getValue());
         }
     }
 
-    private static @Nullable BukkitRunnable autoSaver;
-
-    public static synchronized void loadAutoSave()
-    {
+    public static synchronized void loadAutoSave() {
         if (autoSaver != null) return;
         if (regionsToSave.isEmpty() && regionsToRemove.isEmpty()) return;
 
@@ -284,11 +271,9 @@ public final class RegionManager
 
         if (plugin == null) return;
 
-        autoSaver = new BukkitRunnable()
-        {
+        autoSaver = new BukkitRunnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                 if (regionsToSave.isEmpty() && regionsToRemove.isEmpty()) {
                     cancel();
                     autoSaver = null;

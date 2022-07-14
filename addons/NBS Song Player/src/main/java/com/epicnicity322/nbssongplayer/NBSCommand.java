@@ -30,43 +30,36 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 
-public class NBSCommand extends Command implements Helpable
-{
+public class NBSCommand extends Command implements Helpable {
     private static final @NotNull MessageSender lang = PlayMoreSounds.getLanguage();
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "nbssongplayer";
     }
 
     @Override
-    public @NotNull CommandRunnable onHelp()
-    {
+    public @NotNull CommandRunnable onHelp() {
         return (label, sender, args) -> lang.send(sender, false, lang.get("NBS Song Player.Help").replace("<label>", label));
     }
 
     @Override
-    public @Nullable String[] getAliases()
-    {
+    public @Nullable String[] getAliases() {
         return new String[]{"nbs", "noteblocksongs"};
     }
 
     @Override
-    public @Nullable String getPermission()
-    {
+    public @Nullable String getPermission() {
         return "playmoresounds.nbssongplayer";
     }
 
     @Override
-    protected @Nullable CommandRunnable getNoPermissionRunnable()
-    {
+    protected @Nullable CommandRunnable getNoPermissionRunnable() {
         return (label, sender, args) -> lang.send(sender, lang.get("General.No Permission"));
     }
 
     @Override
-    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
-    {
+    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args) {
         String invalidArgs = lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", "play|stop");
 
         if (args.length < 2) {

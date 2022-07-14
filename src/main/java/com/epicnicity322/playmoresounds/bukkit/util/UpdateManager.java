@@ -43,8 +43,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.jar.JarFile;
 
-public final class UpdateManager
-{
+public final class UpdateManager {
     private static final @NotNull AtomicBoolean updateAvailable = new AtomicBoolean(false);
     private static final @NotNull UUID deleteConfirmationUniqueId = UUID.randomUUID();
     private static @Nullable Version latestVersion;
@@ -69,30 +68,25 @@ public final class UpdateManager
         }
     }
 
-    private UpdateManager()
-    {
+    private UpdateManager() {
     }
 
     /**
      * @return If an update is available by last time it was checked.
      */
-    public static boolean isUpdateAvailable()
-    {
+    public static boolean isUpdateAvailable() {
         return updateAvailable.get();
     }
 
-    public static synchronized @Nullable Version getLatestVersion()
-    {
+    public static synchronized @Nullable Version getLatestVersion() {
         return latestVersion;
     }
 
-    private static synchronized void setLatestVersion(@NotNull Version latestVersion)
-    {
+    private static synchronized void setLatestVersion(@NotNull Version latestVersion) {
         UpdateManager.latestVersion = latestVersion;
     }
 
-    public static void loadUpdater(@NotNull PlayMoreSounds instance)
-    {
+    public static void loadUpdater(@NotNull PlayMoreSounds instance) {
         var config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
 
         if (config.getBoolean("Updater.Enabled").orElse(true)) {
@@ -113,18 +107,15 @@ public final class UpdateManager
         }
     }
 
-    private static synchronized @Nullable BukkitTask getAvailableNotifierTask()
-    {
+    private static synchronized @Nullable BukkitTask getAvailableNotifierTask() {
         return availableNotifierTask;
     }
 
-    private static synchronized void setAvailableNotifierTask(@Nullable BukkitTask availableNotifierTask)
-    {
+    private static synchronized void setAvailableNotifierTask(@Nullable BukkitTask availableNotifierTask) {
         UpdateManager.availableNotifierTask = availableNotifierTask;
     }
 
-    public static void check(@Nullable CommandSender logReceiver)
-    {
+    public static void check(@Nullable CommandSender logReceiver) {
         var lang = PlayMoreSounds.getLanguage();
         boolean log = logReceiver != null;
 
@@ -181,8 +172,7 @@ public final class UpdateManager
      * @param instance PlayMoreSounds main instance.
      * @return If the download had no issues.
      */
-    public static @Nullable String downloadLatest(@NotNull CommandSender sender, @NotNull PlayMoreSounds instance)
-    {
+    public static @Nullable String downloadLatest(@NotNull CommandSender sender, @NotNull PlayMoreSounds instance) {
         var lang = PlayMoreSounds.getLanguage();
         var update = new File(Bukkit.getUpdateFolderFile(), instance.getFile().getName());
 
@@ -225,11 +215,9 @@ public final class UpdateManager
 
             if (new Version(fixedapiversion).compareTo(bukkitVersion) > 0) {
                 lang.send(sender, lang.get("Update.Download.Error.Not Supported").replace("<apiversion>", fixedapiversion).replace("<current>", bukkitVersion.getVersion()));
-                ConfirmSubCommand.addPendingConfirmation(sender, new UniqueRunnable(deleteConfirmationUniqueId)
-                {
+                ConfirmSubCommand.addPendingConfirmation(sender, new UniqueRunnable(deleteConfirmationUniqueId) {
                     @Override
-                    public void run()
-                    {
+                    public void run() {
                         lang.send(sender, lang.get("Update.Download.Confirmation.Not Supported.Deleted"));
                         update.delete();
                     }
@@ -241,11 +229,9 @@ public final class UpdateManager
 
             if (new Version(downloadedVersion).compareTo(PlayMoreSoundsVersion.getVersion()) < 0) {
                 lang.send(sender, lang.get("Update.Download.Error.Not Latest").replace("<downloaded>", downloadedVersion).replace("<current>", PlayMoreSoundsVersion.version));
-                ConfirmSubCommand.addPendingConfirmation(sender, new UniqueRunnable(deleteConfirmationUniqueId)
-                {
+                ConfirmSubCommand.addPendingConfirmation(sender, new UniqueRunnable(deleteConfirmationUniqueId) {
                     @Override
-                    public void run()
-                    {
+                    public void run() {
                         lang.send(sender, lang.get("Update.Download.Confirmation.Not Latest.Deleted"));
                         update.delete();
                     }

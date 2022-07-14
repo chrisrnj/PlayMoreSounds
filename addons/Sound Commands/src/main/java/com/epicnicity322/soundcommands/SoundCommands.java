@@ -28,17 +28,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
-public final class SoundCommands extends PMSAddon implements Listener
-{
+public final class SoundCommands extends PMSAddon implements Listener {
     @Override
-    protected void onStart()
-    {
+    protected void onStart() {
         Bukkit.getPluginManager().registerEvents(this, PlayMoreSounds.getInstance());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlaySound(PlaySoundEvent event)
-    {
+    public void onPlaySound(PlaySoundEvent event) {
         ConfigurationSection section = event.getSound().getSection();
 
         if (section != null) {

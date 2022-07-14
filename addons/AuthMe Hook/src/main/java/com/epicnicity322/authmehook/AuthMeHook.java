@@ -39,8 +39,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 
-public class AuthMeHook extends PMSAddon implements Listener
-{
+public class AuthMeHook extends PMSAddon implements Listener {
     private static final @NotNull BukkitScheduler scheduler = Bukkit.getScheduler();
     private boolean registered = false;
     private boolean preventJoin = false;
@@ -48,8 +47,7 @@ public class AuthMeHook extends PMSAddon implements Listener
     private PlayableRichSound registerSound;
 
     @Override
-    protected void onStart()
-    {
+    protected void onStart() {
         Runnable runnable = () -> {
             Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
             Path path = Configurations.SOUNDS.getConfigurationHolder().getPath();
@@ -134,8 +132,7 @@ public class AuthMeHook extends PMSAddon implements Listener
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayRichSound(PlayRichSoundEvent event)
-    {
+    public void onPlayRichSound(PlayRichSoundEvent event) {
         if (!preventJoin) return;
 
         ConfigurationSection section = event.getRichSound().getSection();
@@ -147,16 +144,14 @@ public class AuthMeHook extends PMSAddon implements Listener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onAuthMeAsyncPreLogin(AuthMeAsyncPreLoginEvent event)
-    {
+    public void onAuthMeAsyncPreLogin(AuthMeAsyncPreLoginEvent event) {
         if (loginSound != null && (event.canLogin() || !loginSound.isCancellable()))
             // Can't play sounds outside bukkit main thread.
             scheduler.runTask(PlayMoreSounds.getInstance(), () -> loginSound.play(event.getPlayer()));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onAuthMeAsyncPreRegister(AuthMeAsyncPreRegisterEvent event)
-    {
+    public void onAuthMeAsyncPreRegister(AuthMeAsyncPreRegisterEvent event) {
         if (registerSound != null && (event.canRegister() || !registerSound.isCancellable()))
             // Can't play sounds outside bukkit main thread.
             scheduler.runTask(PlayMoreSounds.getInstance(), () -> registerSound.play(event.getPlayer()));

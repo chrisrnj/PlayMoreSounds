@@ -60,8 +60,7 @@ import java.util.stream.Stream;
 
 //TODO: Add change page button to Addon Management Inventory and Addon Install Inventory.
 @SuppressWarnings("deprecation")
-public final class AddonsInventory implements PMSInventory
-{
+public final class AddonsInventory implements PMSInventory {
     private static final @NotNull AtomicBoolean block = new AtomicBoolean(false);
     private static final @NotNull Path tempFolder = PlayMoreSoundsCore.getFolder().resolve("Temp");
     private static final @NotNull Path tempAddonsZip = tempFolder.resolve("Addons.zip");
@@ -81,8 +80,7 @@ public final class AddonsInventory implements PMSInventory
     private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons;
     private final @NotNull HashMap<Integer, ArrayList<PMSAddon>> addonPages;
 
-    public AddonsInventory()
-    {
+    public AddonsInventory() {
         if (PlayMoreSounds.getInstance() == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
         var addons = PlayMoreSounds.getAddonManager().getAddons();
@@ -122,8 +120,7 @@ public final class AddonsInventory implements PMSInventory
      * Goes through the assets {@link JSONArray} looking for the download url of Addons.zip file. PlayMoreSounds currently
      * has only PlayMoreSounds.jar and Addons.zip in assets, but I can't predict if I want to add more stuff in the future.
      */
-    private static String findAddonsDownloadURL(JSONArray assets)
-    {
+    private static String findAddonsDownloadURL(JSONArray assets) {
         for (Object asset : assets) {
             var jsonAsset = (JSONObject) asset;
 
@@ -135,8 +132,7 @@ public final class AddonsInventory implements PMSInventory
         return null;
     }
 
-    private static void openInstallerInventory(@NotNull Player player)
-    {
+    private static void openInstallerInventory(@NotNull Player player) {
         block.set(true);
         allInventories.forEach(HumanEntity::closeInventory);
 
@@ -170,8 +166,7 @@ public final class AddonsInventory implements PMSInventory
      * @param player The player to send information how download is going.
      * @param latest If the addons should be downloaded from latest tag, false for PlayMoreSounds current version.
      */
-    private static void downloadAddons(@NotNull Player player, boolean latest) throws Exception
-    {
+    private static void downloadAddons(@NotNull Player player, boolean latest) throws Exception {
         BukkitTask repeatingTitle = null;
         var lang = PlayMoreSounds.getLanguage();
 
@@ -256,21 +251,18 @@ public final class AddonsInventory implements PMSInventory
      *
      * @return If addons are supported on this PlayMoreSounds version.
      */
-    private static boolean unsupportedAddonsVersion() throws IOException
-    {
+    private static boolean unsupportedAddonsVersion() throws IOException {
         return new Version(PathUtils.read(tempAddonsFolder.resolve(".version"))).compareTo(PlayMoreSoundsVersion.getVersion()) > 0;
     }
 
-    private static String lastColor(String last)
-    {
+    private static String lastColor(String last) {
         String lore = PlayMoreSounds.getLanguage().getColored("Addons.Inventory.Items.Addon.Lore");
         int index = lore.lastIndexOf(last) - 1;
         if (index < 0) return "";
         return ChatColor.getLastColors(lore.substring(0, index));
     }
 
-    private static String breakLore(String lore, int maxInFirstLine, String color)
-    {
+    private static String breakLore(String lore, int maxInFirstLine, String color) {
         var builder = new StringBuilder();
 
         if (lore.length() > maxInFirstLine) {
@@ -310,8 +302,7 @@ public final class AddonsInventory implements PMSInventory
         return builder.toString();
     }
 
-    private void fillAddons()
-    {
+    private void fillAddons() {
         ArrayList<PMSAddon> addons = addonPages.get(1);
         var lang = PlayMoreSounds.getLanguage();
 
@@ -370,8 +361,7 @@ public final class AddonsInventory implements PMSInventory
         }
     }
 
-    public void openInventory(@NotNull HumanEntity humanEntity)
-    {
+    public void openInventory(@NotNull HumanEntity humanEntity) {
         var lang = PlayMoreSounds.getLanguage();
 
         if (block.get()) {
@@ -384,26 +374,22 @@ public final class AddonsInventory implements PMSInventory
     }
 
     @Override
-    public @NotNull Inventory getInventory()
-    {
+    public @NotNull Inventory getInventory() {
         return inventory;
     }
 
     @Override
-    public @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> getButtons()
-    {
+    public @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> getButtons() {
         return buttons;
     }
 
-    private static final class AddonInstallerInventory
-    {
+    private static final class AddonInstallerInventory {
         private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>();
         private final @NotNull HashMap<Integer, ArrayList<Path>> addonPages;
         private final @NotNull LinkedHashMap<Path, List<String>> addons;
         private final @NotNull Inventory inventory;
 
-        private AddonInstallerInventory(@NotNull HumanEntity humanEntity) throws IOException
-        {
+        private AddonInstallerInventory(@NotNull HumanEntity humanEntity) throws IOException {
             addons = new LinkedHashMap<>();
 
             // Getting addon descriptions.
@@ -444,8 +430,7 @@ public final class AddonsInventory implements PMSInventory
             }));
         }
 
-        private void fillAddons()
-        {
+        private void fillAddons() {
             var lang = PlayMoreSounds.getLanguage();
             int slot = -1;
 

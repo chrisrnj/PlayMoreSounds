@@ -24,15 +24,13 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface Playable
-{
+public interface Playable {
     /**
      * Plays a sound in a specific location. If your {@link SoundOptions#getRadius()} is 0, then the sound is not played.
      *
      * @param sourceLocation The location where the sound will play.
      */
-    default void play(@NotNull Location sourceLocation)
-    {
+    default void play(@NotNull Location sourceLocation) {
         play(null, sourceLocation);
     }
 
@@ -42,8 +40,7 @@ public interface Playable
      *
      * @param player The player to play the sound.
      */
-    default void play(@NotNull Player player)
-    {
+    default void play(@NotNull Player player) {
         play(player, player.getLocation());
     }
 

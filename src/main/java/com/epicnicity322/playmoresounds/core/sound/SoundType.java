@@ -28,8 +28,7 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 
-public enum SoundType
-{
+public enum SoundType {
     AMBIENT_BASALT_DELTAS_ADDITIONS("1.17-1.18 ambient.basalt_deltas.additions"),
     AMBIENT_BASALT_DELTAS_LOOP("1.17-1.18 ambient.basalt_deltas.loop"),
     AMBIENT_BASALT_DELTAS_MOOD("1.17-1.18 ambient.basalt_deltas.mood"),
@@ -1246,8 +1245,7 @@ public enum SoundType
     private final @NotNull String[] versionDependentNames;
     private final @Nullable String versionDependentName;
 
-    SoundType(String... versionDependentNames)
-    {
+    SoundType(String... versionDependentNames) {
         this.versionDependentNames = versionDependentNames;
 
         // If the server is running on a newer unsupported version, then get sound made for the maximum supported version.
@@ -1265,16 +1263,14 @@ public enum SoundType
     /**
      * @return The version the sound names were get from.
      */
-    public static @NotNull Version getMaxSupportedVersion()
-    {
+    public static @NotNull Version getMaxSupportedVersion() {
         return StaticFields.maxSupportedVersion;
     }
 
     /**
      * @return The minimum supported version.
      */
-    public static @NotNull Version getMinSupportedVersion()
-    {
+    public static @NotNull Version getMinSupportedVersion() {
         return StaticFields.minSupportedVersion;
     }
 
@@ -1283,16 +1279,14 @@ public enum SoundType
      *
      * @return An unmodifiable set with all {@link SoundType} names present on this minecraft version.
      */
-    public static @NotNull Set<String> getPresentSoundNames()
-    {
+    public static @NotNull Set<String> getPresentSoundNames() {
         return presentSoundNames;
     }
 
     /**
      * @return An unmodifiable set with all {@link SoundType}s present on this minecraft version.
      */
-    public static @NotNull Set<SoundType> getPresentSoundTypes()
-    {
+    public static @NotNull Set<SoundType> getPresentSoundTypes() {
         return presentSoundTypes;
     }
 
@@ -1301,8 +1295,7 @@ public enum SoundType
      *
      * @return An optional with the vanilla sound name.
      */
-    public @NotNull Optional<String> getSound()
-    {
+    public @NotNull Optional<String> getSound() {
         return Optional.ofNullable(versionDependentName);
     }
 
@@ -1312,8 +1305,7 @@ public enum SoundType
      * @param version The version to get the sound.
      * @return An optional with the vanilla sound name on this version.
      */
-    public @NotNull Optional<String> getSound(@NotNull Version version)
-    {
+    public @NotNull Optional<String> getSound(@NotNull Version version) {
         String sound = null;
 
         for (String versionDependentName : versionDependentNames) {
@@ -1331,8 +1323,7 @@ public enum SoundType
         return Optional.ofNullable(sound);
     }
 
-    private static final class StaticFields
-    {
+    private static final class StaticFields {
         private static final @NotNull Version maxSupportedVersion = new Version("1.18");
         private static final @NotNull Version minSupportedVersion = new Version("1.17");
 

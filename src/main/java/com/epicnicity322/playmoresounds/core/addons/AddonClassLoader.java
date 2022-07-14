@@ -29,15 +29,13 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.HashMap;
 
-public final class AddonClassLoader extends URLClassLoader
-{
+public final class AddonClassLoader extends URLClassLoader {
     private static final @NotNull HashMap<String, Class<?>> cacheClasses = new HashMap<>();
     final @NotNull Path jar;
     final @NotNull AddonDescription description;
     final PMSAddon addon;
 
-    AddonClassLoader(@NotNull Path jar, @NotNull AddonDescription description) throws InvalidAddonException, MalformedURLException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException
-    {
+    AddonClassLoader(@NotNull Path jar, @NotNull AddonDescription description) throws InvalidAddonException, MalformedURLException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
         super(new URL[]{jar.toUri().toURL()}, PlayMoreSoundsCore.class.getClassLoader());
 
         this.jar = jar;
@@ -66,27 +64,23 @@ public final class AddonClassLoader extends URLClassLoader
      *
      * @param classLoader The class loader to remove caches.
      */
-    static void clearCaches(@NotNull AddonClassLoader classLoader)
-    {
+    static void clearCaches(@NotNull AddonClassLoader classLoader) {
         cacheClasses.entrySet().removeIf(entry -> entry.getValue().getClassLoader() == classLoader);
     }
 
     /**
      * Removes all cached classes from this class loader.
      */
-    static void clearCaches()
-    {
+    static void clearCaches() {
         cacheClasses.clear();
     }
 
     @Override
-    protected Class<?> findClass(String name) throws ClassNotFoundException
-    {
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
         return findClass(name, true);
     }
 
-    private Class<?> findClass(String name, boolean addons) throws ClassNotFoundException
-    {
+    private Class<?> findClass(String name, boolean addons) throws ClassNotFoundException {
         Class<?> clazz = cacheClasses.get(name);
 
         if (clazz != null) return clazz;
@@ -123,8 +117,7 @@ public final class AddonClassLoader extends URLClassLoader
         }
     }
 
-    public @NotNull PMSAddon getAddon()
-    {
+    public @NotNull PMSAddon getAddon() {
         return addon;
     }
 }

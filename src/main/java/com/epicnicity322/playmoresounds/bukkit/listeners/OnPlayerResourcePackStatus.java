@@ -36,19 +36,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public final class OnPlayerResourcePackStatus implements Listener
-{
+public final class OnPlayerResourcePackStatus implements Listener {
     private static final OnPlayerResourcePackStatus instance = new OnPlayerResourcePackStatus();
     private static boolean loaded = false;
     private static @Nullable HashMap<Player, Runnable> waitingUntilResourcePackStatus;
     private static @Nullable HashSet<Player> playersIgnoringForce;
 
-    private OnPlayerResourcePackStatus()
-    {
+    private OnPlayerResourcePackStatus() {
     }
 
-    public static synchronized void load(@NotNull PlayMoreSounds plugin)
-    {
+    public static synchronized void load(@NotNull PlayMoreSounds plugin) {
         if (Configurations.CONFIG.getConfigurationHolder().getConfiguration().getBoolean("Resource Packs.Request").orElse(false)) {
             if (!loaded) {
                 Bukkit.getPluginManager().registerEvents(instance, plugin);
@@ -62,8 +59,7 @@ public final class OnPlayerResourcePackStatus implements Listener
         }
     }
 
-    public static synchronized void waitUntilResourcePackStatus(@NotNull Player player, @NotNull Runnable onAccept)
-    {
+    public static synchronized void waitUntilResourcePackStatus(@NotNull Player player, @NotNull Runnable onAccept) {
         if (waitingUntilResourcePackStatus == null) {
             waitingUntilResourcePackStatus = new HashMap<>();
         } else {
@@ -80,8 +76,7 @@ public final class OnPlayerResourcePackStatus implements Listener
         waitingUntilResourcePackStatus.put(player, onAccept);
     }
 
-    private static synchronized Runnable removeWaiting(Player player)
-    {
+    private static synchronized Runnable removeWaiting(Player player) {
         if (waitingUntilResourcePackStatus == null) return null;
 
         try {
@@ -91,22 +86,19 @@ public final class OnPlayerResourcePackStatus implements Listener
         }
     }
 
-    private static void ignoreForceForPlayer(Player player)
-    {
+    private static void ignoreForceForPlayer(Player player) {
         if (playersIgnoringForce == null) playersIgnoringForce = new HashSet<>();
         playersIgnoringForce.add(player);
     }
 
-    private static boolean isPlayerIgnored(Player player)
-    {
+    private static boolean isPlayerIgnored(Player player) {
         if (playersIgnoringForce == null) return false;
         return playersIgnoringForce.contains(player);
     }
 
     @SuppressWarnings("deprecation")
     @EventHandler
-    public void onPlayerResourcePackStatus(PlayerResourcePackStatusEvent event)
-    {
+    public void onPlayerResourcePackStatus(PlayerResourcePackStatusEvent event) {
         var status = event.getStatus();
 
         if (status == PlayerResourcePackStatusEvent.Status.ACCEPTED) return;
@@ -141,11 +133,9 @@ public final class OnPlayerResourcePackStatus implements Listener
                     player.kickPlayer(lang.getColored("Resource Packs.Kick Message.Download Fail"));
 
                     if (config.getBoolean("Resource Packs.Force.Alert Fail").orElse(false)) {
-                        var confirmEntry = new UniqueRunnable(player.getUniqueId())
-                        {
+                        var confirmEntry = new UniqueRunnable(player.getUniqueId()) {
                             @Override
-                            public void run()
-                            {
+                            public void run() {
                                 ignoreForceForPlayer(player);
                                 String broadcastMessage = lang.getColored("Resource Packs.Download Failed.Allowed").replace("<player>", player.getName());
                                 Bukkit.broadcast(broadcastMessage, "playmoresounds.resourcepacker.administrator");

@@ -35,8 +35,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
 
-public final class PlayMoreSoundsCore
-{
+public final class PlayMoreSoundsCore {
     private static final @NotNull Path folder;
     private static final @NotNull ErrorHandler errorHandler;
     private static final boolean papermc;
@@ -107,37 +106,31 @@ public final class PlayMoreSoundsCore
     /**
      * If the running server implementation is PaperMC or a fork of PaperMC.
      */
-    public static boolean isPaper()
-    {
+    public static boolean isPaper() {
         return papermc;
     }
 
     /**
      * @return The folder where all PlayMoreSounds' configurations are stored.
      */
-    public static @NotNull Path getFolder()
-    {
+    public static @NotNull Path getFolder() {
         return folder;
     }
 
     /**
      * @return PlayMoreSounds' error handling class.
      */
-    public static @NotNull ErrorHandler getErrorHandler()
-    {
+    public static @NotNull ErrorHandler getErrorHandler() {
         return errorHandler;
     }
 
-    private static final class DummyErrorHandler extends ErrorHandler
-    {
-        public DummyErrorHandler(@NotNull Path errorFolder, @NotNull String pluginName, @NotNull String pluginVersion, @NotNull Collection<String> authors, @Nullable String website)
-        {
+    private static final class DummyErrorHandler extends ErrorHandler {
+        public DummyErrorHandler(@NotNull Path errorFolder, @NotNull String pluginName, @NotNull String pluginVersion, @NotNull Collection<String> authors, @Nullable String website) {
             super(errorFolder, pluginName, pluginVersion, authors, website);
         }
 
         @Override
-        public void report(@NotNull Throwable throwable, @NotNull String title)
-        {
+        public void report(@NotNull Throwable throwable, @NotNull String title) {
             // Do nothing.
         }
     }

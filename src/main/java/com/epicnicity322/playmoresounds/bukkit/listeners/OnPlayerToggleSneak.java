@@ -23,22 +23,18 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.jetbrains.annotations.NotNull;
 
-public final class OnPlayerToggleSneak extends PMSListener
-{
-    public OnPlayerToggleSneak(@NotNull PlayMoreSounds plugin)
-    {
+public final class OnPlayerToggleSneak extends PMSListener {
+    public OnPlayerToggleSneak(@NotNull PlayMoreSounds plugin) {
         super(plugin);
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Toggle Sneak";
     }
 
     @EventHandler
-    public void onPlayerToggleSneak(PlayerToggleSneakEvent event)
-    {
+    public void onPlayerToggleSneak(PlayerToggleSneakEvent event) {
         var sound = getRichSound();
 
         if (!event.isCancelled() || !sound.isCancellable())

@@ -46,16 +46,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class EssentialsChatHook extends PMSAddon implements Listener
-{
+public final class EssentialsChatHook extends PMSAddon implements Listener {
     private final Map<AsyncPlayerChatEvent, String> channels = Collections.synchronizedMap(new HashMap<>());
     private ChannelsHandler handler;
     private IEssentials ess;
     private Map<?, ?> chatStore;
 
     @Override
-    protected void onStart()
-    {
+    protected void onStart() {
         Logger logger = PlayMoreSounds.getConsoleLogger();
         PluginManager pm = Bukkit.getPluginManager();
         ess = (IEssentials) pm.getPlugin("Essentials");
@@ -87,11 +85,9 @@ public final class EssentialsChatHook extends PMSAddon implements Listener
             return;
         }
 
-        handler = new ChannelsHandler("EssentialsChat", this, new ChannelsHandler.ChannelSoundPreventer()
-        {
+        handler = new ChannelsHandler("EssentialsChat", this, new ChannelsHandler.ChannelSoundPreventer() {
             @Override
-            protected boolean preventReceivingSound(@NotNull Player receiver, @NotNull Player chatter, @NotNull String channel)
-            {
+            protected boolean preventReceivingSound(@NotNull Player receiver, @NotNull Player chatter, @NotNull String channel) {
                 return ess.getUser(receiver).isIgnoredPlayer(ess.getUser(chatter));
             }
         });
@@ -161,8 +157,7 @@ public final class EssentialsChatHook extends PMSAddon implements Listener
     // Essentials removes the ChatStore on HIGHEST and charges the player for talking in the channel, so we're adding
     //the channel name to #channels map in HIGH and playing the sound on MONITOR
     @EventHandler(priority = EventPriority.HIGH)
-    public void onAsyncPlayerChatHigh(AsyncPlayerChatEvent event)
-    {
+    public void onAsyncPlayerChatHigh(AsyncPlayerChatEvent event) {
         Object thisChatStore = chatStore.get(event);
         if (thisChatStore == null) return;
 
@@ -180,8 +175,7 @@ public final class EssentialsChatHook extends PMSAddon implements Listener
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onAsyncPlayerChatMonitor(AsyncPlayerChatEvent event)
-    {
+    public void onAsyncPlayerChatMonitor(AsyncPlayerChatEvent event) {
         String channel = channels.remove(event);
 
         if (!event.isCancelled() && channel != null) {

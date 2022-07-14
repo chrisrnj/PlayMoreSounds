@@ -23,11 +23,9 @@ import com.epicnicity322.playmoresounds.sponge.sound.PlayableRichSound;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 
-public class OnServerSideConnection
-{
+public class OnServerSideConnection {
     @Listener
-    public void onJoin(ServerSideConnectionEvent.Join event)
-    {
+    public void onJoin(ServerSideConnectionEvent.Join event) {
         new PlayableRichSound(Configurations.SOUNDS.getConfigurationHolder().getConfiguration().getConfigurationSection("Join Server")).play(event.player());
     }
 }

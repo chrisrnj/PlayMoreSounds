@@ -24,22 +24,18 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.jetbrains.annotations.NotNull;
 
-public final class OnEntityJump extends PMSListener
-{
-    public OnEntityJump(@NotNull PlayMoreSounds plugin)
-    {
+public final class OnEntityJump extends PMSListener {
+    public OnEntityJump(@NotNull PlayMoreSounds plugin) {
         super(plugin);
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Entity Jump";
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntityJump(EntityJumpEvent event)
-    {
+    public void onEntityJump(EntityJumpEvent event) {
         var sound = getRichSound();
 
         if (!event.isCancelled() || !sound.isCancellable())

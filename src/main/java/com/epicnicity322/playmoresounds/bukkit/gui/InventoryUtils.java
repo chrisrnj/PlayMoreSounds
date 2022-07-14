@@ -43,15 +43,12 @@ import java.util.HashMap;
 import java.util.function.Consumer;
 
 @SuppressWarnings("deprecation")
-public final class InventoryUtils
-{
+public final class InventoryUtils {
     private static final @NotNull HashMap<HumanEntity, HashMap<Integer, Consumer<InventoryClickEvent>>> openInventories = new HashMap<>();
     private static final @NotNull HashMap<HumanEntity, Consumer<InventoryCloseEvent>> onClose = new HashMap<>();
-    private static final @NotNull Listener inventoryListener = new Listener()
-    {
+    private static final @NotNull Listener inventoryListener = new Listener() {
         @EventHandler(priority = EventPriority.LOWEST)
-        public void onInventoryClick(InventoryClickEvent event)
-        {
+        public void onInventoryClick(InventoryClickEvent event) {
             if (event.getClickedInventory() == null) return;
 
             var player = event.getWhoClicked();
@@ -71,8 +68,7 @@ public final class InventoryUtils
         }
 
         @EventHandler
-        public void onInventoryClose(InventoryCloseEvent event)
-        {
+        public void onInventoryClose(InventoryCloseEvent event) {
             var player = event.getPlayer();
 
             if (openInventories.remove(player) != null) {
@@ -96,8 +92,7 @@ public final class InventoryUtils
         });
     }
 
-    private InventoryUtils()
-    {
+    private InventoryUtils() {
     }
 
     /**
@@ -114,8 +109,7 @@ public final class InventoryUtils
      * @param to_index   The slot to stop the filling.
      * @see #forceFill(Material, Inventory, int, int)
      */
-    public static void fill(@NotNull Material material, @NotNull Inventory inventory, int from_index, int to_index)
-    {
+    public static void fill(@NotNull Material material, @NotNull Inventory inventory, int from_index, int to_index) {
         int size = inventory.getSize();
         if (from_index < 0 || to_index < 0 || from_index >= size || to_index >= size) return;
 
@@ -150,8 +144,7 @@ public final class InventoryUtils
      * @param to_index   The slot to stop the filling.
      * @see #fill(Material, Inventory, int, int)
      */
-    public static void forceFill(@NotNull Material material, @NotNull Inventory inventory, int from_index, int to_index)
-    {
+    public static void forceFill(@NotNull Material material, @NotNull Inventory inventory, int from_index, int to_index) {
         int size = inventory.getSize();
         if (from_index < 0 || to_index < 0 || from_index >= size || to_index >= size) return;
 
@@ -168,8 +161,7 @@ public final class InventoryUtils
         }
     }
 
-    public static @NotNull ItemStack getItemStack(@NotNull String configPath)
-    {
+    public static @NotNull ItemStack getItemStack(@NotNull String configPath) {
         var config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
         Material material = Material.matchMaterial(config.getString(configPath + ".Material").orElse("STONE"));
         if (material == null || material.isAir()) material = Material.STONE;
@@ -197,8 +189,7 @@ public final class InventoryUtils
      * @throws IllegalStateException If PlayMoreSounds is not loaded.
      * @see #openInventory(Inventory inventory, HashMap buttons, HumanEntity player, Consumer onClose)
      */
-    public static void openInventory(@NotNull Inventory inventory, @NotNull HumanEntity player)
-    {
+    public static void openInventory(@NotNull Inventory inventory, @NotNull HumanEntity player) {
         openInventory(inventory, null, player, null);
     }
 
@@ -214,8 +205,7 @@ public final class InventoryUtils
      * @throws IllegalStateException If PlayMoreSounds is not loaded.
      * @see #openInventory(Inventory inventory, HashMap buttons, HumanEntity player, Consumer onClose)
      */
-    public static void openInventory(@NotNull Inventory inventory, @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons, @NotNull HumanEntity player)
-    {
+    public static void openInventory(@NotNull Inventory inventory, @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons, @NotNull HumanEntity player) {
         openInventory(inventory, buttons, player, null);
     }
 
@@ -232,8 +222,7 @@ public final class InventoryUtils
      * @param onClose   The runnable to run when the inventory is closed.
      * @throws IllegalStateException If PlayMoreSounds is not loaded.
      */
-    public static void openInventory(@NotNull Inventory inventory, @Nullable HashMap<Integer, Consumer<InventoryClickEvent>> buttons, @NotNull HumanEntity player, @Nullable Consumer<InventoryCloseEvent> onClose)
-    {
+    public static void openInventory(@NotNull Inventory inventory, @Nullable HashMap<Integer, Consumer<InventoryClickEvent>> buttons, @NotNull HumanEntity player, @Nullable Consumer<InventoryCloseEvent> onClose) {
         if (PlayMoreSounds.getInstance() == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
         player.openInventory(inventory);

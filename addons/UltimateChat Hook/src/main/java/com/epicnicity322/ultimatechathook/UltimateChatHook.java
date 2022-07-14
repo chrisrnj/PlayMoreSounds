@@ -40,14 +40,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public final class UltimateChatHook extends PMSAddon implements Listener
-{
+public final class UltimateChatHook extends PMSAddon implements Listener {
     private final Map<CommandSender, Set<CommandSender>> receivers = Collections.synchronizedMap(new HashMap<>());
     private ChannelsHandler handler;
 
     @Override
-    protected void onStart()
-    {
+    protected void onStart() {
         Logger logger = PlayMoreSounds.getConsoleLogger();
         if (!Bukkit.getPluginManager().isPluginEnabled("UltimateChat")) {
             logger.log("[UltimateChat Hook] Addon could not be started because UltimateChat plugin failed to enable.", ConsoleLogger.Level.ERROR);
@@ -55,11 +53,9 @@ public final class UltimateChatHook extends PMSAddon implements Listener
             return;
         }
 
-        handler = new ChannelsHandler("UltimateChat", this, new ChannelsHandler.ChannelSoundPreventer()
-        {
+        handler = new ChannelsHandler("UltimateChat", this, new ChannelsHandler.ChannelSoundPreventer() {
             @Override
-            protected boolean preventReceivingSound(@NotNull Player receiver, @NotNull Player chatter, @NotNull String channel)
-            {
+            protected boolean preventReceivingSound(@NotNull Player receiver, @NotNull Player chatter, @NotNull String channel) {
                 Set<CommandSender> receiverSet = receivers.get(chatter);
                 if (receiverSet == null) return false;
                 return !receiverSet.contains(receiver);
@@ -116,8 +112,7 @@ public final class UltimateChatHook extends PMSAddon implements Listener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPostFormatChatMessageHighest(PostFormatChatMessageEvent event)
-    {
+    public void onPostFormatChatMessageHighest(PostFormatChatMessageEvent event) {
         CommandSender sender = event.getSender();
         if (!(sender instanceof Player)) return;
         receivers.put(sender, event.getMessages().keySet());
@@ -125,8 +120,7 @@ public final class UltimateChatHook extends PMSAddon implements Listener
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPostFormatChatMessageMonitor(PostFormatChatMessageEvent event)
-    {
+    public void onPostFormatChatMessageMonitor(PostFormatChatMessageEvent event) {
         receivers.remove(event.getSender());
     }
 }

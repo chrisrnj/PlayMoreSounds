@@ -20,10 +20,8 @@ package com.epicnicity322.playmoresounds.core;
 
 import javax.swing.*;
 
-public class Main
-{
-    public static void main(String[] args)
-    {
+public class Main {
+    public static void main(String[] args) {
         System.out.println("I am a bukkit/sponge dependent application!");
 
         var frame = new JFrame("Sorry");

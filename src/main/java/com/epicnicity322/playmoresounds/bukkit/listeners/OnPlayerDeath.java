@@ -38,30 +38,26 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public final class OnPlayerDeath extends PMSListener
-{
+public final class OnPlayerDeath extends PMSListener {
     private final @NotNull HashMap<String, PlayableRichSound> specificDeaths = new HashMap<>();
     private final @NotNull NamespacedKey lastDamageKey;
     private final @NotNull NamespacedKey killerUUIDKey;
     private @Nullable PlayableRichSound playerKilled;
     private @Nullable PlayableRichSound playerKill;
 
-    public OnPlayerDeath(@NotNull PlayMoreSounds plugin)
-    {
+    public OnPlayerDeath(@NotNull PlayMoreSounds plugin) {
         super(plugin);
         lastDamageKey = new NamespacedKey(plugin, "last_damage");
         killerUUIDKey = new NamespacedKey(plugin, "killer_uuid");
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Player Death";
     }
 
     @Override
-    public void load()
-    {
+    public void load() {
         specificDeaths.clear();
 
         var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
@@ -93,8 +89,7 @@ public final class OnPlayerDeath extends PMSListener
     }
 
     @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event)
-    {
+    public void onPlayerDeath(PlayerDeathEvent event) {
         var player = event.getEntity();
         var playerData = player.getPersistentDataContainer();
         boolean defaultSound = getRichSound() != null;
@@ -133,8 +128,7 @@ public final class OnPlayerDeath extends PMSListener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntityDamage(EntityDamageEvent event)
-    {
+    public void onEntityDamage(EntityDamageEvent event) {
         if (specificDeaths.isEmpty()) return;
         var entity = event.getEntity();
 

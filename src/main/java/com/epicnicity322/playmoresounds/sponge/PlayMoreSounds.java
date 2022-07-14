@@ -57,8 +57,7 @@ import java.util.HashSet;
 import java.util.Random;
 
 @Plugin("playmoresounds")
-public final class PlayMoreSounds
-{
+public final class PlayMoreSounds {
     private static final @NotNull MessageSender language;
     private static final @NotNull LoadableHashSet<String> serverPlugins = new LoadableHashSet<>();
     private static @Nullable HashSet<Runnable> onDisable;
@@ -88,8 +87,7 @@ public final class PlayMoreSounds
     private final @NotNull AddonManager addonManager;
 
     @Inject
-    public PlayMoreSounds(@NotNull PluginContainer plugin, @NotNull org.apache.logging.log4j.Logger lf4jLogger, @NotNull Metrics.Factory metricsFactory)
-    {
+    public PlayMoreSounds(@NotNull PluginContainer plugin, @NotNull org.apache.logging.log4j.Logger lf4jLogger, @NotNull Metrics.Factory metricsFactory) {
         this.plugin = plugin;
         logger = new Logger(PMSHelper.isChristmas() ? "&f[&4PlayMoreSounds&f] " : "&6[&9PlayMoreSounds&6] ", lf4jLogger);
         PlayMoreSoundsCore.getErrorHandler().setLogger(logger);
@@ -105,8 +103,7 @@ public final class PlayMoreSounds
      * @param runnable Runnable to run on disable.
      * @return Whether runnable was immediately executed because PlayMoreSounds is disabled.
      */
-    public static boolean onDisable(@NotNull Runnable runnable)
-    {
+    public static boolean onDisable(@NotNull Runnable runnable) {
         if (disabled) {
             try {
                 runnable.run();
@@ -129,8 +126,7 @@ public final class PlayMoreSounds
      * @param runnable Runnable to run on enable.
      * @return Whether runnable was immediately executed because PlayMoreSounds is enabled.
      */
-    public static boolean onEnable(@NotNull Runnable runnable)
-    {
+    public static boolean onEnable(@NotNull Runnable runnable) {
         if (enabled) {
             try {
                 runnable.run();
@@ -151,8 +147,7 @@ public final class PlayMoreSounds
      *
      * @param runnable Runnable to run on configurations reload.
      */
-    public static void onReload(@NotNull Runnable runnable)
-    {
+    public static void onReload(@NotNull Runnable runnable) {
         if (onReload == null) onReload = new HashSet<>();
         onReload.add(runnable);
     }
@@ -160,14 +155,12 @@ public final class PlayMoreSounds
     /**
      * @return PlayMoreSounds' {@link MessageSender} containing every message from language files.
      */
-    public static @NotNull MessageSender getLanguage()
-    {
+    public static @NotNull MessageSender getLanguage() {
         return language;
     }
 
     @Listener
-    public void onRefreshGame(@SuppressWarnings("unused") RefreshGameEvent event)
-    {
+    public void onRefreshGame(@SuppressWarnings("unused") RefreshGameEvent event) {
         Configurations.getConfigurationLoader().loadConfigurations();
 
         if (onReload != null) {
@@ -183,8 +176,7 @@ public final class PlayMoreSounds
     }
 
     @Listener
-    public void onConstructPlugin(@SuppressWarnings("unused") ConstructPluginEvent event)
-    {
+    public void onConstructPlugin(@SuppressWarnings("unused") ConstructPluginEvent event) {
         // Checking if PlayMoreSounds was already enabled.
         if (enabled) return;
 
@@ -290,14 +282,12 @@ public final class PlayMoreSounds
     }
 
     @Listener
-    public void onStartedServer(@SuppressWarnings("unused") StartedEngineEvent<Server> event)
-    {
+    public void onStartedServer(@SuppressWarnings("unused") StartedEngineEvent<Server> event) {
         addonManager.startAddons(StartTime.SERVER_LOAD_COMPLETE);
     }
 
     @Listener
-    public void onStoppingServer(@SuppressWarnings("unused") StoppingEngineEvent<Server> event)
-    {
+    public void onStoppingServer(@SuppressWarnings("unused") StoppingEngineEvent<Server> event) {
         // Checking if PlayMoreSounds was already disabled.
         if (disabled) return;
 

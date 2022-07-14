@@ -24,8 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public class SoundOptions
-{
+public class SoundOptions {
     private boolean ignoresDisabled;
     private @Nullable String permissionToListen;
     private @Nullable String permissionRequired;
@@ -41,8 +40,7 @@ public class SoundOptions
      *                           players online, -2 to all players in the {@link org.bukkit.World}.
      */
     public SoundOptions(boolean ignoresDisabled, @Nullable String permissionRequired, @Nullable String permissionToListen,
-                        double radius)
-    {
+                        double radius) {
         this.ignoresDisabled = ignoresDisabled;
         this.permissionRequired = permissionRequired != null && permissionRequired.isBlank() ? null : permissionRequired;
         this.permissionToListen = permissionToListen != null && permissionToListen.isBlank() ? null : permissionToListen;
@@ -58,8 +56,7 @@ public class SoundOptions
      *
      * @param section The section where the options are.
      */
-    public SoundOptions(@NotNull ConfigurationSection section)
-    {
+    public SoundOptions(@NotNull ConfigurationSection section) {
         this.ignoresDisabled = section.getBoolean("Ignores Disabled").orElse(false);
 
         String permissionRequired = section.getString("Permission Required").orElse(null),
@@ -75,13 +72,11 @@ public class SoundOptions
      *
      * @return If the sound should ignore if the player has disabled their sounds.
      */
-    public boolean ignoresDisabled()
-    {
+    public boolean ignoresDisabled() {
         return ignoresDisabled;
     }
 
-    public void setIgnoresDisabled(boolean ignoresDisabled)
-    {
+    public void setIgnoresDisabled(boolean ignoresDisabled) {
         this.ignoresDisabled = ignoresDisabled;
     }
 
@@ -92,13 +87,11 @@ public class SoundOptions
      *
      * @return The permission the player needs to play the sound.
      */
-    public @Nullable String getPermissionRequired()
-    {
+    public @Nullable String getPermissionRequired() {
         return permissionRequired;
     }
 
-    public void setPermissionRequired(@Nullable String permissionRequired)
-    {
+    public void setPermissionRequired(@Nullable String permissionRequired) {
         this.permissionRequired = permissionRequired != null && permissionRequired.isBlank() ? null : permissionRequired;
     }
 
@@ -110,13 +103,11 @@ public class SoundOptions
      *
      * @return The permission the player needs to hear the sound.
      */
-    public @Nullable String getPermissionToListen()
-    {
+    public @Nullable String getPermissionToListen() {
         return permissionToListen;
     }
 
-    public void setPermissionToListen(@Nullable String permissionToListen)
-    {
+    public void setPermissionToListen(@Nullable String permissionToListen) {
         this.permissionToListen = permissionToListen != null && permissionToListen.isBlank() ? null : permissionToListen;
     }
 
@@ -125,8 +116,7 @@ public class SoundOptions
      *
      * @return The radius of the sound.
      */
-    public double getRadius()
-    {
+    public double getRadius() {
         return radius;
     }
 
@@ -140,8 +130,7 @@ public class SoundOptions
      *
      * @param radius The radius to be set.
      */
-    public void setRadius(double radius)
-    {
+    public void setRadius(double radius) {
         this.radius = radius;
     }
 
@@ -153,8 +142,7 @@ public class SoundOptions
      *
      * @param section The section to set the properties.
      */
-    public void set(@NotNull ConfigurationSection section)
-    {
+    public void set(@NotNull ConfigurationSection section) {
         if (ignoresDisabled || section.contains("Ignores Disabled")) section.set("Ignores Disabled", true);
         section.set("Permission Required", permissionRequired);
         section.set("Permission To Listen", permissionToListen);
@@ -169,8 +157,7 @@ public class SoundOptions
      * @return If the {@link SoundOptions} has the same values as this one.
      */
     @Override
-    public boolean equals(@Nullable Object o)
-    {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (!(o instanceof SoundOptions options)) return false;
 
@@ -181,14 +168,12 @@ public class SoundOptions
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return Objects.hash(ignoresDisabled, permissionRequired, permissionToListen, radius);
     }
 
     @Override
-    public @NotNull String toString()
-    {
+    public @NotNull String toString() {
         return getClass().getSimpleName() + "{" +
                 "ignoresDisabled=" + ignoresDisabled +
                 ", permissionRequired='" + permissionRequired + '\'' +

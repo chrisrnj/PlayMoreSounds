@@ -28,21 +28,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.List;
 
-public interface Delayable extends Playable
-{
+public interface Delayable extends Playable {
     @Override
-    default void play(@Nullable Player player, @NotNull Location sourceLocation)
-    {
+    default void play(@Nullable Player player, @NotNull Location sourceLocation) {
         playDelayable(player, sourceLocation);
     }
 
-    default @NotNull PlayResult<?> playDelayable(@NotNull Location sourceLocation)
-    {
+    default @NotNull PlayResult<?> playDelayable(@NotNull Location sourceLocation) {
         return playDelayable(null, sourceLocation);
     }
 
-    default @NotNull PlayResult<?> playDelayable(@NotNull Player player)
-    {
+    default @NotNull PlayResult<?> playDelayable(@NotNull Player player) {
         return playDelayable(player, player.getLocation());
     }
 
@@ -56,25 +52,20 @@ public interface Delayable extends Playable
      */
     @NotNull PlayResult<?> playDelayable(@Nullable Player player, @NotNull Location sourceLocation);
 
-    interface PlayResult<T>
-    {
+    interface PlayResult<T> {
         @NotNull T get();
     }
 
     record ChildPlayResult(@NotNull Collection<Player> listeners,
-                           @Nullable BukkitTask delayedTask) implements PlayResult<ChildPlayResult>
-    {
-        public @NotNull ChildPlayResult get()
-        {
+                           @Nullable BukkitTask delayedTask) implements PlayResult<ChildPlayResult> {
+        public @NotNull ChildPlayResult get() {
             return this;
         }
     }
 
     record RichPlayResult(@NotNull Collection<Player> listeners,
-                          @Nullable List<BukkitTask> delayedTasks) implements PlayResult<RichPlayResult>
-    {
-        public @NotNull RichPlayResult get()
-        {
+                          @Nullable List<BukkitTask> delayedTasks) implements PlayResult<RichPlayResult> {
+        public @NotNull RichPlayResult get() {
             return this;
         }
     }

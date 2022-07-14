@@ -31,8 +31,7 @@ import java.util.HashMap;
 import java.util.function.Consumer;
 
 @SuppressWarnings("deprecation")
-public final class ConfirmationInventory implements PMSInventory
-{
+public final class ConfirmationInventory implements PMSInventory {
     private final @NotNull Inventory inventory;
     private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>(2);
 
@@ -44,8 +43,7 @@ public final class ConfirmationInventory implements PMSInventory
      * @param confirm The runnable that will run when the users click confirm button.
      * @param cancel  The runnable that will run when the user click cancel button.
      */
-    public ConfirmationInventory(@Nullable String title, @NotNull Runnable confirm, @Nullable Runnable cancel)
-    {
+    public ConfirmationInventory(@Nullable String title, @NotNull Runnable confirm, @Nullable Runnable cancel) {
         if (title == null) title = "";
 
         inventory = Bukkit.createInventory(null, 27, title);
@@ -68,20 +66,17 @@ public final class ConfirmationInventory implements PMSInventory
      * @param player The player to open the inventory to.
      * @throws IllegalStateException In case PlayMoreSounds is not loaded.
      */
-    public void openInventory(@NotNull HumanEntity player)
-    {
+    public void openInventory(@NotNull HumanEntity player) {
         InventoryUtils.openInventory(inventory, buttons, player);
     }
 
     @Override
-    public @NotNull Inventory getInventory()
-    {
+    public @NotNull Inventory getInventory() {
         return inventory;
     }
 
     @Override
-    public @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> getButtons()
-    {
+    public @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> getButtons() {
         return buttons;
     }
 }

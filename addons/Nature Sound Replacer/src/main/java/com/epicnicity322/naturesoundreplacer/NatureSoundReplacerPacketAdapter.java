@@ -41,8 +41,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public final class NatureSoundReplacerPacketAdapter extends PacketAdapter
-{
+public final class NatureSoundReplacerPacketAdapter extends PacketAdapter {
     public static final @NotNull ConfigurationHolder natureSoundReplacerConfig;
     private static final @NotNull HashMap<String, PlayableRichSound> sounds = new HashMap<>();
     private static NatureSoundReplacerPacketAdapter instance;
@@ -96,14 +95,12 @@ public final class NatureSoundReplacerPacketAdapter extends PacketAdapter
                         "Version: '" + PlayMoreSoundsVersion.version + "'");
     }
 
-    private NatureSoundReplacerPacketAdapter(@NotNull PlayMoreSounds plugin)
-    {
+    private NatureSoundReplacerPacketAdapter(@NotNull PlayMoreSounds plugin) {
         // It is changing sounds so priority is set to lowest.
         super(plugin, ListenerPriority.LOWEST, PacketType.Play.Server.NAMED_SOUND_EFFECT);
     }
 
-    public synchronized static void loadNatureSoundReplacer(@NotNull PlayMoreSounds plugin)
-    {
+    public synchronized static void loadNatureSoundReplacer(@NotNull PlayMoreSounds plugin) {
         if (instance == null) {
             instance = new NatureSoundReplacerPacketAdapter(plugin);
         }
@@ -163,8 +160,7 @@ public final class NatureSoundReplacerPacketAdapter extends PacketAdapter
         }
     }
 
-    private static String toBukkit(SoundType type)
-    {
+    private static String toBukkit(SoundType type) {
         Optional<String> soundKey = type.getSound();
 
         if (!soundKey.isPresent()) return null;
@@ -181,8 +177,7 @@ public final class NatureSoundReplacerPacketAdapter extends PacketAdapter
     }
 
     @Override
-    public void onPacketSending(PacketEvent event)
-    {
+    public void onPacketSending(PacketEvent event) {
         PlayableRichSound sound;
 
         if (VersionUtils.hasSoundEffects()) {

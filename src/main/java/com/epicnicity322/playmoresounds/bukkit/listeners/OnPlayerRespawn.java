@@ -28,21 +28,18 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.jetbrains.annotations.NotNull;
 
-public final class OnPlayerRespawn extends PMSListener
-{
+public final class OnPlayerRespawn extends PMSListener {
     private final @NotNull NamespacedKey lastDamageKey;
     private final @NotNull NamespacedKey killerUUIDKey;
 
-    public OnPlayerRespawn(@NotNull PlayMoreSounds plugin)
-    {
+    public OnPlayerRespawn(@NotNull PlayMoreSounds plugin) {
         super(plugin);
         lastDamageKey = new NamespacedKey(plugin, "last_damage");
         killerUUIDKey = new NamespacedKey(plugin, "killer_uuid");
     }
 
     @Override
-    public void load()
-    {
+    public void load() {
         var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
 
         boolean playerKillKilledEnabled = sounds.getBoolean("Player Kill.Enabled").orElse(false) || sounds.getBoolean("Player Killer.Enabled").orElse(false);
@@ -64,14 +61,12 @@ public final class OnPlayerRespawn extends PMSListener
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Respawn";
     }
 
     @EventHandler
-    public void onPlayerRespawn(PlayerRespawnEvent event)
-    {
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
         var player = event.getPlayer();
 
         player.getPersistentDataContainer().remove(lastDamageKey);

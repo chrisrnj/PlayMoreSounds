@@ -36,45 +36,38 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public final class AddonsSubCommand extends Command implements Helpable
-{
+public final class AddonsSubCommand extends Command implements Helpable {
     public static final @NotNull HashSet<PMSAddon> ADDONS_TO_UNINSTALL = new HashSet<>();
     static final @NotNull AtomicBoolean experimentalCommands = new AtomicBoolean(false);
     private static @Nullable HashMap<String, UUID> uninstallConfirmationUUIDs;
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "addons";
     }
 
     @Override
-    public @Nullable String[] getAliases()
-    {
+    public @Nullable String[] getAliases() {
         return new String[]{"addon"};
     }
 
     @Override
-    public @Nullable String getPermission()
-    {
+    public @Nullable String getPermission() {
         return "playmoresounds.addons";
     }
 
     @Override
-    protected @Nullable CommandRunnable getNoPermissionRunnable()
-    {
+    protected @Nullable CommandRunnable getNoPermissionRunnable() {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
     @Override
-    public @NotNull CommandRunnable onHelp()
-    {
+    public @NotNull CommandRunnable onHelp() {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Help.Addons").replace("<label>", label));
     }
 
     @Override
-    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
-    {
+    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args) {
         var lang = PlayMoreSounds.getLanguage();
 
         if (args.length > 1) {
@@ -156,8 +149,7 @@ public final class AddonsSubCommand extends Command implements Helpable
         new AddonsInventory().openInventory((HumanEntity) sender);
     }
 
-    private String join(String[] args)
-    {
+    private String join(String[] args) {
         var builder = new StringBuilder();
 
         for (int i = 2; i < args.length; ++i)
@@ -166,8 +158,7 @@ public final class AddonsSubCommand extends Command implements Helpable
         return builder.toString().trim();
     }
 
-    private void uninstall(MessageSender lang, String label, CommandSender sender, String[] args)
-    {
+    private void uninstall(MessageSender lang, String label, CommandSender sender, String[] args) {
         String addonName = join(args);
 
         if (ADDONS_TO_UNINSTALL.removeIf(addon -> addon.getDescription().getName().equals(addonName))) {
@@ -192,11 +183,9 @@ public final class AddonsSubCommand extends Command implements Helpable
             UUID uuid = uninstallConfirmationUUIDs.computeIfAbsent(addonName, k -> UUID.randomUUID());
             final var finalAddon = addon;
 
-            ConfirmSubCommand.addPendingConfirmation(sender, new UniqueRunnable(uuid)
-            {
+            ConfirmSubCommand.addPendingConfirmation(sender, new UniqueRunnable(uuid) {
                 @Override
-                public void run()
-                {
+                public void run() {
                     ADDONS_TO_UNINSTALL.add(finalAddon);
                     uninstallConfirmationUUIDs.remove(addonName);
                     lang.send(sender, lang.get("Addons.Uninstall.Success").replace("<addon>", addonName));
@@ -206,8 +195,7 @@ public final class AddonsSubCommand extends Command implements Helpable
         }
     }
 
-    private void stopOrStart(boolean stop, MessageSender lang, String label, CommandSender sender, String[] args)
-    {
+    private void stopOrStart(boolean stop, MessageSender lang, String label, CommandSender sender, String[] args) {
         var addonManager = PlayMoreSounds.getAddonManager();
         String addonName = join(args);
         PMSAddon addon = null;

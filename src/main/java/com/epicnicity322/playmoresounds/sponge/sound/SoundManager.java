@@ -31,25 +31,21 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
-public class SoundManager
-{
+public class SoundManager {
     private static final @NotNull HashMap<UUID, Boolean> soundStateCache = new HashMap<>();
     private static final Key<Value<Integer>> soundState = Key.from(ResourceKey.of("playmoresounds", "sound_state"), Integer.class);
 
-    private SoundManager()
-    {
+    private SoundManager() {
     }
 
-    public static void toggleSoundsState(@NotNull ServerPlayer player, boolean state)
-    {
+    public static void toggleSoundsState(@NotNull ServerPlayer player, boolean state) {
         var uuid = player.uniqueId();
 
         soundStateCache.put(uuid, state);
         player.tryOffer(soundState, state ? 1 : 0);
     }
 
-    public static boolean getSoundsState(@NotNull ServerPlayer player)
-    {
+    public static boolean getSoundsState(@NotNull ServerPlayer player) {
         var uuid = player.uniqueId();
         Boolean state = soundStateCache.get(uuid);
 
@@ -63,8 +59,7 @@ public class SoundManager
         }
     }
 
-    public static @NotNull Collection<ServerPlayer> getInRange(double radius, @NotNull ServerLocation location)
-    {
+    public static @NotNull Collection<ServerPlayer> getInRange(double radius, @NotNull ServerLocation location) {
         if (radius > 0) {
             radius = square(radius);
             var inRadius = new HashSet<ServerPlayer>();
@@ -85,13 +80,11 @@ public class SoundManager
         }
     }
 
-    private static double distance(ServerLocation loc1, ServerLocation loc2)
-    {
+    private static double distance(ServerLocation loc1, ServerLocation loc2) {
         return square(loc1.x() - loc2.x()) + square(loc1.y() - loc2.y()) + square(loc1.z() - loc2.z());
     }
 
-    private static double square(double value)
-    {
+    private static double square(double value) {
         return value * value;
     }
 }

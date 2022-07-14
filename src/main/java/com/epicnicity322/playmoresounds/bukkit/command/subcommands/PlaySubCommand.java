@@ -37,53 +37,44 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
 
-public final class PlaySubCommand extends Command implements Helpable
-{
+public final class PlaySubCommand extends Command implements Helpable {
     @Override
-    public @NotNull CommandRunnable onHelp()
-    {
+    public @NotNull CommandRunnable onHelp() {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Help.Play").replace("<label>", label));
     }
 
     @Override
-    public @Nullable String[] getAliases()
-    {
+    public @Nullable String[] getAliases() {
         return new String[]{"playsound"};
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "play";
     }
 
     @Override
-    public int getMinArgsAmount()
-    {
+    public int getMinArgsAmount() {
         return 2;
     }
 
     @Override
-    public @Nullable String getPermission()
-    {
+    public @Nullable String getPermission() {
         return "playmoresounds.play";
     }
 
     @Override
-    protected @Nullable CommandRunnable getNoPermissionRunnable()
-    {
+    protected @Nullable CommandRunnable getNoPermissionRunnable() {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
     @Override
-    protected @Nullable CommandRunnable getNotEnoughArgsRunnable()
-    {
+    protected @Nullable CommandRunnable getNotEnoughArgsRunnable() {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, getInvalidArgsMessage(label, sender, args));
     }
 
     @Override
-    protected @Nullable TabCompleteRunnable getTabCompleteRunnable()
-    {
+    protected @Nullable TabCompleteRunnable getTabCompleteRunnable() {
         return (possibleCompletions, label, sender, args) -> {
             if (args.length == 2) {
                 for (String soundType : SoundType.getPresentSoundNames()) {
@@ -97,8 +88,7 @@ public final class PlaySubCommand extends Command implements Helpable
         };
     }
 
-    private String getInvalidArgsMessage(String label, CommandSender sender, String[] args)
-    {
+    private String getInvalidArgsMessage(String label, CommandSender sender, String[] args) {
         var lang = PlayMoreSounds.getLanguage();
         return lang.get("General.Invalid Arguments").replace("<label>", label)
                 .replace("<label2>", args[0]).replace("<args>", "<" +
@@ -108,8 +98,7 @@ public final class PlaySubCommand extends Command implements Helpable
     }
 
     @Override
-    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
-    {
+    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args) {
         var lang = PlayMoreSounds.getLanguage();
         HashSet<Player> targets = CommandUtils.getTargets(sender, args, 2,
                 getInvalidArgsMessage(label, sender, args), "playmoresounds.play.others");

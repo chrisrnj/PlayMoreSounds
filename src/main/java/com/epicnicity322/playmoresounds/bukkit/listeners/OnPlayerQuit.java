@@ -29,8 +29,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.Nullable;
 
-public final class OnPlayerQuit implements Listener
-{
+public final class OnPlayerQuit implements Listener {
     private static @Nullable PlayableRichSound playerBan;
     private static @Nullable PlayableRichSound leaveServer;
 
@@ -47,8 +46,7 @@ public final class OnPlayerQuit implements Listener
     }
 
     @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event)
-    {
+    public void onPlayerQuit(PlayerQuitEvent event) {
         var player = event.getPlayer();
         var location = player.getLocation();
 

@@ -33,24 +33,20 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-public final class OnPlayerCommandPreprocess extends PMSListener
-{
+public final class OnPlayerCommandPreprocess extends PMSListener {
     private final @NotNull HashMap<String, HashSet<PlayableRichSound>> filtersAndCriteria = new HashMap<>();
 
-    public OnPlayerCommandPreprocess(@NotNull PlayMoreSounds plugin)
-    {
+    public OnPlayerCommandPreprocess(@NotNull PlayMoreSounds plugin) {
         super(plugin);
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Send Command";
     }
 
     @Override
-    public void load()
-    {
+    public void load() {
         filtersAndCriteria.clear();
 
         var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
@@ -89,8 +85,7 @@ public final class OnPlayerCommandPreprocess extends PMSListener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event)
-    {
+    public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
         var message = event.getMessage();
         var player = event.getPlayer();
         boolean defaultSound = getRichSound() != null;

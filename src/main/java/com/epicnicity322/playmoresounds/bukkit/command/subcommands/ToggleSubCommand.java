@@ -30,34 +30,28 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 
-public final class ToggleSubCommand extends Command implements Helpable
-{
+public final class ToggleSubCommand extends Command implements Helpable {
     @Override
-    public @NotNull CommandRunnable onHelp()
-    {
+    public @NotNull CommandRunnable onHelp() {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Help.Toggle").replace("<label>", label));
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "toggle";
     }
 
     @Override
-    public @Nullable String getPermission()
-    {
+    public @Nullable String getPermission() {
         return "playmoresounds.toggle";
     }
 
     @Override
-    protected @Nullable CommandRunnable getNoPermissionRunnable()
-    {
+    protected @Nullable CommandRunnable getNoPermissionRunnable() {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
-    private String getInvalidArgsMessage(String label, CommandSender sender, String[] args)
-    {
+    private String getInvalidArgsMessage(String label, CommandSender sender, String[] args) {
         var lang = PlayMoreSounds.getLanguage();
         return lang.get("General.Invalid Arguments")
                 .replace("<label>", label).replace("<label2>", args[0])
@@ -67,8 +61,7 @@ public final class ToggleSubCommand extends Command implements Helpable
     }
 
     @Override
-    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
-    {
+    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args) {
         var lang = PlayMoreSounds.getLanguage();
         Boolean on = null;
         var invalidArgsMessage = getInvalidArgsMessage(label, sender, args);

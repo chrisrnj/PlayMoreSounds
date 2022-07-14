@@ -35,27 +35,22 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.function.Supplier;
 
-public class PlayableRichSound extends RichSound<PlayableSound> implements Delayable
-{
-    public PlayableRichSound(@NotNull String name, boolean enabled, boolean cancellable, @Nullable Collection<PlayableSound> childSounds)
-    {
+public class PlayableRichSound extends RichSound<PlayableSound> implements Delayable {
+    public PlayableRichSound(@NotNull String name, boolean enabled, boolean cancellable, @Nullable Collection<PlayableSound> childSounds) {
         super(name, enabled, cancellable, childSounds);
     }
 
-    public PlayableRichSound(@NotNull ConfigurationSection section)
-    {
+    public PlayableRichSound(@NotNull ConfigurationSection section) {
         super(section);
     }
 
     @Override
-    protected @NotNull PlayableSound newCoreSound(@NotNull ConfigurationSection section)
-    {
+    protected @NotNull PlayableSound newCoreSound(@NotNull ConfigurationSection section) {
         return new PlayableSound(section);
     }
 
     @Override
-    public void play(@Nullable Player player, @NotNull Location sourceLocation)
-    {
+    public void play(@Nullable Player player, @NotNull Location sourceLocation) {
         if (isEnabled() && !getChildSounds().isEmpty()) {
             var event = new PlayRichSoundEvent(player, sourceLocation, this);
 
@@ -69,8 +64,7 @@ public class PlayableRichSound extends RichSound<PlayableSound> implements Delay
     }
 
     @Override
-    public @NotNull RichPlayResult playDelayable(@Nullable Player player, @NotNull Location sourceLocation)
-    {
+    public @NotNull RichPlayResult playDelayable(@Nullable Player player, @NotNull Location sourceLocation) {
         if (isEnabled() && !getChildSounds().isEmpty()) {
             var event = new PlayRichSoundEvent(player, sourceLocation, this);
 
@@ -107,19 +101,16 @@ public class PlayableRichSound extends RichSound<PlayableSound> implements Delay
      * @return The {@link BukkitRunnable} of the loop that can be used to cancel later.
      * @throws IllegalStateException If PlayMoreSounds was not instantiated by bukkit yet.
      */
-    public @NotNull BukkitRunnable playInLoop(@Nullable Player player, @NotNull Supplier<Location> sourceLocation, long delay, long period, @Nullable Supplier<Boolean> breaker)
-    {
+    public @NotNull BukkitRunnable playInLoop(@Nullable Player player, @NotNull Supplier<Location> sourceLocation, long delay, long period, @Nullable Supplier<Boolean> breaker) {
         var main = PlayMoreSounds.getInstance();
         if (main == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
         Supplier<Boolean> finalBreaker = () -> !isEnabled() || getChildSounds().isEmpty()
                 || (player != null && player.isOnline()) || (breaker != null && breaker.get());
 
-        BukkitRunnable runnable = new BukkitRunnable()
-        {
+        BukkitRunnable runnable = new BukkitRunnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                 if (finalBreaker.get()) {
                     if (!isCancelled()) cancel();
                     return;

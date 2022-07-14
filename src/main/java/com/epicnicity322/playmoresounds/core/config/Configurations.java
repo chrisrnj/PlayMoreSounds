@@ -29,8 +29,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 
-public enum Configurations
-{
+public enum Configurations {
     //100 chars per line for organization
     BIOMES(StaticFields.sounds.resolve("biomes.yml"), "# Set a sound to play when you enter, leave or stand on a specific biome.\n" +
             "#\n" +
@@ -3002,24 +3001,20 @@ public enum Configurations
     private final @NotNull ConfigurationHolder configurationHolder;
     private final @NotNull Version minVersion;
 
-    Configurations(@NotNull Path path, @NotNull String contents, @NotNull Version minVersion)
-    {
+    Configurations(@NotNull Path path, @NotNull String contents, @NotNull Version minVersion) {
         this.configurationHolder = new ConfigurationHolder(path, contents);
         this.minVersion = minVersion;
     }
 
-    public static @NotNull ConfigurationLoader getConfigurationLoader()
-    {
+    public static @NotNull ConfigurationLoader getConfigurationLoader() {
         return configurationLoader;
     }
 
-    public @NotNull ConfigurationHolder getConfigurationHolder()
-    {
+    public @NotNull ConfigurationHolder getConfigurationHolder() {
         return configurationHolder;
     }
 
-    private static class StaticFields
-    {
+    private static class StaticFields {
         private static final @NotNull Path sounds = PlayMoreSoundsCore.getFolder().resolve("Sounds");
         private static final @NotNull Path lang = PlayMoreSoundsCore.getFolder().resolve("Language");
         // These versions are used to set the configurations' minimum versions.

@@ -32,22 +32,19 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 @SuppressWarnings("deprecation")
-public class RegionSoundInventory
-{
+public class RegionSoundInventory {
     private final @NotNull UUID editor;
     private final @NotNull Inventory inventory;
     private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>(3);
 
-    public RegionSoundInventory(@NotNull SoundRegion region, @NotNull Player editor)
-    {
+    public RegionSoundInventory(@NotNull SoundRegion region, @NotNull Player editor) {
         this.editor = editor.getUniqueId();
         var lang = PlayMoreSounds.getLanguage();
 
         inventory = Bukkit.createInventory(null, 9, lang.getColored("Region.Set.Sound"));
     }
 
-    public void openInventory()
-    {
+    public void openInventory() {
         Player editor = Bukkit.getPlayer(this.editor);
 
         if (editor == null) return;

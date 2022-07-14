@@ -24,22 +24,18 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.jetbrains.annotations.NotNull;
 
-public final class OnPortalCreate extends PMSListener
-{
-    public OnPortalCreate(@NotNull PlayMoreSounds plugin)
-    {
+public final class OnPortalCreate extends PMSListener {
+    public OnPortalCreate(@NotNull PlayMoreSounds plugin) {
         super(plugin);
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Portal Create";
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPortalCreate(PortalCreateEvent event)
-    {
+    public void onPortalCreate(PortalCreateEvent event) {
         // Other plugins might change the blocks list.
         if (event.getBlocks().isEmpty()) return;
 

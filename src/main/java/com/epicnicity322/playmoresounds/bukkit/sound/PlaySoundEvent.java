@@ -36,8 +36,7 @@ import java.util.stream.Collectors;
 /**
  * This event is called before a sound is played.
  */
-public class PlaySoundEvent extends Event implements Cancellable
-{
+public class PlaySoundEvent extends Event implements Cancellable {
     private static final @NotNull HandlerList handlers = new HandlerList();
     private final @NotNull PlayableSound sound;
     private final @Nullable Player sourcePlayer;
@@ -48,8 +47,7 @@ public class PlaySoundEvent extends Event implements Cancellable
     private boolean global;
 
     public PlaySoundEvent(@NotNull PlayableSound sound, @Nullable Player sourcePlayer, @NotNull Location location,
-                          @NotNull Collection<Player> listeners, boolean global)
-    {
+                          @NotNull Collection<Player> listeners, boolean global) {
         this.sound = sound;
         this.sourcePlayer = sourcePlayer;
         this.location = location;
@@ -58,8 +56,7 @@ public class PlaySoundEvent extends Event implements Cancellable
         this.global = global;
     }
 
-    public static @NotNull HandlerList getHandlerList()
-    {
+    public static @NotNull HandlerList getHandlerList() {
         return handlers;
     }
 
@@ -67,8 +64,7 @@ public class PlaySoundEvent extends Event implements Cancellable
      * @return Whether the event is cancelled and the sound is not playing.
      */
     @Override
-    public boolean isCancelled()
-    {
+    public boolean isCancelled() {
         return cancelled;
     }
 
@@ -78,22 +74,19 @@ public class PlaySoundEvent extends Event implements Cancellable
      * @param cancelled If the sound should play.
      */
     @Override
-    public void setCancelled(boolean cancelled)
-    {
+    public void setCancelled(boolean cancelled) {
         this.cancelled = cancelled;
     }
 
     @Override
-    public @NotNull HandlerList getHandlers()
-    {
+    public @NotNull HandlerList getHandlers() {
         return handlers;
     }
 
     /**
      * @return The sound that will be played.
      */
-    public @NotNull PlayableSound getSound()
-    {
+    public @NotNull PlayableSound getSound() {
         return sound;
     }
 
@@ -103,8 +96,7 @@ public class PlaySoundEvent extends Event implements Cancellable
      *
      * @return The source player or null if this sound was not played by a player.
      */
-    public @Nullable Player getSourcePlayer()
-    {
+    public @Nullable Player getSourcePlayer() {
         return sourcePlayer;
     }
 
@@ -114,8 +106,7 @@ public class PlaySoundEvent extends Event implements Cancellable
      *
      * @return The source location of the sound.
      */
-    public final @NotNull Location getLocation()
-    {
+    public final @NotNull Location getLocation() {
         return location.clone();
     }
 
@@ -125,8 +116,7 @@ public class PlaySoundEvent extends Event implements Cancellable
      * @param location The location the sound should play, if this is not a global sound.
      * @throws IllegalArgumentException If the new location is in a different world than the previous.
      */
-    public void setLocation(@NotNull Location location)
-    {
+    public void setLocation(@NotNull Location location) {
         if (!Objects.equals(this.location.getWorld(), location.getWorld()))
             throw new IllegalArgumentException("New location world is not the same as previous location's world.");
 
@@ -147,8 +137,7 @@ public class PlaySoundEvent extends Event implements Cancellable
      * @return An unmodifiable collection with the players in range to hear the sound.
      * @see #getValidListeners()
      */
-    public @NotNull Collection<Player> getListeners()
-    {
+    public @NotNull Collection<Player> getListeners() {
         return unmodifiableListeners;
     }
 
@@ -164,8 +153,7 @@ public class PlaySoundEvent extends Event implements Cancellable
      * @see #getListeners()
      * @see #validateListener(Player)
      */
-    public void addListener(@NotNull Player listener)
-    {
+    public void addListener(@NotNull Player listener) {
         if (!validateListener(listener)) return;
         if (!location.getWorld().equals(listener.getWorld())) {
             global = true;
@@ -184,8 +172,7 @@ public class PlaySoundEvent extends Event implements Cancellable
      * @param listener The player to remove.
      * @see #getListeners()
      */
-    public void removeListener(@NotNull Player listener)
-    {
+    public void removeListener(@NotNull Player listener) {
         listeners.remove(listener);
     }
 
@@ -196,8 +183,7 @@ public class PlaySoundEvent extends Event implements Cancellable
      * @return An immutable set containing all valid listeners of the playing sound.
      * @see #getListeners()
      */
-    public @NotNull HashSet<Player> getValidListeners()
-    {
+    public @NotNull HashSet<Player> getValidListeners() {
         return listeners.stream().filter(this::validateListener).collect(Collectors.toCollection(HashSet::new));
     }
 
@@ -207,8 +193,7 @@ public class PlaySoundEvent extends Event implements Cancellable
      *
      * @return If the sound is playing globally to each listener location.
      */
-    public final boolean playingGlobally()
-    {
+    public final boolean playingGlobally() {
         return global;
     }
 
@@ -224,8 +209,7 @@ public class PlaySoundEvent extends Event implements Cancellable
      * @param listener The player to validate as a listener for the sound.
      * @return If the player is a valid listener of {@link #getSound()}.
      */
-    public boolean validateListener(@NotNull Player listener)
-    {
+    public boolean validateListener(@NotNull Player listener) {
         SoundOptions options = getSound().getOptions();
 
         return (options.ignoresDisabled() || SoundManager.getSoundsState(listener))
@@ -234,8 +218,7 @@ public class PlaySoundEvent extends Event implements Cancellable
     }
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof PlaySoundEvent that)) return false;
 
@@ -248,8 +231,7 @@ public class PlaySoundEvent extends Event implements Cancellable
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return Objects.hash(cancelled, sound, sourcePlayer, location, listeners, global);
     }
 }

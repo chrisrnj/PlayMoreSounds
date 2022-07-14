@@ -25,11 +25,9 @@ import com.epicnicity322.playmoresounds.core.config.Configurations;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 
-public final class NatureSoundReplacer extends PMSAddon implements Listener
-{
+public final class NatureSoundReplacer extends PMSAddon implements Listener {
     @Override
-    protected void onStart()
-    {
+    protected void onStart() {
         Configurations.getConfigurationLoader().registerConfiguration(NatureSoundReplacerPacketAdapter.natureSoundReplacerConfig, new Version("4.0.0"), PlayMoreSoundsVersion.getVersion());
         PlayMoreSounds.getConsoleLogger().log("&eNature Sound Replacer configuration was registered.");
 

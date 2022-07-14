@@ -31,8 +31,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public final class ConfirmSubCommand extends Command implements Helpable
-{
+public final class ConfirmSubCommand extends Command implements Helpable {
     static @Nullable HashMap<UUID, LinkedHashMap<Runnable, String>> pendingConfirmations;
 
     /**
@@ -43,8 +42,7 @@ public final class ConfirmSubCommand extends Command implements Helpable
      * @param confirmation The runnable to run when the player confirms.
      * @param description  The description of what will have when the player confirms this runnable.
      */
-    public static void addPendingConfirmation(@Nullable UUID who, @NotNull Runnable confirmation, @NotNull String description)
-    {
+    public static void addPendingConfirmation(@Nullable UUID who, @NotNull Runnable confirmation, @NotNull String description) {
         if (pendingConfirmations == null) pendingConfirmations = new HashMap<>();
         pendingConfirmations.computeIfAbsent(who, k -> new LinkedHashMap<>()).put(confirmation, description);
     }
@@ -60,38 +58,32 @@ public final class ConfirmSubCommand extends Command implements Helpable
      * @param confirmation The runnable to run when the player confirms.
      * @param description  The description of what will have when the player confirms this runnable.
      */
-    public static void addPendingConfirmation(@NotNull CommandSender who, @NotNull Runnable confirmation, @NotNull String description)
-    {
+    public static void addPendingConfirmation(@NotNull CommandSender who, @NotNull Runnable confirmation, @NotNull String description) {
         addPendingConfirmation(who instanceof Player player ? player.getUniqueId() : null, confirmation, description);
     }
 
     @Override
-    public @NotNull CommandRunnable onHelp()
-    {
+    public @NotNull CommandRunnable onHelp() {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Help.Confirm").replace("<label>", label));
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "confirm";
     }
 
     @Override
-    public @Nullable String getPermission()
-    {
+    public @Nullable String getPermission() {
         return "playmoresounds.confirm";
     }
 
     @Override
-    protected @Nullable CommandRunnable getNoPermissionRunnable()
-    {
+    protected @Nullable CommandRunnable getNoPermissionRunnable() {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
     @Override
-    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
-    {
+    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args) {
         var lang = PlayMoreSounds.getLanguage();
         LinkedHashMap<Runnable, String> confirmations;
         UUID uuid = sender instanceof Player player ? player.getUniqueId() : null;

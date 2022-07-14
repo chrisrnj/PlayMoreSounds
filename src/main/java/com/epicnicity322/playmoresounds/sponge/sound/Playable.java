@@ -24,8 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.world.server.ServerLocation;
 
-public interface Playable
-{
+public interface Playable {
     /**
      * Plays a sound in a specific location. If the {@link SoundOptions#getRadius()} is lower than 0, the location is
      * only used to get the world to play sounds globally.
@@ -34,8 +33,7 @@ public interface Playable
      *
      * @param sourceLocation The location where the sound will play.
      */
-    default void play(@NotNull ServerLocation sourceLocation)
-    {
+    default void play(@NotNull ServerLocation sourceLocation) {
         play(null, sourceLocation);
     }
 
@@ -45,8 +43,7 @@ public interface Playable
      *
      * @param player The player to play the sound.
      */
-    default void play(@NotNull ServerPlayer player)
-    {
+    default void play(@NotNull ServerPlayer player) {
         play(player, player.serverLocation());
     }
 

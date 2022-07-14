@@ -24,22 +24,18 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.jetbrains.annotations.NotNull;
 
-public final class OnPlayerKick extends PMSListener
-{
-    public OnPlayerKick(@NotNull PlayMoreSounds plugin)
-    {
+public final class OnPlayerKick extends PMSListener {
+    public OnPlayerKick(@NotNull PlayMoreSounds plugin) {
         super(plugin);
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Player Kicked";
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerKick(PlayerKickEvent event)
-    {
+    public void onPlayerKick(PlayerKickEvent event) {
         var sound = getRichSound();
 
         if (!event.isCancelled() || !sound.isCancellable())

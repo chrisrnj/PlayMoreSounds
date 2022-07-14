@@ -32,24 +32,20 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class OnPlayerGameModeChange extends PMSListener
-{
+public final class OnPlayerGameModeChange extends PMSListener {
     private final @NotNull HashMap<String, PlayableRichSound> specificGameModes = new HashMap<>();
 
-    public OnPlayerGameModeChange(@NotNull PlayMoreSounds plugin)
-    {
+    public OnPlayerGameModeChange(@NotNull PlayMoreSounds plugin) {
         super(plugin);
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Game Mode Change";
     }
 
     @Override
-    public void load()
-    {
+    public void load() {
         specificGameModes.clear();
 
         var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
@@ -79,8 +75,7 @@ public final class OnPlayerGameModeChange extends PMSListener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerGameModeChange(PlayerGameModeChangeEvent event)
-    {
+    public void onPlayerGameModeChange(PlayerGameModeChangeEvent event) {
         var player = event.getPlayer();
         PlayableRichSound specificGameModeSound = specificGameModes.get(event.getNewGameMode().name());
         boolean defaultSound = getRichSound() != null;

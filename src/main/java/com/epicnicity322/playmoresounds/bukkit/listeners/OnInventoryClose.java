@@ -24,22 +24,18 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.jetbrains.annotations.NotNull;
 
-public final class OnInventoryClose extends PMSListener
-{
-    public OnInventoryClose(@NotNull PlayMoreSounds plugin)
-    {
+public final class OnInventoryClose extends PMSListener {
+    public OnInventoryClose(@NotNull PlayMoreSounds plugin) {
         super(plugin);
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Inventory Close";
     }
 
     @EventHandler
-    public void onInventoryClose(InventoryCloseEvent event)
-    {
+    public void onInventoryClose(InventoryCloseEvent event) {
         getRichSound().play((Player) event.getPlayer());
     }
 }

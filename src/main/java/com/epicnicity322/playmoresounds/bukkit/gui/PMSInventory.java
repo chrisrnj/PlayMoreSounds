@@ -26,8 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.function.Consumer;
 
-public interface PMSInventory
-{
+public interface PMSInventory {
     @NotNull Inventory getInventory();
 
     @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> getButtons();

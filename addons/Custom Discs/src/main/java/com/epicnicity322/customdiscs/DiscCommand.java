@@ -32,42 +32,35 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 
-public final class DiscCommand extends Command implements Helpable
-{
+public final class DiscCommand extends Command implements Helpable {
     private static final @NotNull String[] aliases = new String[]{"discs", "customdiscs"};
 
     @Override
-    public @NotNull CommandRunnable onHelp()
-    {
+    public @NotNull CommandRunnable onHelp() {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Custom Discs.Help").replace("<label>", label));
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "disc";
     }
 
     @Override
-    public @Nullable String[] getAliases()
-    {
+    public @Nullable String[] getAliases() {
         return aliases;
     }
 
     @Override
-    protected @NotNull CommandRunnable getNoPermissionRunnable()
-    {
+    protected @NotNull CommandRunnable getNoPermissionRunnable() {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
     @Override
-    public @NotNull String getPermission()
-    {
+    public @NotNull String getPermission() {
         return "playmoresounds.disc.give";
     }
 
-    private String getInvalidArgsMessage(String label, CommandSender sender, String[] args)
-    {
+    private String getInvalidArgsMessage(String label, CommandSender sender, String[] args) {
         MessageSender lang = PlayMoreSounds.getLanguage();
         return lang.get("General.Invalid Arguments")
                 .replace("<label>", label).replace("<label2>", args[0])
@@ -76,8 +69,7 @@ public final class DiscCommand extends Command implements Helpable
     }
 
     @Override
-    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
-    {
+    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args) {
         MessageSender lang = PlayMoreSounds.getLanguage();
         String invalidArgsMessage = getInvalidArgsMessage(label, sender, args);
         HashSet<Player> targets = CommandUtils.getTargets(sender, args, 2, invalidArgsMessage,

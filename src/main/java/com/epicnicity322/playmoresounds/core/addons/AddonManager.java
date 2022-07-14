@@ -33,14 +33,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 
-public class AddonManager
-{
+public class AddonManager {
     static final @NotNull LinkedHashSet<AddonClassLoader> addonClassLoaders = new LinkedHashSet<>();
     private final @NotNull LoadableHashSet<String> serverPlugins;
     private final @NotNull ConsoleLogger<?> logger;
 
-    public AddonManager(@NotNull LoadableHashSet<String> serverPlugins, @NotNull ConsoleLogger<?> logger)
-    {
+    public AddonManager(@NotNull LoadableHashSet<String> serverPlugins, @NotNull ConsoleLogger<?> logger) {
         this.serverPlugins = serverPlugins;
         this.logger = logger;
     }
@@ -52,8 +50,7 @@ public class AddonManager
      * @throws UnsupportedOperationException If addons were already registered.
      * @throws IllegalStateException         If the server has not registered all plugins yet.
      */
-    public void registerAddons() throws IOException
-    {
+    public void registerAddons() throws IOException {
         synchronized (addonClassLoaders) {
             if (!addonClassLoaders.isEmpty())
                 throw new UnsupportedOperationException("Addons were already registered.");
@@ -149,8 +146,7 @@ public class AddonManager
      *
      * @param startTime The start time to start the addons.
      */
-    public void startAddons(@NotNull StartTime startTime)
-    {
+    public void startAddons(@NotNull StartTime startTime) {
         synchronized (addonClassLoaders) {
             if (addonClassLoaders.isEmpty()) return;
         }
@@ -165,14 +161,12 @@ public class AddonManager
      *
      * @param addon The addon to start.
      */
-    public void startAddon(@NotNull PMSAddon addon)
-    {
+    public void startAddon(@NotNull PMSAddon addon) {
         if (!addon.started && !addon.stopped)
             callOnStart(addon);
     }
 
-    private void callOnStart(@NotNull PMSAddon addon)
-    {
+    private void callOnStart(@NotNull PMSAddon addon) {
         var name = addon.getDescription().getName();
 
         logger.log("&eStarting " + name + " v" + addon.getDescription().getVersion() + (name.toLowerCase().contains("addon") ? "." : " addon."));
@@ -191,8 +185,7 @@ public class AddonManager
     /**
      * Stops all registered addons.
      */
-    public void stopAddons()
-    {
+    public void stopAddons() {
         synchronized (addonClassLoaders) {
             if (addonClassLoaders.isEmpty()) return;
         }
@@ -207,16 +200,14 @@ public class AddonManager
     /**
      * Stops the specified addon if it was not stopped yet.
      */
-    public void stopAddon(@NotNull PMSAddon addon)
-    {
+    public void stopAddon(@NotNull PMSAddon addon) {
         if (addon.started && !addon.stopped) {
             callOnStop(addon);
             AddonClassLoader.clearCaches(addon.getClassLoader());
         }
     }
 
-    private void callOnStop(@NotNull PMSAddon addon)
-    {
+    private void callOnStop(@NotNull PMSAddon addon) {
         var name = addon.getDescription().getName();
 
         logger.log("&eStopping " + name + " v" + addon.getDescription().getVersion() + (name.toLowerCase().contains("addon") ? "." : " addon."));
@@ -243,8 +234,7 @@ public class AddonManager
     /**
      * @return An immutable set with all registered addons, in load order.
      */
-    public @NotNull HashSet<PMSAddon> getAddons()
-    {
+    public @NotNull HashSet<PMSAddon> getAddons() {
         synchronized (addonClassLoaders) {
             var pmsAddons = new LinkedHashSet<PMSAddon>();
 

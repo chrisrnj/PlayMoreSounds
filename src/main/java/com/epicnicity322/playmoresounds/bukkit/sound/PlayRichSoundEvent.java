@@ -33,41 +33,35 @@ import java.util.Objects;
  *
  * @see PlaySoundEvent
  */
-public class PlayRichSoundEvent extends Event implements Cancellable
-{
+public class PlayRichSoundEvent extends Event implements Cancellable {
     private static final @NotNull HandlerList handlers = new HandlerList();
     private final @Nullable Player player;
     private final @NotNull PlayableRichSound richSound;
     @NotNull Location location;
     private boolean cancelled;
 
-    public PlayRichSoundEvent(@Nullable Player player, @NotNull Location location, @NotNull PlayableRichSound richSound)
-    {
+    public PlayRichSoundEvent(@Nullable Player player, @NotNull Location location, @NotNull PlayableRichSound richSound) {
         this.player = player;
         this.location = location;
         this.richSound = richSound;
     }
 
-    public static @NotNull HandlerList getHandlerList()
-    {
+    public static @NotNull HandlerList getHandlerList() {
         return handlers;
     }
 
     @Override
-    public boolean isCancelled()
-    {
+    public boolean isCancelled() {
         return cancelled;
     }
 
     @Override
-    public void setCancelled(boolean cancelled)
-    {
+    public void setCancelled(boolean cancelled) {
         this.cancelled = cancelled;
     }
 
     @Override
-    public @NotNull HandlerList getHandlers()
-    {
+    public @NotNull HandlerList getHandlers() {
         return handlers;
     }
 
@@ -76,8 +70,7 @@ public class PlayRichSoundEvent extends Event implements Cancellable
      *
      * @return The source player.
      */
-    public @Nullable Player getSourcePlayer()
-    {
+    public @Nullable Player getSourcePlayer() {
         return player;
     }
 
@@ -87,8 +80,7 @@ public class PlayRichSoundEvent extends Event implements Cancellable
      *
      * @return The source location of the sound.
      */
-    public final @NotNull Location getLocation()
-    {
+    public final @NotNull Location getLocation() {
         return location.clone();
     }
 
@@ -99,8 +91,7 @@ public class PlayRichSoundEvent extends Event implements Cancellable
      * @param location The location the sound should play, if this is not a global sound.
      * @throws IllegalArgumentException If the new location is in a different world than the previous.
      */
-    public void setLocation(@NotNull Location location)
-    {
+    public void setLocation(@NotNull Location location) {
         if (!Objects.equals(this.location.getWorld(), location.getWorld()))
             throw new IllegalArgumentException("New location world is not the same as previous location's world.");
 
@@ -112,8 +103,7 @@ public class PlayRichSoundEvent extends Event implements Cancellable
      *
      * @return The rich sound object that will play.
      */
-    public @NotNull PlayableRichSound getRichSound()
-    {
+    public @NotNull PlayableRichSound getRichSound() {
         return richSound;
     }
 }

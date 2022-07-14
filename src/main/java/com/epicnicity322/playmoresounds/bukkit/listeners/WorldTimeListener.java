@@ -37,16 +37,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-public final class WorldTimeListener
-{
+public final class WorldTimeListener {
     private static @Nullable BukkitTask timeCheckerTask;
 
-    private WorldTimeListener()
-    {
+    private WorldTimeListener() {
     }
 
-    public static void load(@NotNull PlayMoreSounds plugin)
-    {
+    public static void load(@NotNull PlayMoreSounds plugin) {
         final Configuration timeTriggersConfig;
 
         // Creeper sounds throughout the day to scare players on Halloween.
@@ -110,8 +107,7 @@ public final class WorldTimeListener
      *
      * @return A valid world time triggers configurations set to play with random creeper sounds throughout the day.
      */
-    private static Configuration getHalloweenWorldTimeTriggersConfig()
-    {
+    private static Configuration getHalloweenWorldTimeTriggersConfig() {
         var worldTimes = new Configuration(new YamlConfigurationLoader());
         var random = new Random();
 
@@ -135,7 +131,6 @@ public final class WorldTimeListener
         return worldTimes;
     }
 
-    record TimeTrigger(@NotNull World world, long time)
-    {
+    record TimeTrigger(@NotNull World world, long time) {
     }
 }

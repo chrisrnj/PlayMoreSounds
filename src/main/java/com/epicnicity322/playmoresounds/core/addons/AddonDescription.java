@@ -40,8 +40,7 @@ import java.util.function.Supplier;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 
-public class AddonDescription
-{
+public class AddonDescription {
     private static final @NotNull Pattern duplicatedSpaces = Pattern.compile(" +");
     private static final @NotNull Pattern notAlphaNumericAndSpace = Pattern.compile("[^A-Za-z\\d\\s]");
     private static final @NotNull Pattern notLetters = Pattern.compile("[^A-Za-z]");
@@ -59,8 +58,7 @@ public class AddonDescription
     private final @NotNull Version apiVersion;
     private final @NotNull Version version;
 
-    protected AddonDescription(@NotNull Path jar) throws IOException, InvalidAddonException
-    {
+    protected AddonDescription(@NotNull Path jar) throws IOException, InvalidAddonException {
         this.jar = jar;
 
         // Getting the description file.
@@ -149,8 +147,7 @@ public class AddonDescription
      * @throws IllegalArgumentException If {@param name} does not meet any of the requirements listed above.
      */
     @Contract("null -> null")
-    public static String parseName(String name)
-    {
+    public static String parseName(String name) {
         if (name == null) return null;
 
         // Trimming and removing duplicated spaces.
@@ -171,64 +168,52 @@ public class AddonDescription
         return name;
     }
 
-    public @NotNull Collection<String> getAddonHooks()
-    {
+    public @NotNull Collection<String> getAddonHooks() {
         return addonHooks;
     }
 
-    public @NotNull Collection<String> getAuthors()
-    {
+    public @NotNull Collection<String> getAuthors() {
         return authors;
     }
 
-    public @NotNull Collection<String> getPluginHooks()
-    {
+    public @NotNull Collection<String> getPluginHooks() {
         return pluginHooks;
     }
 
-    public @NotNull Collection<String> getRequiredAddons()
-    {
+    public @NotNull Collection<String> getRequiredAddons() {
         return requiredAddons;
     }
 
-    public @NotNull Collection<String> getRequiredPlugins()
-    {
+    public @NotNull Collection<String> getRequiredPlugins() {
         return requiredPlugins;
     }
 
-    public @NotNull StartTime getStartTime()
-    {
+    public @NotNull StartTime getStartTime() {
         return startTime;
     }
 
-    public @NotNull String getDescription()
-    {
+    public @NotNull String getDescription() {
         return description;
     }
 
-    public @NotNull String getMainClass()
-    {
+    public @NotNull String getMainClass() {
         return mainClass;
     }
 
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return name;
     }
 
-    public @NotNull Version getApiVersion()
-    {
+    public @NotNull Version getApiVersion() {
         return apiVersion;
     }
 
-    public @NotNull Version getVersion()
-    {
+    public @NotNull Version getVersion() {
         return version;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "AddonDescription{" +
                 "addonHooks=" + addonHooks +
                 ", apiVersion=" + apiVersion +
@@ -245,8 +230,7 @@ public class AddonDescription
     }
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof AddonDescription that)) return false;
 
@@ -264,8 +248,7 @@ public class AddonDescription
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return Objects.hash(addonHooks, apiVersion, authors, description, mainClass, name, pluginHooks, requiredAddons, requiredPlugins, startTime, version);
     }
 }

@@ -50,8 +50,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 @SuppressWarnings("deprecation")
-public class RichSoundInventory implements PMSInventory
-{
+public class RichSoundInventory implements PMSInventory {
     private static final @NotNull ArrayList<Material> soundMaterials = new ArrayList<>();
     private static final @NotNull AtomicInteger soundMaterialIndex = new AtomicInteger(0);
 
@@ -81,8 +80,7 @@ public class RichSoundInventory implements PMSInventory
     private Inventory inventory;
     private HashMap<Integer, ArrayList<PlayableSound>> childSoundPages;
 
-    public RichSoundInventory(@NotNull PlayableRichSound richSound, @NotNull ConfigurationHolder save)
-    {
+    public RichSoundInventory(@NotNull PlayableRichSound richSound, @NotNull ConfigurationHolder save) {
         this.richSound = richSound;
         this.save = save;
         this.childInventories = new HashMap<>(richSound.getChildSounds().size());
@@ -122,8 +120,7 @@ public class RichSoundInventory implements PMSInventory
         });
     }
 
-    private static Material nextSoundMaterial()
-    {
+    private static Material nextSoundMaterial() {
         int next = soundMaterialIndex.get();
         if (next + 1 >= soundMaterials.size()) {
             soundMaterialIndex.set(0);
@@ -133,8 +130,7 @@ public class RichSoundInventory implements PMSInventory
         return soundMaterials.get(next);
     }
 
-    static ItemStack parseItemStack(String inventory, String name, String value)
-    {
+    static ItemStack parseItemStack(String inventory, String name, String value) {
         if (value == null) value = "null";
 
         ItemStack itemStack = InventoryUtils.getItemStack(inventory + ".Items." + name);
@@ -151,13 +147,11 @@ public class RichSoundInventory implements PMSInventory
         return itemStack;
     }
 
-    private static ItemStack parseItemStack(String name, String value)
-    {
+    private static ItemStack parseItemStack(String name, String value) {
         return parseItemStack("Rich Sound Inventory", name, value);
     }
 
-    void updateInventory()
-    {
+    void updateInventory() {
         // Checking if a previous inventory was set and closing to all viewers.
         ArrayList<HumanEntity> viewers = null;
 
@@ -204,8 +198,7 @@ public class RichSoundInventory implements PMSInventory
         }
     }
 
-    protected void save() throws IOException
-    {
+    protected void save() throws IOException {
         Configuration config = save.getConfiguration();
         Path path = save.getPath();
 
@@ -218,8 +211,7 @@ public class RichSoundInventory implements PMSInventory
         }
     }
 
-    protected void updateButtonsItems()
-    {
+    protected void updateButtonsItems() {
         inventory.setItem(0, InventoryUtils.getItemStack("Rich Sound Inventory.Items.Status." + (richSound.isEnabled() ? "Enabled" : "Disabled")));
 
         String configName = save.getPath().getFileName().toString();
@@ -244,8 +236,7 @@ public class RichSoundInventory implements PMSInventory
         inventory.setItem(inventory.getSize() - 1, parseItemStack("Save", configName));
     }
 
-    private void fillChildSounds(int page)
-    {
+    private void fillChildSounds(int page) {
         // Removing previous child sounds from previous page.
         for (int i = 18; i < inventory.getSize() - 1; ++i) {
             inventory.setItem(i, null);
@@ -316,26 +307,22 @@ public class RichSoundInventory implements PMSInventory
         }
     }
 
-    public @NotNull PlayableRichSound getRichSound()
-    {
+    public @NotNull PlayableRichSound getRichSound() {
         return richSound;
     }
 
     @Override
-    public @NotNull Inventory getInventory()
-    {
+    public @NotNull Inventory getInventory() {
         return inventory;
     }
 
     @Override
-    public @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> getButtons()
-    {
+    public @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> getButtons() {
         return buttons;
     }
 
     @Override
-    public void openInventory(@NotNull HumanEntity humanEntity)
-    {
+    public void openInventory(@NotNull HumanEntity humanEntity) {
         InventoryUtils.openInventory(inventory, buttons, humanEntity);
     }
 }

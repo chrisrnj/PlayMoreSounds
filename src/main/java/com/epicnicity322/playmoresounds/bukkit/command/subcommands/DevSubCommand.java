@@ -50,14 +50,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public final class DevSubCommand extends Command
-{
+public final class DevSubCommand extends Command {
     private static final @NotNull AtomicBoolean soundLoggerRegistered = new AtomicBoolean(false);
-    private static final @NotNull Listener soundLogger = new Listener()
-    {
+    private static final @NotNull Listener soundLogger = new Listener() {
         @EventHandler(priority = EventPriority.MONITOR)
-        public void onPlayRichSound(PlayRichSoundEvent event)
-        {
+        public void onPlayRichSound(PlayRichSoundEvent event) {
             var logger = PlayMoreSounds.getConsoleLogger();
             var sound = event.getRichSound();
             var player = event.getSourcePlayer();
@@ -77,8 +74,7 @@ public final class DevSubCommand extends Command
         }
 
         @EventHandler(priority = EventPriority.MONITOR)
-        public void onPlaySound(PlaySoundEvent event)
-        {
+        public void onPlaySound(PlaySoundEvent event) {
             var logger = PlayMoreSounds.getConsoleLogger();
             var sound = event.getSound();
             var player = event.getSourcePlayer();
@@ -99,26 +95,22 @@ public final class DevSubCommand extends Command
     };
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "dev";
     }
 
     @Override
-    public @Nullable String getPermission()
-    {
+    public @Nullable String getPermission() {
         return "playmoresounds.dev";
     }
 
     @Override
-    public int getMinArgsAmount()
-    {
+    public int getMinArgsAmount() {
         return 2;
     }
 
     @Override
-    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
-    {
+    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args) {
         String command = join(args);
 
         switch (command) {
@@ -255,8 +247,7 @@ public final class DevSubCommand extends Command
         }
     }
 
-    private String join(String[] args)
-    {
+    private String join(String[] args) {
         var builder = new StringBuilder();
 
         for (int i = 1; i < args.length; ++i)
@@ -265,8 +256,7 @@ public final class DevSubCommand extends Command
         return builder.toString().trim().toLowerCase();
     }
 
-    private OfflinePlayer getPlayer(String nameOrUUID)
-    {
+    private OfflinePlayer getPlayer(String nameOrUUID) {
         OfflinePlayer player = Bukkit.getPlayer(nameOrUUID);
         try {
             if (player == null) player = Bukkit.getOfflinePlayer(UUID.fromString(nameOrUUID));

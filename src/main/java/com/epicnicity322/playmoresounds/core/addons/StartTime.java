@@ -18,8 +18,7 @@
 
 package com.epicnicity322.playmoresounds.core.addons;
 
-public enum StartTime
-{
+public enum StartTime {
     /**
      * Before PlayMoreSounds has loaded commands.
      */

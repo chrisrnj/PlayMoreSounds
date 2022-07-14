@@ -27,25 +27,21 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.jetbrains.annotations.NotNull;
 
-public final class OnPlayerBedLeave extends PMSListener
-{
+public final class OnPlayerBedLeave extends PMSListener {
     private PlayableRichSound bedLeave;
     private PlayableRichSound wakeUp;
 
-    public OnPlayerBedLeave(@NotNull PlayMoreSounds plugin)
-    {
+    public OnPlayerBedLeave(@NotNull PlayMoreSounds plugin) {
         super(plugin);
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Bed Leave|Wake Up";
     }
 
     @Override
-    public void load()
-    {
+    public void load() {
         var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
         bedLeave = getRichSound(sounds.getConfigurationSection("Bed Leave"));
         wakeUp = getRichSound(sounds.getConfigurationSection("Wake Up"));
@@ -64,8 +60,7 @@ public final class OnPlayerBedLeave extends PMSListener
     }
 
     @EventHandler
-    public void onPlayerBedLeave(PlayerBedLeaveEvent event)
-    {
+    public void onPlayerBedLeave(PlayerBedLeaveEvent event) {
         var player = event.getPlayer();
 
         if (bedLeave != null)

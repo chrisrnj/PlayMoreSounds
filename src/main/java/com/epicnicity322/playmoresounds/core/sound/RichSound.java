@@ -25,8 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public abstract class RichSound<T extends Sound>
-{
+public abstract class RichSound<T extends Sound> {
     private final @NotNull String name;
     private final @NotNull Collection<T> childSounds;
     private final @NotNull Collection<T> unmodifiableChildSounds;
@@ -34,8 +33,7 @@ public abstract class RichSound<T extends Sound>
     private boolean enabled;
     private boolean cancellable;
 
-    public RichSound(@NotNull String name, boolean enabled, boolean cancellable, @Nullable Collection<T> childSounds)
-    {
+    public RichSound(@NotNull String name, boolean enabled, boolean cancellable, @Nullable Collection<T> childSounds) {
         if (name.isBlank()) throw new IllegalArgumentException("Rich Sound name can't be blank.");
 
         // Checking if there are two child sounds with the same name in the collection.
@@ -55,8 +53,7 @@ public abstract class RichSound<T extends Sound>
         this.unmodifiableChildSounds = Collections.unmodifiableCollection(this.childSounds);
     }
 
-    public RichSound(@NotNull ConfigurationSection section)
-    {
+    public RichSound(@NotNull ConfigurationSection section) {
         this.section = section;
         this.name = section.getPath();
         this.enabled = section.getBoolean("Enabled").orElse(false);
@@ -81,43 +78,35 @@ public abstract class RichSound<T extends Sound>
 
     protected abstract @NotNull T newCoreSound(@NotNull ConfigurationSection section);
 
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return name;
     }
 
-    public final @Nullable ConfigurationSection getSection()
-    {
+    public final @Nullable ConfigurationSection getSection() {
         return section;
     }
 
-    public boolean isEnabled()
-    {
+    public boolean isEnabled() {
         return enabled;
     }
 
-    public void setEnabled(boolean enabled)
-    {
+    public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 
-    public boolean isCancellable()
-    {
+    public boolean isCancellable() {
         return cancellable;
     }
 
-    public void setCancellable(boolean cancellable)
-    {
+    public void setCancellable(boolean cancellable) {
         this.cancellable = cancellable;
     }
 
-    public final @NotNull Collection<T> getChildSounds()
-    {
+    public final @NotNull Collection<T> getChildSounds() {
         return unmodifiableChildSounds;
     }
 
-    public final @Nullable T getChildSound(@NotNull String id)
-    {
+    public final @Nullable T getChildSound(@NotNull String id) {
         for (var sound : childSounds) {
             if (sound.getId().equals(id)) {
                 return sound;
@@ -126,18 +115,15 @@ public abstract class RichSound<T extends Sound>
         return null;
     }
 
-    public void addChildSound(@NotNull T childSound)
-    {
+    public void addChildSound(@NotNull T childSound) {
         if (getChildSound(childSound.getId()) == null) childSounds.add(childSound);
     }
 
-    public void removeChildSound(@NotNull T childSound)
-    {
+    public void removeChildSound(@NotNull T childSound) {
         childSounds.remove(childSound);
     }
 
-    public void removeChildSound(@NotNull String id)
-    {
+    public void removeChildSound(@NotNull String id) {
         childSounds.removeIf(sound -> sound.getId().equals(id));
     }
 
@@ -154,8 +140,7 @@ public abstract class RichSound<T extends Sound>
      * @return The section the properties were applied.
      * @see #setAt(ConfigurationSection)
      */
-    public @NotNull ConfigurationSection set(@NotNull Configuration configuration)
-    {
+    public @NotNull ConfigurationSection set(@NotNull Configuration configuration) {
         ConfigurationSection section;
 
         if (name.isBlank()) {
@@ -180,8 +165,7 @@ public abstract class RichSound<T extends Sound>
      *
      * @param section The section to apply properties and child sounds.
      */
-    public void setAt(@NotNull ConfigurationSection section)
-    {
+    public void setAt(@NotNull ConfigurationSection section) {
         section.set("Enabled", enabled);
         section.set("Cancellable", cancellable);
 
@@ -201,8 +185,7 @@ public abstract class RichSound<T extends Sound>
     }
 
     @Override
-    public boolean equals(@Nullable Object o)
-    {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (!(o instanceof RichSound<?> that)) return false;
 
@@ -214,14 +197,12 @@ public abstract class RichSound<T extends Sound>
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return Objects.hash(name, section, enabled, cancellable, childSounds);
     }
 
     @Override
-    public @NotNull String toString()
-    {
+    public @NotNull String toString() {
         StringBuilder string = new StringBuilder();
 
         string.append(getClass().getSimpleName()).append("{").append("name='").append(name).append('\'');

@@ -24,22 +24,18 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerEditBookEvent;
 import org.jetbrains.annotations.NotNull;
 
-public final class OnPlayerEditBook extends PMSListener
-{
-    public OnPlayerEditBook(@NotNull PlayMoreSounds plugin)
-    {
+public final class OnPlayerEditBook extends PMSListener {
+    public OnPlayerEditBook(@NotNull PlayMoreSounds plugin) {
         super(plugin);
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Edit Book";
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerEditBook(PlayerEditBookEvent event)
-    {
+    public void onPlayerEditBook(PlayerEditBookEvent event) {
         var sound = getRichSound();
 
         if (!event.isCancelled() || !sound.isCancellable())

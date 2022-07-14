@@ -29,15 +29,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public final class CommandUtils
-{
+public final class CommandUtils {
     // Lists useful for tab completion
     private static final @NotNull List<String> targetAllArgs = Arrays.asList("*", "all", "everybody", "everyone", "online");
     private static final @NotNull List<String> targetSelfArgs = Arrays.asList("i", "me", "myself", "self");
     private static final @NotNull ArrayList<String> targetArgs = targetAllArgs.stream().collect(Collectors.toCollection(() -> new ArrayList<>(targetSelfArgs)));
 
-    private CommandUtils()
-    {
+    private CommandUtils() {
     }
 
     /**
@@ -52,8 +50,7 @@ public final class CommandUtils
      */
     @Nullable
     public static HashSet<Player> getTargets(@NotNull CommandSender sender, @NotNull String[] args, int targetPosition,
-                                             @NotNull String invalidArgsMsgToConsole, @NotNull String permissionOthers)
-    {
+                                             @NotNull String invalidArgsMsgToConsole, @NotNull String permissionOthers) {
         var targets = new HashSet<Player>();
         var lang = PlayMoreSounds.getLanguage();
 
@@ -152,8 +149,7 @@ public final class CommandUtils
      * @param sender  The sender of the command.
      * @return The names of who is in the set.
      */
-    public static String getWho(@NotNull Set<Player> players, @NotNull CommandSender sender)
-    {
+    public static String getWho(@NotNull Set<Player> players, @NotNull CommandSender sender) {
         var lang = PlayMoreSounds.getLanguage();
 
         if (players.size() == 1) {
@@ -185,8 +181,7 @@ public final class CommandUtils
         return names.toString();
     }
 
-    public static void addTargetTabCompletion(@NotNull ArrayList<String> possibleCompletions, @NotNull String argument, @NotNull CommandSender sender, @NotNull String permissionOthers)
-    {
+    public static void addTargetTabCompletion(@NotNull ArrayList<String> possibleCompletions, @NotNull String argument, @NotNull CommandSender sender, @NotNull String permissionOthers) {
         List<String> list;
 
         if (sender.hasPermission(permissionOthers)) {
@@ -213,8 +208,7 @@ public final class CommandUtils
      * @param permissions The permissions the sender must have.
      * @return True if sender has all permissions, false otherwise.
      */
-    public static boolean parsePermission(@NotNull CommandSender sender, @NotNull String... permissions)
-    {
+    public static boolean parsePermission(@NotNull CommandSender sender, @NotNull String... permissions) {
         for (String permission : permissions) {
             if (!sender.hasPermission(permission)) {
                 PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));

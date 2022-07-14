@@ -41,15 +41,13 @@ import java.util.*;
 import java.util.function.Consumer;
 
 @SuppressWarnings("deprecation")
-public final class ListInventory implements PMSInventory
-{
+public final class ListInventory implements PMSInventory {
     private static final @NotNull ArrayList<ListInventory> listInventories = new ArrayList<>();
     private final @NotNull Inventory inventory;
     private final int page;
     private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>();
 
-    private ListInventory(int page)
-    {
+    private ListInventory(int page) {
         if (PlayMoreSounds.getInstance() == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
         var config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
@@ -122,8 +120,7 @@ public final class ListInventory implements PMSInventory
         }
     }
 
-    public static void refreshListInventories()
-    {
+    public static void refreshListInventories() {
         if (PlayMoreSounds.getInstance() == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
         synchronized (listInventories) {
             listInventories.clear();
@@ -145,8 +142,7 @@ public final class ListInventory implements PMSInventory
         }
     }
 
-    public static ListInventory getListInventory(int page)
-    {
+    public static ListInventory getListInventory(int page) {
         synchronized (listInventories) {
             if (listInventories.isEmpty()) refreshListInventories();
             if (page > listInventories.size()) page = listInventories.size();
@@ -155,8 +151,7 @@ public final class ListInventory implements PMSInventory
         }
     }
 
-    private static Iterator<String> getIterator(ArrayList<String> list, int page)
-    {
+    private static Iterator<String> getIterator(ArrayList<String> list, int page) {
         while (page > list.size()) {
             page = page - list.size();
         }
@@ -164,25 +159,21 @@ public final class ListInventory implements PMSInventory
         return list.listIterator(page);
     }
 
-    public int getPage()
-    {
+    public int getPage() {
         return page;
     }
 
-    public void openInventory(@NotNull HumanEntity player)
-    {
+    public void openInventory(@NotNull HumanEntity player) {
         InventoryUtils.openInventory(inventory, buttons, player);
     }
 
     @Override
-    public @NotNull Inventory getInventory()
-    {
+    public @NotNull Inventory getInventory() {
         return inventory;
     }
 
     @Override
-    public @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> getButtons()
-    {
+    public @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> getButtons() {
         return buttons;
     }
 }

@@ -24,22 +24,18 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.jetbrains.annotations.NotNull;
 
-public final class OnPlayerBedEnter extends PMSListener
-{
-    public OnPlayerBedEnter(@NotNull PlayMoreSounds plugin)
-    {
+public final class OnPlayerBedEnter extends PMSListener {
+    public OnPlayerBedEnter(@NotNull PlayMoreSounds plugin) {
         super(plugin);
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Bed Enter";
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerBedEnter(PlayerBedEnterEvent event)
-    {
+    public void onPlayerBedEnter(PlayerBedEnterEvent event) {
         var sound = getRichSound();
 
         if (!event.isCancelled() || !sound.isCancellable())

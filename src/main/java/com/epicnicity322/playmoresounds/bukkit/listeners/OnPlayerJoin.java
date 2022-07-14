@@ -35,19 +35,15 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class OnPlayerJoin implements Listener
-{
-    private static final @NotNull Cancellable cancellableDummy = new Cancellable()
-    {
+public final class OnPlayerJoin implements Listener {
+    private static final @NotNull Cancellable cancellableDummy = new Cancellable() {
         @Override
-        public boolean isCancelled()
-        {
+        public boolean isCancelled() {
             return false;
         }
 
         @Override
-        public void setCancelled(boolean cancel)
-        {
+        public void setCancelled(boolean cancel) {
         }
     };
     private static @Nullable PlayableRichSound firstJoin;
@@ -83,15 +79,13 @@ public final class OnPlayerJoin implements Listener
         PlayMoreSounds.onReload(soundUpdater);
     }
 
-    public OnPlayerJoin()
-    {
+    public OnPlayerJoin() {
         if (PlayMoreSounds.getInstance() == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
     }
 
     @SuppressWarnings("deprecation")
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event)
-    {
+    public void onPlayerJoin(PlayerJoinEvent event) {
         var lang = PlayMoreSounds.getLanguage();
         var player = event.getPlayer();
         var location = player.getLocation();

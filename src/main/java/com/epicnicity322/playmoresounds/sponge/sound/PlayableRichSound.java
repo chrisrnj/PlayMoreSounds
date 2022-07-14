@@ -35,35 +35,29 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.function.Supplier;
 
-public class PlayableRichSound extends RichSound<PlayableSound> implements Delayable
-{
-    public PlayableRichSound(@NotNull String name, boolean enabled, boolean cancellable, @Nullable Collection<PlayableSound> childSounds)
-    {
+public class PlayableRichSound extends RichSound<PlayableSound> implements Delayable {
+    public PlayableRichSound(@NotNull String name, boolean enabled, boolean cancellable, @Nullable Collection<PlayableSound> childSounds) {
         super(name, enabled, cancellable, childSounds);
     }
 
-    public PlayableRichSound(@NotNull ConfigurationSection section)
-    {
+    public PlayableRichSound(@NotNull ConfigurationSection section) {
         super(section);
     }
 
     @Override
-    protected @NotNull PlayableSound newCoreSound(@NotNull ConfigurationSection section)
-    {
+    protected @NotNull PlayableSound newCoreSound(@NotNull ConfigurationSection section) {
         return new PlayableSound(section);
     }
 
     @Override
-    public void play(@Nullable ServerPlayer player, @NotNull ServerLocation sourceLocation)
-    {
+    public void play(@Nullable ServerPlayer player, @NotNull ServerLocation sourceLocation) {
         if (isEnabled() && !getChildSounds().isEmpty()) {
             for (PlayableSound s : getChildSounds()) s.play(player, sourceLocation);
         }
     }
 
     @Override
-    public @NotNull RichPlayResult playDelayable(@Nullable ServerPlayer player, @NotNull ServerLocation sourceLocation)
-    {
+    public @NotNull RichPlayResult playDelayable(@Nullable ServerPlayer player, @NotNull ServerLocation sourceLocation) {
         if (isEnabled() && !getChildSounds().isEmpty()) {
             var listeners = new HashSet<ServerPlayer>();
             var tasks = new ArrayList<ScheduledTask>();
@@ -92,8 +86,7 @@ public class PlayableRichSound extends RichSound<PlayableSound> implements Delay
      * @return The {@link ScheduledTask} of the loop that can be used to cancel later.
      * @throws IllegalStateException If the {@link org.spongepowered.api.Server} engine is not available.
      */
-    public @NotNull ScheduledTask playInLoop(@Nullable ServerPlayer player, @NotNull Supplier<ServerLocation> sourceLocation, long delay, long period, @Nullable Supplier<Boolean> breaker)
-    {
+    public @NotNull ScheduledTask playInLoop(@Nullable ServerPlayer player, @NotNull Supplier<ServerLocation> sourceLocation, long delay, long period, @Nullable Supplier<Boolean> breaker) {
         if (!Sponge.isServerAvailable()) throw new IllegalStateException("Server is not available.");
 
         Supplier<Boolean> finalBreaker = () -> !isEnabled() || getChildSounds().isEmpty()

@@ -23,8 +23,7 @@ import net.kyori.adventure.sound.Sound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public enum SoundCategory
-{
+public enum SoundCategory {
     AMBIENT("AMBIENT", "AMBIENT"),
     BLOCK("BLOCK", "BLOCKS"),
     HOSTILE("HOSTILE", "HOSTILE"),
@@ -39,8 +38,7 @@ public enum SoundCategory
     private @Nullable Sound.Source spongeValue;
     private @Nullable org.bukkit.SoundCategory bukkitValue;
 
-    SoundCategory(@NotNull String spongeValue, @NotNull String bukkitValue)
-    {
+    SoundCategory(@NotNull String spongeValue, @NotNull String bukkitValue) {
         var platform = EpicPluginLib.Platform.getPlatform();
 
         if (platform == EpicPluginLib.Platform.SPONGE) {
@@ -56,23 +54,19 @@ public enum SoundCategory
     /**
      * @return Whether the current platform has sound categories available.
      */
-    public static boolean hasSoundCategories()
-    {
+    public static boolean hasSoundCategories() {
         return StaticFields.bukkitSoundCategories || EpicPluginLib.Platform.getPlatform() == EpicPluginLib.Platform.SPONGE;
     }
 
-    public @Nullable org.bukkit.SoundCategory asBukkit()
-    {
+    public @Nullable org.bukkit.SoundCategory asBukkit() {
         return bukkitValue;
     }
 
-    public @Nullable Sound.Source asSponge()
-    {
+    public @Nullable Sound.Source asSponge() {
         return spongeValue;
     }
 
-    private static final class StaticFields
-    {
+    private static final class StaticFields {
         private static final boolean bukkitSoundCategories;
 
         static {

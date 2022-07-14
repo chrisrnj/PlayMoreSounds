@@ -35,8 +35,7 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
-public class SoundRegion
-{
+public class SoundRegion {
     public static final @NotNull Pattern ALLOWED_REGION_NAME_CHARS = Pattern.compile("^\\w+$");
     private final @NotNull UUID id;
     private final @Nullable UUID creator;
@@ -64,8 +63,7 @@ public class SoundRegion
      * @throws IllegalArgumentException If data is invalid or missing any of the required keys.
      * @throws NullPointerException     If the world does not exist anymore or is not loaded.
      */
-    public SoundRegion(@NotNull Configuration data)
-    {
+    public SoundRegion(@NotNull Configuration data) {
         Supplier<IllegalArgumentException> invalidRegionData = () -> new IllegalArgumentException("The provided data does not contain valid region data.");
 
         Path path = data.getFilePath().orElseThrow(() -> new IllegalArgumentException("Data is not stored on a real file.")).getFileName();
@@ -110,8 +108,7 @@ public class SoundRegion
      * @param description The description of this
      */
     public SoundRegion(@NotNull String name, @NotNull Location maxDiagonal, @NotNull Location minDiagonal,
-                       @Nullable UUID creator, @Nullable String description)
-    {
+                       @Nullable UUID creator, @Nullable String description) {
         if (maxDiagonal.getWorld() == null || minDiagonal.getWorld() == null) {
             throw new IllegalArgumentException("Provided diagonals do not have a world.");
         }
@@ -128,8 +125,7 @@ public class SoundRegion
     /**
      * @return The exact locations of the border blocks of this region.
      */
-    private Set<Location> parseBorder()
-    {
+    private Set<Location> parseBorder() {
         var border = new HashSet<Location>();
 
         double startX = minDiagonal.getX();
@@ -159,8 +155,7 @@ public class SoundRegion
      *
      * @param location The location to check if this region is inside.
      */
-    public boolean isInside(@NotNull Location location)
-    {
+    public boolean isInside(@NotNull Location location) {
         return location.getWorld().equals(minDiagonal.getWorld()) &&
                 location.getBlockX() >= minDiagonal.getBlockX() && location.getBlockX() <= maxDiagonal.getBlockX() &&
                 location.getBlockY() >= minDiagonal.getBlockY() && location.getBlockY() <= maxDiagonal.getBlockY() &&
@@ -172,8 +167,7 @@ public class SoundRegion
      *
      * @return The id of this region.
      */
-    public @NotNull UUID getId()
-    {
+    public @NotNull UUID getId() {
         return id;
     }
 
@@ -182,8 +176,7 @@ public class SoundRegion
      *
      * @return the name of this region.
      */
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return name;
     }
 
@@ -193,9 +186,8 @@ public class SoundRegion
      * @param name The name you want this region to have.
      * @throws IllegalArgumentException If the name is not alpha-numeric.
      */
-    public void setName(@NotNull String name)
-    {
-        if (this.name.equals(name)) return;
+    public void setName(@NotNull String name) {
+        if (name.equals(this.name)) return;
         if (!ALLOWED_REGION_NAME_CHARS.matcher(name).matches())
             throw new IllegalArgumentException("Specified name is not alpha-numeric.");
 
@@ -208,8 +200,7 @@ public class SoundRegion
      *
      * @return The time this region was created.
      */
-    public @NotNull ZonedDateTime getCreationDate()
-    {
+    public @NotNull ZonedDateTime getCreationDate() {
         return creationDate;
     }
 
@@ -218,8 +209,7 @@ public class SoundRegion
      *
      * @return An immutable location of a diagonal of this region.
      */
-    public @NotNull Location getMaxDiagonal()
-    {
+    public @NotNull Location getMaxDiagonal() {
         return maxDiagonal.clone();
     }
 
@@ -228,8 +218,7 @@ public class SoundRegion
      *
      * @param loc The location of a diagonal of this sound region.
      */
-    public void setMaxDiagonal(@NotNull Location loc)
-    {
+    public void setMaxDiagonal(@NotNull Location loc) {
         if (loc.equals(this.maxDiagonal)) return;
         var world = minDiagonal.getWorld();
 
@@ -254,8 +243,7 @@ public class SoundRegion
      *
      * @return An immutable location of a diagonal of this region.
      */
-    public @NotNull Location getMinDiagonal()
-    {
+    public @NotNull Location getMinDiagonal() {
         return minDiagonal.clone();
     }
 
@@ -264,8 +252,7 @@ public class SoundRegion
      *
      * @param loc The location of a diagonal of this sound region.
      */
-    public void setMinDiagonal(@NotNull Location loc)
-    {
+    public void setMinDiagonal(@NotNull Location loc) {
         if (loc.equals(this.minDiagonal)) return;
         var world = maxDiagonal.getWorld();
 
@@ -290,8 +277,7 @@ public class SoundRegion
      *
      * @return The coordinates of the border of this region.
      */
-    public @NotNull Set<Location> getBorder()
-    {
+    public @NotNull Set<Location> getBorder() {
         return border;
     }
 
@@ -300,8 +286,7 @@ public class SoundRegion
      *
      * @return The region's creator {@link UUID} or null if this region was created by console.
      */
-    public @Nullable UUID getCreator()
-    {
+    public @Nullable UUID getCreator() {
         return creator;
     }
 
@@ -310,8 +295,7 @@ public class SoundRegion
      *
      * @return The region's description or null if this region has no description.
      */
-    public @Nullable String getDescription()
-    {
+    public @Nullable String getDescription() {
         return description;
     }
 
@@ -320,8 +304,7 @@ public class SoundRegion
      *
      * @param description The description you want this region to have.
      */
-    public void setDescription(@Nullable String description)
-    {
+    public void setDescription(@Nullable String description) {
         if (Objects.equals(this.description, description)) return;
         this.description = description;
         addToSave();
@@ -330,8 +313,7 @@ public class SoundRegion
     /**
      * @return The sound that plays when a player enters this region.
      */
-    public @Nullable PlayableRichSound getEnterSound()
-    {
+    public @Nullable PlayableRichSound getEnterSound() {
         return enterSound;
     }
 
@@ -340,10 +322,10 @@ public class SoundRegion
      *
      * @param enterSound The sound to play when a player enters this region.
      */
-    public void setEnterSound(@Nullable PlayableRichSound enterSound)
-    {
+    public void setEnterSound(@Nullable PlayableRichSound enterSound) {
         if (enterSound == null) {
             this.enterSound = null;
+            addToSave();
             return;
         }
 
@@ -364,8 +346,7 @@ public class SoundRegion
     /**
      * @return The sound that plays when a player leaves this region.
      */
-    public @Nullable PlayableRichSound getLeaveSound()
-    {
+    public @Nullable PlayableRichSound getLeaveSound() {
         return leaveSound;
     }
 
@@ -374,10 +355,10 @@ public class SoundRegion
      *
      * @param leaveSound The sound to play when a player leaves this region.
      */
-    public void setLeaveSound(@Nullable PlayableRichSound leaveSound)
-    {
+    public void setLeaveSound(@Nullable PlayableRichSound leaveSound) {
         if (leaveSound == null) {
             this.leaveSound = null;
+            addToSave();
             return;
         }
 
@@ -396,8 +377,7 @@ public class SoundRegion
     /**
      * @return The sound that plays in loop while a player is inside this region.
      */
-    public @Nullable PlayableRichSound getLoopSound()
-    {
+    public @Nullable PlayableRichSound getLoopSound() {
         return loopSound;
     }
 
@@ -406,10 +386,10 @@ public class SoundRegion
      *
      * @param loopSound The sound to play while a player is in this region.
      */
-    public void setLoopSound(@Nullable PlayableRichSound loopSound)
-    {
+    public void setLoopSound(@Nullable PlayableRichSound loopSound) {
         if (loopSound == null) {
             this.loopSound = null;
+            addToSave();
             return;
         }
 
@@ -429,8 +409,7 @@ public class SoundRegion
         addToSave();
     }
 
-    private void addToSave()
-    {
+    private void addToSave() {
         if (periodicallySave) {
             RegionManager.regionsToSave.add(id.toString());
             RegionManager.loadAutoSave();
@@ -438,8 +417,7 @@ public class SoundRegion
     }
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SoundRegion that = (SoundRegion) o;
@@ -456,14 +434,12 @@ public class SoundRegion
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return Objects.hash(id, creator, creationDate, name, description, maxDiagonal, minDiagonal, enterSound, leaveSound, loopSound);
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "SoundRegion{" +
                 "id=" + id +
                 ", creator=" + creator +
@@ -481,44 +457,37 @@ public class SoundRegion
     /**
      * This sound will automatically add the region to {@link RegionManager#regionsToSave} if any property is changed.
      */
-    private final class RegionRichSound extends PlayableRichSound
-    {
-        public RegionRichSound(@NotNull ConfigurationSection section)
-        {
+    private final class RegionRichSound extends PlayableRichSound {
+        public RegionRichSound(@NotNull ConfigurationSection section) {
             super(section);
         }
 
         @Override
-        public void setCancellable(boolean cancellable)
-        {
+        public void setCancellable(boolean cancellable) {
             super.setCancellable(cancellable);
             addToSave();
         }
 
         @Override
-        public void setEnabled(boolean enabled)
-        {
+        public void setEnabled(boolean enabled) {
             super.setEnabled(enabled);
             addToSave();
         }
 
         @Override
-        public void addChildSound(@NotNull PlayableSound childSound)
-        {
+        public void addChildSound(@NotNull PlayableSound childSound) {
             super.addChildSound(childSound);
             addToSave();
         }
 
         @Override
-        public void removeChildSound(@NotNull String soundId)
-        {
+        public void removeChildSound(@NotNull String soundId) {
             super.removeChildSound(soundId);
             addToSave();
         }
 
         @Override
-        public void removeChildSound(@NotNull PlayableSound childSound)
-        {
+        public void removeChildSound(@NotNull PlayableSound childSound) {
             super.removeChildSound(childSound);
             addToSave();
         }

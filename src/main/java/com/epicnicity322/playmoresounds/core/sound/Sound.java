@@ -28,8 +28,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
-public class Sound
-{
+public class Sound {
     private static final @NotNull HashMap<String, SoundCategory> categories = new HashMap<>(SoundCategory.values().length);
 
     static {
@@ -53,8 +52,7 @@ public class Sound
      *
      * @see #Sound(String, SoundCategory, float, float, long, SoundOptions)
      */
-    public Sound(@NotNull String sound, @Nullable SoundCategory category, float volume, float pitch, long delay, @Nullable SoundOptions options)
-    {
+    public Sound(@NotNull String sound, @Nullable SoundCategory category, float volume, float pitch, long delay, @Nullable SoundOptions options) {
         this(null, sound, category, volume, pitch, delay, options);
     }
 
@@ -71,8 +69,7 @@ public class Sound
      * @throws IllegalArgumentException If sound parameter is not a {@link SoundType} nor a valid Minecraft namespaced key.
      * @see PMSHelper#isNamespacedKey(String)
      */
-    public Sound(@Nullable String id, @NotNull String sound, @Nullable SoundCategory category, float volume, float pitch, long delay, @Nullable SoundOptions options)
-    {
+    public Sound(@Nullable String id, @NotNull String sound, @Nullable SoundCategory category, float volume, float pitch, long delay, @Nullable SoundOptions options) {
         this.soundType = parseSound(sound);
 
         if (soundType != null) {
@@ -107,8 +104,7 @@ public class Sound
      * @throws IllegalArgumentException If the section does not contain a 'Sound' string key, or if the sound is not a valid namespaced key.
      * @see SoundOptions
      */
-    public Sound(@NotNull ConfigurationSection section)
-    {
+    public Sound(@NotNull ConfigurationSection section) {
         if (section.getParent() == null)
             throw new IllegalArgumentException("Section parameter must not be a Configuration.");
 
@@ -152,8 +148,7 @@ public class Sound
      * @throws IllegalArgumentException If sound is neither a {@link SoundType} nor a valid namespaced key.
      * @see PMSHelper#isNamespacedKey(String)
      */
-    private @Nullable SoundType parseSound(@NotNull String sound)
-    {
+    private @Nullable SoundType parseSound(@NotNull String sound) {
         // Checking if sound should be transformed to SoundType.
         if (SoundType.getPresentSoundNames().contains(sound)) {
             return SoundType.valueOf(sound);
@@ -172,8 +167,7 @@ public class Sound
      *
      * @return The ID of this sound.
      */
-    public @NotNull String getId()
-    {
+    public @NotNull String getId() {
         return id;
     }
 
@@ -183,16 +177,14 @@ public class Sound
      *
      * @return The section of this sound, if this is a section sound.
      */
-    public @Nullable ConfigurationSection getSection()
-    {
+    public @Nullable ConfigurationSection getSection() {
         return section;
     }
 
     /**
      * @return The sound that will be played, null if this is a custom sound.
      */
-    public @Nullable SoundType getSoundType()
-    {
+    public @Nullable SoundType getSoundType() {
         return soundType;
     }
 
@@ -204,8 +196,7 @@ public class Sound
      * @throws UnsupportedOperationException If the {@link SoundType} is not present on the current minecraft version.
      * @see #setSound(String)
      */
-    public void setSoundType(@NotNull SoundType soundType)
-    {
+    public void setSoundType(@NotNull SoundType soundType) {
         Optional<String> sound = soundType.getSound();
 
         if (sound.isEmpty())
@@ -218,8 +209,7 @@ public class Sound
     /**
      * @return The minecraft key of the sound that will be played or the name of a custom sound.
      */
-    public @NotNull String getSound()
-    {
+    public @NotNull String getSound() {
         return sound;
     }
 
@@ -237,8 +227,7 @@ public class Sound
      * @see #setSoundType(SoundType)
      * @see PMSHelper#isNamespacedKey(String)
      */
-    public void setSound(@NotNull String sound)
-    {
+    public void setSound(@NotNull String sound) {
         this.soundType = parseSound(sound);
 
         if (soundType != null) {
@@ -253,8 +242,7 @@ public class Sound
      *
      * @return The category of this sound.
      */
-    public @NotNull SoundCategory getCategory()
-    {
+    public @NotNull SoundCategory getCategory() {
         return category;
     }
 
@@ -263,56 +251,49 @@ public class Sound
      *
      * @param category The category this sound should be played.
      */
-    public void setCategory(@Nullable SoundCategory category)
-    {
+    public void setCategory(@Nullable SoundCategory category) {
         this.category = Objects.requireNonNullElse(category, SoundCategory.MASTER);
     }
 
     /**
      * @return The volume of this sound.
      */
-    public float getVolume()
-    {
+    public float getVolume() {
         return volume;
     }
 
     /**
      * @param volume The volume of this sound to be set.
      */
-    public void setVolume(float volume)
-    {
+    public void setVolume(float volume) {
         this.volume = volume;
     }
 
     /**
      * @return The pitch of this sound.
      */
-    public float getPitch()
-    {
+    public float getPitch() {
         return pitch;
     }
 
     /**
      * @param pitch The pitch of this sound to be set.
      */
-    public void setPitch(float pitch)
-    {
+    public void setPitch(float pitch) {
         this.pitch = pitch;
     }
 
     /**
      * @return The delay in ticks to be waited before playing this sound.
      */
-    public long getDelay()
-    {
+    public long getDelay() {
         return delay;
     }
 
     /**
      * @param delay The delay in ticks to be waited before playing this sound to be set.
      */
-    public void setDelay(long delay)
-    {
+    public void setDelay(long delay) {
         if (delay < 0) {
             this.delay = 0;
         } else {
@@ -323,8 +304,7 @@ public class Sound
     /**
      * @return The options to be followed by this sound when played.
      */
-    public @NotNull SoundOptions getOptions()
-    {
+    public @NotNull SoundOptions getOptions() {
         return options;
     }
 
@@ -333,8 +313,7 @@ public class Sound
      *
      * @param options The options or null for default options.
      */
-    public void setOptions(@Nullable SoundOptions options)
-    {
+    public void setOptions(@Nullable SoundOptions options) {
         this.options = Objects.requireNonNullElseGet(options, () -> new SoundOptions(false, null, null, 0.0));
     }
 
@@ -351,8 +330,7 @@ public class Sound
      * @param section The section to set the properties.
      * @return The configuration section with this sound's properties.
      */
-    public @NotNull ConfigurationSection set(@NotNull ConfigurationSection section)
-    {
+    public @NotNull ConfigurationSection set(@NotNull ConfigurationSection section) {
         var soundSection = Objects.requireNonNullElseGet(section.getConfigurationSection(id), () -> section.createSection(id));
         var optionsSection = Objects.requireNonNullElseGet(soundSection.getConfigurationSection("Options"), () -> soundSection.createSection("Options"));
         options.set(optionsSection);
@@ -365,8 +343,7 @@ public class Sound
     }
 
     @Override
-    public @NotNull String toString()
-    {
+    public @NotNull String toString() {
         StringBuilder string = new StringBuilder();
 
         string.append(getClass().getSimpleName()).append("{id='").append(id).append('\'');
@@ -395,8 +372,7 @@ public class Sound
      * @return If the argument is a similar sound to this one.
      * @see #equals(Object)
      */
-    public boolean isSimilar(@Nullable Object o)
-    {
+    public boolean isSimilar(@Nullable Object o) {
         if (this == o) return true;
         if (!(o instanceof Sound sound1)) return false;
 
@@ -415,8 +391,7 @@ public class Sound
      * @return If the argument is a sound with the same values and origin as this one.
      */
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Sound sound1)) return false;
 
@@ -427,8 +402,7 @@ public class Sound
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return Objects.hash(id, sound, volume, pitch, delay, category, options, section);
     }
 }

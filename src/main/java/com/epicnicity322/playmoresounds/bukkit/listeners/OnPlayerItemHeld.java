@@ -33,24 +33,20 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class OnPlayerItemHeld extends PMSListener
-{
+public final class OnPlayerItemHeld extends PMSListener {
     private final @NotNull HashMap<String, PlayableRichSound> criteriaSounds = new HashMap<>();
 
-    public OnPlayerItemHeld(@NotNull PlayMoreSounds plugin)
-    {
+    public OnPlayerItemHeld(@NotNull PlayMoreSounds plugin) {
         super(plugin);
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Change Held Item";
     }
 
     @Override
-    public void load()
-    {
+    public void load() {
         criteriaSounds.clear();
 
         var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
@@ -80,8 +76,7 @@ public final class OnPlayerItemHeld extends PMSListener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerItemHeld(PlayerItemHeldEvent event)
-    {
+    public void onPlayerItemHeld(PlayerItemHeldEvent event) {
         var sound = getRichSound();
         var player = event.getPlayer();
         ItemStack item = player.getInventory().getItem(event.getNewSlot());

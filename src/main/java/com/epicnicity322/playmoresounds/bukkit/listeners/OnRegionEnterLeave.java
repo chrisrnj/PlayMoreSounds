@@ -41,15 +41,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-public final class OnRegionEnterLeave extends PMSListener
-{
+public final class OnRegionEnterLeave extends PMSListener {
     private final @NotNull HashMap<String, PlayableRichSound> regionSounds = new HashMap<>();
     private final @NotNull HashMap<String, BukkitRunnable> loopingRegions = new HashMap<>();
     private @Nullable PlayableRichSound regionEnterSound = null;
     private @Nullable PlayableRichSound regionLeaveSound = null;
 
-    public OnRegionEnterLeave(@NotNull PlayMoreSounds plugin)
-    {
+    public OnRegionEnterLeave(@NotNull PlayMoreSounds plugin) {
         super(plugin);
 
         PlayMoreSounds.onDisable(() -> loopingRegions.entrySet().removeIf(entry -> {
@@ -59,14 +57,12 @@ public final class OnRegionEnterLeave extends PMSListener
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Region Enter|Region Leave";
     }
 
     @Override
-    public void load()
-    {
+    public void load() {
         regionSounds.clear();
 
         var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
@@ -99,8 +95,7 @@ public final class OnRegionEnterLeave extends PMSListener
         }
     }
 
-    private void addRegionSound(ConfigurationSection regionSection, String type)
-    {
+    private void addRegionSound(ConfigurationSection regionSection, String type) {
         if (regionSection.getBoolean(type + ".Enabled").orElse(false)) {
             try {
                 regionSounds.put(type + "." + regionSection.getName(), new PlayableRichSound(regionSection.getConfigurationSection(type)));
@@ -111,8 +106,7 @@ public final class OnRegionEnterLeave extends PMSListener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onRegionEnter(RegionEnterEvent event)
-    {
+    public void onRegionEnter(RegionEnterEvent event) {
         var player = event.getPlayer();
         var regionName = event.getRegion().getName();
 
@@ -166,8 +160,7 @@ public final class OnRegionEnterLeave extends PMSListener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onRegionLeave(RegionLeaveEvent event)
-    {
+    public void onRegionLeave(RegionLeaveEvent event) {
         var player = event.getPlayer();
         var regionName = event.getRegion().getName();
         // Being cancelled means the player didn't actually leave the region, so the loop keeps playing.
@@ -196,8 +189,7 @@ public final class OnRegionEnterLeave extends PMSListener
         }
     }
 
-    private void stopOnExit(Player player, PlayableRichSound playingSound)
-    {
+    private void stopOnExit(Player player, PlayableRichSound playingSound) {
         if (playingSound == null) return;
 
         if (playingSound.getSection().getBoolean("Stop On Exit.Enabled").orElse(true)) {

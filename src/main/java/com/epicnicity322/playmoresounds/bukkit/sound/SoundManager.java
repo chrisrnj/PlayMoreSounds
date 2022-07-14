@@ -35,13 +35,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
-public final class SoundManager
-{
+public final class SoundManager {
     private static final @NotNull HashMap<UUID, Boolean> soundStateCache = new HashMap<>();
     private static NamespacedKey soundState;
 
-    private SoundManager()
-    {
+    private SoundManager() {
     }
 
     /**
@@ -53,8 +51,7 @@ public final class SoundManager
      * @param state  The state of sounds: Enabled or Disabled.
      * @throws IllegalStateException If PlayMoreSounds is not instantiated yet.
      */
-    public static void toggleSoundsState(@NotNull Player player, boolean state)
-    {
+    public static void toggleSoundsState(@NotNull Player player, boolean state) {
         var uuid = player.getUniqueId();
 
         soundStateCache.put(uuid, state);
@@ -76,8 +73,7 @@ public final class SoundManager
      * @return If sounds are enabled or disabled for this player.
      * @throws IllegalStateException If PlayMoreSounds is not instantiated yet.
      */
-    public static boolean getSoundsState(@NotNull Player player)
-    {
+    public static boolean getSoundsState(@NotNull Player player) {
         var uuid = player.getUniqueId();
         Boolean state = soundStateCache.get(uuid);
 
@@ -107,8 +103,7 @@ public final class SoundManager
      * @param delay  The delay to wait before stopping the sounds.
      * @throws IllegalStateException If PlayMoreSounds was not instantiated by bukkit yet.
      */
-    public static void stopSounds(@NotNull Player player, @Nullable HashSet<String> sounds, long delay)
-    {
+    public static void stopSounds(@NotNull Player player, @Nullable HashSet<String> sounds, long delay) {
         if (PlayMoreSounds.getInstance() == null)
             throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
@@ -142,8 +137,7 @@ public final class SoundManager
      * @param location The location to calculate the radius.
      * @return An immutable collection of players in this range.
      */
-    public static @NotNull Collection<Player> getInRange(double radius, @NotNull Location location)
-    {
+    public static @NotNull Collection<Player> getInRange(double radius, @NotNull Location location) {
         if (radius > 0.0) {
             radius = square(radius);
             var inRadius = new HashSet<Player>();
@@ -165,13 +159,11 @@ public final class SoundManager
         }
     }
 
-    private static double distance(Location loc1, Location loc2)
-    {
+    private static double distance(Location loc1, Location loc2) {
         return square(loc1.getX() - loc2.getX()) + square(loc1.getY() - loc2.getY()) + square(loc1.getZ() - loc2.getZ());
     }
 
-    private static double square(double value)
-    {
+    private static double square(double value) {
         return value * value;
     }
 }

@@ -25,22 +25,18 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.jetbrains.annotations.NotNull;
 
-public final class OnCraftItem extends PMSListener
-{
-    public OnCraftItem(@NotNull PlayMoreSounds plugin)
-    {
+public final class OnCraftItem extends PMSListener {
+    public OnCraftItem(@NotNull PlayMoreSounds plugin) {
         super(plugin);
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Craft Item";
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onCraftItem(CraftItemEvent event)
-    {
+    public void onCraftItem(CraftItemEvent event) {
         var whoClicked = event.getWhoClicked();
 
         if (whoClicked instanceof Player) {

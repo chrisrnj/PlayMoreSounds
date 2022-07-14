@@ -32,24 +32,20 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class OnPlayerAnimation extends PMSListener
-{
+public final class OnPlayerAnimation extends PMSListener {
     private final @NotNull HashMap<String, PlayableRichSound> criteriaSounds = new HashMap<>();
 
-    public OnPlayerAnimation(@NotNull PlayMoreSounds plugin)
-    {
+    public OnPlayerAnimation(@NotNull PlayMoreSounds plugin) {
         super(plugin);
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Player Swing";
     }
 
     @Override
-    public void load()
-    {
+    public void load() {
         criteriaSounds.clear();
 
         var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
@@ -79,8 +75,7 @@ public final class OnPlayerAnimation extends PMSListener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerAnimation(PlayerAnimationEvent event)
-    {
+    public void onPlayerAnimation(PlayerAnimationEvent event) {
         var player = event.getPlayer();
         var sound = getRichSound();
         String material = player.getInventory().getItemInMainHand().getType().name();

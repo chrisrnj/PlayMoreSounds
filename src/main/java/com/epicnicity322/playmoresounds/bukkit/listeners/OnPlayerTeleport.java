@@ -29,8 +29,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class OnPlayerTeleport implements Listener
-{
+public final class OnPlayerTeleport implements Listener {
     private static @Nullable PlayableRichSound teleport;
     private static @Nullable PlayableRichSound worldChange;
 
@@ -48,14 +47,12 @@ public final class OnPlayerTeleport implements Listener
 
     private final @NotNull PlayMoreSounds main;
 
-    public OnPlayerTeleport(@NotNull PlayMoreSounds main)
-    {
+    public OnPlayerTeleport(@NotNull PlayMoreSounds main) {
         this.main = main;
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerTeleport(PlayerTeleportEvent event)
-    {
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
         var player = event.getPlayer();
         var from = event.getFrom();
         var to = event.getTo();

@@ -43,8 +43,7 @@ import java.util.function.Consumer;
  * A inventory GUI that reads the sounds available in a configuration and allows the player to edit them.
  */
 @SuppressWarnings("deprecation")
-public final class EditorInventory implements PMSInventory
-{
+public final class EditorInventory implements PMSInventory {
     private static final @NotNull HashMap<Integer, ArrayList<RichSoundInventory>> pages = new HashMap<>();
 
     static {
@@ -72,8 +71,7 @@ public final class EditorInventory implements PMSInventory
     private final @NotNull Inventory inventory;
     private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>();
 
-    public EditorInventory()
-    {
+    public EditorInventory() {
         var lang = PlayMoreSounds.getLanguage();
         int soundAmount = pages.get(1).size();
         int size = (pages.size() == 1 ? 0 : 9) + soundAmount;
@@ -88,13 +86,11 @@ public final class EditorInventory implements PMSInventory
         if (soundAmount != 0) fillRichSounds(1);
     }
 
-    private static ItemStack parseItemStack(String name, String value)
-    {
+    private static ItemStack parseItemStack(String name, String value) {
         return RichSoundInventory.parseItemStack("Editor Inventory", name, value);
     }
 
-    private void fillRichSounds(int page)
-    {
+    private void fillRichSounds(int page) {
         boolean multiplePages = pages.size() != 1;
         ArrayList<RichSoundInventory> sounds = pages.get(page);
 
@@ -138,20 +134,17 @@ public final class EditorInventory implements PMSInventory
     }
 
     @Override
-    public @NotNull Inventory getInventory()
-    {
+    public @NotNull Inventory getInventory() {
         return inventory;
     }
 
     @Override
-    public @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> getButtons()
-    {
+    public @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> getButtons() {
         return buttons;
     }
 
     @Override
-    public void openInventory(@NotNull HumanEntity humanEntity)
-    {
+    public void openInventory(@NotNull HumanEntity humanEntity) {
         InventoryUtils.openInventory(inventory, buttons, humanEntity);
     }
 }

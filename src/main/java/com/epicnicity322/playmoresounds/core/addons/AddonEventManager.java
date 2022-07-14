@@ -25,12 +25,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 
-public final class AddonEventManager
-{
+public final class AddonEventManager {
     private static final @NotNull HashSet<AddonLoadUnloadEvent> registeredLoadUnloadEvents = new HashSet<>();
 
-    private AddonEventManager()
-    {
+    private AddonEventManager() {
     }
 
     /**
@@ -38,8 +36,7 @@ public final class AddonEventManager
      *
      * @param event The event to run.
      */
-    public static void registerLoadUnloadEvent(@NotNull AddonLoadUnloadEvent event)
-    {
+    public static void registerLoadUnloadEvent(@NotNull AddonLoadUnloadEvent event) {
         registeredLoadUnloadEvents.add(event);
     }
 
@@ -48,13 +45,11 @@ public final class AddonEventManager
      *
      * @param event The event to unregister.
      */
-    public static void unregisterLoadUnloadEvent(@NotNull AddonLoadUnloadEvent event)
-    {
+    public static void unregisterLoadUnloadEvent(@NotNull AddonLoadUnloadEvent event) {
         registeredLoadUnloadEvents.remove(event);
     }
 
-    static void callLoadUnloadEvent(PMSAddon addon, ConsoleLogger<?> logger)
-    {
+    static void callLoadUnloadEvent(PMSAddon addon, ConsoleLogger<?> logger) {
         for (AddonLoadUnloadEvent event : registeredLoadUnloadEvents)
             try {
                 event.onLoadUnload(addon);

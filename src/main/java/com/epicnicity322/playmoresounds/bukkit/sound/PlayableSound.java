@@ -34,10 +34,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 
-public class PlayableSound extends Sound implements Delayable
-{
-    public PlayableSound(@Nullable String id, @NotNull String sound, @Nullable SoundCategory category, float volume, float pitch, long delay, @Nullable SoundOptions options)
-    {
+public class PlayableSound extends Sound implements Delayable {
+    public PlayableSound(@Nullable String id, @NotNull String sound, @Nullable SoundCategory category, float volume, float pitch, long delay, @Nullable SoundOptions options) {
         super(id, sound, category, volume, pitch, delay, options);
 
         if (delay > 0 && PlayMoreSounds.getInstance() == null) {
@@ -45,8 +43,7 @@ public class PlayableSound extends Sound implements Delayable
         }
     }
 
-    public PlayableSound(@NotNull ConfigurationSection section)
-    {
+    public PlayableSound(@NotNull ConfigurationSection section) {
         super(section);
 
         if (getDelay() > 0 && PlayMoreSounds.getInstance() == null) {
@@ -55,8 +52,7 @@ public class PlayableSound extends Sound implements Delayable
     }
 
     @Override
-    public void setDelay(long delay)
-    {
+    public void setDelay(long delay) {
         if (delay > 0 && PlayMoreSounds.getInstance() == null) {
             throw new UnsupportedOperationException("PlayMoreSounds must be enabled to play delayed sounds.");
         }
@@ -65,8 +61,7 @@ public class PlayableSound extends Sound implements Delayable
     }
 
     @Override
-    public @NotNull ChildPlayResult playDelayable(@Nullable Player player, @NotNull Location sourceLocation)
-    {
+    public @NotNull ChildPlayResult playDelayable(@Nullable Player player, @NotNull Location sourceLocation) {
         SoundOptions options = getOptions();
         final Collection<Player> listeners;
 
@@ -95,8 +90,7 @@ public class PlayableSound extends Sound implements Delayable
         }
     }
 
-    private void play(@Nullable Player sourcePlayer, @NotNull Collection<Player> listeners, @NotNull Location soundLocation)
-    {
+    private void play(@Nullable Player sourcePlayer, @NotNull Collection<Player> listeners, @NotNull Location soundLocation) {
         // Calling PlaySoundEvent.
         var event = new PlaySoundEvent(this, sourcePlayer, soundLocation, listeners, getOptions().getRadius() == -1.0 || getOptions().getRadius() == -2.0);
 

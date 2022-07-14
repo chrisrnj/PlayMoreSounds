@@ -31,41 +31,34 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 
-public final class StopSoundSubCommand extends Command implements Helpable
-{
+public final class StopSoundSubCommand extends Command implements Helpable {
     @Override
-    public @NotNull CommandRunnable onHelp()
-    {
+    public @NotNull CommandRunnable onHelp() {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Help.Stop Sound").replace("<label>", label));
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "stopsound";
     }
 
     @Override
-    public @Nullable String[] getAliases()
-    {
+    public @Nullable String[] getAliases() {
         return new String[]{"stop", "stopsounds"};
     }
 
     @Override
-    protected @Nullable CommandRunnable getNoPermissionRunnable()
-    {
+    protected @Nullable CommandRunnable getNoPermissionRunnable() {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
     @Override
-    public @Nullable String getPermission()
-    {
+    public @Nullable String getPermission() {
         return "playmoresounds.stopsound";
     }
 
     @Override
-    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
-    {
+    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args) {
         var lang = PlayMoreSounds.getLanguage();
         HashSet<Player> targets = CommandUtils.getTargets(sender, args, 1, lang.get("General.Invalid Arguments")
                         .replace("<label>", label).replace("<label2>", args[0])

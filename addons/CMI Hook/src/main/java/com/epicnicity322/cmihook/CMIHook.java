@@ -39,8 +39,7 @@ import org.bukkit.event.Listener;
 
 import java.nio.file.Path;
 
-public class CMIHook extends PMSAddon implements Listener
-{
+public class CMIHook extends PMSAddon implements Listener {
     private boolean registered = false;
     private PlayableRichSound afkSound;
     private PlayableRichSound vanishSound;
@@ -48,8 +47,7 @@ public class CMIHook extends PMSAddon implements Listener
     private PlayableRichSound leaveSound;
 
     @Override
-    protected void onStart()
-    {
+    protected void onStart() {
         Runnable runnable = () -> {
             Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
             Path path = Configurations.SOUNDS.getConfigurationHolder().getPath();
@@ -135,22 +133,19 @@ public class CMIHook extends PMSAddon implements Listener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onCMIAfkEnter(CMIAfkEnterEvent event)
-    {
+    public void onCMIAfkEnter(CMIAfkEnterEvent event) {
         if (afkSound != null && (!event.isCancelled() || !afkSound.isCancellable()))
             afkSound.play(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onCMIAfkLeave(CMIAfkLeaveEvent event)
-    {
+    public void onCMIAfkLeave(CMIAfkLeaveEvent event) {
         if (afkSound != null)
             afkSound.play(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onCMIPlayerVanish(CMIPlayerVanishEvent event)
-    {
+    public void onCMIPlayerVanish(CMIPlayerVanishEvent event) {
         if (vanishSound != null) {
             Player player = event.getPlayer();
 
@@ -163,8 +158,7 @@ public class CMIHook extends PMSAddon implements Listener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onCMIPlayerUnVanish(CMIPlayerUnVanishEvent event)
-    {
+    public void onCMIPlayerUnVanish(CMIPlayerUnVanishEvent event) {
         if (vanishSound != null) {
             Player player = event.getPlayer();
 

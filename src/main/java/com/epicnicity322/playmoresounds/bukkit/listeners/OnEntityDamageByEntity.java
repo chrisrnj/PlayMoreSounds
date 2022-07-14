@@ -40,21 +40,18 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public final class OnEntityDamageByEntity extends PMSListener
-{
+public final class OnEntityDamageByEntity extends PMSListener {
     private static final @NotNull Pattern comma = Pattern.compile(",");
     private final @NotNull HashSet<PlayableRichSound> conditions = new HashSet<>();
     private final @NotNull NamespacedKey killerUUID;
 
-    public OnEntityDamageByEntity(@NotNull PlayMoreSounds plugin)
-    {
+    public OnEntityDamageByEntity(@NotNull PlayMoreSounds plugin) {
         super(plugin);
 
         this.killerUUID = new NamespacedKey(plugin, "killer_uuid");
     }
 
-    private static boolean matchesCondition(String condition, Entity damager, Entity victim, Material itemInDamagerHand)
-    {
+    private static boolean matchesCondition(String condition, Entity damager, Entity victim, Material itemInDamagerHand) {
         try {
             // Getting the criterion of the condition and removing spaces, so everything works as intended on matchesCriterion.
             int hitIndex = condition.indexOf("hit");
@@ -73,8 +70,7 @@ public final class OnEntityDamageByEntity extends PMSListener
         return false;
     }
 
-    static boolean matchesCriterion(String criterion, String value)
-    {
+    static boolean matchesCriterion(String criterion, String value) {
         criterion = criterion.toLowerCase();
         value = value.toLowerCase();
 
@@ -127,14 +123,12 @@ public final class OnEntityDamageByEntity extends PMSListener
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Entity Hit";
     }
 
     @Override
-    public void load()
-    {
+    public void load() {
         conditions.clear();
 
         var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
@@ -167,8 +161,7 @@ public final class OnEntityDamageByEntity extends PMSListener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntityDamageByEntity(EntityDamageByEntityEvent event)
-    {
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         var damager = event.getDamager();
         var victim = event.getEntity();
         var damagerHand = Material.AIR;

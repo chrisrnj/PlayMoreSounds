@@ -29,17 +29,14 @@ import org.bukkit.event.Listener;
 
 import java.util.Optional;
 
-public class SoundFactors extends PMSAddon implements Listener
-{
+public class SoundFactors extends PMSAddon implements Listener {
     @Override
-    protected void onStart()
-    {
+    protected void onStart() {
         Bukkit.getPluginManager().registerEvents(this, PlayMoreSounds.getInstance());
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onPrePlaySound(PrePlaySoundEvent event)
-    {
+    public void onPrePlaySound(PrePlaySoundEvent event) {
         ConfigurationSection section = event.getSound().getSection();
 
         if (section != null) {

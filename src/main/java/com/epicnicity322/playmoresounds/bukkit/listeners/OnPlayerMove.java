@@ -46,8 +46,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
-public final class OnPlayerMove implements Listener
-{
+public final class OnPlayerMove implements Listener {
     private static final @NotNull ConfigurationHolder biomes = Configurations.BIOMES.getConfigurationHolder();
     private static final @NotNull HashMap<UUID, BukkitRunnable> biomesInLoop = new HashMap<>();
     private static final @NotNull HashMap<String, HashSet<String>> soundsToStop = new HashMap<>();
@@ -59,8 +58,7 @@ public final class OnPlayerMove implements Listener
         }));
     }
 
-    static void callRegionEnterLeaveEvents(Cancellable event, Player player, Location from, Location to)
-    {
+    static void callRegionEnterLeaveEvents(Cancellable event, Player player, Location from, Location to) {
         for (SoundRegion region : RegionManager.getRegions()) {
             boolean isInFrom = region.isInside(from);
             boolean isInTo = region.isInside(to);
@@ -81,8 +79,7 @@ public final class OnPlayerMove implements Listener
         }
     }
 
-    static void checkBiomeEnterLeaveSounds(Cancellable event, Player player, Location from, Location to, boolean checkDifferent)
-    {
+    static void checkBiomeEnterLeaveSounds(Cancellable event, Player player, Location from, Location to, boolean checkDifferent) {
         // Playing sounds for biomes.yml.
         Configuration biomesConfiguration = biomes.getConfiguration();
 
@@ -162,8 +159,7 @@ public final class OnPlayerMove implements Listener
         }
     }
 
-    private static void stopOnExit(Player player, ConfigurationSection section)
-    {
+    private static void stopOnExit(Player player, ConfigurationSection section) {
         if (section.getBoolean("Stop On Exit.Enabled").orElse(false)) {
             String key = player.getUniqueId() + ";" + section.getNumber("Stop On Exit.Delay").orElse(0);
             HashSet<String> sounds = soundsToStop.getOrDefault(key, new HashSet<>());
@@ -181,8 +177,7 @@ public final class OnPlayerMove implements Listener
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerMove(PlayerMoveEvent event)
-    {
+    public void onPlayerMove(PlayerMoveEvent event) {
         Location from = event.getFrom();
         Location to = event.getTo();
 

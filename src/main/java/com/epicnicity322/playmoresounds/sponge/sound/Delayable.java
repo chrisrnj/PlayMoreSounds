@@ -29,21 +29,17 @@ import org.spongepowered.api.world.server.ServerLocation;
 import java.util.Collection;
 import java.util.List;
 
-public interface Delayable extends Playable
-{
+public interface Delayable extends Playable {
     @Override
-    default void play(@Nullable ServerPlayer player, @NotNull ServerLocation sourceLocation)
-    {
+    default void play(@Nullable ServerPlayer player, @NotNull ServerLocation sourceLocation) {
         playDelayable(player, sourceLocation);
     }
 
-    default @NotNull PlayResult<?> playDelayable(@NotNull ServerLocation sourceLocation)
-    {
+    default @NotNull PlayResult<?> playDelayable(@NotNull ServerLocation sourceLocation) {
         return playDelayable(null, sourceLocation);
     }
 
-    default @NotNull PlayResult<?> playDelayable(@NotNull ServerPlayer player)
-    {
+    default @NotNull PlayResult<?> playDelayable(@NotNull ServerPlayer player) {
         return playDelayable(player, player.serverLocation());
     }
 
@@ -57,25 +53,20 @@ public interface Delayable extends Playable
      */
     @NotNull PlayResult<?> playDelayable(@Nullable ServerPlayer player, @NotNull ServerLocation sourceLocation);
 
-    interface PlayResult<T>
-    {
+    interface PlayResult<T> {
         @NotNull T get();
     }
 
     record ChildPlayResult(@NotNull Collection<ServerPlayer> listeners,
-                           @Nullable ScheduledTask delayedTask) implements PlayResult<ChildPlayResult>
-    {
-        public @NotNull ChildPlayResult get()
-        {
+                           @Nullable ScheduledTask delayedTask) implements PlayResult<ChildPlayResult> {
+        public @NotNull ChildPlayResult get() {
             return this;
         }
     }
 
     record RichPlayResult(@NotNull Collection<ServerPlayer> listeners,
-                          @Nullable List<ScheduledTask> delayedTasks) implements PlayResult<RichPlayResult>
-    {
-        public @NotNull RichPlayResult get()
-        {
+                          @Nullable List<ScheduledTask> delayedTasks) implements PlayResult<RichPlayResult> {
+        public @NotNull RichPlayResult get() {
             return this;
         }
     }

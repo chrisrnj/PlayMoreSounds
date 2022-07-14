@@ -21,7 +21,6 @@ package com.epicnicity322.playmoresounds.bukkit.command.subcommands;
 import com.epicnicity322.epicpluginlib.bukkit.command.CommandRunnable;
 import org.jetbrains.annotations.NotNull;
 
-public interface Helpable
-{
+public interface Helpable {
     @NotNull CommandRunnable onHelp();
 }

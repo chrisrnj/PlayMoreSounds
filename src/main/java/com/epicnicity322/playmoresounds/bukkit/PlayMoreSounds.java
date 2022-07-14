@@ -59,8 +59,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 
-public final class PlayMoreSounds extends JavaPlugin
-{
+public final class PlayMoreSounds extends JavaPlugin {
     private static final @NotNull Logger logger = new Logger(PMSHelper.isChristmas() ? "&f[&4PlayMoreSounds&f] " : "&6[&9PlayMoreSounds&6] ");
     private static final @NotNull MessageSender language;
     private static final @NotNull LoadableHashSet<String> serverPlugins = new LoadableHashSet<>();
@@ -91,8 +90,7 @@ public final class PlayMoreSounds extends JavaPlugin
         language.addLanguage("ZH_CN", Configurations.LANGUAGE_ZH_CN.getConfigurationHolder());
     }
 
-    public PlayMoreSounds()
-    {
+    public PlayMoreSounds() {
         instance = this;
 
         logger.setLogger(getLogger());
@@ -115,8 +113,7 @@ public final class PlayMoreSounds extends JavaPlugin
      *
      * @param runnable Runnable to run on disable.
      */
-    public static void onDisable(@NotNull Runnable runnable)
-    {
+    public static void onDisable(@NotNull Runnable runnable) {
         if (disabled) {
             try {
                 runnable.run();
@@ -136,8 +133,7 @@ public final class PlayMoreSounds extends JavaPlugin
      *
      * @param runnable Runnable to run on enable.
      */
-    public static void onEnable(@NotNull Runnable runnable)
-    {
+    public static void onEnable(@NotNull Runnable runnable) {
         if (enabled) {
             try {
                 runnable.run();
@@ -157,8 +153,7 @@ public final class PlayMoreSounds extends JavaPlugin
      *
      * @param runnable Runnable to run on load.
      */
-    public static void onInstance(@NotNull Runnable runnable)
-    {
+    public static void onInstance(@NotNull Runnable runnable) {
         if (getInstance() != null) {
             try {
                 runnable.run();
@@ -177,8 +172,7 @@ public final class PlayMoreSounds extends JavaPlugin
      *
      * @param runnable Runnable to run on configurations reload.
      */
-    public static void onReload(@NotNull Runnable runnable)
-    {
+    public static void onReload(@NotNull Runnable runnable) {
         if (onReload == null) onReload = new HashSet<>();
         onReload.add(runnable);
     }
@@ -189,24 +183,21 @@ public final class PlayMoreSounds extends JavaPlugin
      *
      * @return The instance of PlayMoreSounds JavaPlugin class, or null if the plugin wasn't loaded yet.
      */
-    public static @Nullable PlayMoreSounds getInstance()
-    {
+    public static @Nullable PlayMoreSounds getInstance() {
         return instance;
     }
 
     /**
      * @return The logger with PlayMoreSounds' prefix.
      */
-    public static @NotNull Logger getConsoleLogger()
-    {
+    public static @NotNull Logger getConsoleLogger() {
         return logger;
     }
 
     /**
      * @return PlayMoreSounds' {@link MessageSender} containing every message from language files.
      */
-    public static @NotNull MessageSender getLanguage()
-    {
+    public static @NotNull MessageSender getLanguage() {
         return language;
     }
 
@@ -215,13 +206,11 @@ public final class PlayMoreSounds extends JavaPlugin
      *
      * @return The addon manager.
      */
-    public static @NotNull AddonManager getAddonManager()
-    {
+    public static @NotNull AddonManager getAddonManager() {
         return addonManager;
     }
 
-    public static @NotNull HashMap<ConfigurationHolder, Exception> reload()
-    {
+    public static @NotNull HashMap<ConfigurationHolder, Exception> reload() {
         if (instance == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
         HashMap<ConfigurationHolder, Exception> exceptions = Configurations.getConfigurationLoader().loadConfigurations();
@@ -249,8 +238,7 @@ public final class PlayMoreSounds extends JavaPlugin
     }
 
     @Override
-    public void onEnable()
-    {
+    public void onEnable() {
         // Checking if PlayMoreSounds was already enabled.
         if (enabled) return;
 
@@ -404,8 +392,7 @@ public final class PlayMoreSounds extends JavaPlugin
     }
 
     @Override
-    public void onDisable()
-    {
+    public void onDisable() {
         // Checking if PlayMoreSounds was already disabled.
         if (disabled) return;
 
@@ -450,8 +437,7 @@ public final class PlayMoreSounds extends JavaPlugin
     }
 
     @Override
-    public @NotNull File getFile()
-    {
+    public @NotNull File getFile() {
         return super.getFile();
     }
 }

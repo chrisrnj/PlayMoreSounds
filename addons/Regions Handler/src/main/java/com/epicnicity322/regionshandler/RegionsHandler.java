@@ -45,8 +45,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class RegionsHandler
-{
+public class RegionsHandler {
     private static @Nullable PlayableRichSound regionEnterSound;
     private static @Nullable PlayableRichSound regionLeaveSound;
 
@@ -79,8 +78,7 @@ public class RegionsHandler
     private final @NotNull HashMap<String, BukkitRunnable> loopingRegions = new HashMap<>();
     private @Nullable Listener resourcePackWaiter;
 
-    public RegionsHandler(@NotNull String pluginName, @NotNull Listener listener, @NotNull InsideChecker insideChecker)
-    {
+    public RegionsHandler(@NotNull String pluginName, @NotNull Listener listener, @NotNull InsideChecker insideChecker) {
         this.pluginName = pluginName;
         this.listener = listener;
         this.insideChecker = insideChecker;
@@ -93,8 +91,7 @@ public class RegionsHandler
         }));
     }
 
-    public void reloadListener()
-    {
+    public void reloadListener() {
         regionSounds.clear();
         Configuration regions = Configurations.REGIONS.getConfigurationHolder().getConfiguration();
         Configuration sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
@@ -137,8 +134,7 @@ public class RegionsHandler
         }
     }
 
-    private void addRegionSound(ConfigurationSection regionSection, String type)
-    {
+    private void addRegionSound(ConfigurationSection regionSection, String type) {
         if (regionSection.getBoolean(type + ".Enabled").orElse(false)) {
             try {
                 regionSounds.put(type + "." + regionSection.getName(), new PlayableRichSound(regionSection.getConfigurationSection(type)));
@@ -148,13 +144,11 @@ public class RegionsHandler
         }
     }
 
-    public void onEnter(@NotNull Player player, @NotNull String regionId)
-    {
+    public void onEnter(@NotNull Player player, @NotNull String regionId) {
         onEnter(player, regionId, false);
     }
 
-    public void onEnter(@NotNull Player player, @NotNull String regionId, boolean isCancelled)
-    {
+    public void onEnter(@NotNull Player player, @NotNull String regionId, boolean isCancelled) {
         boolean playDefaultSound = regionEnterSound != null;
         String loopKey = player.getUniqueId() + ";" + regionId;
         PlayableRichSound loopSound = regionSounds.get("Loop." + regionId);
@@ -193,13 +187,11 @@ public class RegionsHandler
         }
     }
 
-    public void onLeave(@NotNull Player player, @NotNull String regionId)
-    {
+    public void onLeave(@NotNull Player player, @NotNull String regionId) {
         onLeave(player, regionId, false);
     }
 
-    public void onLeave(@NotNull Player player, @NotNull String regionId, boolean isCancelled)
-    {
+    public void onLeave(@NotNull Player player, @NotNull String regionId, boolean isCancelled) {
         // Being cancelled means the player didn't actually leave the region, so the loop keeps playing.
         if (!isCancelled) {
             String loopKey = player.getUniqueId() + ";" + regionId;
@@ -226,8 +218,7 @@ public class RegionsHandler
         }
     }
 
-    private void stopOnExit(Player player, PlayableRichSound playingSound)
-    {
+    private void stopOnExit(Player player, PlayableRichSound playingSound) {
         if (playingSound == null) return;
 
         if (playingSound.getSection().getBoolean("Stop On Exit.Enabled").orElse(true)) {
@@ -248,19 +239,16 @@ public class RegionsHandler
         }
     }
 
-    public static abstract class InsideChecker
-    {
+    public static abstract class InsideChecker {
         protected abstract boolean isPlayerInside(@NotNull Player player, @NotNull String regionId);
     }
 
-    private final class JoinListener implements Listener
-    {
+    private final class JoinListener implements Listener {
         private final @NotNull HashMap<UUID, HashSet<PlayableRichSound>> toPrevent = new HashMap<>();
 
         // If you use a plugin that calls "RegionEnterEvent" on PlayerLoginEvent this won't work.
         @EventHandler(priority = EventPriority.LOWEST)
-        public void onPlayerJoin(PlayerJoinEvent event)
-        {
+        public void onPlayerJoin(PlayerJoinEvent event) {
             Player player = event.getPlayer();
             boolean added = false;
 
@@ -278,8 +266,7 @@ public class RegionsHandler
         }
 
         @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-        public void onPlayRichSound(PlayRichSoundEvent event)
-        {
+        public void onPlayRichSound(PlayRichSoundEvent event) {
             Player player = event.getPlayer();
             if (player == null) return;
             HashSet<PlayableRichSound> soundsToPrevent = toPrevent.get(player.getUniqueId());

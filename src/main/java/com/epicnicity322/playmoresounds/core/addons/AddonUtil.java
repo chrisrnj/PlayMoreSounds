@@ -23,14 +23,11 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-final class AddonUtil
-{
-    private AddonUtil()
-    {
+final class AddonUtil {
+    private AddonUtil() {
     }
 
-    static void sortInTopologicalOrder(ArrayList<AddonDescription> toSort)
-    {
+    static void sortInTopologicalOrder(ArrayList<AddonDescription> toSort) {
         var allAddons = new ArrayList<>(toSort);
         toSort.clear();
 
@@ -43,8 +40,7 @@ final class AddonUtil
                 });
     }
 
-    private static void add(Node node, ArrayList<AddonDescription> toAdd, ArrayList<AddonDescription> allAddons)
-    {
+    private static void add(Node node, ArrayList<AddonDescription> toAdd, ArrayList<AddonDescription> allAddons) {
         toAdd.add(node.addon());
 
         if (!node.dependants().isEmpty()) {
@@ -55,8 +51,7 @@ final class AddonUtil
         }
     }
 
-    private static Node convertToNode(AddonDescription toConvert, ArrayList<AddonDescription> allAddons)
-    {
+    private static Node convertToNode(AddonDescription toConvert, ArrayList<AddonDescription> allAddons) {
         var dependingOnMe = new HashSet<AddonDescription>();
 
         for (var addon : allAddons) {
@@ -69,19 +64,16 @@ final class AddonUtil
         return new Node(toConvert, dependingOnMe);
     }
 
-    private record Node(AddonDescription addon, Set<AddonDescription> dependants)
-    {
+    private record Node(AddonDescription addon, Set<AddonDescription> dependants) {
         @Override
-        public boolean equals(Object o)
-        {
+        public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof Node node)) return false;
             return addon.jar.equals(node.addon.jar);
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             return Objects.hash(addon.jar);
         }
     }

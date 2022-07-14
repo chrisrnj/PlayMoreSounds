@@ -24,22 +24,18 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.jetbrains.annotations.NotNull;
 
-public final class OnPlayerJump extends PMSListener
-{
-    public OnPlayerJump(@NotNull PlayMoreSounds plugin)
-    {
+public final class OnPlayerJump extends PMSListener {
+    public OnPlayerJump(@NotNull PlayMoreSounds plugin) {
         super(plugin);
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Player Jump";
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerJump(PlayerJumpEvent event)
-    {
+    public void onPlayerJump(PlayerJumpEvent event) {
         var sound = getRichSound();
 
         if (!event.isCancelled() || !sound.isCancellable())

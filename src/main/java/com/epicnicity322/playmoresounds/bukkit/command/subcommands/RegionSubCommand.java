@@ -49,8 +49,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public final class RegionSubCommand extends Command implements Helpable
-{
+public final class RegionSubCommand extends Command implements Helpable {
     /**
      * Borders are quite heavy on performance so there is a maximum amount of borders that can be shown at the same time.
      */
@@ -58,61 +57,52 @@ public final class RegionSubCommand extends Command implements Helpable
     private static final ExecutorService regionExecutor = Executors.newSingleThreadExecutor();
     private final @NotNull PlayMoreSounds plugin;
 
-    public RegionSubCommand(@NotNull PlayMoreSounds plugin)
-    {
+    public RegionSubCommand(@NotNull PlayMoreSounds plugin) {
         this.plugin = plugin;
     }
 
     @Override
-    public @NotNull CommandRunnable onHelp()
-    {
+    public @NotNull CommandRunnable onHelp() {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, false, PlayMoreSounds.getLanguage().get("Help.Region").replace("<label>", label));
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "region";
     }
 
     @Override
-    public @Nullable String[] getAliases()
-    {
+    public @Nullable String[] getAliases() {
         return new String[]{"regions", "rg"};
     }
 
     @Override
-    public @NotNull String getPermission()
-    {
+    public @NotNull String getPermission() {
         return "playmoresounds.region";
     }
 
     @Override
-    public int getMinArgsAmount()
-    {
+    public int getMinArgsAmount() {
         return 2;
     }
 
     @Override
-    protected @NotNull CommandRunnable getNoPermissionRunnable()
-    {
+    protected @NotNull CommandRunnable getNoPermissionRunnable() {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
     @Override
-    protected @NotNull CommandRunnable getNotEnoughArgsRunnable()
-    {
+    protected @NotNull CommandRunnable getNotEnoughArgsRunnable() {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", "<create|info|list|remove|rename|set|teleport|wand>"));
     }
 
     @Override
-    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
-    {
+    public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args) {
         switch (args[1].toLowerCase()) {
             case "create", "new" -> {
                 if (!CommandUtils.parsePermission(sender, "playmoresounds.region.create")) return;
 
-                regionExecutor.submit(() -> create(label, sender, args));
+                regionExecutor.execute(() -> create(label, sender, args));
             }
             case "info" -> {
                 if (!CommandUtils.parsePermission(sender, "playmoresounds.region.info")) return;
@@ -155,8 +145,7 @@ public final class RegionSubCommand extends Command implements Helpable
         }
     }
 
-    private void create(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
-    {
+    private void create(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args) {
         var lang = PlayMoreSounds.getLanguage();
         UUID creator;
 
@@ -265,8 +254,7 @@ public final class RegionSubCommand extends Command implements Helpable
         OnPlayerInteract.selectDiagonal(creator, null, false);
     }
 
-    private void info(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
-    {
+    private void info(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args) {
         var lang = PlayMoreSounds.getLanguage();
         var config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
         Set<SoundRegion> regions;
@@ -343,8 +331,7 @@ public final class RegionSubCommand extends Command implements Helpable
      * @return "CONSOLE" if the creator is null, the player's name if one with this {@link UUID} was found, or the {@link UUID}
      * itself if no player was found.
      */
-    private @NotNull String findOwner(@Nullable UUID creator)
-    {
+    private @NotNull String findOwner(@Nullable UUID creator) {
         if (creator == null) return "CONSOLE";
 
         var player = Bukkit.getOfflinePlayer(creator);
@@ -352,14 +339,12 @@ public final class RegionSubCommand extends Command implements Helpable
         return Objects.requireNonNullElse(player.getName(), creator.toString());
     }
 
-    private Set<SoundRegion> getSenderRegions(CommandSender sender)
-    {
+    private Set<SoundRegion> getSenderRegions(CommandSender sender) {
         if (sender instanceof Player player) return RegionManager.getRegionsOf(player.getUniqueId());
         else return RegionManager.getRegionsOf(null);
     }
 
-    private void list(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
-    {
+    private void list(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args) {
         var lang = PlayMoreSounds.getLanguage();
 
         Set<SoundRegion> regions;
@@ -442,8 +427,7 @@ public final class RegionSubCommand extends Command implements Helpable
         }
     }
 
-    private void remove(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
-    {
+    private void remove(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args) {
         var lang = PlayMoreSounds.getLanguage();
         if (args.length < 3) {
             lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", args[1] + " <name|uuid>"));
@@ -461,19 +445,16 @@ public final class RegionSubCommand extends Command implements Helpable
 
         lang.send(sender, lang.get("Region.Remove.Confirm").replace("<label>", label).replace("<region>", name));
 
-        ConfirmSubCommand.addPendingConfirmation(sender, new UniqueRunnable(region.getId())
-        {
+        ConfirmSubCommand.addPendingConfirmation(sender, new UniqueRunnable(region.getId()) {
             @Override
-            public void run()
-            {
+            public void run() {
                 RegionManager.remove(region);
                 lang.send(sender, lang.get("Region.Remove.Success").replace("<region>", name));
             }
         }, lang.get("Region.Remove.Description").replace("<region>", name));
     }
 
-    private void rename(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
-    {
+    private void rename(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args) {
         var lang = PlayMoreSounds.getLanguage();
         if (args.length < 4) {
             lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", args[1] + " <" + lang.get("Region.Region") + "> <" + lang.get("Region.Rename.New Name") + ">"));
@@ -520,8 +501,7 @@ public final class RegionSubCommand extends Command implements Helpable
         lang.send(sender, lang.get("Region.Rename.Success").replace("<region>", oldName).replace("<newName>", newName));
     }
 
-    private void set(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
-    {
+    private void set(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args) {
         var lang = PlayMoreSounds.getLanguage();
         if (args.length < 3) {
             lang.send(sender, lang.get("General.Invalid Arguments").replace("<label>", label).replace("<label2>", args[0]).replace("<args>", args[1] + " <p1|p2|description>"));
@@ -621,8 +601,7 @@ public final class RegionSubCommand extends Command implements Helpable
         lang.send(sender, lang.get("Region.Set.Select.Position." + (p1 ? "First" : "Second")).replace("<w>", location.getWorld().getName()).replace("<x>", Integer.toString(location.getBlockX())).replace("<y>", Integer.toString(location.getBlockY())).replace("<z>", Integer.toString(location.getBlockZ())));
     }
 
-    private void teleport(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
-    {
+    private void teleport(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args) {
         var lang = PlayMoreSounds.getLanguage();
         if (!(sender instanceof Player)) {
             lang.send(sender, lang.get("General.Not A Player"));
@@ -644,8 +623,7 @@ public final class RegionSubCommand extends Command implements Helpable
         ((Player) sender).teleport(region.getMinDiagonal(), PlayerTeleportEvent.TeleportCause.COMMAND);
     }
 
-    private void wand(@NotNull CommandSender sender)
-    {
+    private void wand(@NotNull CommandSender sender) {
         var lang = PlayMoreSounds.getLanguage();
         if (!(sender instanceof Player)) {
             lang.send(sender, lang.get("General.Not A Player"));
@@ -658,8 +636,7 @@ public final class RegionSubCommand extends Command implements Helpable
         lang.send(sender, lang.get("Region.Wand.Success"));
     }
 
-    private void sounds(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args)
-    {
+    private void sounds(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args) {
         var lang = PlayMoreSounds.getLanguage();
 
         if (!(sender instanceof Player player)) {
@@ -710,8 +687,7 @@ public final class RegionSubCommand extends Command implements Helpable
      * @param permission The permission if this player is allowed to get other peoples regions.
      * @return The region with this name or uuid, or null if not found.
      */
-    private SoundRegion getRegion(@NotNull String nameOrUUID, @NotNull CommandSender sender, @Nullable String permission)
-    {
+    private SoundRegion getRegion(@NotNull String nameOrUUID, @NotNull CommandSender sender, @Nullable String permission) {
         UUID creator = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
         if (creator == null) permission = null;
         // Checking if nameOrUUID is an uuid since region names cannot contain '-'.

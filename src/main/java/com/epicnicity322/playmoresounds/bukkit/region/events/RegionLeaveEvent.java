@@ -26,10 +26,8 @@ import org.jetbrains.annotations.NotNull;
 /**
  * When a player leaves a PlayMoreSounds sound region.
  */
-public class RegionLeaveEvent extends RegionEvent
-{
-    public RegionLeaveEvent(@NotNull SoundRegion region, @NotNull Player player, @NotNull Location from, @NotNull Location to)
-    {
+public class RegionLeaveEvent extends RegionEvent {
+    public RegionLeaveEvent(@NotNull SoundRegion region, @NotNull Player player, @NotNull Location from, @NotNull Location to) {
         super(region, from, to, player);
     }
 
@@ -37,8 +35,7 @@ public class RegionLeaveEvent extends RegionEvent
      * @return true if the player did not leave the region.
      */
     @Override
-    public boolean isCancelled()
-    {
+    public boolean isCancelled() {
         return super.isCancelled();
     }
 
@@ -48,40 +45,35 @@ public class RegionLeaveEvent extends RegionEvent
      * @param cancelled If the player should not leave the region.
      */
     @Override
-    public void setCancelled(boolean cancelled)
-    {
+    public void setCancelled(boolean cancelled) {
         super.setCancelled(cancelled);
     }
 
     /**
      * @return The {@link SoundRegion} the player left.
      */
-    public @NotNull SoundRegion getRegion()
-    {
+    public @NotNull SoundRegion getRegion() {
         return super.getRegion();
     }
 
     /**
      * @return The player who left the region.
      */
-    public @NotNull Player getPlayer()
-    {
+    public @NotNull Player getPlayer() {
         return super.getPlayer();
     }
 
     /**
      * @return The {@link Location} where the player was before leaving the region.
      */
-    public @NotNull Location getFrom()
-    {
+    public @NotNull Location getFrom() {
         return super.getFrom();
     }
 
     /**
      * @return The {@link Location} where the player left the region.
      */
-    public @NotNull Location getTo()
-    {
+    public @NotNull Location getTo() {
         return super.getTo();
     }
 }

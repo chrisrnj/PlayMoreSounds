@@ -46,8 +46,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public final class NBSSongPlayer extends PMSAddon implements Listener
-{
+public final class NBSSongPlayer extends PMSAddon implements Listener {
     private static final @NotNull Path nbsSongsFolder = PlayMoreSoundsCore.getFolder().resolve("Note Block Songs");
     private static final @NotNull HashMap<String, Song> songs = new HashMap<>();
     private static final @NotNull HashMap<String, RadioSongPlayer> playingSongs = new HashMap<>();
@@ -59,8 +58,7 @@ public final class NBSSongPlayer extends PMSAddon implements Listener
      * @param player  The player to play the song.
      * @param nbsName The name of the nbs song.
      */
-    public static void play(@NotNull Player player, @NotNull String nbsName)
-    {
+    public static void play(@NotNull Player player, @NotNull String nbsName) {
         if (songs.containsKey(nbsName)) {
             String key = player.getUniqueId() + ";" + nbsName;
 
@@ -88,8 +86,7 @@ public final class NBSSongPlayer extends PMSAddon implements Listener
      * @param player  The player the song is playing.
      * @param nbsName The song name or null to stop all songs playing for this player.
      */
-    public static void stop(@NotNull Player player, @Nullable String nbsName)
-    {
+    public static void stop(@NotNull Player player, @Nullable String nbsName) {
         if (nbsName == null) {
             playingSongs.keySet().removeIf(key -> {
                 if (key.startsWith(player.getUniqueId() + ";")) {
@@ -116,14 +113,12 @@ public final class NBSSongPlayer extends PMSAddon implements Listener
     /**
      * @return An immutable set with names of the songs inside 'Note Block Songs' folder.
      */
-    public static @NotNull HashSet<String> getSongNames()
-    {
+    public static @NotNull HashSet<String> getSongNames() {
         return new HashSet<>(songs.keySet());
     }
 
     @Override
-    protected void onStart()
-    {
+    protected void onStart() {
         Runnable runnable = () -> {
             for (Configurations language : Configurations.values()) {
                 if (language.name().startsWith("LANGUAGE") && !language.getConfigurationHolder().getConfiguration().contains("NBS Song Player")) {
@@ -180,8 +175,7 @@ public final class NBSSongPlayer extends PMSAddon implements Listener
     }
 
     @EventHandler(priority = EventPriority.LOW)
-    public void onPlaySound(PlaySoundEvent event)
-    {
+    public void onPlaySound(PlaySoundEvent event) {
         String sound = event.getSound().getSound();
 
         if (sound.toLowerCase().startsWith("nbs:")) {
@@ -221,8 +215,7 @@ public final class NBSSongPlayer extends PMSAddon implements Listener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onRegionLeave(RegionLeaveEvent event)
-    {
+    public void onRegionLeave(RegionLeaveEvent event) {
         Player player = event.getPlayer();
         SoundRegion region = event.getRegion();
         String key = region.getName() + ";" + player.getUniqueId();

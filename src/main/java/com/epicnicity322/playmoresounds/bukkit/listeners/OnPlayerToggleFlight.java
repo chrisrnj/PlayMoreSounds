@@ -28,25 +28,21 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.jetbrains.annotations.NotNull;
 
-public final class OnPlayerToggleFlight extends PMSListener
-{
+public final class OnPlayerToggleFlight extends PMSListener {
     private PlayableRichSound stopSound;
     private PlayableRichSound startSound;
 
-    public OnPlayerToggleFlight(@NotNull PlayMoreSounds plugin)
-    {
+    public OnPlayerToggleFlight(@NotNull PlayMoreSounds plugin) {
         super(plugin);
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Stop Flying|Start Flying";
     }
 
     @Override
-    public void load()
-    {
+    public void load() {
         var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
         stopSound = getRichSound(sounds.getConfigurationSection("Stop Flying"));
         startSound = getRichSound(sounds.getConfigurationSection("Start Flying"));
@@ -65,8 +61,7 @@ public final class OnPlayerToggleFlight extends PMSListener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerToggleFlight(PlayerToggleFlightEvent event)
-    {
+    public void onPlayerToggleFlight(PlayerToggleFlightEvent event) {
         var player = event.getPlayer();
         PlayableRichSound sound;
 

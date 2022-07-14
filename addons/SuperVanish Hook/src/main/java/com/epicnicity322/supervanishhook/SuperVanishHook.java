@@ -36,16 +36,14 @@ import org.bukkit.event.Listener;
 
 import java.nio.file.Path;
 
-public final class SuperVanishHook extends PMSAddon implements Listener
-{
+public final class SuperVanishHook extends PMSAddon implements Listener {
     private boolean registered = false;
     private PlayableRichSound vanishSound;
     private PlayableRichSound joinSound;
     private PlayableRichSound leaveSound;
 
     @Override
-    protected void onStart()
-    {
+    protected void onStart() {
         if (!Bukkit.getPluginManager().isPluginEnabled("SuperVanish") && !Bukkit.getPluginManager().isPluginEnabled("PremiumVanish")) {
             PlayMoreSounds.getConsoleLogger().log("&cSuperVanish Hook addon depends on SuperVanish or PremiumVanish and both are absent.", ConsoleLogger.Level.WARN);
             PlayMoreSounds.getAddonManager().stopAddon(this);
@@ -113,8 +111,7 @@ public final class SuperVanishHook extends PMSAddon implements Listener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerVanishStateChange(PlayerVanishStateChangeEvent event)
-    {
+    public void onPlayerVanishStateChange(PlayerVanishStateChangeEvent event) {
         if (vanishSound != null) {
             Player player = Bukkit.getPlayer(event.getUUID());
 

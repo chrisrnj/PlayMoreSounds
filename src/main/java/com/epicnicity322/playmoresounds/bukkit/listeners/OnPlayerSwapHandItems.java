@@ -25,22 +25,18 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.jetbrains.annotations.NotNull;
 
-public final class OnPlayerSwapHandItems extends PMSListener
-{
-    public OnPlayerSwapHandItems(@NotNull PlayMoreSounds plugin)
-    {
+public final class OnPlayerSwapHandItems extends PMSListener {
+    public OnPlayerSwapHandItems(@NotNull PlayMoreSounds plugin) {
         super(plugin);
     }
 
     @Override
-    public @NotNull String getName()
-    {
+    public @NotNull String getName() {
         return "Swap Hands";
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event)
-    {
+    public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
         var mainHand = event.getMainHandItem();
         var offHand = event.getOffHandItem();
 

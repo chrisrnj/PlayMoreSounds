@@ -43,8 +43,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
-public class Metrics
-{
+public class Metrics {
 
     private final PluginContainer plugin;
     private final Logger logger;
@@ -56,8 +55,7 @@ public class Metrics
     private boolean logSentData;
     private boolean logResponseStatusText;
 
-    private Metrics(PluginContainer plugin, Logger logger, Path configDir, int serviceId)
-    {
+    private Metrics(PluginContainer plugin, Logger logger, Path configDir, int serviceId) {
         this.plugin = plugin;
         this.logger = logger;
         this.configDir = configDir;
@@ -66,8 +64,7 @@ public class Metrics
     }
 
     @Listener
-    public void startup(ConstructPluginEvent event)
-    {
+    public void startup(ConstructPluginEvent event) {
         try {
             loadConfig();
         } catch (IOException e) {
@@ -112,8 +109,7 @@ public class Metrics
     /**
      * Loads the bStats configuration.
      */
-    private void loadConfig() throws IOException
-    {
+    private void loadConfig() throws IOException {
         File configPath = configDir.resolve("bStats").toFile();
         configPath.mkdirs();
         File configFile = new File(configPath, "config.conf");
@@ -161,13 +157,11 @@ public class Metrics
      *
      * @param chart The chart to add.
      */
-    public void addCustomChart(CustomChart chart)
-    {
+    public void addCustomChart(CustomChart chart) {
         metricsBase.addCustomChart(chart);
     }
 
-    private void appendPlatformData(JsonObjectBuilder builder)
-    {
+    private void appendPlatformData(JsonObjectBuilder builder) {
         builder.appendField("playerAmount", Sponge.server().onlinePlayers().size());
         builder.appendField("onlineMode", Sponge.server().isOnlineModeEnabled() ? 1 : 0);
         builder.appendField("minecraftVersion", Sponge.game().platform().minecraftVersion().name());
@@ -181,16 +175,14 @@ public class Metrics
         builder.appendField("coreCount", Runtime.getRuntime().availableProcessors());
     }
 
-    private void appendServiceData(JsonObjectBuilder builder)
-    {
+    private void appendServiceData(JsonObjectBuilder builder) {
         builder.appendField("pluginVersion", plugin.metadata().version().toString());
     }
 
     /**
      * A factory to create new Metrics classes.
      */
-    public static class Factory
-    {
+    public static class Factory {
 
         private final PluginContainer plugin;
 
@@ -203,8 +195,7 @@ public class Metrics
         // (https://docs.spongepowered.org/master/en/plugin/injection.html)
         @Inject
         private Factory(
-                PluginContainer plugin, Logger logger, @ConfigDir(sharedRoot = true) Path configDir)
-        {
+                PluginContainer plugin, Logger logger, @ConfigDir(sharedRoot = true) Path configDir) {
             this.plugin = plugin;
             this.logger = logger;
             this.configDir = configDir;
@@ -220,14 +211,12 @@ public class Metrics
          * @return A Metrics instance that can be used to register custom charts.
          * <p>The return value can be ignored, when you do not want to register custom charts.
          */
-        public Metrics make(int serviceId)
-        {
+        public Metrics make(int serviceId) {
             return new Metrics(plugin, logger, configDir, serviceId);
         }
     }
 
-    public static class MetricsBase
-    {
+    public static class MetricsBase {
 
         /**
          * The version of the Metrics class.
@@ -301,8 +290,7 @@ public class Metrics
                 Consumer<String> infoLogger,
                 boolean logErrors,
                 boolean logSentData,
-                boolean logResponseStatusText)
-        {
+                boolean logResponseStatusText) {
             this.platform = platform;
             this.serverUuid = serverUuid;
             this.serviceId = serviceId;
@@ -329,8 +317,7 @@ public class Metrics
          * @param str The string to gzip.
          * @return The gzipped string.
          */
-        private static byte[] compress(final String str) throws IOException
-        {
+        private static byte[] compress(final String str) throws IOException {
             if (str == null) {
                 return null;
             }
@@ -341,13 +328,11 @@ public class Metrics
             return outputStream.toByteArray();
         }
 
-        public void addCustomChart(CustomChart chart)
-        {
+        public void addCustomChart(CustomChart chart) {
             this.customCharts.add(chart);
         }
 
-        private void startSubmitting()
-        {
+        private void startSubmitting() {
             final Runnable submitTask =
                     () -> {
                         if (!enabled || !checkServiceEnabledSupplier.get()) {
@@ -375,8 +360,7 @@ public class Metrics
                     submitTask, initialDelay + secondDelay, 1000 * 60 * 30, TimeUnit.MILLISECONDS);
         }
 
-        private void submitData()
-        {
+        private void submitData() {
             final JsonObjectBuilder baseJsonBuilder = new JsonObjectBuilder();
             appendPlatformDataConsumer.accept(baseJsonBuilder);
             final JsonObjectBuilder serviceJsonBuilder = new JsonObjectBuilder();
@@ -406,8 +390,7 @@ public class Metrics
                     });
         }
 
-        private void sendData(JsonObjectBuilder.JsonObject data) throws Exception
-        {
+        private void sendData(JsonObjectBuilder.JsonObject data) throws Exception {
             if (logSentData) {
                 infoLogger.accept("Sent bStats metrics data: " + data.toString());
             }
@@ -442,8 +425,7 @@ public class Metrics
         /**
          * Checks that the class was properly relocated.
          */
-        private void checkRelocation()
-        {
+        private void checkRelocation() {
             // You can use the property to disable the check in your test environment
             if (System.getProperty("bstats.relocatecheck") == null
                     || !System.getProperty("bstats.relocatecheck").equals("false")) {
@@ -463,8 +445,7 @@ public class Metrics
         }
     }
 
-    public static class DrilldownPie extends CustomChart
-    {
+    public static class DrilldownPie extends CustomChart {
 
         private final Callable<Map<String, Map<String, Integer>>> callable;
 
@@ -474,15 +455,13 @@ public class Metrics
          * @param chartId  The id of the chart.
          * @param callable The callable which is used to request the chart data.
          */
-        public DrilldownPie(String chartId, Callable<Map<String, Map<String, Integer>>> callable)
-        {
+        public DrilldownPie(String chartId, Callable<Map<String, Map<String, Integer>>> callable) {
             super(chartId);
             this.callable = callable;
         }
 
         @Override
-        public JsonObjectBuilder.JsonObject getChartData() throws Exception
-        {
+        public JsonObjectBuilder.JsonObject getChartData() throws Exception {
             JsonObjectBuilder valuesBuilder = new JsonObjectBuilder();
             Map<String, Map<String, Integer>> map = callable.call();
             if (map == null || map.isEmpty()) {
@@ -510,8 +489,7 @@ public class Metrics
         }
     }
 
-    public static class AdvancedPie extends CustomChart
-    {
+    public static class AdvancedPie extends CustomChart {
 
         private final Callable<Map<String, Integer>> callable;
 
@@ -521,15 +499,13 @@ public class Metrics
          * @param chartId  The id of the chart.
          * @param callable The callable which is used to request the chart data.
          */
-        public AdvancedPie(String chartId, Callable<Map<String, Integer>> callable)
-        {
+        public AdvancedPie(String chartId, Callable<Map<String, Integer>> callable) {
             super(chartId);
             this.callable = callable;
         }
 
         @Override
-        protected JsonObjectBuilder.JsonObject getChartData() throws Exception
-        {
+        protected JsonObjectBuilder.JsonObject getChartData() throws Exception {
             JsonObjectBuilder valuesBuilder = new JsonObjectBuilder();
             Map<String, Integer> map = callable.call();
             if (map == null || map.isEmpty()) {
@@ -553,8 +529,7 @@ public class Metrics
         }
     }
 
-    public static class MultiLineChart extends CustomChart
-    {
+    public static class MultiLineChart extends CustomChart {
 
         private final Callable<Map<String, Integer>> callable;
 
@@ -564,15 +539,13 @@ public class Metrics
          * @param chartId  The id of the chart.
          * @param callable The callable which is used to request the chart data.
          */
-        public MultiLineChart(String chartId, Callable<Map<String, Integer>> callable)
-        {
+        public MultiLineChart(String chartId, Callable<Map<String, Integer>> callable) {
             super(chartId);
             this.callable = callable;
         }
 
         @Override
-        protected JsonObjectBuilder.JsonObject getChartData() throws Exception
-        {
+        protected JsonObjectBuilder.JsonObject getChartData() throws Exception {
             JsonObjectBuilder valuesBuilder = new JsonObjectBuilder();
             Map<String, Integer> map = callable.call();
             if (map == null || map.isEmpty()) {
@@ -596,8 +569,7 @@ public class Metrics
         }
     }
 
-    public static class SimpleBarChart extends CustomChart
-    {
+    public static class SimpleBarChart extends CustomChart {
 
         private final Callable<Map<String, Integer>> callable;
 
@@ -607,15 +579,13 @@ public class Metrics
          * @param chartId  The id of the chart.
          * @param callable The callable which is used to request the chart data.
          */
-        public SimpleBarChart(String chartId, Callable<Map<String, Integer>> callable)
-        {
+        public SimpleBarChart(String chartId, Callable<Map<String, Integer>> callable) {
             super(chartId);
             this.callable = callable;
         }
 
         @Override
-        protected JsonObjectBuilder.JsonObject getChartData() throws Exception
-        {
+        protected JsonObjectBuilder.JsonObject getChartData() throws Exception {
             JsonObjectBuilder valuesBuilder = new JsonObjectBuilder();
             Map<String, Integer> map = callable.call();
             if (map == null || map.isEmpty()) {
@@ -629,13 +599,11 @@ public class Metrics
         }
     }
 
-    public abstract static class CustomChart
-    {
+    public abstract static class CustomChart {
 
         private final String chartId;
 
-        protected CustomChart(String chartId)
-        {
+        protected CustomChart(String chartId) {
             if (chartId == null) {
                 throw new IllegalArgumentException("chartId must not be null");
             }
@@ -643,8 +611,7 @@ public class Metrics
         }
 
         public JsonObjectBuilder.JsonObject getRequestJsonObject(
-                BiConsumer<String, Throwable> errorLogger, boolean logErrors)
-        {
+                BiConsumer<String, Throwable> errorLogger, boolean logErrors) {
             JsonObjectBuilder builder = new JsonObjectBuilder();
             builder.appendField("chartId", chartId);
             try {
@@ -666,8 +633,7 @@ public class Metrics
         protected abstract JsonObjectBuilder.JsonObject getChartData() throws Exception;
     }
 
-    public static class SimplePie extends CustomChart
-    {
+    public static class SimplePie extends CustomChart {
 
         private final Callable<String> callable;
 
@@ -677,15 +643,13 @@ public class Metrics
          * @param chartId  The id of the chart.
          * @param callable The callable which is used to request the chart data.
          */
-        public SimplePie(String chartId, Callable<String> callable)
-        {
+        public SimplePie(String chartId, Callable<String> callable) {
             super(chartId);
             this.callable = callable;
         }
 
         @Override
-        protected JsonObjectBuilder.JsonObject getChartData() throws Exception
-        {
+        protected JsonObjectBuilder.JsonObject getChartData() throws Exception {
             String value = callable.call();
             if (value == null || value.isEmpty()) {
                 // Null = skip the chart
@@ -695,8 +659,7 @@ public class Metrics
         }
     }
 
-    public static class AdvancedBarChart extends CustomChart
-    {
+    public static class AdvancedBarChart extends CustomChart {
 
         private final Callable<Map<String, int[]>> callable;
 
@@ -706,15 +669,13 @@ public class Metrics
          * @param chartId  The id of the chart.
          * @param callable The callable which is used to request the chart data.
          */
-        public AdvancedBarChart(String chartId, Callable<Map<String, int[]>> callable)
-        {
+        public AdvancedBarChart(String chartId, Callable<Map<String, int[]>> callable) {
             super(chartId);
             this.callable = callable;
         }
 
         @Override
-        protected JsonObjectBuilder.JsonObject getChartData() throws Exception
-        {
+        protected JsonObjectBuilder.JsonObject getChartData() throws Exception {
             JsonObjectBuilder valuesBuilder = new JsonObjectBuilder();
             Map<String, int[]> map = callable.call();
             if (map == null || map.isEmpty()) {
@@ -738,8 +699,7 @@ public class Metrics
         }
     }
 
-    public static class SingleLineChart extends CustomChart
-    {
+    public static class SingleLineChart extends CustomChart {
 
         private final Callable<Integer> callable;
 
@@ -749,15 +709,13 @@ public class Metrics
          * @param chartId  The id of the chart.
          * @param callable The callable which is used to request the chart data.
          */
-        public SingleLineChart(String chartId, Callable<Integer> callable)
-        {
+        public SingleLineChart(String chartId, Callable<Integer> callable) {
             super(chartId);
             this.callable = callable;
         }
 
         @Override
-        protected JsonObjectBuilder.JsonObject getChartData() throws Exception
-        {
+        protected JsonObjectBuilder.JsonObject getChartData() throws Exception {
             int value = callable.call();
             if (value == 0) {
                 // Null = skip the chart
@@ -773,15 +731,13 @@ public class Metrics
      * <p>While this class is neither feature-rich nor the most performant one, it's sufficient enough
      * for its use-case.
      */
-    public static class JsonObjectBuilder
-    {
+    public static class JsonObjectBuilder {
 
         private StringBuilder builder = new StringBuilder();
 
         private boolean hasAtLeastOneField = false;
 
-        public JsonObjectBuilder()
-        {
+        public JsonObjectBuilder() {
             builder.append("{");
         }
 
@@ -794,8 +750,7 @@ public class Metrics
          * @param value The value to escape.
          * @return The escaped value.
          */
-        private static String escape(String value)
-        {
+        private static String escape(String value) {
             final StringBuilder builder = new StringBuilder();
             for (int i = 0; i < value.length(); i++) {
                 char c = value.charAt(i);
@@ -820,8 +775,7 @@ public class Metrics
          * @param key The key of the field.
          * @return A reference to this object.
          */
-        public JsonObjectBuilder appendNull(String key)
-        {
+        public JsonObjectBuilder appendNull(String key) {
             appendFieldUnescaped(key, "null");
             return this;
         }
@@ -833,8 +787,7 @@ public class Metrics
          * @param value The value of the field.
          * @return A reference to this object.
          */
-        public JsonObjectBuilder appendField(String key, String value)
-        {
+        public JsonObjectBuilder appendField(String key, String value) {
             if (value == null) {
                 throw new IllegalArgumentException("JSON value must not be null");
             }
@@ -849,8 +802,7 @@ public class Metrics
          * @param value The value of the field.
          * @return A reference to this object.
          */
-        public JsonObjectBuilder appendField(String key, int value)
-        {
+        public JsonObjectBuilder appendField(String key, int value) {
             appendFieldUnescaped(key, String.valueOf(value));
             return this;
         }
@@ -862,8 +814,7 @@ public class Metrics
          * @param object The object.
          * @return A reference to this object.
          */
-        public JsonObjectBuilder appendField(String key, JsonObject object)
-        {
+        public JsonObjectBuilder appendField(String key, JsonObject object) {
             if (object == null) {
                 throw new IllegalArgumentException("JSON object must not be null");
             }
@@ -878,8 +829,7 @@ public class Metrics
          * @param values The string array.
          * @return A reference to this object.
          */
-        public JsonObjectBuilder appendField(String key, String[] values)
-        {
+        public JsonObjectBuilder appendField(String key, String[] values) {
             if (values == null) {
                 throw new IllegalArgumentException("JSON values must not be null");
             }
@@ -898,8 +848,7 @@ public class Metrics
          * @param values The integer array.
          * @return A reference to this object.
          */
-        public JsonObjectBuilder appendField(String key, int[] values)
-        {
+        public JsonObjectBuilder appendField(String key, int[] values) {
             if (values == null) {
                 throw new IllegalArgumentException("JSON values must not be null");
             }
@@ -916,8 +865,7 @@ public class Metrics
          * @param values The integer array.
          * @return A reference to this object.
          */
-        public JsonObjectBuilder appendField(String key, JsonObject[] values)
-        {
+        public JsonObjectBuilder appendField(String key, JsonObject[] values) {
             if (values == null) {
                 throw new IllegalArgumentException("JSON values must not be null");
             }
@@ -933,8 +881,7 @@ public class Metrics
          * @param key          The key of the field.
          * @param escapedValue The escaped value of the field.
          */
-        private void appendFieldUnescaped(String key, String escapedValue)
-        {
+        private void appendFieldUnescaped(String key, String escapedValue) {
             if (builder == null) {
                 throw new IllegalStateException("JSON has already been built");
             }
@@ -953,8 +900,7 @@ public class Metrics
          *
          * @return The built JSON string.
          */
-        public JsonObject build()
-        {
+        public JsonObject build() {
             if (builder == null) {
                 throw new IllegalStateException("JSON has already been built");
             }
@@ -970,19 +916,16 @@ public class Metrics
          * allow a raw string inputs for methods like {@link JsonObjectBuilder#appendField(String,
          * JsonObject)}.
          */
-        public static class JsonObject
-        {
+        public static class JsonObject {
 
             private final String value;
 
-            private JsonObject(String value)
-            {
+            private JsonObject(String value) {
                 this.value = value;
             }
 
             @Override
-            public String toString()
-            {
+            public String toString() {
                 return value;
             }
         }

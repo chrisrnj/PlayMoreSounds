@@ -36,8 +36,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 
-public final class OnPlayerInteract implements Listener
-{
+public final class OnPlayerInteract implements Listener {
     private static final @NotNull HashMap<UUID, Location[]> selectedDiagonals = new HashMap<>();
     private static final @NotNull UUID console = UUID.randomUUID();
 
@@ -47,8 +46,7 @@ public final class OnPlayerInteract implements Listener
      * @param player The uuid of the player you want to get the selections from.
      * @return The locations the player selected or null if this player didn't select any location.
      */
-    public static @Nullable Location[] getSelectedDiagonals(@Nullable UUID player)
-    {
+    public static @Nullable Location[] getSelectedDiagonals(@Nullable UUID player) {
         return selectedDiagonals.get(ObjectUtils.getOrDefault(player, console));
     }
 
@@ -59,8 +57,7 @@ public final class OnPlayerInteract implements Listener
      * @param location The location to set the selection or null to remove the selection.
      * @param diagonal If this is the first diagonal. Set to false if you want to set the second.
      */
-    public static void selectDiagonal(@Nullable UUID player, @Nullable Location location, boolean diagonal)
-    {
+    public static void selectDiagonal(@Nullable UUID player, @Nullable Location location, boolean diagonal) {
         Location[] selection = getSelectedDiagonals(player);
 
         if (selection == null) {
@@ -74,8 +71,7 @@ public final class OnPlayerInteract implements Listener
     // Other region plugins may cancel the event, so priority is set to high. If you wanted to play a sound on this event
     //you should use HIGHEST.
     @EventHandler(priority = EventPriority.LOW)
-    public void onPlayerInteract(PlayerInteractEvent event)
-    {
+    public void onPlayerInteract(PlayerInteractEvent event) {
         if ((event.getAction() != Action.LEFT_CLICK_BLOCK && event.getAction() != Action.RIGHT_CLICK_BLOCK)
                 || event.useInteractedBlock() == Event.Result.DENY) return;
 

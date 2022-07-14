@@ -46,8 +46,7 @@ import java.util.regex.Pattern;
  * A class that other addons can hook to, so they can make use of channels.yml configuration.
  */
 @ThreadSafe
-public class ChannelsHandler
-{
+public class ChannelsHandler {
     protected final @NotNull HashMap<String, ChannelSound> channelSounds = new HashMap<>();
     protected final @NotNull AtomicBoolean listenerRegistered = new AtomicBoolean(false);
     private final @NotNull String pluginName;
@@ -69,8 +68,7 @@ public class ChannelsHandler
      * @param listener   The listener that should be registered when sounds for this plugin are enabled.
      * @see #ChannelsHandler(String, Listener, ChannelSoundPreventer)
      */
-    public ChannelsHandler(@NotNull String pluginName, @NotNull Listener listener)
-    {
+    public ChannelsHandler(@NotNull String pluginName, @NotNull Listener listener) {
         this(pluginName, listener, null);
     }
 
@@ -93,18 +91,15 @@ public class ChannelsHandler
      * @param channelSoundPreventer The checker to see if the sound should not play to the message receiver.
      * @see ChannelSoundPreventer#preventReceivingSound(Player, Player, String)
      */
-    public ChannelsHandler(@NotNull String pluginName, @NotNull Listener listener, @Nullable ChannelsHandler.ChannelSoundPreventer channelSoundPreventer)
-    {
+    public ChannelsHandler(@NotNull String pluginName, @NotNull Listener listener, @Nullable ChannelsHandler.ChannelSoundPreventer channelSoundPreventer) {
         this.pluginName = pluginName;
         this.listener = listener;
         if (channelSoundPreventer == null)
             soundPreventerListener = null;
         else
-            soundPreventerListener = new Listener()
-            {
+            soundPreventerListener = new Listener() {
                 @EventHandler(priority = EventPriority.LOWEST)
-                public void onPlaySound(PlaySoundEvent event)
-                {
+                public void onPlaySound(PlaySoundEvent event) {
                     PlayableSound sound = event.getSound();
                     ConfigurationSection section = sound.getSection();
 
@@ -139,8 +134,7 @@ public class ChannelsHandler
      * registered. If no sound is enabled then the listener is unregistered. Also reloads the sounds and chat words set
      * to play on chat.
      */
-    public void reloadListener()
-    {
+    public void reloadListener() {
         channelSounds.clear();
         Configuration channels = ChannelsHandlerAddon.CHANNELS_CONFIG.getConfiguration();
         ConfigurationSection pluginSection = channels.getConfigurationSection(pluginName);
@@ -212,8 +206,7 @@ public class ChannelsHandler
      * @param message The message the player sent, used for checking if a sound should be played in 'chat words.yml'
      * @see #onChat(Player, String, String, boolean isCancelled)
      */
-    public void onChat(@NotNull Player chatter, @NotNull String channel, @NotNull String message)
-    {
+    public void onChat(@NotNull Player chatter, @NotNull String channel, @NotNull String message) {
         onChat(chatter, channel, message, false);
     }
 
@@ -229,8 +222,7 @@ public class ChannelsHandler
      * @param message     The message the player sent, used for checking if a sound should be played in 'chat words.yml'
      * @param isCancelled If the event is cancelled. Sometimes the user wants to play the sound even if the event is cancelled.
      */
-    public void onChat(@NotNull Player chatter, @NotNull String channel, @NotNull String message, boolean isCancelled)
-    {
+    public void onChat(@NotNull Player chatter, @NotNull String channel, @NotNull String message, boolean isCancelled) {
         boolean mainThread = Bukkit.isPrimaryThread();
         ChannelSound channelSound = channelSounds.get(channel);
         if (channelSound == null) return;
@@ -262,20 +254,17 @@ public class ChannelsHandler
         }
     }
 
-    private static final class ChannelSound
-    {
+    private static final class ChannelSound {
         private final @Nullable PlayableRichSound channelSound;
         private final @Nullable HashMap<Pattern, PlayableRichSound> chatWords;
 
-        private ChannelSound(@Nullable PlayableRichSound channelSound, @Nullable HashMap<Pattern, PlayableRichSound> chatWords)
-        {
+        private ChannelSound(@Nullable PlayableRichSound channelSound, @Nullable HashMap<Pattern, PlayableRichSound> chatWords) {
             this.channelSound = channelSound;
             this.chatWords = chatWords;
         }
     }
 
-    public static abstract class ChannelSoundPreventer
-    {
+    public static abstract class ChannelSoundPreventer {
         /**
          * A boolean which value is used to prevent a player from receiving a sound channel sound. You can use this, for
          * example, to prevent players from receiving sounds from players talking in channels they have ignored, or

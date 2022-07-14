@@ -60,8 +60,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-public final class InputGetterInventory implements Listener
-{
+public final class InputGetterInventory implements Listener {
     private static final @NotNull Method method_Container_getBukkitView = ReflectionUtil.getMethod(Container.class, "getBukkitView");
     private static final @NotNull Class<?> class_CraftPlayer = ReflectionUtil.getClass("CraftPlayer", SubPackageType.ENTITY);
     private static final @NotNull Method method_CraftPlayer_getHandle = ReflectionUtil.getMethod(class_CraftPlayer, "getHandle");
@@ -80,8 +79,7 @@ public final class InputGetterInventory implements Listener
     private final @NotNull Consumer<String> inputConsumer;
     private final @NotNull AtomicBoolean open = new AtomicBoolean(false);
 
-    public InputGetterInventory(@NotNull Player player, @NotNull String title, @NotNull Consumer<String> inputConsumer)
-    {
+    public InputGetterInventory(@NotNull Player player, @NotNull String title, @NotNull Consumer<String> inputConsumer) {
         try {
             this.inventory = new AnvilContainer(entityPlayer(player).nextContainerCounter(), player, title);
         } catch (Exception e) {
@@ -98,8 +96,7 @@ public final class InputGetterInventory implements Listener
         }
     }
 
-    private static Containers<?> findContainersAnvilType()
-    {
+    private static Containers<?> findContainersAnvilType() {
         for (Field f : Containers.class.getFields()) {
             if (f.getGenericType().getTypeName().equals("net.minecraft.world.inventory.Containers<net.minecraft.world.inventory.ContainerAnvil>")) {
                 try {
@@ -112,8 +109,7 @@ public final class InputGetterInventory implements Listener
         return null;
     }
 
-    private static Method findMethod(Class<?> clazz, @NotNull Class<?>... parameters)
-    {
+    private static Method findMethod(Class<?> clazz, @NotNull Class<?>... parameters) {
         for (Method m : clazz.getMethods()) {
             if (Arrays.equals(parameters, m.getParameterTypes())) {
                 return m;
@@ -122,8 +118,7 @@ public final class InputGetterInventory implements Listener
         return null;
     }
 
-    private static Field findField(Class<?> clazz, Class<?> type)
-    {
+    private static Field findField(Class<?> clazz, Class<?> type) {
         for (Field f : clazz.getFields()) {
             if (f.getType().equals(type)) {
                 return f;
@@ -132,8 +127,7 @@ public final class InputGetterInventory implements Listener
         return null;
     }
 
-    private static EntityPlayer entityPlayer(Player player)
-    {
+    private static EntityPlayer entityPlayer(Player player) {
         if (player == null) return null;
         try {
             return (EntityPlayer) method_CraftPlayer_getHandle.invoke(class_CraftPlayer.cast(player));
@@ -142,8 +136,7 @@ public final class InputGetterInventory implements Listener
         }
     }
 
-    private static net.minecraft.world.level.World nmsWorld(World world)
-    {
+    private static net.minecraft.world.level.World nmsWorld(World world) {
         try {
             return (net.minecraft.world.level.World) method_CraftWorld_getHandle.invoke(class_CraftWorld.cast(world));
         } catch (Exception e) {
@@ -151,8 +144,7 @@ public final class InputGetterInventory implements Listener
         }
     }
 
-    private static net.minecraft.world.entity.player.PlayerInventory nmsInventory(PlayerInventory inventory)
-    {
+    private static net.minecraft.world.entity.player.PlayerInventory nmsInventory(PlayerInventory inventory) {
         try {
             return (net.minecraft.world.entity.player.PlayerInventory) method_CraftInventoryPlayer_getInventory.invoke(class_CraftInventoryPlayer.cast(inventory));
         } catch (Exception e) {
@@ -160,8 +152,7 @@ public final class InputGetterInventory implements Listener
         }
     }
 
-    public void openInventory()
-    {
+    public void openInventory() {
         if (PlayMoreSounds.getInstance() == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
         Player bukkitPlayer = Bukkit.getPlayer(playerId);
@@ -197,8 +188,7 @@ public final class InputGetterInventory implements Listener
         }
     }
 
-    public void closeInventory()
-    {
+    public void closeInventory() {
         Player player = Bukkit.getPlayer(playerId);
 
         if (player == null || !player.isOnline()) {
@@ -209,15 +199,13 @@ public final class InputGetterInventory implements Listener
         }
     }
 
-    public boolean isOpen()
-    {
+    public boolean isOpen() {
         return open.get();
     }
 
     @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.LOWEST)
-    private void onInventoryClick(InventoryClickEvent event)
-    {
+    private void onInventoryClick(InventoryClickEvent event) {
         HumanEntity player = event.getWhoClicked();
 
         if (!player.getUniqueId().equals(playerId)) return;
@@ -233,21 +221,18 @@ public final class InputGetterInventory implements Listener
     }
 
     @EventHandler
-    private void onInventoryClose(InventoryCloseEvent event)
-    {
+    private void onInventoryClose(InventoryCloseEvent event) {
         if (!event.getPlayer().getUniqueId().equals(playerId)) return;
         HandlerList.unregisterAll(this);
         open.set(false);
     }
 
-    private static final class AnvilContainer extends ContainerAnvil
-    {
+    private static final class AnvilContainer extends ContainerAnvil {
         private static final @NotNull Method method_ContainerAccess_at = findMethod(ContainerAccess.class, net.minecraft.world.level.World.class, BlockPosition.class);
         private final int containerId;
         private final @NotNull ChatComponentText title;
 
-        private AnvilContainer(int containerId, HumanEntity entity, String title) throws InvocationTargetException, IllegalAccessException
-        {
+        private AnvilContainer(int containerId, HumanEntity entity, String title) throws InvocationTargetException, IllegalAccessException {
             super(containerId
                     , nmsInventory(entity.getInventory())
                     , (ContainerAccess) method_ContainerAccess_at.invoke(null,
@@ -261,13 +246,11 @@ public final class InputGetterInventory implements Listener
         }
 
         @Override
-        protected void a(@NotNull EntityHuman player, @NotNull IInventory container)
-        {
+        protected void a(@NotNull EntityHuman player, @NotNull IInventory container) {
         }
 
         @Override
-        public void b(@NotNull EntityHuman player)
-        {
+        public void b(@NotNull EntityHuman player) {
         }
     }
 }

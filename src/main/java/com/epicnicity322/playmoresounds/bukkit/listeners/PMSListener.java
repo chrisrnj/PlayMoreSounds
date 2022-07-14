@@ -42,14 +42,12 @@ import java.util.Optional;
  * {@link #load()} is called.
  */
 @ThreadSafe
-public abstract class PMSListener implements Listener
-{
+public abstract class PMSListener implements Listener {
     protected final @NotNull PlayMoreSounds plugin;
     private @Nullable PlayableRichSound richSound;
     private boolean loaded = false;
 
-    public PMSListener(@NotNull PlayMoreSounds plugin)
-    {
+    public PMSListener(@NotNull PlayMoreSounds plugin) {
         this.plugin = plugin;
     }
 
@@ -62,8 +60,7 @@ public abstract class PMSListener implements Listener
      * @return The sound or null if it's disabled or has invalid sound.
      */
     @Contract("null -> null")
-    protected static @Nullable PlayableRichSound getRichSound(@Nullable ConfigurationSection section)
-    {
+    protected static @Nullable PlayableRichSound getRichSound(@Nullable ConfigurationSection section) {
         if (section == null) return null;
         if (!section.getBoolean("Enabled").orElse(false)) return null;
 
@@ -79,23 +76,19 @@ public abstract class PMSListener implements Listener
 
     public abstract @NotNull String getName();
 
-    public final synchronized boolean isLoaded()
-    {
+    public final synchronized boolean isLoaded() {
         return loaded;
     }
 
-    protected final synchronized void setLoaded(boolean loaded)
-    {
+    protected final synchronized void setLoaded(boolean loaded) {
         this.loaded = loaded;
     }
 
-    public final synchronized @Nullable PlayableRichSound getRichSound()
-    {
+    public final synchronized @Nullable PlayableRichSound getRichSound() {
         return richSound;
     }
 
-    protected final synchronized void setRichSound(@Nullable PlayableRichSound richSound)
-    {
+    protected final synchronized void setRichSound(@Nullable PlayableRichSound richSound) {
         this.richSound = richSound;
     }
 
@@ -111,8 +104,7 @@ public abstract class PMSListener implements Listener
      * @see #setLoaded(boolean)
      * @see #setRichSound(PlayableRichSound)
      */
-    public void load()
-    {
+    public void load() {
         var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
 
         synchronized (this) {

@@ -25,23 +25,20 @@ import java.util.HashSet;
  *
  * @param <E> The element of the {@link HashSet}.
  */
-public class LoadableHashSet<E> extends HashSet<E>
-{
+public class LoadableHashSet<E> extends HashSet<E> {
     private boolean loaded = false;
 
     /**
      * @return If this set was already populated.
      */
-    public synchronized boolean isLoaded()
-    {
+    public synchronized boolean isLoaded() {
         return loaded;
     }
 
     /**
      * Set if this set is populated.
      */
-    public synchronized void setLoaded(boolean loaded)
-    {
+    public synchronized void setLoaded(boolean loaded) {
         this.loaded = loaded;
     }
 }
