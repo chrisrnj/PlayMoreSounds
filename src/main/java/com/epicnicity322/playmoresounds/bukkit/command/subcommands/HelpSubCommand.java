@@ -26,7 +26,6 @@ import com.epicnicity322.playmoresounds.bukkit.command.CommandLoader;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class HelpSubCommand extends Command implements Helpable {
     @Override
@@ -35,7 +34,7 @@ public final class HelpSubCommand extends Command implements Helpable {
     }
 
     @Override
-    public @Nullable String getPermission() {
+    public @NotNull String getPermission() {
         return "playmoresounds.help";
     }
 
@@ -45,24 +44,22 @@ public final class HelpSubCommand extends Command implements Helpable {
     }
 
     @Override
-    protected @Nullable CommandRunnable getNoPermissionRunnable() {
+    protected @NotNull CommandRunnable getNoPermissionRunnable() {
         return (label, sender, args) -> PlayMoreSounds.getLanguage().send(sender, PlayMoreSounds.getLanguage().get("General.No Permission"));
     }
 
     @Override
     public void run(@NotNull String label, @NotNull CommandSender sender, @NotNull String[] args) {
         var lang = PlayMoreSounds.getLanguage();
-        lang.send(sender, lang.get("Help.Header").replace("<page>", "1").replace("<totalpages>", "1"));
+        lang.send(sender, lang.get("Help.Header").replace("<page>", "1").replace("<totalPages>", "1"));
 
         for (var command : CommandLoader.getCommands()) {
-            if (command instanceof Helpable) {
-                if (sender.hasPermission(command.getPermission())) {
-                    try {
-                        ((Helpable) command).onHelp().run(label, sender, args);
-                    } catch (Throwable t) {
-                        PlayMoreSounds.getConsoleLogger().log("Something went wrong when trying to run onHelp for command: " + command.getName(), ConsoleLogger.Level.WARN);
-                        PlayMoreSoundsCore.getErrorHandler().report(t, "On Help for command " + command.getName() + ":");
-                    }
+            if (command instanceof Helpable helpable && (command.getPermission() == null || sender.hasPermission(command.getPermission()))) {
+                try {
+                    helpable.onHelp().run(label, sender, args);
+                } catch (Throwable t) {
+                    PlayMoreSounds.getConsoleLogger().log("Something went wrong when trying to run onHelp for command: " + command.getName(), ConsoleLogger.Level.WARN);
+                    PlayMoreSoundsCore.getErrorHandler().report(t, "On Help for command " + command.getName() + ":");
                 }
             }
         }
