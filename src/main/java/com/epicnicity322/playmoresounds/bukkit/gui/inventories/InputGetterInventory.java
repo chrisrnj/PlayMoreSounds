@@ -24,7 +24,7 @@ import com.epicnicity322.epicpluginlib.bukkit.reflection.type.SubPackageType;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.gui.InventoryUtils;
 import net.minecraft.core.BlockPosition;
-import net.minecraft.network.chat.ChatComponentText;
+import net.minecraft.network.chat.IChatBaseComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.PacketPlayOutOpenWindow;
 import net.minecraft.server.level.EntityPlayer;
@@ -55,24 +55,24 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 public final class InputGetterInventory implements Listener {
-    private static final @NotNull Method method_Container_getBukkitView = ReflectionUtil.getMethod(Container.class, "getBukkitView");
-    private static final @NotNull Class<?> class_CraftPlayer = ReflectionUtil.getClass("CraftPlayer", SubPackageType.ENTITY);
-    private static final @NotNull Method method_CraftPlayer_getHandle = ReflectionUtil.getMethod(class_CraftPlayer, "getHandle");
-    private static final @NotNull Class<?> class_CraftWorld = ReflectionUtil.getClass("CraftWorld", PackageType.CRAFTBUKKIT);
-    private static final @NotNull Method method_CraftWorld_getHandle = ReflectionUtil.getMethod(class_CraftWorld, "getHandle");
-    private static final @NotNull Class<?> class_CraftInventoryPlayer = ReflectionUtil.getClass("CraftInventoryPlayer", SubPackageType.INVENTORY);
-    private static final @NotNull Method method_CraftInventoryPlayer_getInventory = ReflectionUtil.getMethod(class_CraftInventoryPlayer, "getInventory");
-    private static final @NotNull Field field_EntityPlayer_playerConnection = findField(EntityPlayer.class, PlayerConnection.class);
-    private static final @NotNull Method method_PlayerConnection_sendPacket = findMethod(PlayerConnection.class, Packet.class);
-    private static final @NotNull Method method_EntityPlayer_addSlotListener = findMethod(EntityPlayer.class, Container.class);
-    private static final @NotNull Field field_EntityHuman_activeContainer = findField(EntityHuman.class, Container.class);
-    private static final @NotNull Containers<?> containerAnvilType = findContainersAnvilType();
+    private static final @NotNull Method method_Container_getBukkitView = Objects.requireNonNull(ReflectionUtil.getMethod(Container.class, "getBukkitView"));
+    private static final @NotNull Class<?> class_CraftPlayer = Objects.requireNonNull(ReflectionUtil.getClass("CraftPlayer", SubPackageType.ENTITY));
+    private static final @NotNull Method method_CraftPlayer_getHandle = Objects.requireNonNull(ReflectionUtil.getMethod(class_CraftPlayer, "getHandle"));
+    private static final @NotNull Class<?> class_CraftWorld = Objects.requireNonNull(ReflectionUtil.getClass("CraftWorld", PackageType.CRAFTBUKKIT));
+    private static final @NotNull Method method_CraftWorld_getHandle = Objects.requireNonNull(ReflectionUtil.getMethod(class_CraftWorld, "getHandle"));
+    private static final @NotNull Class<?> class_CraftInventoryPlayer = Objects.requireNonNull(ReflectionUtil.getClass("CraftInventoryPlayer", SubPackageType.INVENTORY));
+    private static final @NotNull Method method_CraftInventoryPlayer_getInventory = Objects.requireNonNull(ReflectionUtil.getMethod(class_CraftInventoryPlayer, "getInventory"));
+    private static final @NotNull Field field_EntityPlayer_playerConnection = Objects.requireNonNull(ReflectionUtil.findFieldByType(EntityPlayer.class, PlayerConnection.class));
+    private static final @NotNull Method method_PlayerConnection_sendPacket = Objects.requireNonNull(ReflectionUtil.findMethodByParameterTypes(PlayerConnection.class, Packet.class));
+    private static final @NotNull Method method_EntityPlayer_addSlotListener = Objects.requireNonNull(ReflectionUtil.findMethodByParameterTypes(EntityPlayer.class, Container.class));
+    private static final @NotNull Field field_EntityHuman_activeContainer = Objects.requireNonNull(ReflectionUtil.findFieldByType(EntityHuman.class, Container.class));
+    private static final @NotNull Containers<?> containerAnvilType = Objects.requireNonNull(findContainersAnvilType());
 
     private final @NotNull UUID playerId;
     private final @NotNull AnvilContainer inventory;
@@ -109,28 +109,10 @@ public final class InputGetterInventory implements Listener {
         return null;
     }
 
-    private static Method findMethod(Class<?> clazz, @NotNull Class<?>... parameters) {
-        for (Method m : clazz.getMethods()) {
-            if (Arrays.equals(parameters, m.getParameterTypes())) {
-                return m;
-            }
-        }
-        return null;
-    }
-
-    private static Field findField(Class<?> clazz, Class<?> type) {
-        for (Field f : clazz.getFields()) {
-            if (f.getType().equals(type)) {
-                return f;
-            }
-        }
-        return null;
-    }
-
     private static EntityPlayer entityPlayer(Player player) {
         if (player == null) return null;
         try {
-            return (EntityPlayer) method_CraftPlayer_getHandle.invoke(class_CraftPlayer.cast(player));
+            return (EntityPlayer) method_CraftPlayer_getHandle.invoke(player);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -138,7 +120,7 @@ public final class InputGetterInventory implements Listener {
 
     private static net.minecraft.world.level.World nmsWorld(World world) {
         try {
-            return (net.minecraft.world.level.World) method_CraftWorld_getHandle.invoke(class_CraftWorld.cast(world));
+            return (net.minecraft.world.level.World) method_CraftWorld_getHandle.invoke(world);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -146,7 +128,7 @@ public final class InputGetterInventory implements Listener {
 
     private static net.minecraft.world.entity.player.PlayerInventory nmsInventory(PlayerInventory inventory) {
         try {
-            return (net.minecraft.world.entity.player.PlayerInventory) method_CraftInventoryPlayer_getInventory.invoke(class_CraftInventoryPlayer.cast(inventory));
+            return (net.minecraft.world.entity.player.PlayerInventory) method_CraftInventoryPlayer_getInventory.invoke(inventory);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -228,9 +210,10 @@ public final class InputGetterInventory implements Listener {
     }
 
     private static final class AnvilContainer extends ContainerAnvil {
-        private static final @NotNull Method method_ContainerAccess_at = findMethod(ContainerAccess.class, net.minecraft.world.level.World.class, BlockPosition.class);
+        private static final @NotNull Method method_ContainerAccess_at = Objects.requireNonNull(ReflectionUtil.findMethodByParameterTypes(ContainerAccess.class, net.minecraft.world.level.World.class, BlockPosition.class));
+        private static final @NotNull Method method_IChatBaseComponent_string = Objects.requireNonNull(ReflectionUtil.findMethodByParameterTypes(IChatBaseComponent.class, true, String.class));
         private final int containerId;
-        private final @NotNull ChatComponentText title;
+        private final @NotNull IChatBaseComponent title;
 
         private AnvilContainer(int containerId, HumanEntity entity, String title) throws InvocationTargetException, IllegalAccessException {
             super(containerId
@@ -241,7 +224,7 @@ public final class InputGetterInventory implements Listener {
 
             super.checkReachable = false;
             this.containerId = containerId;
-            this.title = new ChatComponentText(title);
+            this.title = (IChatBaseComponent) method_IChatBaseComponent_string.invoke(null, title);
             setTitle(this.title);
         }
 
