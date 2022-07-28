@@ -7,17 +7,18 @@ Sound playing changes:
 - PlaySoundEvent and PlayRichSoundEvent classes were moved to the same package as Playable sounds, this allows the sounds to get the event's location without calling Location#clone, saving performance.
 
 Regions:
-- Add "/pms region set sounds" command to allow players to add sounds to their own regions in-game through a GUI.
+*- Add "/pms region set sounds" command to allow players to add sounds to their own regions in-game through a GUI.
 - Complete overhaul region commands to fix issues and do minor optimizations.
 - Fix error if there is a console-made region present, and you try to create a region without the permission 'playmoresounds.region.create.unlimited.regions'.
 - Fix error if you try to get info of a region from a player that was purged from the server's files.
 - Made so "/pms region list" accepts offline players as arguments if you're on PaperMC, and "CONSOLE" to list console-made regions.
 - Remove "description" as an alias for "info" region command to avoid confusion with "/pms rg set description".
 - Rework how region sounds are played (again):
-  - Last update, region sounds were reworked to be cached so they don't have to be get from config as the player was entering/leaving regions.
+  - Last update, region sounds were reworked to be cached, so they don't have to be got from config as the player was entering/leaving regions.
   Now, regions themselves will hold the sound. This is another performance improvement because when entering/leaving regions, the plugin won't
   have to look in cache for a region sound, because the region object itself holds the sound that should be played.
   - As a consequence, regions.yml file was removed, due to both this new way of storing sounds, and how you can edit region sounds through a GUI.
+- Every time some region property is changed, the plugin will wait 10 minutes before saving to the region file. This makes so regions are saved asynchronously all at once.
 
 World Time Triggers:
 - Fix issues that would make so the times would play to any world, ignoring the world main sections.
@@ -43,14 +44,3 @@ Fixes:
 - Fix log sounds dev option giving an error when the entity making a sound is null.
 - Fix addons inventory not being able to be open after an error.
 - Fix addons inventory giving key not found when informing the user that the latest addons are unsupported, and the addons made for the current PlayMoreSounds version will be downloaded.
-
-What to expect of 5.0:
-*- There were major changes to the api and configurations.
-*- Specific sound configurations were renamed.
-*- Sounds that were tasked to play later due to a delay can now be stopped, in case you're leaving a region for example.
-*- Addon code had several changes to allow it to be restartable and stoppable with start and stop commands.
-
-*Radio Feature:
-- You can now assign a sound to play in a specific location or the whole world in loop.
-- Enabling the Synchronize Sounds option makes so all players hear sounds at the same time.
-- If a player has entered the world AFTER the sound was played, the sound will play anyway but stop right before the next loop. This way the sound is always heard by all players.
