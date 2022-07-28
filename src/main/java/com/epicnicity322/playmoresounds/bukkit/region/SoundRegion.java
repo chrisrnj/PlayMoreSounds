@@ -43,7 +43,7 @@ public class SoundRegion {
     /**
      * True to automatically save this region to PlayMoreSounds data folder in case any of the set methods are used.
      */
-    volatile boolean periodicallySave = false;
+    volatile boolean autoSave = false;
     private String name;
     private @Nullable String description;
     private @NotNull Location maxDiagonal;
@@ -410,7 +410,7 @@ public class SoundRegion {
     }
 
     private void addToSave() {
-        if (periodicallySave) {
+        if (autoSave) {
             RegionManager.regionsToSave.add(id.toString());
             RegionManager.loadAutoSave();
         }

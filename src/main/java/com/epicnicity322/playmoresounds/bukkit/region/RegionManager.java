@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -47,11 +48,11 @@ public final class RegionManager {
     /**
      * Region IDs present in this set will be saved to data folder on {@link #saveAndUpdate()}.
      */
-    static final @NotNull HashSet<String> regionsToSave = new HashSet<>();
+    static final @NotNull Set<String> regionsToSave = ConcurrentHashMap.newKeySet();
     /**
      * Region IDs present in this set will be deleted on {@link #saveAndUpdate()}.
      */
-    static final @NotNull HashSet<String> regionsToRemove = new HashSet<>();
+    static final @NotNull Set<String> regionsToRemove = ConcurrentHashMap.newKeySet();
     private static final @NotNull Path regionsFolder = PlayMoreSoundsCore.getFolder().resolve("Data").resolve("Regions");
     private static final @NotNull HashSet<SoundRegion> regions = new HashSet<>();
     private static final @NotNull Set<SoundRegion> unmodifiableRegions = Collections.unmodifiableSet(regions);
@@ -85,6 +86,7 @@ public final class RegionManager {
             wand = item;
         };
         wandUpdater.run();
+
     }
 
     private RegionManager() {
@@ -136,8 +138,9 @@ public final class RegionManager {
      * @param region The region object to be saved and managed by PlayMoreSounds.
      */
     public static void add(@NotNull SoundRegion region) {
-        region.periodicallySave = true;
+        region.autoSave = true;
         regions.add(region);
+        regionsToRemove.remove(region.getId().toString());
         regionsToSave.add(region.getId().toString());
         loadAutoSave();
     }
@@ -149,8 +152,9 @@ public final class RegionManager {
      * @param region The region to remove.
      */
     public static void remove(@NotNull SoundRegion region) {
-        region.periodicallySave = false;
+        region.autoSave = false;
         regions.remove(region);
+        regionsToSave.remove(region.getId().toString());
         regionsToRemove.add(region.getId().toString());
         loadAutoSave();
     }
@@ -207,7 +211,7 @@ public final class RegionManager {
 
                     try {
                         var region = new SoundRegion(loader.load(regionFile));
-                        region.periodicallySave = true;
+                        region.autoSave = true;
                         regions.add(region);
                     } catch (Exception e) {
                         logger.log("Error while reading region file \"" + name + "\": " + e.getMessage(), ConsoleLogger.Level.WARN);
@@ -274,15 +278,20 @@ public final class RegionManager {
         autoSaver = new BukkitRunnable() {
             @Override
             public void run() {
-                if (regionsToSave.isEmpty() && regionsToRemove.isEmpty()) {
-                    cancel();
-                    autoSaver = null;
-                    return;
+                try {
+                    if (regionsToSave.isEmpty() && regionsToRemove.isEmpty()) {
+                        cancel();
+                        return;
+                    }
+                    PlayMoreSounds.getConsoleLogger().log("Saving region changes.");
+                    saveAndUpdate();
+                } finally {
+                    synchronized (RegionManager.class) {
+                        autoSaver = null;
+                    }
                 }
-                PlayMoreSounds.getConsoleLogger().log("Saving region changes...");
-                saveAndUpdate();
             }
         };
-        autoSaver.runTaskTimerAsynchronously(plugin, 12000, 36000);
+        autoSaver.runTaskLaterAsynchronously(plugin, 12000);
     }
 }
