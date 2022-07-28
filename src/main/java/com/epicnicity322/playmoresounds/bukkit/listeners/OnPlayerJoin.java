@@ -18,6 +18,7 @@
 
 package com.epicnicity322.playmoresounds.bukkit.listeners;
 
+import com.epicnicity322.epicpluginlib.bukkit.reflection.ReflectionUtil;
 import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
@@ -28,6 +29,7 @@ import com.epicnicity322.playmoresounds.bukkit.util.UpdateManager;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.google.common.io.BaseEncoding;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -49,6 +51,9 @@ public final class OnPlayerJoin implements Listener {
     private static @Nullable PlayableRichSound firstJoin;
     private static @Nullable PlayableRichSound joinServer;
     private static byte[] resourcePackHash;
+    private static boolean resourcePack = false;
+    // 1.17 does not have this method.
+    private static final boolean hasCustomResourcePackPrompt = ReflectionUtil.getMethod(Player.class, "setResourcePack", String.class, byte[].class, String.class) != null;
 
     static {
         Runnable soundUpdater = () -> {
@@ -56,8 +61,9 @@ public final class OnPlayerJoin implements Listener {
             var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
             firstJoin = PMSListener.getRichSound(sounds.getConfigurationSection("First Join"));
             joinServer = PMSListener.getRichSound(sounds.getConfigurationSection("Join Server"));
+            resourcePack = config.getBoolean("Resource Packs.Request").orElse(false);
 
-            if (config.getBoolean("Resource Packs.Request").orElse(false) && !config.getString("Resource Packs.URL").orElse("").isEmpty()) {
+            if (resourcePack && !config.getString("Resource Packs.URL").orElse("").isEmpty()) {
                 String hexadecimalHash = config.getString("Resource Packs.Hash").orElse("");
 
                 if (hexadecimalHash.length() != 40) {
@@ -108,7 +114,7 @@ public final class OnPlayerJoin implements Listener {
             var regionEnterEvent = new RegionEnterEvent(region, player, location, location);
 
             // Checking if event should be played only when player accepts resource pack.
-            if (config.getBoolean("Resource Packs.Request").orElse(false)) {
+            if (resourcePack) {
                 OnPlayerResourcePackStatus.waitUntilResourcePackStatus(player, () -> Bukkit.getPluginManager().callEvent(regionEnterEvent));
             } else {
                 Bukkit.getPluginManager().callEvent(regionEnterEvent);
@@ -120,9 +126,9 @@ public final class OnPlayerJoin implements Listener {
         String world = location.getWorld().getName();
         var biomesConfig = Configurations.BIOMES.getConfigurationHolder().getConfiguration();
 
-        if (biomesConfig.getBoolean(world + "." + biome + "." + "Enter.Enabled").orElse(false) || biomesConfig.getBoolean(world + "." + biome + "." + "Loop.Enabled").orElse(false)) {
+        if (biomesConfig.getBoolean(world + "." + biome + ".Enter.Enabled").orElse(false) || biomesConfig.getBoolean(world + "." + biome + ".Loop.Enabled").orElse(false)) {
             // Checking if event should be played only when player accepts resource pack.
-            if (config.getBoolean("Resource Packs.Request").orElse(false)) {
+            if (resourcePack) {
                 OnPlayerResourcePackStatus.waitUntilResourcePackStatus(player, () -> OnPlayerMove.checkBiomeEnterLeaveSounds(cancellableDummy, player, location, location, false));
             } else {
                 OnPlayerMove.checkBiomeEnterLeaveSounds(cancellableDummy, player, location, location, false);
@@ -132,7 +138,13 @@ public final class OnPlayerJoin implements Listener {
         String url = config.getString("Resource Packs.URL").orElse("");
 
         // Setting the player's resource pack.
-        if (config.getBoolean("Resource Packs.Request").orElse(false) && !url.isEmpty())
-            Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> player.setResourcePack(url, resourcePackHash, lang.getColored("Resource Packs.Request Message")), 3);
+        if (resourcePack && !url.isEmpty())
+            Bukkit.getScheduler().runTaskLater(PlayMoreSounds.getInstance(), () -> {
+                if (hasCustomResourcePackPrompt) {
+                    player.setResourcePack(url, resourcePackHash, lang.getColored("Resource Packs.Request Message"));
+                } else {
+                    player.setResourcePack(url, resourcePackHash);
+                }
+            }, 3);
     }
 }
