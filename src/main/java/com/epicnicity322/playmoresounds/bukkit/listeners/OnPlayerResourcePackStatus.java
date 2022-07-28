@@ -18,10 +18,7 @@
 
 package com.epicnicity322.playmoresounds.bukkit.listeners;
 
-import com.epicnicity322.epicpluginlib.core.logger.ConsoleLogger;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import com.epicnicity322.playmoresounds.bukkit.command.subcommands.ConfirmSubCommand;
-import com.epicnicity322.playmoresounds.bukkit.util.UniqueRunnable;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsCore;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import org.bukkit.Bukkit;
@@ -34,13 +31,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.UUID;
 
 public final class OnPlayerResourcePackStatus implements Listener {
-    private static final OnPlayerResourcePackStatus instance = new OnPlayerResourcePackStatus();
+    private static final @NotNull OnPlayerResourcePackStatus instance = new OnPlayerResourcePackStatus();
     private static boolean loaded = false;
-    private static @Nullable HashMap<Player, Runnable> waitingUntilResourcePackStatus;
-    private static @Nullable HashSet<Player> playersIgnoringForce;
+    private static @Nullable HashMap<UUID, Runnable> waitingUntilResourcePackStatus;
 
     private OnPlayerResourcePackStatus() {
     }
@@ -60,6 +56,10 @@ public final class OnPlayerResourcePackStatus implements Listener {
     }
 
     public static synchronized void waitUntilResourcePackStatus(@NotNull Player player, @NotNull Runnable onAccept) {
+        waitUntilResourcePackStatus(player.getUniqueId(), onAccept);
+    }
+
+    public static synchronized void waitUntilResourcePackStatus(@NotNull UUID player, @NotNull Runnable onAccept) {
         if (waitingUntilResourcePackStatus == null) {
             waitingUntilResourcePackStatus = new HashMap<>();
         } else {
@@ -76,7 +76,7 @@ public final class OnPlayerResourcePackStatus implements Listener {
         waitingUntilResourcePackStatus.put(player, onAccept);
     }
 
-    private static synchronized Runnable removeWaiting(Player player) {
+    private static synchronized @Nullable Runnable removeWaiting(UUID player) {
         if (waitingUntilResourcePackStatus == null) return null;
 
         try {
@@ -86,25 +86,14 @@ public final class OnPlayerResourcePackStatus implements Listener {
         }
     }
 
-    private static void ignoreForceForPlayer(Player player) {
-        if (playersIgnoringForce == null) playersIgnoringForce = new HashSet<>();
-        playersIgnoringForce.add(player);
-    }
-
-    private static boolean isPlayerIgnored(Player player) {
-        if (playersIgnoringForce == null) return false;
-        return playersIgnoringForce.contains(player);
-    }
-
     @SuppressWarnings("deprecation")
     @EventHandler
     public void onPlayerResourcePackStatus(PlayerResourcePackStatusEvent event) {
         var status = event.getStatus();
-
         if (status == PlayerResourcePackStatusEvent.Status.ACCEPTED) return;
 
-        var player = event.getPlayer();
-        Runnable runnable = removeWaiting(player);
+        Player player = event.getPlayer();
+        Runnable runnable = removeWaiting(player.getUniqueId());
 
         if (runnable != null) {
             try {
@@ -117,48 +106,17 @@ public final class OnPlayerResourcePackStatus implements Listener {
         if (status == PlayerResourcePackStatusEvent.Status.SUCCESSFULLY_LOADED) return;
 
         var lang = PlayMoreSounds.getLanguage();
-
-        if (player.hasPermission("playmoresounds.resourcepacker.force.bypass")) {
-            if (status == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD) {
-                lang.send(player, false, lang.get("Resource Packs.Download Failed.Failed"));
-            }
-            return;
-        }
-
         var config = Configurations.CONFIG.getConfigurationHolder().getConfiguration();
+        boolean force = config.getBoolean("Resource Packs.Force.Enabled").orElse(false) && !player.hasPermission("playmoresounds.resourcepacker.force.bypass");
 
-        if (config.getBoolean("Resource Packs.Force.Enabled").orElse(false)) {
-            if (status == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD) {
-                if (config.getBoolean("Resource Packs.Force.Even If Download Fail").orElse(false) && !isPlayerIgnored(player)) {
-                    player.kickPlayer(lang.getColored("Resource Packs.Kick Message.Download Fail"));
-
-                    if (config.getBoolean("Resource Packs.Force.Alert Fail").orElse(false)) {
-                        var confirmEntry = new UniqueRunnable(player.getUniqueId()) {
-                            @Override
-                            public void run() {
-                                ignoreForceForPlayer(player);
-                                String broadcastMessage = lang.getColored("Resource Packs.Download Failed.Allowed").replace("<player>", player.getName());
-                                Bukkit.broadcast(broadcastMessage, "playmoresounds.resourcepacker.administrator");
-                                PlayMoreSounds.getConsoleLogger().log(broadcastMessage);
-                            }
-                        };
-                        var confirmDescription = lang.get("Resource Packs.Download Failed.Confirmation").replace("<player>", player.getName());
-                        var broadcastMessage = lang.getColored("Resource Packs.Download Failed.Administrator").replace("<player>", player.getName());
-                        PlayMoreSounds.getConsoleLogger().log(broadcastMessage, ConsoleLogger.Level.WARN);
-                        Bukkit.broadcast(broadcastMessage, "playmoresounds.resourcepacker.administrator");
-                        ConfirmSubCommand.addPendingConfirmation(Bukkit.getConsoleSender(), confirmEntry, confirmDescription);
-
-                        for (var admin : Bukkit.getOnlinePlayers()) {
-                            if (!admin.hasPermission("playmoresounds.resourcepacker.administrator")) continue;
-                            ConfirmSubCommand.addPendingConfirmation(admin, confirmEntry, confirmDescription);
-                        }
-                    }
-                } else {
-                    lang.send(player, false, lang.get("Resource Packs.Download Failed.Failed"));
-                }
+        if (status == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD) {
+            if (force && config.getBoolean("Resource Packs.Force.Even If Download Fail").orElse(true)) {
+                player.kickPlayer(lang.getColored("Resource Packs.Kick Message.Download Fail"));
             } else {
-                player.kickPlayer(lang.getColored("Resource Packs.Kick Message.Declined"));
+                lang.send(player, false, lang.get("Resource Packs.Failed Notice"));
             }
+        } else if (force && status == PlayerResourcePackStatusEvent.Status.DECLINED) {
+            player.kickPlayer(lang.getColored("Resource Packs.Kick Message.Declined"));
         }
     }
 }

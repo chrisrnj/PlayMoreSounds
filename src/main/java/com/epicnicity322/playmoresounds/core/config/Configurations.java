@@ -385,14 +385,14 @@ public enum Configurations {
             "# Available languages: EN_US, ES_LA, PT_BR, ZH_CN\n" +
             "Language: EN_US\n" +
             "\n" +
-//            "# All playing sounds will be logged to console with their location.\n" +
-//            "Debug: false\n" +
-//            "\n" +
             "# A simple halloween event, disable if you find it annoying.\n" +
             "Halloween Event: true\n" +
             "\n" +
             "Resource Packs:\n" +
             "  # Request player to download a resource pack on join.\n" +
+            "  # This will also make so Region and Biome sounds wait until the resource pack loads, before playing. So\n" +
+            "  #players can hear the custom region enter or biome enter sounds.\n" +
+            "  # Enable this if you use another resource packer anyway.\n" +
             "  Request: false\n" +
             "  # The URL of the resource pack. Must be a direct link.\n" +
             "  URL: ''\n" +
@@ -406,10 +406,6 @@ public enum Configurations {
             "    Enabled: true\n" +
             "    # Should the player be kicked even if the download of the resource pack is accepted but fails?\n" +
             "    Even If Download Fail: true\n" +
-            "    # Admins online will be prompted to type \"/pms confirm\" to allow this player to join without a resource pack\n" +
-            "    #in case the player is trying to join but failing to download the resource pack multiple times.\n" +
-            "    # Only admins with the permission 'playmoresounds.resourcepacker.administrator' will be able to do this.\n" +
-            "    Alert Fail: true\n" +
             "\n" +
             "# Sound Regions configuration:\n" +
             "Sound Regions:\n" +
@@ -1219,14 +1215,10 @@ public enum Configurations {
             "  Success: '&7Configuration reloaded.'\n" +
             "\n" +
             "Resource Packs:\n" +
-            "  Error: '&cSomething went wrong while requesting <player> to download the resource pack. Please try another URL.'\n" +
-            "  Download Failed:\n" +
-            "    Failed: '&cResource Pack download failed. If you want this server''s full experience, please re-join to try the download again. If this error persists, please contact an administrator.'\n" +
-            "    Administrator: '&cThe player <player> tried to join but failed to download the resource pack. Type &7&n/pms confirm&c to allow this player to join without a resource pack.'\n" +
-            "    Confirmation: 'Allow <player> to join'\n" +
+            "  Failed Notice: '&cResource Pack download failed. If you want this server''s full experience, please re-join to try the download again. If this error persists, please contact an administrator.'\n" +
             "  Kick Message:\n" +
-            "    Declined: '&cYou must accept the resource pack to play on this server.'\n" +
-            "    Download Fail: '&cSomething went wrong while downloading the resource pack. Please try joining again.'\n" +
+            "    Declined: \"&cYou must accept the resource pack to play on this server.\"\n" +
+            "    Download Fail: \"&cSomething went wrong while downloading the resource pack. Please try joining again.\"\n" +
             "  Request Message: '&ePlease download the resource pack to continue.'\n" +
             "\n" +
             "Editor Inventory:\n" +
