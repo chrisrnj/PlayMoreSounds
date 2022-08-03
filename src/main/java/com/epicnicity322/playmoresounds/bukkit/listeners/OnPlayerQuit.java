@@ -20,6 +20,7 @@ package com.epicnicity322.playmoresounds.bukkit.listeners;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.region.RegionManager;
+import com.epicnicity322.playmoresounds.bukkit.region.SoundRegion;
 import com.epicnicity322.playmoresounds.bukkit.region.events.RegionLeaveEvent;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
@@ -30,13 +31,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.Nullable;
 
 public final class OnPlayerQuit implements Listener {
-    private static @Nullable PlayableRichSound playerBan;
     private static @Nullable PlayableRichSound leaveServer;
 
     static {
         Runnable soundUpdater = () -> {
             var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
-            playerBan = PMSListener.getRichSound(sounds.getConfigurationSection("Player Ban"));
             leaveServer = PMSListener.getRichSound(sounds.getConfigurationSection("Leave Server"));
         };
 
@@ -50,13 +49,13 @@ public final class OnPlayerQuit implements Listener {
         var player = event.getPlayer();
         var location = player.getLocation();
 
-        RegionManager.getRegions().stream().filter(region -> region.isInside(location)).forEach(region -> {
-            var regionLeaveEvent = new RegionLeaveEvent(region, player, location, location);
-            Bukkit.getPluginManager().callEvent(regionLeaveEvent);
-        });
+        // Calling region leave event.
+        for (SoundRegion region : RegionManager.getRegions()) {
+            if (region.isInside(location)) {
+                Bukkit.getPluginManager().callEvent(new RegionLeaveEvent(region, player, location, location));
+            }
+        }
 
-        if (player.isBanned()) {
-            if (playerBan != null) playerBan.play(player);
-        } else if (leaveServer != null) leaveServer.play(player);
+        if (leaveServer != null) leaveServer.play(player);
     }
 }

@@ -19,26 +19,62 @@
 package com.epicnicity322.playmoresounds.bukkit.listeners;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
+import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
+import com.epicnicity322.playmoresounds.core.config.Configurations;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class OnPlayerKick extends PMSListener {
+    private @Nullable PlayableRichSound playerBan;
+
     public OnPlayerKick(@NotNull PlayMoreSounds plugin) {
         super(plugin);
     }
 
     @Override
+    public void load() {
+        var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
+
+        synchronized (this) {
+            setRichSound(getRichSound(sounds.getConfigurationSection("Player Kicked")));
+            playerBan = getRichSound(sounds.getConfigurationSection("Player Ban"));
+
+            if (getRichSound() == null || playerBan == null) {
+                if (isLoaded()) {
+                    HandlerList.unregisterAll(this);
+                    setLoaded(false);
+                }
+            } else {
+                if (!isLoaded()) {
+                    Bukkit.getPluginManager().registerEvents(this, plugin);
+                    setLoaded(true);
+                }
+            }
+        }
+    }
+
+    @Override
     public @NotNull String getName() {
-        return "Player Kicked";
+        return "Player Kicked|Player Ban";
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerKick(PlayerKickEvent event) {
-        var sound = getRichSound();
+        Player player = event.getPlayer();
+        PlayableRichSound playerKicked = getRichSound();
 
-        if (!event.isCancelled() || !sound.isCancellable())
-            sound.play(event.getPlayer());
+        if (player.isBanned()) {
+            if (playerBan != null && (!event.isCancelled() || !playerBan.isCancellable())) {
+                playerBan.play(player);
+            }
+        } else if (playerKicked != null && (!event.isCancelled() || !playerKicked.isCancellable())) {
+            playerKicked.play(event.getPlayer());
+        }
     }
 }
