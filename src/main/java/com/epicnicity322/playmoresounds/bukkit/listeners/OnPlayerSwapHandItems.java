@@ -19,11 +19,12 @@
 package com.epicnicity322.playmoresounds.bukkit.listeners;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
-import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 public final class OnPlayerSwapHandItems extends PMSListener {
     public OnPlayerSwapHandItems(@NotNull PlayMoreSounds plugin) {
@@ -40,7 +41,7 @@ public final class OnPlayerSwapHandItems extends PMSListener {
         var mainHand = event.getMainHandItem();
         var offHand = event.getOffHandItem();
 
-        if ((mainHand == null || mainHand.getType() == Material.AIR) && (offHand == null || offHand.getType() == Material.AIR))
+        if (((mainHand == null || mainHand.getType().isAir()) && (offHand == null || offHand.getType().isAir())) || Objects.equals(mainHand, offHand))
             return;
 
         var sound = getRichSound();
