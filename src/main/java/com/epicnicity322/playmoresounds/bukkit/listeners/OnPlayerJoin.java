@@ -30,30 +30,18 @@ import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.google.common.io.BaseEncoding;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class OnPlayerJoin implements Listener {
-    private static final @NotNull Cancellable cancellableDummy = new Cancellable() {
-        @Override
-        public boolean isCancelled() {
-            return false;
-        }
-
-        @Override
-        public void setCancelled(boolean cancel) {
-        }
-    };
-    private static @Nullable PlayableRichSound firstJoin;
-    private static @Nullable PlayableRichSound joinServer;
-    private static byte[] resourcePackHash;
-    private static boolean resourcePack = false;
     // 1.17 does not have this method.
     private static final boolean hasCustomResourcePackPrompt = ReflectionUtil.getMethod(Player.class, "setResourcePack", String.class, byte[].class, String.class) != null;
+    private static @Nullable PlayableRichSound firstJoin;
+    private static @Nullable PlayableRichSound joinServer;
+    private static boolean resourcePack = false;
+    private static byte[] resourcePackHash;
 
     static {
         Runnable soundUpdater = () -> {
@@ -66,14 +54,20 @@ public final class OnPlayerJoin implements Listener {
             if (resourcePack && !config.getString("Resource Packs.URL").orElse("").isEmpty()) {
                 String hexadecimalHash = config.getString("Resource Packs.Hash").orElse("");
 
-                if (hexadecimalHash.length() != 40) {
+                if (hexadecimalHash.isBlank()) {
+                    resourcePackHash = null;
                     PlayMoreSounds.getConsoleLogger().log("The provided resource pack hash is invalid.", ConsoleLogger.Level.WARN);
                 } else {
                     try {
                         // A little rant: Why the hell bukkit uses byte[] as parameter for Player#setResourcePack just so they encode the bytes again, the packet for
                         //sending resource packs use String for the hash, so why shouldn't the bukkit method do as well?
                         resourcePackHash = BaseEncoding.base16().decode(hexadecimalHash);
+                        if (resourcePackHash.length != 20) {
+                            resourcePackHash = null;
+                            PlayMoreSounds.getConsoleLogger().log("The provided resource pack hash is not 20 bytes long.", ConsoleLogger.Level.WARN);
+                        }
                     } catch (IllegalArgumentException e) {
+                        resourcePackHash = null;
                         PlayMoreSounds.getConsoleLogger().log("The provided resource pack hash is invalid.", ConsoleLogger.Level.WARN);
                     }
                 }
@@ -129,9 +123,9 @@ public final class OnPlayerJoin implements Listener {
         if (biomesConfig.getBoolean(world + "." + biome + ".Enter.Enabled").orElse(false) || biomesConfig.getBoolean(world + "." + biome + ".Loop.Enabled").orElse(false)) {
             // Checking if event should be played only when player accepts resource pack.
             if (resourcePack) {
-                OnPlayerResourcePackStatus.waitUntilResourcePackStatus(player, () -> OnPlayerMove.checkBiomeEnterLeaveSounds(cancellableDummy, player, location, location, false));
+                OnPlayerResourcePackStatus.waitUntilResourcePackStatus(player, () -> OnPlayerMove.checkBiomeEnterLeaveSounds(null, player, location, location, false));
             } else {
-                OnPlayerMove.checkBiomeEnterLeaveSounds(cancellableDummy, player, location, location, false);
+                OnPlayerMove.checkBiomeEnterLeaveSounds(null, player, location, location, false);
             }
         }
 

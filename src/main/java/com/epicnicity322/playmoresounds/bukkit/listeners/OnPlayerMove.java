@@ -41,6 +41,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,7 +59,7 @@ public final class OnPlayerMove implements Listener {
         }));
     }
 
-    static void callRegionEnterLeaveEvents(Cancellable event, Player player, Location from, Location to) {
+    static void callRegionEnterLeaveEvents(@Nullable Cancellable event, @NotNull Player player, @NotNull Location from, @NotNull Location to) {
         for (SoundRegion region : RegionManager.getRegions()) {
             boolean isInFrom = region.isInside(from);
             boolean isInTo = region.isInside(to);
@@ -67,19 +68,19 @@ public final class OnPlayerMove implements Listener {
                 var regionLeaveEvent = new RegionLeaveEvent(region, player, from, to);
                 Bukkit.getPluginManager().callEvent(regionLeaveEvent);
 
-                if (regionLeaveEvent.isCancelled())
+                if (regionLeaveEvent.isCancelled() && event != null)
                     event.setCancelled(true);
             } else if (!isInFrom && isInTo) {
                 var regionEnterEvent = new RegionEnterEvent(region, player, from, to);
                 Bukkit.getPluginManager().callEvent(regionEnterEvent);
 
-                if (regionEnterEvent.isCancelled())
+                if (regionEnterEvent.isCancelled() && event != null)
                     event.setCancelled(true);
             }
         }
     }
 
-    static void checkBiomeEnterLeaveSounds(Cancellable event, Player player, Location from, Location to, boolean checkDifferent) {
+    static void checkBiomeEnterLeaveSounds(@Nullable Cancellable cancellable, @NotNull Player player, @NotNull Location from, @NotNull Location to, boolean checkDifferent) {
         // Playing sounds for biomes.yml.
         Configuration biomesConfiguration = biomes.getConfiguration();
 
@@ -111,26 +112,26 @@ public final class OnPlayerMove implements Listener {
                 ConfigurationSection loop = biomesConfiguration.getConfigurationSection(to.getWorld().getName() + '.' + toBiome.name() + ".Loop");
                 ConfigurationSection leave = checkDifferent ? biomesConfiguration.getConfigurationSection(from.getWorld().getName() + '.' + fromBiome.name() + ".Leave") : null;
                 boolean playEnterSound = true;
+                boolean cancelled = cancellable != null && cancellable.isCancelled();
 
                 if (loop != null) {
                     var loopSound = new PlayableRichSound(loop);
 
-                    if (loopSound.isEnabled() && (!event.isCancelled() || !loopSound.isCancellable())) {
+                    if (loopSound.isEnabled() && (!cancelled || !loopSound.isCancellable())) {
                         long delay = loop.getNumber("Delay").orElse(0).longValue();
                         long period = loop.getNumber("Period").orElse(0).longValue();
 
                         biomesInLoop.put(key, loopSound.playInLoop(player, player::getLocation, delay, period, () -> {
                             Configuration updatedBiomes = biomes.getConfiguration();
 
-                            return !updatedBiomes.getBoolean(loop.getPath() + ".Enabled").orElse(false)
-                                    || !player.isOnline() || !player.getWorld().equals(to.getWorld())
-                                    || player.getLocation().getBlock().getBiome() != toBiome;
+                            return player.getLocation().getBlock().getBiome() != toBiome
+                                    || !updatedBiomes.getBoolean(loop.getPath() + ".Enabled").orElse(false)
+                                    || !player.getWorld().equals(to.getWorld());
                         }));
 
                         stopOnExit(player, loop);
 
-                        if (loop.getBoolean("Prevent Enter Sound").orElse(false))
-                            playEnterSound = false;
+                        if (loop.getBoolean("Prevent Enter Sound").orElse(false)) playEnterSound = false;
                     }
                 }
 
@@ -140,7 +141,7 @@ public final class OnPlayerMove implements Listener {
                     if (enter != null) {
                         var enterSound = new PlayableRichSound(enter);
 
-                        if (!event.isCancelled() || !enterSound.isCancellable()) {
+                        if (!cancelled || !enterSound.isCancellable()) {
                             enterSound.play(player);
 
                             if (enterSound.isEnabled())
@@ -152,8 +153,7 @@ public final class OnPlayerMove implements Listener {
                 if (leave != null) {
                     var leaveSound = new PlayableRichSound(leave);
 
-                    if (!event.isCancelled() || !leaveSound.isCancellable())
-                        leaveSound.play(player);
+                    if (!cancelled || !leaveSound.isCancellable()) leaveSound.play(player);
                 }
             }
         }
