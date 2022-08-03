@@ -39,9 +39,9 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class OnPlayerDeath extends PMSListener {
-    private final @NotNull HashMap<String, PlayableRichSound> specificDeaths = new HashMap<>();
     private final @NotNull NamespacedKey lastDamageKey;
     private final @NotNull NamespacedKey killerUUIDKey;
+    private @Nullable HashMap<String, PlayableRichSound> specificDeaths;
     private @Nullable PlayableRichSound playerKilled;
     private @Nullable PlayableRichSound playerKill;
 
@@ -58,14 +58,15 @@ public final class OnPlayerDeath extends PMSListener {
 
     @Override
     public void load() {
-        specificDeaths.clear();
-
         var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
         var deathTypes = Configurations.DEATH_TYPES.getConfigurationHolder().getConfiguration();
 
+        // Adding specific death sounds to map.
+        specificDeaths = null;
         for (Map.Entry<String, Object> deathType : deathTypes.getNodes().entrySet()) {
             if (deathType.getValue() instanceof ConfigurationSection deathTypeSection) {
                 if (deathTypeSection.getBoolean("Enabled").orElse(false)) {
+                    if (specificDeaths == null) specificDeaths = new HashMap<>();
                     specificDeaths.put(deathType.getKey().toUpperCase(), getRichSound(deathTypeSection));
                 }
             }
@@ -75,7 +76,7 @@ public final class OnPlayerDeath extends PMSListener {
         playerKill = getRichSound(sounds.getConfigurationSection("Player Kill"));
         playerKilled = getRichSound(sounds.getConfigurationSection("Player Killed"));
 
-        if (getRichSound() != null || !specificDeaths.isEmpty() || playerKill != null || playerKilled != null) {
+        if (getRichSound() != null || specificDeaths != null || playerKill != null || playerKilled != null) {
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
                 setLoaded(true);
@@ -92,48 +93,57 @@ public final class OnPlayerDeath extends PMSListener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         var player = event.getEntity();
         var playerData = player.getPersistentDataContainer();
-        boolean defaultSound = getRichSound() != null;
 
-        String killerUUID = playerData.get(killerUUIDKey, PersistentDataType.STRING);
+        // Checking if player was killed by another player.
+        if (playerKill != null || playerKilled != null) {
+            String killerUUID = playerData.get(killerUUIDKey, PersistentDataType.STRING);
 
-        if (killerUUID != null) {
-            if (playerKill != null) {
-                var killer = Bukkit.getPlayer(UUID.fromString(killerUUID));
+            if (killerUUID != null) {
+                playerData.remove(killerUUIDKey);
+                if (playerKill != null) {
+                    var killer = Bukkit.getPlayer(UUID.fromString(killerUUID));
 
-                if (killer != null) playerKill.play(killer);
-            }
-            if (playerKilled != null) {
-                playerKilled.play(player);
+                    if (killer != null) playerKill.play(killer);
+                }
+                if (playerKilled != null) {
+                    playerKilled.play(player);
 
-                if (playerKilled.getSection().getBoolean("Prevent Death Sounds").orElse(false)) return;
-            }
-        }
-
-        String lastDamage = playerData.get(this.lastDamageKey, PersistentDataType.STRING);
-
-        if (lastDamage != null) {
-            var specificDeathSound = specificDeaths.get(lastDamage);
-
-            if (specificDeathSound != null) {
-                specificDeathSound.play(player);
-
-                if (specificDeathSound.getSection().getBoolean("Prevent Default Sound").orElse(false))
-                    defaultSound = false;
+                    // If the death sounds, specific or default should be prevented from being played.
+                    if (playerKilled.getSection().getBoolean("Prevent Death Sounds").orElse(false)) return;
+                }
             }
         }
 
-        if (defaultSound) {
+        if (specificDeaths != null) {
+            // Checking cause of death to play specific death sounds.
+            String lastDamage = playerData.get(lastDamageKey, PersistentDataType.STRING);
+
+            if (lastDamage != null) {
+                playerData.remove(lastDamageKey);
+                var specificDeathSound = specificDeaths.get(lastDamage);
+
+                if (specificDeathSound != null) {
+                    specificDeathSound.play(player);
+
+                    // If the default death sound should be prevented from being played.
+                    if (specificDeathSound.getSection().getBoolean("Prevent Default Sound").orElse(false)) return;
+                }
+            }
+        }
+
+        // Playing default death sound.
+        if (getRichSound() != null) {
             getRichSound().play(player);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDamage(EntityDamageEvent event) {
-        if (specificDeaths.isEmpty()) return;
+        if (specificDeaths == null) return;
         var entity = event.getEntity();
 
         // The players last damage cause is set here, so it can be get in PlayerDeathEvent and be used to play specific death sounds.
-        // Then, after the player respawns, the last damage key is removed from player data.
+        // Then, after the sound is played, the last damage key is removed from player data.
         if (!event.isCancelled() && entity instanceof Player player && player.getHealth() - event.getFinalDamage() <= 0) {
             entity.getPersistentDataContainer().set(lastDamageKey, PersistentDataType.STRING, event.getCause().name());
         }

@@ -35,6 +35,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -42,8 +43,8 @@ import java.util.regex.Pattern;
 
 public final class OnEntityDamageByEntity extends PMSListener {
     private static final @NotNull Pattern comma = Pattern.compile(",");
-    private final @NotNull HashSet<PlayableRichSound> conditions = new HashSet<>();
     private final @NotNull NamespacedKey killerUUID;
+    private @Nullable HashSet<PlayableRichSound> conditions;
 
     public OnEntityDamageByEntity(@NotNull PlayMoreSounds plugin) {
         super(plugin);
@@ -129,14 +130,15 @@ public final class OnEntityDamageByEntity extends PMSListener {
 
     @Override
     public void load() {
-        conditions.clear();
-
         var sounds = Configurations.SOUNDS.getConfigurationHolder().getConfiguration();
         var hitSounds = Configurations.HIT_SOUNDS.getConfigurationHolder().getConfiguration();
 
+        // Adding specific hit sound conditions to map.
+        conditions = null;
         for (Map.Entry<String, Object> condition : hitSounds.getNodes().entrySet()) {
             if (condition.getValue() instanceof ConfigurationSection conditionSection) {
                 if (conditionSection.getBoolean("Enabled").orElse(false)) {
+                    if (conditions == null) conditions = new HashSet<>();
                     conditions.add(getRichSound(conditionSection));
                 }
             }
@@ -147,7 +149,7 @@ public final class OnEntityDamageByEntity extends PMSListener {
         // Player Kill and Player Killed sounds depend on this listener to know who is the killer.
         boolean playerKillKilledEnabled = sounds.getBoolean("Player Kill.Enabled").orElse(false) || sounds.getBoolean("Player Killed.Enabled").orElse(false);
 
-        if (getRichSound() != null || !conditions.isEmpty() || playerKillKilledEnabled) {
+        if (getRichSound() != null || conditions != null || playerKillKilledEnabled) {
             if (!isLoaded()) {
                 Bukkit.getPluginManager().registerEvents(this, plugin);
                 setLoaded(true);
@@ -187,7 +189,7 @@ public final class OnEntityDamageByEntity extends PMSListener {
         }
 
         // The players last killer uuid is set here, so it can be get in PlayerDeathEvent and be used to play kill and killed sounds.
-        // Then, after the player respawns, the killer uuid key is removed from player data.
+        // Then, after the sound is played, the killer uuid key is removed from player data.
         if (damagerPlayer != null && victim instanceof Player victimPlayer && victimPlayer.getHealth() - event.getFinalDamage() <= 0) {
             victimPlayer.getPersistentDataContainer().set(killerUUID, PersistentDataType.STRING, damagerPlayer.getUniqueId().toString());
         }
@@ -195,21 +197,23 @@ public final class OnEntityDamageByEntity extends PMSListener {
         // If the default sound should play.
         boolean defaultSound = getRichSound() != null;
 
-        // Checking if any condition on hit sounds.yml matches this scenario.
-        for (PlayableRichSound condition : conditions) {
-            if (!event.isCancelled() || !condition.isCancellable()) {
-                ConfigurationSection conditionSection = condition.getSection();
+        if (conditions != null) {
+            // Checking if any condition on hit sounds.yml matches this scenario.
+            for (PlayableRichSound condition : conditions) {
+                if (!event.isCancelled() || !condition.isCancellable()) {
+                    ConfigurationSection conditionSection = condition.getSection();
 
-                if (matchesCondition(conditionSection.getName(), damager, victim, damagerHand)) {
-                    condition.play(damagerPlayer, damagerLocation);
+                    if (matchesCondition(conditionSection.getName(), damager, victim, damagerHand)) {
+                        condition.play(damagerPlayer, damagerLocation);
 
-                    // Checking if default sound should play.
-                    if (conditionSection.getBoolean("Prevent Other Sounds.Default Sound").orElse(false))
-                        defaultSound = false;
+                        // Checking if default sound should play.
+                        if (conditionSection.getBoolean("Prevent Other Sounds.Default Sound").orElse(false))
+                            defaultSound = false;
 
-                    // Checking if this loop should continue checking for other conditions.
-                    if (conditionSection.getBoolean("Prevent Other Sounds.Other Conditions").orElse(false))
-                        break;
+                        // Checking if this loop should continue checking for other conditions.
+                        if (conditionSection.getBoolean("Prevent Other Sounds.Other Conditions").orElse(false))
+                            break;
+                    }
                 }
             }
         }
