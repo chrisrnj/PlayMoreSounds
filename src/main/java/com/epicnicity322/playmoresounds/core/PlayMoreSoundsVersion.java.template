@@ -21,16 +21,14 @@ package com.epicnicity322.playmoresounds.core;
 import com.epicnicity322.epicpluginlib.core.tools.Version;
 import org.jetbrains.annotations.NotNull;
 
-public final class PlayMoreSoundsVersion
-{
+public final class PlayMoreSoundsVersion {
     public static final @NotNull String version = "#VERSION#";
     private static final @NotNull Version versionVersion = new Version(version);
 
     /**
      * @return The current version of PlayMoreSounds.
      */
-    public static @NotNull Version getVersion()
-    {
+    public static @NotNull Version getVersion() {
         return versionVersion;
     }
 }
