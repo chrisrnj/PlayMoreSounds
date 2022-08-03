@@ -115,16 +115,20 @@ public abstract class RichSound<T extends Sound> {
         return null;
     }
 
-    public void addChildSound(@NotNull T childSound) {
-        if (getChildSound(childSound.getId()) == null) childSounds.add(childSound);
+    public boolean addChildSound(@NotNull T childSound) {
+        if (getChildSound(childSound.getId()) == null) {
+            return childSounds.add(childSound);
+        } else {
+            return false;
+        }
     }
 
-    public void removeChildSound(@NotNull T childSound) {
-        childSounds.remove(childSound);
+    public boolean removeChildSound(@NotNull T childSound) {
+        return childSounds.remove(childSound);
     }
 
-    public void removeChildSound(@NotNull String id) {
-        childSounds.removeIf(sound -> sound.getId().equals(id));
+    public boolean removeChildSound(@NotNull String id) {
+        return childSounds.removeIf(sound -> sound.getId().equals(id));
     }
 
     /**

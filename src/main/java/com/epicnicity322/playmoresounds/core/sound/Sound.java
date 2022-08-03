@@ -334,10 +334,10 @@ public class Sound {
         var soundSection = Objects.requireNonNullElseGet(section.getConfigurationSection(id), () -> section.createSection(id));
         var optionsSection = Objects.requireNonNullElseGet(soundSection.getConfigurationSection("Options"), () -> soundSection.createSection("Options"));
         options.set(optionsSection);
-
-        if (pitch != 1.0f || soundSection.contains("Pitch")) soundSection.set("Pitch", pitch);
+        if (optionsSection.getNodes().isEmpty()) section.set("Options", null);
+        soundSection.set("Pitch", pitch == 1.0f ? null : pitch);
         soundSection.set("Sound", soundType != null ? soundType.name() : sound);
-        if (volume != 10.0f || soundSection.contains("Volume")) soundSection.set("Volume", volume);
+        soundSection.set("Volume", volume == 10.0f ? null : volume);
 
         return soundSection;
     }

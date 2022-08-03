@@ -143,10 +143,10 @@ public class SoundOptions {
      * @param section The section to set the properties.
      */
     public void set(@NotNull ConfigurationSection section) {
-        if (ignoresDisabled || section.contains("Ignores Disabled")) section.set("Ignores Disabled", true);
+        section.set("Ignores Disabled", ignoresDisabled ? true : null);
         section.set("Permission Required", permissionRequired);
         section.set("Permission To Listen", permissionToListen);
-        if (radius != 0.0d || section.contains("Radius")) section.set("Radius", radius);
+        section.set("Radius", radius == 0.0d ? null : radius);
     }
 
     /**

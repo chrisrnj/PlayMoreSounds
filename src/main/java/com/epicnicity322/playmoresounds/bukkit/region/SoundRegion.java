@@ -475,21 +475,24 @@ public class SoundRegion {
         }
 
         @Override
-        public void addChildSound(@NotNull PlayableSound childSound) {
-            super.addChildSound(childSound);
+        public boolean addChildSound(@NotNull PlayableSound childSound) {
+            boolean b = super.addChildSound(childSound);
             addToSave();
+            return b;
         }
 
         @Override
-        public void removeChildSound(@NotNull String soundId) {
-            super.removeChildSound(soundId);
+        public boolean removeChildSound(@NotNull String soundId) {
+            boolean b = super.removeChildSound(soundId);
             addToSave();
+            return b;
         }
 
         @Override
-        public void removeChildSound(@NotNull PlayableSound childSound) {
-            super.removeChildSound(childSound);
+        public boolean removeChildSound(@NotNull PlayableSound childSound) {
+            boolean b = super.removeChildSound(childSound);
             addToSave();
+            return b;
         }
     }
 }

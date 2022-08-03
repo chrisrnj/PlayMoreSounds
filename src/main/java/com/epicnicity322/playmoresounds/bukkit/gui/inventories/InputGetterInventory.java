@@ -228,6 +228,8 @@ public final class InputGetterInventory implements Listener {
             setTitle(this.title);
         }
 
+        // Preventing item from being added into the player's inventory.
+
         @Override
         protected void a(@NotNull EntityHuman player, @NotNull IInventory container) {
         }

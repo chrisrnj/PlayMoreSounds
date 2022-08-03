@@ -72,6 +72,7 @@ public final class SoundInventory implements PMSInventory {
         putButtons();
         buttons.put(37, event -> {
             parent.getRichSound().removeChildSound(sound);
+            parent.childSounds.remove(this);
             parent.updateInventory();
             parent.openInventory(event.getWhoClicked());
         });

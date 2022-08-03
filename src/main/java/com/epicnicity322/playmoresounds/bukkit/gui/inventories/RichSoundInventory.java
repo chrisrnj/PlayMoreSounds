@@ -39,6 +39,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -73,22 +74,21 @@ public class RichSoundInventory implements PMSInventory {
     }
 
     protected final @NotNull ConfigurationHolder save;
+    final @NotNull ArrayList<SoundInventory> childSounds = new ArrayList<>();
     private final @NotNull HashMap<Integer, Consumer<InventoryClickEvent>> buttons = new HashMap<>();
     private final @NotNull PlayableRichSound richSound;
-    private final @NotNull HashMap<PlayableSound, SoundInventory> childInventories;
+    // Should configurations be reloaded on save?
     private final boolean reload;
     private Inventory inventory;
-    private HashMap<Integer, ArrayList<PlayableSound>> childSoundPages;
 
     public RichSoundInventory(@NotNull PlayableRichSound richSound, @NotNull ConfigurationHolder save) {
         this.richSound = richSound;
         this.save = save;
-        this.childInventories = new HashMap<>(richSound.getChildSounds().size());
         this.reload = Configurations.getConfigurationLoader().getConfigurations().contains(save);
 
-        // Cache-ing the child inventories.
+        // Creating the child inventories.
         for (PlayableSound sound : richSound.getChildSounds()) {
-            childInventories.put(sound, new SoundInventory(sound, this));
+            childSounds.add(new SoundInventory(sound, this));
         }
 
         // Setting up the inventory and childSoundPages
@@ -106,17 +106,17 @@ public class RichSoundInventory implements PMSInventory {
         buttons.put(13, event -> {
             // Creating a new sound with default values and random id.
             var newSound = new PlayableSound(null, "BLOCK_NOTE_BLOCK_PLING", SoundCategory.MASTER, 10, 1, 0, null);
-            var newSoundInventory = new SoundInventory(newSound, this);
 
-            richSound.addChildSound(newSound);
-            childInventories.put(newSound, newSoundInventory);
-
-            // Opening the new sound inventory.
-            newSoundInventory.openInventory(event.getWhoClicked());
-            // Updating, new sound might add a new row to the inventory.
-            updateInventory();
-            // Going to last page.
-            fillChildSounds(childSoundPages.size());
+            if (richSound.addChildSound(newSound)) {
+                var newSoundInventory = new SoundInventory(newSound, this);
+                childSounds.add(newSoundInventory);
+                // Opening the new sound inventory.
+                newSoundInventory.openInventory(event.getWhoClicked());
+                // Updating, new sound might add a new row to the inventory.
+                updateInventory();
+                // Going to last page.
+                fillChildSounds(Integer.MAX_VALUE);
+            }
         });
     }
 
@@ -130,19 +130,21 @@ public class RichSoundInventory implements PMSInventory {
         return soundMaterials.get(next);
     }
 
-    static ItemStack parseItemStack(String inventory, String name, String value) {
+    static ItemStack parseItemStack(@NotNull String inventoryName, @NotNull String itemName, @Nullable String value) {
         if (value == null) value = "null";
 
-        ItemStack itemStack = InventoryUtils.getItemStack(inventory + ".Items." + name);
+        ItemStack itemStack = InventoryUtils.getItemStack(inventoryName + ".Items." + itemName);
         ItemMeta meta = itemStack.getItemMeta();
         meta.setDisplayName(meta.getDisplayName().replace("<value>", value));
 
         List<String> previousLore = meta.getLore();
-        var lore = new ArrayList<String>(previousLore.size());
 
-        for (String string : previousLore) lore.add(string.replace("<value>", value));
+        if (previousLore != null) {
+            var lore = new ArrayList<String>(previousLore.size());
+            for (String string : previousLore) lore.add(string.replace("<value>", value));
+            meta.setLore(lore);
+        }
 
-        meta.setLore(lore);
         itemStack.setItemMeta(meta);
         return itemStack;
     }
@@ -162,9 +164,6 @@ public class RichSoundInventory implements PMSInventory {
                 viewer.closeInventory();
             }
         }
-
-        // Setting up the sound pages
-        this.childSoundPages = PMSHelper.splitIntoPages(richSound.getChildSounds(), 35);
 
         int inventorySize = richSound.getChildSounds().size() + 19;
         if (inventorySize > 54) {
@@ -207,6 +206,7 @@ public class RichSoundInventory implements PMSInventory {
         config.save(path);
 
         if (reload) {
+            // TODO: Reload only the configuration that was changed.
             PlayMoreSounds.reload();
         }
     }
@@ -219,17 +219,19 @@ public class RichSoundInventory implements PMSInventory {
         ItemStack infoItem = InventoryUtils.getItemStack("Rich Sound Inventory.Items.Info");
         ItemMeta meta = infoItem.getItemMeta();
         var previousLore = meta.getLore();
-        var newLore = new ArrayList<String>(previousLore.size());
+        if (previousLore != null) {
+            var newLore = new ArrayList<String>(previousLore.size());
 
-        for (String line : previousLore) {
-            newLore.add(line
-                    .replace("<name>", richSound.getName())
-                    .replace("<child-amount>", Integer.toString(richSound.getChildSounds().size()))
-                    .replace("<config>", configName));
+            for (String line : previousLore) {
+                newLore.add(line
+                        .replace("<name>", richSound.getName())
+                        .replace("<child-amount>", Integer.toString(richSound.getChildSounds().size()))
+                        .replace("<config>", configName));
+            }
+
+            meta.setLore(newLore);
+            infoItem.setItemMeta(meta);
         }
-
-        meta.setLore(newLore);
-        infoItem.setItemMeta(meta);
 
         inventory.setItem(4, infoItem);
         inventory.setItem(8, parseItemStack("Cancellable", Boolean.toString(richSound.isCancellable())));
@@ -237,14 +239,23 @@ public class RichSoundInventory implements PMSInventory {
     }
 
     private void fillChildSounds(int page) {
-        // Removing previous child sounds from previous page.
+        HashMap<Integer, ArrayList<SoundInventory>> childInventoriesPages = PMSHelper.splitIntoPages(childSounds, 35);
+        int lastPageNumber = childInventoriesPages.size();
+
+        if (page > lastPageNumber) {
+            page = lastPageNumber;
+        } else if (page < 1) {
+            page = 1;
+        }
+
+        // Removing previous child sounds from current open inventory.
         for (int i = 18; i < inventory.getSize() - 1; ++i) {
             inventory.setItem(i, null);
             buttons.remove(i);
         }
 
         // Adding next page button.
-        if (page != childSoundPages.size()) {
+        if (page != lastPageNumber) {
             int nextPage = page + 1;
 
             inventory.setItem(16, parseItemStack("Next Page", Integer.toString(nextPage)));
@@ -272,11 +283,12 @@ public class RichSoundInventory implements PMSInventory {
         //the same thing everytime: add a new sound. So it's set on constructor.
 
         // Filling with the child sound on this page.
-        ArrayList<PlayableSound> sounds = childSoundPages.get(page);
+        ArrayList<SoundInventory> childInventoriesPage = childInventoriesPages.get(page);
         int slot = 18;
         boolean glowing = Configurations.CONFIG.getConfigurationHolder().getConfiguration().getBoolean("Rich Sound Inventory.Items.Sound.Glowing").orElse(false);
 
-        for (var sound : sounds) {
+        for (var childInventory : childInventoriesPage) {
+            PlayableSound sound = childInventory.getSound();
             // Creating sound item and replacing the lore and name variables.
             ItemStack soundItem = new ItemStack(nextSoundMaterial());
             ItemMeta meta = soundItem.getItemMeta();
@@ -301,7 +313,6 @@ public class RichSoundInventory implements PMSInventory {
             soundItem.setItemMeta(meta);
 
             inventory.setItem(slot, soundItem);
-            SoundInventory childInventory = childInventories.get(sound);
             buttons.put(slot, event -> childInventory.openInventory(event.getWhoClicked()));
             ++slot;
         }
