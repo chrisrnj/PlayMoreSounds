@@ -1,4 +1,4 @@
-api-version: '1.13'
+api-version: '1.17'
 author: Epicnicity322
 depend: [ EpicPluginLib ]
 description: Plays sounds at player events.
