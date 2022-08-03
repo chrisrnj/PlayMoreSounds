@@ -40,6 +40,11 @@ Sound Editing GUI:
 - Inputs will be given through a fancy Anvil inventory.
 *- In a region you can use the command /pms rg set sound to set a sound to play in this region, for loop, enter or leave.
 
+Other Changes:
+- Player Ban will now be checked on PlayerKickEvent, rather than PlayerQuitEvent. Avoiding use of Player#isBanned everytime a player leaves the server, removing the lag.
+- Swap Hands will no longer play if the swapped items are the same.
+- last_damage and killer_uuid namespaced keys will be removed on PlayerDeathEvent, rather than PlayerRespawnEvent. This makes so the keys are removed more consistently, where before they could be saved on player NBT data forever.
+
 Fixes:
 - Fix log sounds dev option giving an error when the entity making a sound is null.
 - Fix addons inventory not being able to be open after an error.
