@@ -74,7 +74,7 @@ public final class PlayMoreSounds extends JavaPlugin {
 
     static {
         // Checking if EpicPluginLib is outdated.
-        if (EpicPluginLib.version.compareTo(new Version("2.2.1")) < 0) {
+        if (EpicPluginLib.version.compareTo(new Version("2.3")) < 0) {
             throw new UnknownDependencyException("You are running an old version of EpicPluginLib, make sure you are using 2.2.1 or similar.");
         }
 
@@ -315,7 +315,7 @@ public final class PlayMoreSounds extends JavaPlugin {
 
                 if (serverVersion.compareTo(new Version("1.17")) < 0) {
                     logger.log("PlayMoreSounds detected you are on version " + serverVersion + ". This version is not supported so errors will no longer be logged.", ConsoleLogger.Level.WARN);
-                } else if (serverVersion.compareTo(new Version("1.19")) >= 0) {
+                } else if (serverVersion.compareTo(new Version("1.20")) >= 0) {
                     logger.log("PlayMoreSounds detected you are on version " + serverVersion + ". This version was not tested and might throw errors.", ConsoleLogger.Level.WARN);
                 }
 
