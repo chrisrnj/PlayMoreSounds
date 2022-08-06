@@ -19,6 +19,9 @@ Regions:
   have to look in cache for a region sound, because the region object itself holds the sound that should be played.
   - As a consequence, regions.yml file was removed, due to both this new way of storing sounds, and how you can edit region sounds through a GUI.
 - Every time some region property is changed, the plugin will wait 10 minutes before saving to the region file. This makes so regions are saved asynchronously all at once.
+- Fix Prevent Default Sound on Loop section of regions preventing the Enter section sound, rather than the actual default enter sound.
+- Fix loop sound stopping in case the region was renamed.
+- Fix default region enter sound not being stopped.
 
 World Time Triggers:
 - Fix issues that would make so the times would play to any world, ignoring the world main sections.
