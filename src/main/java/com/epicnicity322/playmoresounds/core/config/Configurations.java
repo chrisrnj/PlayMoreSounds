@@ -2457,68 +2457,6 @@ public enum Configurations {
             "    Offline: '&c您当前未连接网络，或者您的防火墙拦截了联网请求，更新失败'\n" +
             "    Timeout: '&c连接超时，请检查网络'\n" +
             "  Not Available: '&e没有可用更新'", StaticFields.version5_0),
-    REGIONS(StaticFields.sounds.resolve("regions.yml"), "# Set a sound to play when you enter, exit or stand on a specific region.\n" +
-            "#\n" +
-            "# Sample:\n" +
-            "#\n" +
-            "#PlayMoreSounds: # The region plugin.\n" +
-            "#  Spawn: # The region name, replace 'Spawn' with the name of your region.\n" +
-            "#    Enter: # When a player enters this region.\n" +
-            "#      Cancellable: true\n" +
-            "#      Enabled: true\n" +
-            "#      Stop On Exit:\n" +
-            "#        Enabled: true # If enabled, the sound will be stopped when the player leaves the region.\n" +
-            "#        Delay: 20 # The time to wait before stopping the sound.\n" +
-            "#      Prevent Default Sound: true # If enabled, Region Enter sound in sounds.yml won't be played.\n" +
-            "#      Sounds:\n" +
-            "#        '0':\n" +
-            "#          Delay: 0\n" +
-            "#          Options:\n" +
-            "#            Radius: 0\n" +
-            "#          Pitch: 1\n" +
-            "#          Sound: BLOCK_NOTE_BLOCK_PLING\n" +
-            "#          Volume: 10\n" +
-            "#    Leave: # When a player exits this region.\n" +
-            "#      Cancellable: true\n" +
-            "#      Enabled: true\n" +
-            "#      Prevent Default Sound: true # If enabled, Region Leave sound in sounds.yml won't be played.\n" +
-            "#      Sounds:\n" +
-            "#        '0':\n" +
-            "#          Delay: 0\n" +
-            "#          Options:\n" +
-            "#            Radius: 0\n" +
-            "#          Pitch: 1\n" +
-            "#          Sound: BLOCK_NOTE_BLOCK_BASS\n" +
-            "#          Volume: 10\n" +
-            "#    Loop: # When a player enters the region, a loop will be triggered and play.\n" +
-            "#      Cancellable: true\n" +
-            "#      Delay: 0 # Time in ticks to wait to start the loop once the player enters the region.\n" +
-            "#      Enabled: true\n" +
-            "#      Period: 100 # Time in tick the loop will wait until playing the sound again.\n" +
-            "#      # If you have a long song playing, when the player leaves this region, the song\n" +
-            "#      #will be stopped instead of playing until the end. This setting applies to sounds only,\n" +
-            "#      #the loop function is stopped automatically.\n" +
-            "#      Stop On Exit:\n" +
-            "#        Delay: 10\n" +
-            "#        Enabled: true\n" +
-            "#      Prevent Other Sounds:\n" +
-            "#        Enter Sound: true # If enabled, Enter sound in regions.yml won't be played.\n" +
-            "#        Default Sound: true # If enabled, Region Enter sound in sounds.yml won't be played.\n" +
-            "#      Sounds:\n" +
-            "#        '0':\n" +
-            "#          Delay: 0\n" +
-            "#          Options:\n" +
-            "#            Radius: 0\n" +
-            "#          Pitch: 1\n" +
-            "#          Sound: BLOCK_NOTE_BLOCK_BASS\n" +
-            "#          Volume: 10\n" +
-            "#\n" +
-            "# You can only play sounds in PMS native regions. To play to other plugins, search for compatibility\n" +
-            "#addons on https://www.spigotmc.org/resources/37429/\n" +
-            "#\n" +
-            "# More information about sounds on sounds.yml.\n" +
-            "\n" +
-            "Version: '" + PlayMoreSoundsVersion.version + "'", StaticFields.version3_2_0),
     SOUNDS(PlayMoreSoundsCore.getFolder().resolve("sounds.yml"), "###########################################################################################################\n" +
             "# Set a sound to play when an event is triggered.                                                         #\n" +
             "#                                                                                                         #\n" +
