@@ -16,78 +16,90 @@ commands:
     description: 'PlayMoreSounds''s main command.'
 
 permissions:
+  # Default permissions for own sound toggling, help command and permissions for the example teleport sound in sounds.yml.
+  # Players can edit their own regions, but can't get the region area selection wand, so they can't create regions on
+  #their own.
   playmoresounds.player:
     description: Player recommended permissions.
     default: true
     children:
-      playmoresounds.player.regions: true
-      playmoresounds.confirm: true
-      playmoresounds.disc.use: true
-      playmoresounds.help: true
-      playmoresounds.listen.teleport: true
-      playmoresounds.reproduce.teleport: true
-      playmoresounds.toggle: true
-      playmoresounds.toggle.check: true
+      playmoresounds.player.regions: true                 # Edit own regions
+      playmoresounds.confirm: true                        # /pms confirm
+      playmoresounds.disc.use: true                       # Custom Discs disc use
+      playmoresounds.help: true                           # /pms help
+      playmoresounds.listen.teleport: true                # Listen teleport sounds
+      playmoresounds.reproduce.teleport: true             # Make teleport sounds
+      playmoresounds.toggle: true                         # Toggle own sounds
+      playmoresounds.toggle.check: true                   # Check if own sounds are toggled
 
+  # Grants permission to all commands and features.
+  # Admins can bypass the resource pack force option, and not have their sounds played when they have an invisibility
+  #potion.
   playmoresounds.admin:
     description: Admin recommended permissions.
     default: op
     children:
-      playmoresounds.player: true
-      playmoresounds.player.fun: true
-      playmoresounds.admin.regions: true
-      playmoresounds.bypass.invisibility: true
-      playmoresounds.disc.give: true
-      playmoresounds.disc.give.others: true
-      playmoresounds.editor: true
-      playmoresounds.play.others: true
-      playmoresounds.resourcepacker.administrator: true
-      playmoresounds.resourcepacker.force.bypass: true
-      playmoresounds.stopsound.others: true
-      playmoresounds.toggle.others: true
-      playmoresounds.toggle.check.others: true
-      playmoresounds.update: true
-      playmoresounds.update.joinmessage: true
+      playmoresounds.player: true                         # Simple player permissions
+      playmoresounds.player.fun: true                     # Play sounds for self
+      playmoresounds.admin.regions: true                  # Edit other people's regions
+      playmoresounds.bypass.invisibility: true            # Don't play sounds when using invisibility potion
+      playmoresounds.disc.give: true                      # Custom Discs disc give
+      playmoresounds.disc.give.others: true               # Custom Discs disc give others
+      playmoresounds.editor: true                         # Edit sounds.yml sounds
+      playmoresounds.play.others: true                    # Play sounds for other people
+      playmoresounds.resourcepacker.force.bypass: true    # Bypass resource pack force
+      playmoresounds.stopsound.others: true               # Stop sounds for other people
+      playmoresounds.toggle.others: true                  # Toggle other people's sounds
+      playmoresounds.toggle.check.others: true            # Check if others sounds are toggled
+      playmoresounds.update: true                         # Check and download updates
+      playmoresounds.update.joinmessage: true             # Notification for update available on join
 
+  # Allows players to play, list or stop sounds only for themselves.
   playmoresounds.player.fun:
     description: Permissions that allows players to play and stop sounds only for themselves.
     default: false
     children:
-      playmoresounds.list: true
-      playmoresounds.list.gui: true
-      playmoresounds.play: true
-      playmoresounds.stopsound: true
+      playmoresounds.list: true                           # List available sounds
+      playmoresounds.list.gui: true                       # List sounds in a GUI
+      playmoresounds.play: true                           # Play sounds for self
+      playmoresounds.stopsound: true                      # Stop self sounds
 
+  # Just simple region permissions. By default, players can't get the region area selection wand or teleport to regions.
+  # Players can't edit or claim over other player's regions.
   playmoresounds.player.regions:
-    description: Recommended player permissions for creating, setting sounds and teleporting to regions.
+    description: Recommended player permissions for creating, editing and setting sounds to their own regions.
     default: false
     children:
-      playmoresounds.region: true
-      playmoresounds.region.create: true
-      playmoresounds.region.description: true
-      playmoresounds.region.info: true
-      playmoresounds.region.list: true
-      playmoresounds.region.remove: true
-      playmoresounds.region.rename: true
-      playmoresounds.region.select.wand: true
-      playmoresounds.region.sound.enter: true
-      playmoresounds.region.sound.leave: true
-      playmoresounds.region.sound.loop: true
+      playmoresounds.region: true                         # Access to region commands
+      playmoresounds.region.create: true                  # Create regions based on selection
+      playmoresounds.region.description: true             # Set own region description
+      playmoresounds.region.info: true                    # See information about regions
+      playmoresounds.region.list: true                    # List own regions
+      playmoresounds.region.remove: true                  # Delete own regions
+      playmoresounds.region.rename: true                  # Rename own regions
+      playmoresounds.region.select.wand: true             # Select region area using a wand
+      playmoresounds.region.sound.enter: true             # Set own region enter sounds
+      playmoresounds.region.sound.leave: true             # Set own region leave sounds
+      playmoresounds.region.sound.loop: true              # Set own region loop sounds
 
+  # Admins can bypass the region area limit and create unlimited regions, also they can edit anyone's region properties
+  #and claim over other people's regions.
+  # Admins have access to all region commands and features.
   playmoresounds.admin.regions:
     description: Recommended admin permissions for managing other player's regions.
     default: false
     children:
-      playmoresounds.player.regions: true
-      playmoresounds.region.create.unlimited.area: true
-      playmoresounds.region.create.unlimited.regions: true
-      playmoresounds.region.description.others: true
-      playmoresounds.region.list.others: true
-      playmoresounds.region.remove.others: true
-      playmoresounds.region.rename.others: true
-      playmoresounds.region.select.command: true
-      playmoresounds.region.select.overlap: true
-      playmoresounds.region.sound.others: true
-      playmoresounds.region.teleport: true
-      playmoresounds.region.teleport.others: true
-      playmoresounds.region.wand: true
+      playmoresounds.player.regions: true                  # Edit own regions
+      playmoresounds.region.create.unlimited.area: true    # Create regions with unlimited area
+      playmoresounds.region.create.unlimited.regions: true # Create unlimited regions
+      playmoresounds.region.description.others: true       # Edit descriptions of other people's regions
+      playmoresounds.region.list.others: true              # List other people's regions
+      playmoresounds.region.remove.others: true            # Delete other people's regions
+      playmoresounds.region.rename.others: true            # Rename other people's regions
+      playmoresounds.region.select.command: true           # Select region area using commands
+      playmoresounds.region.select.overlap: true           # Select region area on top of other people's regions
+      playmoresounds.region.sound.advanced: true           # Edit advanced region sound properties
+      playmoresounds.region.sound.others: true             # Set sounds of other people's regions
+      playmoresounds.region.teleport: true                 # Teleport to own regions
+      playmoresounds.region.teleport.others: true          # Teleport to other people's regions
+      playmoresounds.region.wand: true                     # Give self the region selection wand
