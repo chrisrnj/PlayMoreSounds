@@ -106,7 +106,7 @@ public class PlayableRichSound extends RichSound<PlayableSound> implements Delay
         if (main == null) throw new IllegalStateException("PlayMoreSounds is not loaded.");
 
         Supplier<Boolean> finalBreaker = () -> !isEnabled() || getChildSounds().isEmpty()
-                || (player != null && player.isOnline()) || (breaker != null && breaker.get());
+                || (player != null && !player.isOnline()) || (breaker != null && breaker.get());
 
         BukkitRunnable runnable = new BukkitRunnable() {
             @Override
