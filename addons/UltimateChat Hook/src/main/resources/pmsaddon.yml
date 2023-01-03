@@ -1,7 +1,0 @@
-Authors: [ Epicnicity322 ]
-Description: Allows you to set different sounds for players chatting in different channels.
-Main Class: com.epicnicity322.ultimatechathook.UltimateChatHook
-Name: UltimateChat Hook
-Required Addons: [ Channels Handler ]
-Required Plugins: [ UltimateChat ]
-Version: '${project.version}'

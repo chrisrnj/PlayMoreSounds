@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ PlayMoreSounds - A bukkit plugin that manages and plays sounds.
-  ~ Copyright (C) 2022 Christiano Rangel
+  ~ PlayMoreSounds - A minecraft plugin that manages and plays sounds.
+  ~ Copyright (C) 2023 Christiano Rangel
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -24,8 +24,14 @@
 
     <groupId>com.epicnicity322</groupId>
     <artifactId>PlayMoreSounds</artifactId>
+    <packaging>pom</packaging>
     <name>PlayMoreSounds</name>
-    <version>5.0</version>
+    <modules>
+        <module>playmoresounds-bukkit</module>
+        <module>playmoresounds-core</module>
+        <module>playmoresounds-sponge</module>
+    </modules>
+    <version>6.0</version>
     <url>https://github.com/Epicnicity322/PlayMoreSounds/</url>
 
     <issueManagement>
@@ -57,8 +63,24 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.4.1</version>
+                <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.2</version>
+                <version>3.3.0</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -69,50 +91,27 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.google.code.maven-replacer-plugin</groupId>
-                <artifactId>replacer</artifactId>
-                <version>1.5.3</version>
-                <executions>
-                    <execution>
-                        <phase>process-sources</phase>
-                        <goals>
-                            <goal>replace</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
                 <configuration>
-                    <file>src/main/java/com/epicnicity322/playmoresounds/core/PlayMoreSoundsVersion.java.template</file>
-                    <outputFile>src/main/java/com/epicnicity322/playmoresounds/core/PlayMoreSoundsVersion.java
-                    </outputFile>
-                    <replacements>
-                        <replacement>
-                            <token>#VERSION#</token>
-                            <value>${project.version}</value>
-                        </replacement>
-                    </replacements>
+                    <release>17</release>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>4.0.0-M4</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.0.0</version>
             </plugin>
         </plugins>
     </build>
 
     <repositories>
-        <repository>
-            <id>papermc</id>
-            <url>https://papermc.io/repo/repository/maven-public/</url>
-        </repository>
-        <repository>
-            <id>codemc-repo</id>
-            <url>https://repo.codemc.org/repository/nms/</url>
-        </repository>
-        <repository>
-            <id>dmulloy2-repo</id>
-            <url>https://repo.dmulloy2.net/repository/public/</url>
-        </repository>
-        <repository>
-            <id>sponge-repo</id>
-            <name>Sponge Maven Repository</name>
-            <url>https://repo.spongepowered.org/maven</url>
-        </repository>
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
@@ -120,38 +119,17 @@
     </repositories>
 
     <dependencies>
-        <!-- papermc -->
-        <dependency>
-            <groupId>io.papermc.paper</groupId>
-            <artifactId>paper-api</artifactId>
-            <version>1.19-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- codemc-repo -->
-        <dependency>
-            <groupId>io.papermc.paper</groupId>
-            <artifactId>paper-server</artifactId>
-            <version>1.18.2-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.spongepowered</groupId>
-            <artifactId>spongeapi</artifactId>
-            <version>9.0.0</version>
-            <type>jar</type>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>com.github.Epicnicity322</groupId>
             <artifactId>EpicPluginLib</artifactId>
-            <version>2.3</version>
+            <version>2.4.1</version>
             <scope>provided</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.jetbrains/annotations -->
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>23.0.0</version>
+            <version>23.1.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

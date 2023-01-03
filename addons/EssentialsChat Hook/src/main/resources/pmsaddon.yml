@@ -1,7 +1,0 @@
-Authors: [ Epicnicity322 ]
-Description: Allows you to set different sounds for players chatting in different channels.
-Main Class: com.epicnicity322.essentialschathook.EssentialsChatHook
-Name: EssentialsChat Hook
-Required Addons: [ Channels Handler ]
-Required Plugins: [ Essentials,EssentialsChat ]
-Version: '${project.version}'

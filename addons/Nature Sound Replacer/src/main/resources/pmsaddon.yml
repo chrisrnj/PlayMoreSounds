@@ -1,8 +1,0 @@
-Api Version: '4.1'
-Authors: [ Epicnicity322 ]
-Description: Allows server sounds to be replaced or stopped.
-Main Class: com.epicnicity322.naturesoundreplacer.NatureSoundReplacer
-Name: Nature Sound Replacer
-Required Plugins: [ ProtocolLib ]
-Start Time: BEFORE_CONFIGURATIONS
-Version: '${project.version}'

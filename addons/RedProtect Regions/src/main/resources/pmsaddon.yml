@@ -1,7 +1,0 @@
-Authors: [ Epicnicity322 ]
-Description: Play enter, leave or loop sounds for RedProtect regions.
-Main Class: com.epicnicity322.redprotectregions.RedProtectRegions
-Name: RedProtect Regions
-Required Addons: [ Regions Handler ]
-Required Plugins: [ RedProtect ]
-Version: '${project.version}'

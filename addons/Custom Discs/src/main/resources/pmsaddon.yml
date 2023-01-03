@@ -1,8 +1,0 @@
-Addon Hooks: [ NBS Song Player ]
-Api Version: '4.1.2'
-Authors: [ Epicnicity322 ]
-Description: Adds custom items that can be used as discs in jukeboxes to play custom sounds.
-Main Class: com.epicnicity322.customdiscs.CustomDiscs
-Name: Custom Discs
-Start Time: BEFORE_CONFIGURATIONS
-Version: '${project.version}'

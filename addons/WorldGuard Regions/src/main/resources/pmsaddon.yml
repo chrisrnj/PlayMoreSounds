@@ -1,8 +1,0 @@
-Api Version: 3.2.0
-Authors: [ Epicnicity322 ]
-Description: Play enter, leave or loop sounds for WorldGuard regions.
-Main Class: com.epicnicity322.worldguardregions.WorldGuardRegions
-Name: WorldGuard Regions
-Required Addons: [ Regions Handler ]
-Required Plugins: [ WorldGuard ]
-Version: '${project.version}'

@@ -1,7 +1,0 @@
-Api Version: '4.0.0'
-Authors: [ Epicnicity322 ]
-Description: Adds sounds to afk, god and vanish toggle events from Essentials.
-Main Class: com.epicnicity322.essentialshook.EssentialsHook
-Name: Essentials Hook
-Version: '${project.version}'
-Required Plugins: [ Essentials ]

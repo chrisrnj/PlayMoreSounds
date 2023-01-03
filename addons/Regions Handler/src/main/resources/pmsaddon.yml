@@ -1,7 +1,0 @@
-Addon Hooks: [ NBS Song Player ]
-Api Version: '4.0.0'
-Authors: [ Epicnicity322 ]
-Description: Library to help addons to play region sounds.
-Main Class: com.epicnicity322.regionshandler.RegionsHandlerAddon
-Name: Regions Handler
-Version: '${project.version}'
