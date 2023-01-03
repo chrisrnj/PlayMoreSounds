@@ -32,12 +32,22 @@ public record ChildSound(@NotNull String sound, @NotNull SoundCategory category,
     }
 
     public ChildSound(@NotNull ConfigurationSection section) {
-        this(section.getString("Sound").orElseThrow(), findCategory(section.getString("Category").orElse("MASTER")),
+        this(parseSound(section.getString("Sound").orElseThrow()), findCategory(section.getString("Category").orElse("MASTER")),
                 findVolume(section.getNumber("Volume").orElse(10f).floatValue()), section.getNumber("Pitch").orElse(1f).floatValue(),
                 findOptions(section.getConfigurationSection("Options")));
     }
 
-    private static @NotNull SoundCategory findCategory(@NotNull String category) {
+    @NotNull
+    private static String parseSound(@NotNull String sound) {
+        try {
+            return SoundType.valueOf(sound).sound();
+        } catch (IllegalArgumentException e) {
+            return sound;
+        }
+    }
+
+    @NotNull
+    private static SoundCategory findCategory(@NotNull String category) {
         try {
             return SoundCategory.valueOf(category);
         } catch (IllegalArgumentException e) {
@@ -50,7 +60,8 @@ public record ChildSound(@NotNull String sound, @NotNull SoundCategory category,
         return volume;
     }
 
-    private static @NotNull Options findOptions(@Nullable ConfigurationSection options) {
+    @NotNull
+    private static Options findOptions(@Nullable ConfigurationSection options) {
         if (options == null) return Options.DEFAULT_OPTIONS;
         return new Options(options);
     }
