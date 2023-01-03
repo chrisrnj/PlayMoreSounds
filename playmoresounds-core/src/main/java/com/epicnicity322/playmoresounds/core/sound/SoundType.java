@@ -1,8 +1,13 @@
 package com.epicnicity322.playmoresounds.core.sound;
 
+import com.epicnicity322.epicpluginlib.core.EpicPluginLib;
+import com.epicnicity322.epicpluginlib.core.tools.Version;
 import org.jetbrains.annotations.NotNull;
 
-public enum SoundTypes {
+import java.util.Optional;
+import java.util.regex.Pattern;
+
+public enum SoundType {
     AMBIENT_BASALT_DELTAS_ADDITIONS("1.16-1.19 ambient.basalt_deltas.additions"),
     AMBIENT_BASALT_DELTAS_LOOP("1.16-1.19 ambient.basalt_deltas.loop"),
     AMBIENT_BASALT_DELTAS_MOOD("1.16-1.19 ambient.basalt_deltas.mood"),
@@ -1394,7 +1399,87 @@ public enum SoundTypes {
     WEATHER_RAIN("1.7-1.8 ambient.weather.rain", "1.9-1.19 weather.rain"),
     WEATHER_RAIN_ABOVE("1.7-1.8 ambient.weather.rain", "1.9-1.19 weather.rain.above");
 
-    SoundTypes(@NotNull String... versionDependentNames) {
+    @NotNull
+    private final String[] versionDependentNames;
+    @NotNull
+    private final String currentVersionSound;
 
+    SoundType(@NotNull String... versionDependentNames) {
+        this.versionDependentNames = versionDependentNames;
+        Version minSupported = minSupported();
+        Version maxSupported = maxSupported();
+
+        Version currentVersion = removeMinorVersion(EpicPluginLib.Platform.getVersion());
+
+        // If the current running version is not supported, then getting the sound namespace on the last supported versions.
+        if (currentVersion.compareTo(maxSupported) > 0) {
+            currentVersionSound = sound(maxSupported).orElseThrow();
+        } else if (currentVersion.compareTo(minSupported) < 0) {
+            currentVersionSound = sound(minSupported).orElseThrow();
+        } else {
+            currentVersionSound = sound(currentVersion).orElseThrow();
+        }
+    }
+
+    /**
+     * The oldest version this sound is available.
+     */
+    @NotNull
+    public Version minSupported() {
+        String name = versionDependentNames[0];
+        return new Version(name.substring(0, name.indexOf('-')));
+    }
+
+    /**
+     * The most recent version this sound is available.
+     */
+    @NotNull
+    public Version maxSupported() {
+        String name = versionDependentNames[versionDependentNames.length - 1];
+        return new Version(name.substring(name.indexOf('-') + 1, name.indexOf(' ')));
+    }
+
+    @NotNull
+    private Version removeMinorVersion(@NotNull Version version) {
+        String[] versionString = StaticFields.dot.split(version.getVersion());
+        return new Version(versionString[0] + '.' + versionString[1]);
+    }
+
+    /**
+     * The current sound namespace found to the running minecraft version.
+     */
+    @NotNull
+    public String sound() {
+        return currentVersionSound;
+    }
+
+    /**
+     * Gets the sound namespace on a specific minecraft version, empty if there is no sound available for the version.
+     *
+     * @param version The version to get the sound.
+     * @return An optional with the vanilla sound name on this version.
+     */
+    public @NotNull Optional<String> sound(@NotNull Version version) {
+        version = removeMinorVersion(version);
+        String sound = null;
+
+        for (String versionDependentName : versionDependentNames) {
+            int hyphenIndex = versionDependentName.indexOf('-');
+            int spaceIndex = versionDependentName.indexOf(' ');
+            var soundMinVersion = new Version(versionDependentName.substring(0, hyphenIndex));
+            var soundMaxVersion = new Version(versionDependentName.substring(hyphenIndex + 1, spaceIndex));
+
+            if (version.compareTo(soundMinVersion) >= 0 && version.compareTo(soundMaxVersion) <= 0) {
+                sound = versionDependentName.substring(spaceIndex + 1);
+                break;
+            }
+        }
+
+        return Optional.ofNullable(sound);
+    }
+
+    private static final class StaticFields {
+        @NotNull
+        private static final Pattern dot = Pattern.compile("\\.");
     }
 }
