@@ -22,11 +22,9 @@ import com.epicnicity322.playmoresounds.bukkit.PlayMoreSoundsPlugin;
 import com.epicnicity322.playmoresounds.core.sound.ChildSound;
 import com.epicnicity322.playmoresounds.core.sound.Options;
 import com.epicnicity322.playmoresounds.core.sound.Sound;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.SoundCategory;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
@@ -36,10 +34,15 @@ import java.util.*;
 
 public final class SoundManager {
     @NotNull
+    private static final HashMap<UUID, Boolean> soundStateCache = new HashMap<>();
+    @NotNull
     private final PlayMoreSoundsPlugin plugin;
+    @NotNull
+    private final NamespacedKey soundState;
 
     public SoundManager(@NotNull PlayMoreSoundsPlugin plugin) {
         this.plugin = plugin;
+        soundState = new NamespacedKey(plugin, "sound_state");
     }
 
     /**
@@ -86,6 +89,38 @@ public final class SoundManager {
     }
 
     /**
+     * Toggles the sounds of a player. If sounds are disabled, the player will not hear PlayMoreSounds' sounds, unless
+     * the sound has {@link Options#ignoreToggle()} enabled.
+     *
+     * @param player The player to toggle the sounds.
+     * @param state  Whether the sounds are enabled or disabled.
+     */
+    public void toggleSounds(@NotNull Player player, boolean state) {
+        UUID uuid = player.getUniqueId();
+        soundStateCache.put(uuid, state);
+        player.getPersistentDataContainer().set(soundState, PersistentDataType.INTEGER, state ? 1 : 0);
+    }
+
+    /**
+     * Gets the state of sounds of a player.
+     *
+     * @param player The player to check if sounds are enabled.
+     * @return Whether sounds are enabled for this player.
+     */
+    public boolean areSoundsToggled(@NotNull Player player) {
+        UUID uuid = player.getUniqueId();
+        Boolean state = soundStateCache.get(uuid);
+
+        if (state == null) {
+            boolean persistentState = player.getPersistentDataContainer().getOrDefault(soundState, PersistentDataType.INTEGER, 1) == 1;
+            soundStateCache.put(uuid, persistentState);
+            return persistentState;
+        } else {
+            return state;
+        }
+    }
+
+    /**
      * Plays a sound to a player. The sound will only be played if this player has the {@link Options#permissionRequired()}.
      * <p>
      * The sound is played at this player's location.
@@ -100,7 +135,7 @@ public final class SoundManager {
      *     <li>The listener has their sounds enabled.</li>
      * </ul>
      *
-     * @param sound The sound to be played.
+     * @param sound  The sound to be played.
      * @param player The source player that will play the sound.
      * @return A list of sound results for each {@link ChildSound} of this {@link Sound}.
      * @see #play(Sound, Player, Location)
@@ -120,7 +155,7 @@ public final class SoundManager {
      *     <li>The listener has their sounds enabled.</li>
      * </ul>
      *
-     * @param sound The sound to be played.
+     * @param sound    The sound to be played.
      * @param location The location the sound will be played.
      * @return A list of sound results for each {@link ChildSound} of this {@link Sound}.
      * @see SoundResult
@@ -144,9 +179,8 @@ public final class SoundManager {
      *     <li>The listener has their sounds enabled.</li>
      * </ul>
      *
-     *
-     * @param sound The sound to be played.
-     * @param player The source player that will play the sound.
+     * @param sound    The sound to be played.
+     * @param player   The source player that will play the sound.
      * @param location The location the sound will be played.
      * @return A list of sound results for each {@link ChildSound} of this {@link Sound}.
      * @see SoundResult
@@ -182,8 +216,8 @@ public final class SoundManager {
                 prePlay(child, player, listeners, location);
                 results.add(new SoundResult(listeners, null));
             } else {
-                results.add(new SoundResult(listeners, plugin.getServer().getScheduler()
-                        .runTaskLater(plugin, () -> prePlay(child, player, listeners, location), options.delay())));
+                results.add(new SoundResult(listeners, plugin.getServer().getScheduler().runTaskLater(plugin,
+                        () -> prePlay(child, player, listeners, location), options.delay())));
             }
         }
 
@@ -196,9 +230,9 @@ public final class SoundManager {
 
         // Playing the sound to the valid listeners.
         for (Player listener : listeners) {
-            if (//(options.ignoreToggle() || SoundManager.getSoundsState(listener)) &&
-                    (options.permissionToListen() == null || listener.hasPermission(options.permissionToListen())) &&
-                            (sourcePlayer == null || listener.canSee(sourcePlayer))) {
+            if ((options.ignoreToggle() || areSoundsToggled(listener))
+                    && (options.permissionToListen() == null || listener.hasPermission(options.permissionToListen()))
+                    && (sourcePlayer == null || listener.canSee(sourcePlayer))) {
                 listener.playSound(global ? listener.getLocation() : soundLocation, child.sound(), SoundCategory.valueOf(child.category().asBukkit()), child.volume(), child.pitch());
             }
         }
@@ -206,8 +240,9 @@ public final class SoundManager {
 
     /**
      * The result of a played sound.
+     *
      * @param listeners The players who listened to the sound.
-     * @param task The scheduled task of the sound, in case it has a delay.
+     * @param task      The scheduled task of the sound, in case it has a delay.
      */
     public record SoundResult(@NotNull Collection<Player> listeners, @Nullable BukkitTask task) {
     }

@@ -1,3 +1,21 @@
+/*
+ * PlayMoreSounds - A minecraft plugin that manages and plays sounds.
+ * Copyright (C) 2023 Christiano Rangel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package com.epicnicity322.playmoresounds.sponge.sound;
 
 import com.epicnicity322.playmoresounds.core.sound.ChildSound;
@@ -7,6 +25,7 @@ import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.effect.potion.PotionEffect;
 import org.spongepowered.api.effect.potion.PotionEffectTypes;
 import org.spongepowered.api.entity.Entity;
@@ -23,10 +42,15 @@ import java.util.*;
 
 public final class SoundManager {
     @NotNull
+    private static final HashMap<UUID, Boolean> soundStateCache = new HashMap<>();
+    @NotNull
     private final PluginContainer plugin;
+    @NotNull
+    private final org.spongepowered.api.data.Key<Value<Boolean>> soundState;
 
     public SoundManager(@NotNull PluginContainer plugin) {
         this.plugin = plugin;
+        soundState = org.spongepowered.api.data.Key.from(plugin, "sound_state", Boolean.class);
     }
 
     /**
@@ -76,6 +100,38 @@ public final class SoundManager {
     }
 
     /**
+     * Toggles the sounds of a player. If sounds are disabled, the player will not hear PlayMoreSounds' sounds, unless
+     * the sound has {@link Options#ignoreToggle()} enabled.
+     *
+     * @param player The player to toggle the sounds.
+     * @param state  Whether the sounds are enabled or disabled.
+     */
+    public void toggleSounds(@NotNull ServerPlayer player, boolean state) {
+        UUID uuid = player.uniqueId();
+        soundStateCache.put(uuid, state);
+        player.offer(soundState, state);
+    }
+
+    /**
+     * Gets the state of sounds of a player.
+     *
+     * @param player The player to check if sounds are enabled.
+     * @return Whether sounds are enabled for this player.
+     */
+    public boolean areSoundsToggled(@NotNull ServerPlayer player) {
+        UUID uuid = player.uniqueId();
+        Boolean state = soundStateCache.get(uuid);
+
+        if (state == null) {
+            boolean persistentState = player.getOrElse(soundState, true);
+            soundStateCache.put(uuid, persistentState);
+            return persistentState;
+        } else {
+            return state;
+        }
+    }
+
+    /**
      * Plays a sound to a player. The sound will only be played if this player has the {@link Options#permissionRequired()}.
      * <p>
      * The sound is played at this player's location.
@@ -90,7 +146,7 @@ public final class SoundManager {
      *     <li>The listener has their sounds enabled.</li>
      * </ul>
      *
-     * @param sound The sound to be played.
+     * @param sound  The sound to be played.
      * @param player The source player that will play the sound.
      * @return A list of sound results for each {@link ChildSound} of this {@link Sound}.
      * @see #play(Sound, ServerPlayer, ServerLocation)
@@ -110,7 +166,7 @@ public final class SoundManager {
      *     <li>The listener has their sounds enabled.</li>
      * </ul>
      *
-     * @param sound The sound to be played.
+     * @param sound    The sound to be played.
      * @param location The location the sound will be played.
      * @return A list of sound results for each {@link ChildSound} of this {@link Sound}.
      * @see SoundResult
@@ -134,9 +190,8 @@ public final class SoundManager {
      *     <li>The listener has their sounds enabled.</li>
      * </ul>
      *
-     *
-     * @param sound The sound to be played.
-     * @param player The source player that will play the sound.
+     * @param sound    The sound to be played.
+     * @param player   The source player that will play the sound.
      * @param location The location the sound will be played.
      * @return A list of sound results for each {@link ChildSound} of this {@link Sound}.
      * @see SoundResult
@@ -190,9 +245,9 @@ public final class SoundManager {
 
         // Playing the sound to the valid listeners.
         for (ServerPlayer listener : listeners) {
-            if (//(options.ignoreToggle() || SoundManager.getSoundsState(listener)) &&
-                    (options.permissionToListen() == null || listener.hasPermission(options.permissionToListen())) &&
-                            (sourcePlayer == null || listener.canSee(sourcePlayer))) {
+            if ((options.ignoreToggle() || areSoundsToggled(listener))
+                    && (options.permissionToListen() == null || listener.hasPermission(options.permissionToListen()))
+                    && (sourcePlayer == null || listener.canSee(sourcePlayer))) {
                 ServerLocation location = global ? listener.serverLocation() : soundLocation;
 
                 listener.playSound(net.kyori.adventure.sound.Sound.sound(Key.key(child.sound()), child.category().asKyori(), child.volume(), child.pitch()),
