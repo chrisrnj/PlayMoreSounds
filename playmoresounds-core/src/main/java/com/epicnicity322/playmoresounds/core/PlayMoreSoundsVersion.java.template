@@ -1,6 +1,6 @@
 /*
- * PlayMoreSounds - A bukkit plugin that manages and plays sounds.
- * Copyright (C) 2022 Christiano Rangel
+ * PlayMoreSounds - A minecraft plugin that manages and plays sounds.
+ * Copyright (C) 2023 Christiano Rangel
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
