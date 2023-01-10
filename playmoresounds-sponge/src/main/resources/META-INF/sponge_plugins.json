@@ -7,18 +7,24 @@
   "plugins": [
     {
       "id": "playmoresounds",
-      "name": "${project.name}",
+      "name": "PlayMoreSounds",
       "entrypoint": "com.epicnicity322.playmoresounds.sponge.PlayMoreSoundsPlugin",
       "description": "Plays sounds at player events.",
       "version": "${project.version}",
       "links": {
-        "source": "${project.url}",
-        "issues": "${project.issueManagement.url}"
+        "source": "https://github.com/Epicnicity322/PlayMoreSounds/",
+        "issues": "https://github.com/Epicnicity322/PlayMoreSounds/issues"
       },
       "contributors": [
         {
           "name": "Epicnicity322",
           "description": "Main developer"
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "epicpluginlib",
+          "version": "2.4.1"
         }
       ]
     }
