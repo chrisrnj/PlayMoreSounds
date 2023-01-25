@@ -26,8 +26,7 @@ import com.epicnicity322.playmoresounds.core.PlayMoreSounds;
 import org.jetbrains.annotations.NotNull;
 
 public final class Configurations {
-    @NotNull
-    public static final ConfigurationHolder SOUNDS = new ConfigurationHolder(PlayMoreSounds.DATA_FOLDER.resolve("sounds.yml"), """
+    public static final @NotNull ConfigurationHolder SOUNDS = new ConfigurationHolder(PlayMoreSounds.DATA_FOLDER.resolve("sounds.yml"), """
             ###########################################################################################################
             # Set a sound to play when an event is triggered.
             #
@@ -85,17 +84,9 @@ public final class Configurations {
                   # Set to -1 to use the maximum possible volume.
                   Volume: 0.9
             #
-            # Any of the above options are optional, here's an example of a sound that doesn't need to use all of
-            #these options:
-            Player Death:
-              Enabled: true
-              Sounds:
-                '1':
-                  Sound: ENTITY_WITHER_SPAWN
-            #
             # If you don't want to use a sound, you can either completely remove it from this configuration or set
             #'Enabled' to false, like this:
-            Bed Leave:
+            Respawn:
               Enabled: false # Disabled sounds will be unregistered and not affect server performance.
             #
             # If you have any other doubts on how to set this configuration up, feel free to ask in PlayMoreSounds'
@@ -117,6 +108,12 @@ public final class Configurations {
                   Sound: ENTITY_VILLAGER_AMBIENT
                   Volume: 0.5
                         
+            # When a player leaves bed.
+            # This sound is cancellable.
+            Bed Leave:
+              Enabled: false
+              Cancellable: true
+                        
             # When a player changes the item slot of the hotbar.
             # This sound is cancellable.
             Change Held Item:
@@ -130,7 +127,7 @@ public final class Configurations {
             # When a player changes their level of experience.
             # This sound is disabled by default. To enable it, copy the options from the sound above and set
             #'Enabled' to true.
-            # This sound is not cancellable.
+            # This sound is NOT cancellable.
             Change Level:
               Enabled: false
                         
@@ -201,7 +198,7 @@ public final class Configurations {
                   Sound: BLOCK_NOTE_BLOCK_PLING
                         
             # When a player extracts something from a furnace.
-            # This sound is not cancellable.
+            # This sound is NOT cancellable.
             Furnace Extract:
               Enabled: true
               Sounds:
@@ -234,7 +231,7 @@ public final class Configurations {
                   Volume: 0.4
                         
             # When a player closes an inventory.
-            # This sound is not cancellable.
+            # This sound is NOT cancellable.
             Inventory Close:
               Enabled: true
               Sounds:
@@ -243,7 +240,7 @@ public final class Configurations {
                   Sound: UI_TOAST_OUT
                         
             # When a player joins the server.
-            # This sound is not cancellable.
+            # This sound is NOT cancellable.
             Join Server:
               Enabled: true
               Sounds:
@@ -253,7 +250,7 @@ public final class Configurations {
                   Sound: BLOCK_NOTE_BLOCK_PLING
                         
             # When a player leaves the server.
-            # This sound is not cancellable.
+            # This sound is NOT cancellable.
             Leave Server:
               Enabled: true
               Sounds:
@@ -263,9 +260,10 @@ public final class Configurations {
                   Sound: BLOCK_NOTE_BLOCK_BASS
                         
             # When a player bans another player from the server.
-            # This sound is not cancellable.
+            # This sound is cancellable.
             Player Ban:
               Enabled: true
+              Cancellable: true
               Sounds:
                 '1':
                   Options:
@@ -284,9 +282,18 @@ public final class Configurations {
                     Radius: -1.0
                   Sound: ENTITY_ITEM_PICKUP
                         
+            # When a player dies.
+            # This sound is cancellable.
+            Player Death:
+              Enabled: true
+              Cancellable: true
+              Sounds:
+                '1':
+                  Sound: ENTITY_WITHER_SPAWN
+                        
             # When a player is kicked from the server.
             # This sound is cancellable.
-            Player Kicked:
+            Player Kick:
               Enabled: true
               Cancellable: true
               Sounds:
@@ -365,13 +372,6 @@ public final class Configurations {
             Region Leave:
               Enabled: false
               Cancellable: true
-                        
-            # When a player respawns.
-            # This sound is disabled by default. To enable it, copy the options from another sound and set
-            #'Enabled' to true.
-            # This sound is not cancellable.
-            Respawn:
-              Enabled: false
                         
             # When a player sends a command.
             # This sound is cancellable.
@@ -469,8 +469,8 @@ public final class Configurations {
                   Pitch: 2.0
                   Sound: BLOCK_PORTAL_TRAVEL
                   Volume: 0.6""".replace("%VER%", PlayMoreSounds.VERSION_STRING).replace("%PLATFORM_VER%", EpicPluginLib.Platform.getVersion().toString()));
-    @NotNull
-    private static final ConfigurationLoader loader = new ConfigurationLoader();
+
+    private static final @NotNull ConfigurationLoader loader = new ConfigurationLoader();
 
     static {
         loader.registerConfiguration(SOUNDS, new Version("4.0.0"), PlayMoreSounds.VERSION);
