@@ -16,39 +16,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.epicnicity322.playmoresounds.bukkit.listeners;
+package com.epicnicity322.playmoresounds.bukkit.listener.listeners;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSoundsPlugin;
+import com.epicnicity322.playmoresounds.bukkit.listener.MultiplePMSListener;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.sound.Sound;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
-public abstract class PMSListener implements Listener {
-    private final @NotNull PlayMoreSoundsPlugin plugin;
-    protected Sound sound;
-
-    public PMSListener(@NotNull PlayMoreSoundsPlugin plugin) {
-        this.plugin = plugin;
+public final class JoinServerListener extends MultiplePMSListener {
+    public JoinServerListener(@NotNull PlayMoreSoundsPlugin plugin) {
+        super(plugin, new String[]{"Join Server", "First Join"}, Configurations.SOUNDS);
     }
 
-    @NotNull
-    public abstract String name();
+    @EventHandler
+    public void onJoinServer(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        Sound sound = player.hasPlayedBefore() ? sounds[0] : sounds[1];
 
-    public boolean shouldRegister() {
-        return Configurations.SOUNDS.getConfiguration().getBoolean(name() + ".Enabled").orElse(false);
-    }
-
-    public void register() {
-        if (shouldRegister()) {
-            sound = new Sound(Objects.requireNonNull(Configurations.SOUNDS.getConfiguration().getConfigurationSection(name())));
-            plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        } else {
-            HandlerList.unregisterAll(this);
-            sound = null;
-        }
+        if (sound != null) PlayMoreSoundsPlugin.soundManager().play(sound, player);
     }
 }

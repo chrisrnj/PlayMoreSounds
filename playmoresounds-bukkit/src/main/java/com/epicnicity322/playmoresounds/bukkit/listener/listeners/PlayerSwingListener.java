@@ -16,25 +16,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.epicnicity322.playmoresounds.bukkit.listeners;
+package com.epicnicity322.playmoresounds.bukkit.listener.listeners;
 
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSoundsPlugin;
+import com.epicnicity322.playmoresounds.bukkit.listener.SinglePMSListener;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerAnimationEvent;
 import org.jetbrains.annotations.NotNull;
 
-public final class JoinServerListener extends PMSListener {
-    public JoinServerListener(@NotNull PlayMoreSoundsPlugin plugin) {
-        super(plugin);
+public final class PlayerSwingListener extends SinglePMSListener {
+    public PlayerSwingListener(@NotNull PlayMoreSoundsPlugin plugin) {
+        super(plugin, "Player Swing");
     }
 
-    @Override
-    public @NotNull String name() {
-        return "Join Server";
-    }
-
-    @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
-        PlayMoreSoundsPlugin.soundManager().play(sound, event.getPlayer());
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerSwing(PlayerAnimationEvent event) {
+        if (!event.isCancelled() || !sound.cancellable()) {
+            PlayMoreSoundsPlugin.soundManager().play(sound, event.getPlayer());
+        }
     }
 }
