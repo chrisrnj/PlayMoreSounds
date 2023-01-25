@@ -250,7 +250,7 @@ public final class SoundManager {
                     && (sourcePlayer == null || listener.canSee(sourcePlayer))) {
                 ServerLocation location = global ? listener.serverLocation() : soundLocation;
 
-                listener.playSound(net.kyori.adventure.sound.Sound.sound(Key.key(child.sound()), child.category().asKyori(), child.volume(), child.pitch()),
+                listener.playSound(net.kyori.adventure.sound.Sound.sound(Key.key(child.sound()), net.kyori.adventure.sound.Sound.Source.valueOf(child.category().asKyori()), child.volume(), child.pitch()),
                         new Vector3d(location.x(), location.y(), location.z()));
             }
         }

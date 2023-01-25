@@ -18,7 +18,6 @@
 
 package com.epicnicity322.playmoresounds.core.sound;
 
-import net.kyori.adventure.sound.Sound;
 import org.jetbrains.annotations.NotNull;
 
 public enum SoundCategory {
@@ -33,12 +32,12 @@ public enum SoundCategory {
     VOICE("VOICE", "VOICE"),
     WEATHER("WEATHER", "WEATHER");
 
-    private final @NotNull Sound.Source kyoriValue;
     private final @NotNull String bukkitValue;
+    private final @NotNull String kyoriValue;
 
     SoundCategory(@NotNull String kyoriValue, @NotNull String bukkitValue) {
         this.bukkitValue = bukkitValue;
-        this.kyoriValue = Sound.Source.valueOf(kyoriValue);
+        this.kyoriValue = kyoriValue;
     }
 
     @NotNull
@@ -47,7 +46,7 @@ public enum SoundCategory {
     }
 
     @NotNull
-    public Sound.Source asKyori() {
+    public String asKyori() {
         return kyoriValue;
     }
 }
