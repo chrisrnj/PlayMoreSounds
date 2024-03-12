@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Christiano Rangel
+ * Copyright (C) 2024 Christiano Rangel
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -165,7 +165,9 @@ public final class NatureSoundReplacerPacketAdapter extends PacketAdapter {
 
     @Override
     public void onPacketSending(PacketEvent event) {
-        PlayableRichSound sound = sounds.get(event.getPacket().getSoundEffects().read(0).name());
+        Sound soundEffect = event.getPacket().getSoundEffects().read(0);
+        if (soundEffect == null) return;
+        PlayableRichSound sound = sounds.get(soundEffect.name());
 
         if (sound != null) {
             Player player = event.getPlayer();
