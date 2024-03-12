@@ -27,7 +27,6 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import com.epicnicity322.epicpluginlib.core.config.ConfigurationHolder;
 import com.epicnicity322.playmoresounds.bukkit.PlayMoreSounds;
 import com.epicnicity322.playmoresounds.bukkit.sound.PlayableRichSound;
-import com.epicnicity322.playmoresounds.bukkit.util.VersionUtils;
 import com.epicnicity322.playmoresounds.core.PlayMoreSoundsVersion;
 import com.epicnicity322.playmoresounds.core.config.Configurations;
 import com.epicnicity322.playmoresounds.core.sound.SoundType;
@@ -48,51 +47,47 @@ public final class NatureSoundReplacerPacketAdapter extends PacketAdapter {
     private static boolean registered = false;
 
     static {
-        natureSoundReplacerConfig = new ConfigurationHolder(Configurations.BIOMES.getConfigurationHolder().getPath().getParent().resolve("nature sound replacer.yml"),
-                "# Replace any sound played by nature in your server.\n" +
-                        "#\n" +
-                        "#  When a sound here is played, PlayMoreSounds interrupts the sound packets from being sent to the\n" +
-                        "# players and plays the sound set here instead. This way you can take advantage of PlayMoreSounds\n" +
-                        "# features, like play multiple sounds, delayed sounds, toggleable sounds, permissible sounds,\n" +
-                        "# resource pack sounds etc.\n" +
-                        "#\n" +
-                        "# Warnings:\n" +
-                        "# >> ProtocolLib is required for this feature to work.\n" +
-                        "# >> Only sounds played by the server are replaceable, sounds played to the client (like walking or\n" +
-                        "# building) are replaceable only if the source is another player that's not you.\n" +
-                        "#\n" +
-                        "#  To replace a sound, create a section with the sound name and set the replacing sound in it, for\n" +
-                        "# example:\n" +
-                        "#\n" +
-                        "#ENTITY_ZOMBIE_HURT: # This is the sound that I want to replace.\n" +
-                        "#  Enabled: true\n" +
-                        "#  Sounds: # The sounds that will play instead.\n" +
-                        "#    '0':\n" +
-                        "#      Delay: 0\n" +
-                        "#      Options:\n" +
-                        "#        Ignores Disabled: true\n" +
-                        "#        #Permission Required: '' # Permission Required is available but it's not recommended, use Permission To Listen instead.\n" +
-                        "#        Permission To Listen: 'listen.zombiehurt'\n" +
-                        "#        Radius: 0.0 # Radius > 0 is not recommended\n" +
-                        "#        Relative Location:\n" +
-                        "#          FRONT_BACK: 0.0\n" +
-                        "#          RIGHT_LEFT: 0.0\n" +
-                        "#          UP_DOWN: 0.0\n" +
-                        "#      Pitch: 0.5\n" +
-                        "#      Sound: ENTITY_SKELETON_HURT\n" +
-                        "#      Volume: 1.0\n" +
-                        "#\n" +
-                        "#  If you want to completely stop a sound from being played in your server, add as in the example:\n" +
-                        "#\n" +
-                        "#ENTITY_ZOMBIE_AMBIENT: # This is the sound that I want to stop from playing in my server.\n" +
-                        "#  Enabled: true\n" +
-                        "#  #Sounds: # Don't add 'Sounds' section since you don't want sounds to play.\n" +
-                        "#\n" +
-                        "#  A more in depth tutorial of all sound options can be found in sounds.yml file.\n" +
-                        "#  If you have any other doubts on how to set this configuration up, feel free to ask in\n" +
-                        "# PlayMoreSounds' discord: https://discord.gg/eAHPbc3\n" +
-                        "\n" +
-                        "Version: '" + PlayMoreSoundsVersion.version + "'");
+        natureSoundReplacerConfig = new ConfigurationHolder(Configurations.BIOMES.getConfigurationHolder().getPath().getParent().resolve("nature sound replacer.yml"), """
+                # Replace any sound played by nature in your server.
+                #
+                #  When a sound here is played, PlayMoreSounds interrupts the sound packets from being sent to the
+                # players and plays the sound set here instead. This way you can take advantage of PlayMoreSounds
+                # features, like play multiple sounds, delayed sounds, toggleable sounds, permissible sounds,
+                # resource pack sounds etc.
+                #
+                # Warnings:
+                # >> ProtocolLib is required for this feature to work.
+                # >> Only sounds played by the server are replaceable, sounds played to the client (like walking or
+                # building) are replaceable only if the source is another player that's not you.
+                #
+                #  To replace a sound, create a section with the sound name and set the replacing sound in it, for
+                # example:
+                #
+                #ENTITY_ZOMBIE_HURT: # This is the sound that I want to replace.
+                #  Enabled: true
+                #  Sounds: # The sounds that will play instead.
+                #    '0':
+                #      Delay: 0
+                #      Options:
+                #        Ignores Disabled: true
+                #        #Permission Required: '' # Permission Required is available but it's not recommended, use Permission To Listen instead.
+                #        Permission To Listen: 'listen.zombiehurt'
+                #        Radius: 0.0 # Radius > 0 is not recommended
+                #      Pitch: 0.5
+                #      Sound: ENTITY_SKELETON_HURT
+                #      Volume: 1.0
+                #
+                #  If you want to completely stop a sound from being played in your server, add as in the example:
+                #
+                #ENTITY_ZOMBIE_AMBIENT: # This is the sound that I want to stop from playing in my server.
+                #  Enabled: true
+                #  #Sounds: # Don't add 'Sounds' section since you don't want sounds to play.
+                #
+                #  A more in depth tutorial of all sound options can be found in sounds.yml file.
+                #  If you have any other doubts on how to set this configuration up, feel free to ask in
+                # PlayMoreSounds' discord: https://discord.gg/eAHPbc3
+
+                Version: '$version'""".replace("$version", PlayMoreSoundsVersion.version));
     }
 
     private NatureSoundReplacerPacketAdapter(@NotNull PlayMoreSounds plugin) {
@@ -101,9 +96,7 @@ public final class NatureSoundReplacerPacketAdapter extends PacketAdapter {
     }
 
     public synchronized static void loadNatureSoundReplacer(@NotNull PlayMoreSounds plugin) {
-        if (instance == null) {
-            instance = new NatureSoundReplacerPacketAdapter(plugin);
-        }
+        if (instance == null) instance = new NatureSoundReplacerPacketAdapter(plugin);
 
         ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
         boolean anySoundEnabled = false;
@@ -114,10 +107,7 @@ public final class NatureSoundReplacerPacketAdapter extends PacketAdapter {
             String key = node.getKey();
             Object value = node.getValue();
 
-            if (!(value instanceof ConfigurationSection)) continue;
-
-            ConfigurationSection section = (ConfigurationSection) value;
-
+            if (!(value instanceof ConfigurationSection section)) continue;
             if (!section.getBoolean("Enabled").orElse(false)) continue;
 
             SoundType type;
@@ -129,13 +119,7 @@ public final class NatureSoundReplacerPacketAdapter extends PacketAdapter {
                 continue;
             }
 
-            String bukkitSound;
-
-            if (VersionUtils.hasSoundEffects()) {
-                bukkitSound = toBukkit(type);
-            } else {
-                bukkitSound = type.getSound().orElse(null);
-            }
+            String bukkitSound = toBukkit(type);
 
             if (bukkitSound == null) {
                 PlayMoreSounds.getConsoleLogger().log("&cInvalid sound to replace on nature sound replacer.yml: " + key);
@@ -148,22 +132,25 @@ public final class NatureSoundReplacerPacketAdapter extends PacketAdapter {
             } catch (IllegalArgumentException ignored) {
                 //Not a sound.
             }
-
         }
 
-        if (anySoundEnabled && !registered) {
-            protocolManager.addPacketListener(instance);
-            registered = true;
-        } else if (!anySoundEnabled && registered) {
-            protocolManager.removePacketListener(instance);
-            registered = false;
+        if (anySoundEnabled) {
+            if (!registered) {
+                protocolManager.addPacketListener(instance);
+                registered = true;
+            }
+        } else {
+            if (registered) {
+                protocolManager.removePacketListener(instance);
+                registered = false;
+            }
         }
     }
 
     private static String toBukkit(SoundType type) {
         Optional<String> soundKey = type.getSound();
 
-        if (!soundKey.isPresent()) return null;
+        if (soundKey.isEmpty()) return null;
 
         String soundKeyString = soundKey.get();
 
@@ -178,13 +165,7 @@ public final class NatureSoundReplacerPacketAdapter extends PacketAdapter {
 
     @Override
     public void onPacketSending(PacketEvent event) {
-        PlayableRichSound sound;
-
-        if (VersionUtils.hasSoundEffects()) {
-            sound = sounds.get(event.getPacket().getSoundEffects().read(0).name());
-        } else {
-            sound = sounds.get(event.getPacket().getStrings().read(0));
-        }
+        PlayableRichSound sound = sounds.get(event.getPacket().getSoundEffects().read(0).name());
 
         if (sound != null) {
             Player player = event.getPlayer();

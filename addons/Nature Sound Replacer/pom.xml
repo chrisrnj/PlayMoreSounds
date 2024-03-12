@@ -26,8 +26,8 @@
     <version>1.0</version>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -58,28 +58,34 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.Epicnicity322</groupId>
+            <groupId>com.github.chrisrnj</groupId>
             <artifactId>PlayMoreSounds</artifactId>
-            <version>-SNAPSHOT</version>
+            <version>adfdbed7e9</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.Epicnicity322</groupId>
+            <groupId>com.github.chrisrnj</groupId>
             <artifactId>EpicPluginLib</artifactId>
-            <version>-SNAPSHOT</version>
+            <version>2.7</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.17.1-R0.1-SNAPSHOT</version>
+            <version>1.20.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.comphenix.protocol</groupId>
             <artifactId>ProtocolLib</artifactId>
-            <version>4.7.0</version>
+            <version>5.0.0</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>24.1.0</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>
