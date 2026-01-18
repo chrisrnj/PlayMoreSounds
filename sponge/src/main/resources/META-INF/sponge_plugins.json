@@ -1,0 +1,32 @@
+{
+  "loader": {
+    "name": "java_plain",
+    "version": "1.0"
+  },
+  "license": "GPL-v3.0",
+  "plugins": [
+    {
+      "id": "playmoresounds",
+      "name": "PlayMoreSounds",
+      "entrypoint": "com.epicnicity322.playmoresounds.sponge.PlayMoreSoundsPlugin",
+      "description": "Plays sounds at player events.",
+      "version": "${project.version}",
+      "links": {
+        "source": "https://github.com/chrisrnj/PlayMoreSounds/",
+        "issues": "https://github.com/chrisrnj/PlayMoreSounds/issues"
+      },
+      "contributors": [
+        {
+          "name": "Epicnicity322",
+          "description": "Main developer"
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "epicpluginlib",
+          "version": "3.0"
+        }
+      ]
+    }
+  ]
+}

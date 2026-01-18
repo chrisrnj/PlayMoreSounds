@@ -1,8 +1,8 @@
 language: java
 
-jdk: openjdk17
+jdk: openjdk21
 
-script: mvn clean verify
+script: mvn clean install
 
 os: linux
 

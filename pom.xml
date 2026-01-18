@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ PlayMoreSounds - A minecraft plugin that manages and plays sounds.
-  ~ Copyright (C) 2023 Christiano Rangel
+  ~ PlayMoreSounds - A Minecraft plugin that manages and plays sounds.
+  ~ Copyright (C) 2023-2026 Christiano Rangel
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -27,28 +27,29 @@
     <packaging>pom</packaging>
     <name>PlayMoreSounds</name>
     <modules>
-        <module>playmoresounds-bukkit</module>
-        <module>playmoresounds-core</module>
-        <module>playmoresounds-sponge</module>
+        <module>bukkit</module>
+        <module>core</module>
+        <module>sponge</module>
     </modules>
     <version>6.0</version>
-    <url>https://github.com/Epicnicity322/PlayMoreSounds/</url>
+    <url>https://github.com/chrisrnj/PlayMoreSounds/</url>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/Epicnicity322/PlayMoreSounds/issues</url>
+        <url>https://github.com/chrisrnj/PlayMoreSounds/issues</url>
     </issueManagement>
 
     <licenses>
         <license>
             <name>GPL-v3.0</name>
-            <url>http://www.gnu.org/licenses/gpl-3.0.txt</url>
+            <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
         </license>
     </licenses>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <bstats-version>3.1.0</bstats-version>
+        <maven-shade-plugin.version>3.6.1</maven-shade-plugin.version>
+        <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -60,55 +61,6 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.4.1</version>
-                <configuration>
-                    <createDependencyReducedPom>false</createDependencyReducedPom>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.3.0</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <mainClass>com.epicnicity322.playmoresounds.core.Main</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
-                <configuration>
-                    <release>17</release>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>4.0.0-M4</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>3.0.0</version>
-            </plugin>
-        </plugins>
     </build>
 
     <repositories>
@@ -120,16 +72,23 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.Epicnicity322</groupId>
+            <groupId>com.github.chrisrnj</groupId>
             <artifactId>EpicPluginLib</artifactId>
-            <version>2.4.1</version>
+            <version>014345df2a</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/io.soabase.record-builder/record-builder-core -->
+        <dependency>
+            <groupId>io.soabase.record-builder</groupId>
+            <artifactId>record-builder-core</artifactId>
+            <version>51</version>
+            <scope>compile</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.jetbrains/annotations -->
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>23.1.0</version>
+            <version>26.0.2-1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
